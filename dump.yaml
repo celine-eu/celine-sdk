@@ -1,0 +1,13 @@
+# Dumpster configuration
+dumps:
+  - name: src
+    #    extensions:
+    #      - .py
+    #      - .md
+    #      - .json
+    #      - .toml
+    contents:
+      - src/**/*.py
+      - tests
+      - README.md
+      - pyproject.toml
