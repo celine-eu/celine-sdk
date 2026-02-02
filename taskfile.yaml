@@ -1,0 +1,13 @@
+version: "3"
+
+tasks:
+  test:
+    desc: "Run tests"
+    cmds:
+      - uv run pytest -- {{.CLI_ARGS}}
+
+  release:
+    cmds:
+      - uv run semantic-release -v version --no-vcs-release
+      - git push
+      - git push --tags
