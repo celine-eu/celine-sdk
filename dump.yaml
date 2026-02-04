@@ -7,7 +7,7 @@ dumps:
     #      - .json
     #      - .toml
     contents:
-      - src/**/*.py
+      - src
       - tests
       - README.md
       - pyproject.toml
