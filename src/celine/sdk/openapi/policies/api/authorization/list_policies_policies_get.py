@@ -5,22 +5,24 @@ import httpx
 
 from ... import errors
 from ...client import AuthenticatedClient, Client
-from ...models.health_response import HealthResponse
+from ...models.response_list_policies_policies_get import ResponseListPoliciesPoliciesGet
 from ...types import Response
 
 
 def _get_kwargs() -> dict[str, Any]:
     _kwargs: dict[str, Any] = {
         "method": "get",
-        "url": "/ready",
+        "url": "/policies",
     }
 
     return _kwargs
 
 
-def _parse_response(*, client: AuthenticatedClient | Client, response: httpx.Response) -> HealthResponse | None:
+def _parse_response(
+    *, client: AuthenticatedClient | Client, response: httpx.Response
+) -> ResponseListPoliciesPoliciesGet | None:
     if response.status_code == 200:
-        response_200 = HealthResponse.from_dict(response.json())
+        response_200 = ResponseListPoliciesPoliciesGet.from_dict(response.json())
 
         return response_200
 
@@ -30,7 +32,9 @@ def _parse_response(*, client: AuthenticatedClient | Client, response: httpx.Res
         return None
 
 
-def _build_response(*, client: AuthenticatedClient | Client, response: httpx.Response) -> Response[HealthResponse]:
+def _build_response(
+    *, client: AuthenticatedClient | Client, response: httpx.Response
+) -> Response[ResponseListPoliciesPoliciesGet]:
     return Response(
         status_code=HTTPStatus(response.status_code),
         content=response.content,
@@ -42,17 +46,17 @@ def _build_response(*, client: AuthenticatedClient | Client, response: httpx.Res
 def sync_detailed(
     *,
     client: AuthenticatedClient | Client,
-) -> Response[HealthResponse]:
-    """Readiness Check
+) -> Response[ResponseListPoliciesPoliciesGet]:
+    """List Policies
 
-     Readiness check.
+     List loaded policy packages (debug/admin endpoint).
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Response[HealthResponse]
+        Response[ResponseListPoliciesPoliciesGet]
     """
 
     kwargs = _get_kwargs()
@@ -67,17 +71,17 @@ def sync_detailed(
 def sync(
     *,
     client: AuthenticatedClient | Client,
-) -> HealthResponse | None:
-    """Readiness Check
+) -> ResponseListPoliciesPoliciesGet | None:
+    """List Policies
 
-     Readiness check.
+     List loaded policy packages (debug/admin endpoint).
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        HealthResponse
+        ResponseListPoliciesPoliciesGet
     """
 
     return sync_detailed(
@@ -88,17 +92,17 @@ def sync(
 async def asyncio_detailed(
     *,
     client: AuthenticatedClient | Client,
-) -> Response[HealthResponse]:
-    """Readiness Check
+) -> Response[ResponseListPoliciesPoliciesGet]:
+    """List Policies
 
-     Readiness check.
+     List loaded policy packages (debug/admin endpoint).
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Response[HealthResponse]
+        Response[ResponseListPoliciesPoliciesGet]
     """
 
     kwargs = _get_kwargs()
@@ -111,17 +115,17 @@ async def asyncio_detailed(
 async def asyncio(
     *,
     client: AuthenticatedClient | Client,
-) -> HealthResponse | None:
-    """Readiness Check
+) -> ResponseListPoliciesPoliciesGet | None:
+    """List Policies
 
-     Readiness check.
+     List loaded policy packages (debug/admin endpoint).
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        HealthResponse
+        ResponseListPoliciesPoliciesGet
     """
 
     return (

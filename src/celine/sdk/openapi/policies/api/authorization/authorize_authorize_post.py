@@ -81,6 +81,20 @@ def sync_detailed(
 ) -> Response[AuthorizeResponse | HTTPValidationError]:
     """Authorize
 
+     Authorize a resource action.
+
+    Policy routing:
+    - Specialized policies are tried first (celine.{resource.type})
+    - Falls back to generic policy (celine.authz) if not found
+
+    Scope derivation (in generic policy):
+        {resource.type}.{resource.attributes.resource_type}.{action.name}
+
+    Examples:
+        - type=dataset → celine.dataset (specialized, has access_level logic)
+        - type=dt, resource_type=simulation, action=read → celine.authz → dt.simulation.read
+        - type=pipeline, resource_type=status, action=write → celine.authz → pipeline.status.write
+
     Args:
         x_request_id (None | str | Unset):
         x_source_service (None | str | Unset):
@@ -121,6 +135,20 @@ def sync(
 ) -> AuthorizeResponse | HTTPValidationError | None:
     """Authorize
 
+     Authorize a resource action.
+
+    Policy routing:
+    - Specialized policies are tried first (celine.{resource.type})
+    - Falls back to generic policy (celine.authz) if not found
+
+    Scope derivation (in generic policy):
+        {resource.type}.{resource.attributes.resource_type}.{action.name}
+
+    Examples:
+        - type=dataset → celine.dataset (specialized, has access_level logic)
+        - type=dt, resource_type=simulation, action=read → celine.authz → dt.simulation.read
+        - type=pipeline, resource_type=status, action=write → celine.authz → pipeline.status.write
+
     Args:
         x_request_id (None | str | Unset):
         x_source_service (None | str | Unset):
@@ -155,6 +183,20 @@ async def asyncio_detailed(
     authorization: None | str | Unset = UNSET,
 ) -> Response[AuthorizeResponse | HTTPValidationError]:
     """Authorize
+
+     Authorize a resource action.
+
+    Policy routing:
+    - Specialized policies are tried first (celine.{resource.type})
+    - Falls back to generic policy (celine.authz) if not found
+
+    Scope derivation (in generic policy):
+        {resource.type}.{resource.attributes.resource_type}.{action.name}
+
+    Examples:
+        - type=dataset → celine.dataset (specialized, has access_level logic)
+        - type=dt, resource_type=simulation, action=read → celine.authz → dt.simulation.read
+        - type=pipeline, resource_type=status, action=write → celine.authz → pipeline.status.write
 
     Args:
         x_request_id (None | str | Unset):
@@ -193,6 +235,20 @@ async def asyncio(
     authorization: None | str | Unset = UNSET,
 ) -> AuthorizeResponse | HTTPValidationError | None:
     """Authorize
+
+     Authorize a resource action.
+
+    Policy routing:
+    - Specialized policies are tried first (celine.{resource.type})
+    - Falls back to generic policy (celine.authz) if not found
+
+    Scope derivation (in generic policy):
+        {resource.type}.{resource.attributes.resource_type}.{action.name}
+
+    Examples:
+        - type=dataset → celine.dataset (specialized, has access_level logic)
+        - type=dt, resource_type=simulation, action=read → celine.authz → dt.simulation.read
+        - type=pipeline, resource_type=status, action=write → celine.authz → pipeline.status.write
 
     Args:
         x_request_id (None | str | Unset):

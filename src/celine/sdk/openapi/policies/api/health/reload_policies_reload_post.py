@@ -49,7 +49,7 @@ def sync_detailed(
 ) -> Response[ResponseReloadPoliciesReloadPost]:
     """Reload Policies
 
-     Reload policies from disk (admin endpoint).
+     Reload policies from disk.
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
@@ -74,7 +74,7 @@ def sync(
 ) -> ResponseReloadPoliciesReloadPost | None:
     """Reload Policies
 
-     Reload policies from disk (admin endpoint).
+     Reload policies from disk.
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
@@ -95,7 +95,7 @@ async def asyncio_detailed(
 ) -> Response[ResponseReloadPoliciesReloadPost]:
     """Reload Policies
 
-     Reload policies from disk (admin endpoint).
+     Reload policies from disk.
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
@@ -118,7 +118,7 @@ async def asyncio(
 ) -> ResponseReloadPoliciesReloadPost | None:
     """Reload Policies
 
-     Reload policies from disk (admin endpoint).
+     Reload policies from disk.
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.

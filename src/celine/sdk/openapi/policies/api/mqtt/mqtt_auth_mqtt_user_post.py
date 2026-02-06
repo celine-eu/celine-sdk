@@ -69,6 +69,8 @@ def sync_detailed(
 ) -> Response[HTTPValidationError | MqttResponse]:
     """Mqtt Auth
 
+     Authenticate MQTT client via JWT.
+
     Args:
         authorization (None | str | Unset):
         x_request_id (None | str | Unset):
@@ -101,6 +103,8 @@ def sync(
 ) -> HTTPValidationError | MqttResponse | None:
     """Mqtt Auth
 
+     Authenticate MQTT client via JWT.
+
     Args:
         authorization (None | str | Unset):
         x_request_id (None | str | Unset):
@@ -127,6 +131,8 @@ async def asyncio_detailed(
     x_request_id: None | str | Unset = UNSET,
 ) -> Response[HTTPValidationError | MqttResponse]:
     """Mqtt Auth
+
+     Authenticate MQTT client via JWT.
 
     Args:
         authorization (None | str | Unset):
@@ -157,6 +163,8 @@ async def asyncio(
     x_request_id: None | str | Unset = UNSET,
 ) -> HTTPValidationError | MqttResponse | None:
     """Mqtt Auth
+
+     Authenticate MQTT client via JWT.
 
     Args:
         authorization (None | str | Unset):

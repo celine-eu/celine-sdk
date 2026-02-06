@@ -28,10 +28,13 @@ def fetch(
     root.mkdir(parents=True, exist_ok=True)
 
     for name, entry in mf.services.items():
-        spec = fetch_spec(entry.openapi)
-        ver = spec_version(spec)
-        path = write_spec(root, name, ver, spec)
-        typer.echo(f"{name}: wrote {path}")
+        try:
+            spec = fetch_spec(entry.openapi)
+            ver = spec_version(spec)
+            path = write_spec(root, name, ver, spec)
+            typer.echo(f"{name}: wrote {path}")
+        except Exception as e:
+            typer.echo(f"{name}: failed to load spec {e}")
 
 
 @spec_app.command("list")

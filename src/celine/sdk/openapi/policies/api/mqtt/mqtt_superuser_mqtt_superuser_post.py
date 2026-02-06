@@ -14,9 +14,13 @@ from ...types import UNSET, Response, Unset
 def _get_kwargs(
     *,
     body: MqttSuperuserRequest,
+    authorization: None | str | Unset = UNSET,
     x_request_id: None | str | Unset = UNSET,
 ) -> dict[str, Any]:
     headers: dict[str, Any] = {}
+    if not isinstance(authorization, Unset):
+        headers["authorization"] = authorization
+
     if not isinstance(x_request_id, Unset):
         headers["x-request-id"] = x_request_id
 
@@ -67,11 +71,15 @@ def sync_detailed(
     *,
     client: AuthenticatedClient | Client,
     body: MqttSuperuserRequest,
+    authorization: None | str | Unset = UNSET,
     x_request_id: None | str | Unset = UNSET,
 ) -> Response[HTTPValidationError | MqttResponse]:
     """Mqtt Superuser
 
+     Check if client is MQTT superuser.
+
     Args:
+        authorization (None | str | Unset):
         x_request_id (None | str | Unset):
         body (MqttSuperuserRequest): MQTT superuser check request.
 
@@ -85,6 +93,7 @@ def sync_detailed(
 
     kwargs = _get_kwargs(
         body=body,
+        authorization=authorization,
         x_request_id=x_request_id,
     )
 
@@ -99,11 +108,15 @@ def sync(
     *,
     client: AuthenticatedClient | Client,
     body: MqttSuperuserRequest,
+    authorization: None | str | Unset = UNSET,
     x_request_id: None | str | Unset = UNSET,
 ) -> HTTPValidationError | MqttResponse | None:
     """Mqtt Superuser
 
+     Check if client is MQTT superuser.
+
     Args:
+        authorization (None | str | Unset):
         x_request_id (None | str | Unset):
         body (MqttSuperuserRequest): MQTT superuser check request.
 
@@ -118,6 +131,7 @@ def sync(
     return sync_detailed(
         client=client,
         body=body,
+        authorization=authorization,
         x_request_id=x_request_id,
     ).parsed
 
@@ -126,11 +140,15 @@ async def asyncio_detailed(
     *,
     client: AuthenticatedClient | Client,
     body: MqttSuperuserRequest,
+    authorization: None | str | Unset = UNSET,
     x_request_id: None | str | Unset = UNSET,
 ) -> Response[HTTPValidationError | MqttResponse]:
     """Mqtt Superuser
 
+     Check if client is MQTT superuser.
+
     Args:
+        authorization (None | str | Unset):
         x_request_id (None | str | Unset):
         body (MqttSuperuserRequest): MQTT superuser check request.
 
@@ -144,6 +162,7 @@ async def asyncio_detailed(
 
     kwargs = _get_kwargs(
         body=body,
+        authorization=authorization,
         x_request_id=x_request_id,
     )
 
@@ -156,11 +175,15 @@ async def asyncio(
     *,
     client: AuthenticatedClient | Client,
     body: MqttSuperuserRequest,
+    authorization: None | str | Unset = UNSET,
     x_request_id: None | str | Unset = UNSET,
 ) -> HTTPValidationError | MqttResponse | None:
     """Mqtt Superuser
 
+     Check if client is MQTT superuser.
+
     Args:
+        authorization (None | str | Unset):
         x_request_id (None | str | Unset):
         body (MqttSuperuserRequest): MQTT superuser check request.
 
@@ -176,6 +199,7 @@ async def asyncio(
         await asyncio_detailed(
             client=client,
             body=body,
+            authorization=authorization,
             x_request_id=x_request_id,
         )
     ).parsed

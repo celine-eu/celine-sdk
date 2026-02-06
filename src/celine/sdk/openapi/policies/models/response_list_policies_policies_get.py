@@ -6,54 +6,28 @@ from typing import Any, TypeVar
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
 
-from ..models.dataset_filter_request_access_level import DatasetFilterRequestAccessLevel
-
-T = TypeVar("T", bound="DatasetFilterRequest")
+T = TypeVar("T", bound="ResponseListPoliciesPoliciesGet")
 
 
 @_attrs_define
-class DatasetFilterRequest:
-    """Request to get row-level filters for a dataset.
+class ResponseListPoliciesPoliciesGet:
+    """ """
 
-    Attributes:
-        access_level (DatasetFilterRequestAccessLevel): Dataset access level
-        dataset_id (str): Dataset identifier
-    """
-
-    access_level: DatasetFilterRequestAccessLevel
-    dataset_id: str
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
-        access_level = self.access_level.value
-
-        dataset_id = self.dataset_id
-
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
-        field_dict.update(
-            {
-                "access_level": access_level,
-                "dataset_id": dataset_id,
-            }
-        )
 
         return field_dict
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
         d = dict(src_dict)
-        access_level = DatasetFilterRequestAccessLevel(d.pop("access_level"))
+        response_list_policies_policies_get = cls()
 
-        dataset_id = d.pop("dataset_id")
-
-        dataset_filter_request = cls(
-            access_level=access_level,
-            dataset_id=dataset_id,
-        )
-
-        dataset_filter_request.additional_properties = d
-        return dataset_filter_request
+        response_list_policies_policies_get.additional_properties = d
+        return response_list_policies_policies_get
 
     @property
     def additional_keys(self) -> list[str]:

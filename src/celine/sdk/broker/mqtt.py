@@ -310,14 +310,11 @@ class MqttBroker(BrokerBase):
             await self._connect_internal()
 
     async def disconnect(self) -> None:
-        """
-        Disconnect from the MQTT broker.
-
-        Gracefully closes the connection and cancels all subscriptions.
-        """
         async with self._lock:
+            self._connected = False
+
             # Cancel token refresh
-            if self._token_refresh_task:
+            if self._token_refresh_task and not self._token_refresh_task.done():
                 self._token_refresh_task.cancel()
                 try:
                     await self._token_refresh_task
@@ -325,11 +322,17 @@ class MqttBroker(BrokerBase):
                     pass
                 self._token_refresh_task = None
 
-            # Clear subscriptions
-            self._subscriptions.clear()
+            # Cancel listener
+            if self._listener_task and not self._listener_task.done():
+                self._listener_task.cancel()
+                try:
+                    await self._listener_task
+                except asyncio.CancelledError:
+                    pass
+                self._listener_task = None
 
+            self._subscriptions.clear()
             await self._disconnect_internal()
-            logger.info("Disconnected from MQTT broker")
 
     async def publish(self, message: BrokerMessage) -> PublishResult:
         """

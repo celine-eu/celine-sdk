@@ -45,7 +45,7 @@ def sync_detailed(
 ) -> Response[HealthResponse]:
     """Health Check
 
-     Liveness check - is the service running?
+     Liveness check.
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
@@ -70,7 +70,7 @@ def sync(
 ) -> HealthResponse | None:
     """Health Check
 
-     Liveness check - is the service running?
+     Liveness check.
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
@@ -91,7 +91,7 @@ async def asyncio_detailed(
 ) -> Response[HealthResponse]:
     """Health Check
 
-     Liveness check - is the service running?
+     Liveness check.
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
@@ -114,7 +114,7 @@ async def asyncio(
 ) -> HealthResponse | None:
     """Health Check
 
-     Liveness check - is the service running?
+     Liveness check.
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.

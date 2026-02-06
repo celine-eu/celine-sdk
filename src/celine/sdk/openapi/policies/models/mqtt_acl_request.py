@@ -6,60 +6,68 @@ from typing import Any, TypeVar
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
 
-T = TypeVar("T", bound="FilterPredicate")
+from ..types import UNSET, Unset
+
+T = TypeVar("T", bound="MqttAclRequest")
 
 
 @_attrs_define
-class FilterPredicate:
-    """A filter predicate for row-level access control.
+class MqttAclRequest:
+    """MQTT ACL check request (mosquitto-go-auth format).
 
-    Attributes:
-        field (str): Field to filter on
-        operator (str): Comparison operator (eq, ne, in, gt, lt, etc.)
-        value (Any): Value to compare against
+    mosquitto ACL checks use a bitmask:
+    - MOSQ_ACL_READ      0x01
+    - MOSQ_ACL_WRITE     0x02
+    - MOSQ_ACL_SUBSCRIBE 0x04
+
+        Attributes:
+            acc (int): Access mask (READ|WRITE|SUBSCRIBE)
+            topic (str): MQTT topic
+            clientid (str | Unset): MQTT client ID Default: ''.
     """
 
-    field: str
-    operator: str
-    value: Any
+    acc: int
+    topic: str
+    clientid: str | Unset = ""
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
-        field = self.field
+        acc = self.acc
 
-        operator = self.operator
+        topic = self.topic
 
-        value = self.value
+        clientid = self.clientid
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update(
             {
-                "field": field,
-                "operator": operator,
-                "value": value,
+                "acc": acc,
+                "topic": topic,
             }
         )
+        if clientid is not UNSET:
+            field_dict["clientid"] = clientid
 
         return field_dict
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
         d = dict(src_dict)
-        field = d.pop("field")
+        acc = d.pop("acc")
 
-        operator = d.pop("operator")
+        topic = d.pop("topic")
 
-        value = d.pop("value")
+        clientid = d.pop("clientid", UNSET)
 
-        filter_predicate = cls(
-            field=field,
-            operator=operator,
-            value=value,
+        mqtt_acl_request = cls(
+            acc=acc,
+            topic=topic,
+            clientid=clientid,
         )
 
-        filter_predicate.additional_properties = d
-        return filter_predicate
+        mqtt_acl_request.additional_properties = d
+        return mqtt_acl_request
 
     @property
     def additional_keys(self) -> list[str]:

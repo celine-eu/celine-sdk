@@ -6,15 +6,21 @@ import httpx
 from ... import errors
 from ...client import AuthenticatedClient, Client
 from ...models.http_validation_error import HTTPValidationError
+from ...models.mqtt_acl_request import MqttAclRequest
 from ...models.mqtt_response import MqttResponse
 from ...types import UNSET, Response, Unset
 
 
 def _get_kwargs(
     *,
+    body: MqttAclRequest,
+    authorization: None | str | Unset = UNSET,
     x_request_id: None | str | Unset = UNSET,
 ) -> dict[str, Any]:
     headers: dict[str, Any] = {}
+    if not isinstance(authorization, Unset):
+        headers["authorization"] = authorization
+
     if not isinstance(x_request_id, Unset):
         headers["x-request-id"] = x_request_id
 
@@ -22,6 +28,10 @@ def _get_kwargs(
         "method": "post",
         "url": "/mqtt/acl",
     }
+
+    _kwargs["json"] = body.to_dict()
+
+    headers["Content-Type"] = "application/json"
 
     _kwargs["headers"] = headers
     return _kwargs
@@ -60,12 +70,23 @@ def _build_response(
 def sync_detailed(
     *,
     client: AuthenticatedClient | Client,
+    body: MqttAclRequest,
+    authorization: None | str | Unset = UNSET,
     x_request_id: None | str | Unset = UNSET,
 ) -> Response[HTTPValidationError | MqttResponse]:
     """Mqtt Acl
 
+     Authorize MQTT topic access.
+
     Args:
+        authorization (None | str | Unset):
         x_request_id (None | str | Unset):
+        body (MqttAclRequest): MQTT ACL check request (mosquitto-go-auth format).
+
+            mosquitto ACL checks use a bitmask:
+            - MOSQ_ACL_READ      0x01
+            - MOSQ_ACL_WRITE     0x02
+            - MOSQ_ACL_SUBSCRIBE 0x04
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
@@ -76,6 +97,8 @@ def sync_detailed(
     """
 
     kwargs = _get_kwargs(
+        body=body,
+        authorization=authorization,
         x_request_id=x_request_id,
     )
 
@@ -89,12 +112,23 @@ def sync_detailed(
 def sync(
     *,
     client: AuthenticatedClient | Client,
+    body: MqttAclRequest,
+    authorization: None | str | Unset = UNSET,
     x_request_id: None | str | Unset = UNSET,
 ) -> HTTPValidationError | MqttResponse | None:
     """Mqtt Acl
 
+     Authorize MQTT topic access.
+
     Args:
+        authorization (None | str | Unset):
         x_request_id (None | str | Unset):
+        body (MqttAclRequest): MQTT ACL check request (mosquitto-go-auth format).
+
+            mosquitto ACL checks use a bitmask:
+            - MOSQ_ACL_READ      0x01
+            - MOSQ_ACL_WRITE     0x02
+            - MOSQ_ACL_SUBSCRIBE 0x04
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
@@ -106,6 +140,8 @@ def sync(
 
     return sync_detailed(
         client=client,
+        body=body,
+        authorization=authorization,
         x_request_id=x_request_id,
     ).parsed
 
@@ -113,12 +149,23 @@ def sync(
 async def asyncio_detailed(
     *,
     client: AuthenticatedClient | Client,
+    body: MqttAclRequest,
+    authorization: None | str | Unset = UNSET,
     x_request_id: None | str | Unset = UNSET,
 ) -> Response[HTTPValidationError | MqttResponse]:
     """Mqtt Acl
 
+     Authorize MQTT topic access.
+
     Args:
+        authorization (None | str | Unset):
         x_request_id (None | str | Unset):
+        body (MqttAclRequest): MQTT ACL check request (mosquitto-go-auth format).
+
+            mosquitto ACL checks use a bitmask:
+            - MOSQ_ACL_READ      0x01
+            - MOSQ_ACL_WRITE     0x02
+            - MOSQ_ACL_SUBSCRIBE 0x04
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
@@ -129,6 +176,8 @@ async def asyncio_detailed(
     """
 
     kwargs = _get_kwargs(
+        body=body,
+        authorization=authorization,
         x_request_id=x_request_id,
     )
 
@@ -140,12 +189,23 @@ async def asyncio_detailed(
 async def asyncio(
     *,
     client: AuthenticatedClient | Client,
+    body: MqttAclRequest,
+    authorization: None | str | Unset = UNSET,
     x_request_id: None | str | Unset = UNSET,
 ) -> HTTPValidationError | MqttResponse | None:
     """Mqtt Acl
 
+     Authorize MQTT topic access.
+
     Args:
+        authorization (None | str | Unset):
         x_request_id (None | str | Unset):
+        body (MqttAclRequest): MQTT ACL check request (mosquitto-go-auth format).
+
+            mosquitto ACL checks use a bitmask:
+            - MOSQ_ACL_READ      0x01
+            - MOSQ_ACL_WRITE     0x02
+            - MOSQ_ACL_SUBSCRIBE 0x04
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
@@ -158,6 +218,8 @@ async def asyncio(
     return (
         await asyncio_detailed(
             client=client,
+            body=body,
+            authorization=authorization,
             x_request_id=x_request_id,
         )
     ).parsed

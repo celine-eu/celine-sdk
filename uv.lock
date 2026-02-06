@@ -51,6 +51,7 @@ version = "1.0.1"
 source = { editable = "." }
 dependencies = [
     { name = "aiomqtt" },
+    { name = "attrs" },
     { name = "httpx" },
     { name = "pydantic" },
     { name = "pydantic-settings" },
@@ -70,6 +71,7 @@ dev = [
 [package.metadata]
 requires-dist = [
     { name = "aiomqtt", specifier = ">=2.5.0" },
+    { name = "attrs", specifier = ">=25.4.0" },
     { name = "httpx", specifier = ">=0.28.1" },
     { name = "pydantic", specifier = ">=2.12.5" },
     { name = "pydantic-settings", specifier = ">=2.12.0" },
