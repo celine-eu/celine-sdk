@@ -1,62 +1,33 @@
 from __future__ import annotations
 
 from collections.abc import Mapping
-from typing import TYPE_CHECKING, Any, TypeVar
+from typing import Any, TypeVar
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
 
-from ..types import UNSET, Unset
-
-if TYPE_CHECKING:
-    from ..models.payload import Payload
-
-
-T = TypeVar("T", bound="ValuesRequest")
+T = TypeVar("T", bound="ItParticipantListSimulationsResponse200Item")
 
 
 @_attrs_define
-class ValuesRequest:
-    """POST body for the values API.
+class ItParticipantListSimulationsResponse200Item:
+    """ """
 
-    Attributes:
-        payload (Payload | Unset):
-    """
-
-    payload: Payload | Unset = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
-        payload: dict[str, Any] | Unset = UNSET
-        if not isinstance(self.payload, Unset):
-            payload = self.payload.to_dict()
-
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
-        field_dict.update({})
-        if payload is not UNSET:
-            field_dict["payload"] = payload
 
         return field_dict
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
-        from ..models.payload import Payload
-
         d = dict(src_dict)
-        _payload = d.pop("payload", UNSET)
-        payload: Payload | Unset
-        if isinstance(_payload, Unset):
-            payload = UNSET
-        else:
-            payload = Payload.from_dict(_payload)
+        it_participant_list_simulations_response_200_item = cls()
 
-        values_request = cls(
-            payload=payload,
-        )
-
-        values_request.additional_properties = d
-        return values_request
+        it_participant_list_simulations_response_200_item.additional_properties = d
+        return it_participant_list_simulations_response_200_item
 
     @property
     def additional_keys(self) -> list[str]:

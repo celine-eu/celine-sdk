@@ -11,3 +11,8 @@ tasks:
       - uv run semantic-release -v version --no-vcs-release
       - git push
       - git push --tags
+
+  gen:
+    cmds:
+      - uv run celine-sdk spec fetch
+      - uv run celine-sdk generate

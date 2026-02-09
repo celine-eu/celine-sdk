@@ -1,4 +1,4 @@
-"""A client library for accessing CELINE DT"""
+"""A client library for accessing CELINE Digital Twin"""
 
 from .client import AuthenticatedClient, Client
 

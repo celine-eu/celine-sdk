@@ -1,0 +1,1058 @@
+{
+  "components": {
+    "schemas": {
+      "HTTPValidationError": {
+        "properties": {
+          "detail": {
+            "items": {
+              "$ref": "#/components/schemas/ValidationError"
+            },
+            "title": "Detail",
+            "type": "array"
+          }
+        },
+        "title": "HTTPValidationError",
+        "type": "object"
+      },
+      "ValidationError": {
+        "properties": {
+          "loc": {
+            "items": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "integer"
+                }
+              ]
+            },
+            "title": "Location",
+            "type": "array"
+          },
+          "msg": {
+            "title": "Message",
+            "type": "string"
+          },
+          "type": {
+            "title": "Error Type",
+            "type": "string"
+          }
+        },
+        "required": [
+          "loc",
+          "msg",
+          "type"
+        ],
+        "title": "ValidationError",
+        "type": "object"
+      },
+      "ValuesRequest": {
+        "description": "POST body for the values API.",
+        "properties": {
+          "payload": {
+            "additionalProperties": true,
+            "title": "Payload",
+            "type": "object"
+          }
+        },
+        "title": "ValuesRequest",
+        "type": "object"
+      }
+    }
+  },
+  "info": {
+    "description": "Domain-driven Digital Twin runtime",
+    "title": "CELINE Digital Twin",
+    "version": "2.0.0"
+  },
+  "openapi": "3.1.0",
+  "paths": {
+    "/communities/it/{community_id}": {
+      "get": {
+        "description": "Describe available capabilities for this entity.",
+        "operationId": "it_energy_community_info",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "community_id",
+            "required": true,
+            "schema": {
+              "title": "Community Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "title": "Response It Energy Community Info",
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Info",
+        "tags": [
+          "it-energy-community"
+        ]
+      }
+    },
+    "/communities/it/{community_id}/energy-balance": {
+      "get": {
+        "description": "Compute current energy balance for the community.\n\nThis is a sample custom endpoint. A real implementation would\nfetch consumption + generation timeseries and compute metrics.",
+        "operationId": "energy_balance_communities_it__community_id__energy_balance_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "community_id",
+            "required": true,
+            "schema": {
+              "title": "Community Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "start",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Start"
+            }
+          },
+          {
+            "in": "query",
+            "name": "end",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "End"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "title": "Response Energy Balance Communities It  Community Id  Energy Balance Get",
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Energy Balance",
+        "tags": [
+          "it-energy-community"
+        ]
+      }
+    },
+    "/communities/it/{community_id}/simulations": {
+      "get": {
+        "description": "List simulations available for this entity.",
+        "operationId": "it_energy_community_list_simulations",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "community_id",
+            "required": true,
+            "schema": {
+              "title": "Community Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "additionalProperties": true,
+                    "type": "object"
+                  },
+                  "title": "Response It Energy Community List Simulations",
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "List Simulations",
+        "tags": [
+          "it-energy-community"
+        ]
+      }
+    },
+    "/communities/it/{community_id}/simulations/{sim_key}/describe": {
+      "get": {
+        "description": "Describe a simulation's parameters and configuration.",
+        "operationId": "it_energy_community_describe_simulation",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "sim_key",
+            "required": true,
+            "schema": {
+              "title": "Sim Key",
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "community_id",
+            "required": true,
+            "schema": {
+              "title": "Community Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "title": "Response It Energy Community Describe Simulation",
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Describe Simulation",
+        "tags": [
+          "it-energy-community"
+        ]
+      }
+    },
+    "/communities/it/{community_id}/summary": {
+      "get": {
+        "description": "High-level community summary.",
+        "operationId": "community_summary_communities_it__community_id__summary_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "community_id",
+            "required": true,
+            "schema": {
+              "title": "Community Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "title": "Response Community Summary Communities It  Community Id  Summary Get",
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Community Summary",
+        "tags": [
+          "it-energy-community"
+        ]
+      }
+    },
+    "/communities/it/{community_id}/values": {
+      "get": {
+        "description": "List value fetchers available for this entity.",
+        "operationId": "it_energy_community_list_values",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "community_id",
+            "required": true,
+            "schema": {
+              "title": "Community Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "additionalProperties": true,
+                    "type": "object"
+                  },
+                  "title": "Response It Energy Community List Values",
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "List Values",
+        "tags": [
+          "it-energy-community"
+        ]
+      }
+    },
+    "/communities/it/{community_id}/values/{fetcher_id}": {
+      "get": {
+        "description": "Fetch a value using query-string parameters as payload.",
+        "operationId": "it_energy_community_get_value",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "fetcher_id",
+            "required": true,
+            "schema": {
+              "title": "Fetcher Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "community_id",
+            "required": true,
+            "schema": {
+              "title": "Community Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "title": "Response It Energy Community Get Value",
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Get Value",
+        "tags": [
+          "it-energy-community"
+        ]
+      },
+      "post": {
+        "description": "Fetch a value using a JSON payload.",
+        "operationId": "it_energy_community_post_value",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "fetcher_id",
+            "required": true,
+            "schema": {
+              "title": "Fetcher Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "community_id",
+            "required": true,
+            "schema": {
+              "title": "Community Id",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ValuesRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "title": "Response It Energy Community Post Value",
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Post Value",
+        "tags": [
+          "it-energy-community"
+        ]
+      }
+    },
+    "/communities/it/{community_id}/values/{fetcher_id}/describe": {
+      "get": {
+        "description": "Describe a value fetcher's schema and metadata.",
+        "operationId": "it_energy_community_describe_value",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "fetcher_id",
+            "required": true,
+            "schema": {
+              "title": "Fetcher Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "community_id",
+            "required": true,
+            "schema": {
+              "title": "Community Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "title": "Response It Energy Community Describe Value",
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Describe Value",
+        "tags": [
+          "it-energy-community"
+        ]
+      }
+    },
+    "/domains": {
+      "get": {
+        "description": "Discover all registered domains and their capabilities.",
+        "operationId": "list_domains_domains_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "additionalProperties": true,
+                    "type": "object"
+                  },
+                  "title": "Response List Domains Domains Get",
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "summary": "List Domains"
+      }
+    },
+    "/health": {
+      "get": {
+        "operationId": "health_health_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "title": "Response Health Health Get",
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "summary": "Health"
+      }
+    },
+    "/participants/{participant_id}": {
+      "get": {
+        "description": "Describe available capabilities for this entity.",
+        "operationId": "it_participant_info",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "participant_id",
+            "required": true,
+            "schema": {
+              "title": "Participant Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "title": "Response It Participant Info",
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Info",
+        "tags": [
+          "it-participant"
+        ]
+      }
+    },
+    "/participants/{participant_id}/flexibility": {
+      "get": {
+        "description": "Flexibility assessment for demand response.\n\nPlaceholder for real flexibility computation.",
+        "operationId": "flexibility_participants__participant_id__flexibility_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "participant_id",
+            "required": true,
+            "schema": {
+              "title": "Participant Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "title": "Response Flexibility Participants  Participant Id  Flexibility Get",
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Flexibility",
+        "tags": [
+          "it-participant"
+        ]
+      }
+    },
+    "/participants/{participant_id}/profile": {
+      "get": {
+        "description": "Participant profile and metadata.",
+        "operationId": "participant_profile_participants__participant_id__profile_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "participant_id",
+            "required": true,
+            "schema": {
+              "title": "Participant Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "title": "Response Participant Profile Participants  Participant Id  Profile Get",
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Participant Profile",
+        "tags": [
+          "it-participant"
+        ]
+      }
+    },
+    "/participants/{participant_id}/simulations": {
+      "get": {
+        "description": "List simulations available for this entity.",
+        "operationId": "it_participant_list_simulations",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "participant_id",
+            "required": true,
+            "schema": {
+              "title": "Participant Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "additionalProperties": true,
+                    "type": "object"
+                  },
+                  "title": "Response It Participant List Simulations",
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "List Simulations",
+        "tags": [
+          "it-participant"
+        ]
+      }
+    },
+    "/participants/{participant_id}/simulations/{sim_key}/describe": {
+      "get": {
+        "description": "Describe a simulation's parameters and configuration.",
+        "operationId": "it_participant_describe_simulation",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "sim_key",
+            "required": true,
+            "schema": {
+              "title": "Sim Key",
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "participant_id",
+            "required": true,
+            "schema": {
+              "title": "Participant Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "title": "Response It Participant Describe Simulation",
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Describe Simulation",
+        "tags": [
+          "it-participant"
+        ]
+      }
+    },
+    "/participants/{participant_id}/values": {
+      "get": {
+        "description": "List value fetchers available for this entity.",
+        "operationId": "it_participant_list_values",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "participant_id",
+            "required": true,
+            "schema": {
+              "title": "Participant Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "additionalProperties": true,
+                    "type": "object"
+                  },
+                  "title": "Response It Participant List Values",
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "List Values",
+        "tags": [
+          "it-participant"
+        ]
+      }
+    },
+    "/participants/{participant_id}/values/{fetcher_id}": {
+      "get": {
+        "description": "Fetch a value using query-string parameters as payload.",
+        "operationId": "it_participant_get_value",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "fetcher_id",
+            "required": true,
+            "schema": {
+              "title": "Fetcher Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "participant_id",
+            "required": true,
+            "schema": {
+              "title": "Participant Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "title": "Response It Participant Get Value",
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Get Value",
+        "tags": [
+          "it-participant"
+        ]
+      },
+      "post": {
+        "description": "Fetch a value using a JSON payload.",
+        "operationId": "it_participant_post_value",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "fetcher_id",
+            "required": true,
+            "schema": {
+              "title": "Fetcher Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "participant_id",
+            "required": true,
+            "schema": {
+              "title": "Participant Id",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ValuesRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "title": "Response It Participant Post Value",
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Post Value",
+        "tags": [
+          "it-participant"
+        ]
+      }
+    },
+    "/participants/{participant_id}/values/{fetcher_id}/describe": {
+      "get": {
+        "description": "Describe a value fetcher's schema and metadata.",
+        "operationId": "it_participant_describe_value",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "fetcher_id",
+            "required": true,
+            "schema": {
+              "title": "Fetcher Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "participant_id",
+            "required": true,
+            "schema": {
+              "title": "Participant Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "title": "Response It Participant Describe Value",
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Describe Value",
+        "tags": [
+          "it-participant"
+        ]
+      }
+    }
+  }
+}

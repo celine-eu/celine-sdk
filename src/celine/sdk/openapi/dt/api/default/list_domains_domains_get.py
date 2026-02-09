@@ -5,14 +5,14 @@ import httpx
 
 from ... import errors
 from ...client import AuthenticatedClient, Client
-from ...models.response_health_health_get import ResponseHealthHealthGet
+from ...models.list_domains_domains_get_response_200_item import ListDomainsDomainsGetResponse200Item
 from ...types import Response
 
 
 def _get_kwargs() -> dict[str, Any]:
     _kwargs: dict[str, Any] = {
         "method": "get",
-        "url": "/health",
+        "url": "/domains",
     }
 
     return _kwargs
@@ -20,9 +20,14 @@ def _get_kwargs() -> dict[str, Any]:
 
 def _parse_response(
     *, client: AuthenticatedClient | Client, response: httpx.Response
-) -> ResponseHealthHealthGet | None:
+) -> list[ListDomainsDomainsGetResponse200Item] | None:
     if response.status_code == 200:
-        response_200 = ResponseHealthHealthGet.from_dict(response.json())
+        response_200 = []
+        _response_200 = response.json()
+        for response_200_item_data in _response_200:
+            response_200_item = ListDomainsDomainsGetResponse200Item.from_dict(response_200_item_data)
+
+            response_200.append(response_200_item)
 
         return response_200
 
@@ -34,7 +39,7 @@ def _parse_response(
 
 def _build_response(
     *, client: AuthenticatedClient | Client, response: httpx.Response
-) -> Response[ResponseHealthHealthGet]:
+) -> Response[list[ListDomainsDomainsGetResponse200Item]]:
     return Response(
         status_code=HTTPStatus(response.status_code),
         content=response.content,
@@ -46,15 +51,17 @@ def _build_response(
 def sync_detailed(
     *,
     client: AuthenticatedClient | Client,
-) -> Response[ResponseHealthHealthGet]:
-    """Health
+) -> Response[list[ListDomainsDomainsGetResponse200Item]]:
+    """List Domains
+
+     Discover all registered domains and their capabilities.
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Response[ResponseHealthHealthGet]
+        Response[list[ListDomainsDomainsGetResponse200Item]]
     """
 
     kwargs = _get_kwargs()
@@ -69,15 +76,17 @@ def sync_detailed(
 def sync(
     *,
     client: AuthenticatedClient | Client,
-) -> ResponseHealthHealthGet | None:
-    """Health
+) -> list[ListDomainsDomainsGetResponse200Item] | None:
+    """List Domains
+
+     Discover all registered domains and their capabilities.
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        ResponseHealthHealthGet
+        list[ListDomainsDomainsGetResponse200Item]
     """
 
     return sync_detailed(
@@ -88,15 +97,17 @@ def sync(
 async def asyncio_detailed(
     *,
     client: AuthenticatedClient | Client,
-) -> Response[ResponseHealthHealthGet]:
-    """Health
+) -> Response[list[ListDomainsDomainsGetResponse200Item]]:
+    """List Domains
+
+     Discover all registered domains and their capabilities.
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Response[ResponseHealthHealthGet]
+        Response[list[ListDomainsDomainsGetResponse200Item]]
     """
 
     kwargs = _get_kwargs()
@@ -109,15 +120,17 @@ async def asyncio_detailed(
 async def asyncio(
     *,
     client: AuthenticatedClient | Client,
-) -> ResponseHealthHealthGet | None:
-    """Health
+) -> list[ListDomainsDomainsGetResponse200Item] | None:
+    """List Domains
+
+     Discover all registered domains and their capabilities.
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        ResponseHealthHealthGet
+        list[ListDomainsDomainsGetResponse200Item]
     """
 
     return (
