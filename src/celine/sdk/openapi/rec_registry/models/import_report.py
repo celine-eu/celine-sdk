@@ -18,14 +18,13 @@ T = TypeVar("T", bound="ImportReport")
 
 @_attrs_define
 class ImportReport:
-    """Result of a replacement import operation.
-    Returned by /admin/import and used by CLI.
+    """Import operation report.
 
-        Attributes:
-            community_key (str):
-            deleted (Deleted | Unset):
-            inserted (Inserted | Unset):
-            warnings (list[str] | Unset):
+    Attributes:
+        community_key (str):
+        deleted (Deleted | Unset):
+        inserted (Inserted | Unset):
+        warnings (list[str] | Unset):
     """
 
     community_key: str

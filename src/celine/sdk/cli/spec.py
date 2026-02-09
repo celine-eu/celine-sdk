@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from pathlib import Path
+import shutil
 
 import typer
 
@@ -21,10 +22,20 @@ def fetch(
     manifest_path: str = typer.Argument(
         default=Path("./services.yaml"), help="Path to services.yaml"
     ),
+    clean: bool = typer.Option(
+        False,
+        "--clean",
+        help="Clean destination folder",
+    ),
     out_dir: str = typer.Option("openapi", help="Output directory"),
 ) -> None:
     mf = load_manifest(manifest_path)
     root = Path(out_dir)
+
+    if root.exists() and clean:
+        typer.echo(f"Removing output dir {root}")
+        shutil.rmtree(out_dir)
+
     root.mkdir(parents=True, exist_ok=True)
 
     for name, entry in mf.services.items():

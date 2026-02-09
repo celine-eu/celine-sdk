@@ -64,8 +64,12 @@ def sync_detailed(
 ) -> Response[HTTPValidationError | str]:
     """Admin Export
 
+     Export a community to v0.4 YAML format.
+
+    Returns the complete registry bundle as YAML text.
+
     Args:
-        community (str): Community key
+        community (str): Community key to export
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
@@ -93,8 +97,12 @@ def sync(
 ) -> HTTPValidationError | str | None:
     """Admin Export
 
+     Export a community to v0.4 YAML format.
+
+    Returns the complete registry bundle as YAML text.
+
     Args:
-        community (str): Community key
+        community (str): Community key to export
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
@@ -117,8 +125,12 @@ async def asyncio_detailed(
 ) -> Response[HTTPValidationError | str]:
     """Admin Export
 
+     Export a community to v0.4 YAML format.
+
+    Returns the complete registry bundle as YAML text.
+
     Args:
-        community (str): Community key
+        community (str): Community key to export
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
@@ -144,8 +156,12 @@ async def asyncio(
 ) -> HTTPValidationError | str | None:
     """Admin Export
 
+     Export a community to v0.4 YAML format.
+
+    Returns the complete registry bundle as YAML text.
+
     Args:
-        community (str): Community key
+        community (str): Community key to export
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.

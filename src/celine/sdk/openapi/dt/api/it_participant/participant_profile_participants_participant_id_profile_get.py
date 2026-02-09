@@ -10,12 +10,18 @@ from ...models.http_validation_error import HTTPValidationError
 from ...models.response_participant_profile_participants_participant_id_profile_get import (
     ResponseParticipantProfileParticipantsParticipantIdProfileGet,
 )
-from ...types import Response
+from ...types import UNSET, Response, Unset
 
 
 def _get_kwargs(
     participant_id: str,
+    *,
+    authorization: None | str | Unset = UNSET,
 ) -> dict[str, Any]:
+    headers: dict[str, Any] = {}
+    if not isinstance(authorization, Unset):
+        headers["authorization"] = authorization
+
     _kwargs: dict[str, Any] = {
         "method": "get",
         "url": "/participants/{participant_id}/profile".format(
@@ -23,6 +29,7 @@ def _get_kwargs(
         ),
     }
 
+    _kwargs["headers"] = headers
     return _kwargs
 
 
@@ -60,13 +67,17 @@ def sync_detailed(
     participant_id: str,
     *,
     client: AuthenticatedClient | Client,
+    authorization: None | str | Unset = UNSET,
 ) -> Response[HTTPValidationError | ResponseParticipantProfileParticipantsParticipantIdProfileGet]:
     """Participant Profile
 
-     Participant profile and metadata.
+     Get participant profile from registry.
+
+    Returns enriched profile with member and community details.
 
     Args:
         participant_id (str):
+        authorization (None | str | Unset):
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
@@ -78,6 +89,7 @@ def sync_detailed(
 
     kwargs = _get_kwargs(
         participant_id=participant_id,
+        authorization=authorization,
     )
 
     response = client.get_httpx_client().request(
@@ -91,13 +103,17 @@ def sync(
     participant_id: str,
     *,
     client: AuthenticatedClient | Client,
+    authorization: None | str | Unset = UNSET,
 ) -> HTTPValidationError | ResponseParticipantProfileParticipantsParticipantIdProfileGet | None:
     """Participant Profile
 
-     Participant profile and metadata.
+     Get participant profile from registry.
+
+    Returns enriched profile with member and community details.
 
     Args:
         participant_id (str):
+        authorization (None | str | Unset):
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
@@ -110,6 +126,7 @@ def sync(
     return sync_detailed(
         participant_id=participant_id,
         client=client,
+        authorization=authorization,
     ).parsed
 
 
@@ -117,13 +134,17 @@ async def asyncio_detailed(
     participant_id: str,
     *,
     client: AuthenticatedClient | Client,
+    authorization: None | str | Unset = UNSET,
 ) -> Response[HTTPValidationError | ResponseParticipantProfileParticipantsParticipantIdProfileGet]:
     """Participant Profile
 
-     Participant profile and metadata.
+     Get participant profile from registry.
+
+    Returns enriched profile with member and community details.
 
     Args:
         participant_id (str):
+        authorization (None | str | Unset):
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
@@ -135,6 +156,7 @@ async def asyncio_detailed(
 
     kwargs = _get_kwargs(
         participant_id=participant_id,
+        authorization=authorization,
     )
 
     response = await client.get_async_httpx_client().request(**kwargs)
@@ -146,13 +168,17 @@ async def asyncio(
     participant_id: str,
     *,
     client: AuthenticatedClient | Client,
+    authorization: None | str | Unset = UNSET,
 ) -> HTTPValidationError | ResponseParticipantProfileParticipantsParticipantIdProfileGet | None:
     """Participant Profile
 
-     Participant profile and metadata.
+     Get participant profile from registry.
+
+    Returns enriched profile with member and community details.
 
     Args:
         participant_id (str):
+        authorization (None | str | Unset):
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
@@ -166,5 +192,6 @@ async def asyncio(
         await asyncio_detailed(
             participant_id=participant_id,
             client=client,
+            authorization=authorization,
         )
     ).parsed

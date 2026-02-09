@@ -1,0 +1,2856 @@
+{
+  "components": {
+    "schemas": {
+      "AreaIn": {
+        "additionalProperties": true,
+        "description": "Community area definition.",
+        "properties": {
+          "location": {
+            "$ref": "#/components/schemas/LocationIn"
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          }
+        },
+        "required": [
+          "name",
+          "location"
+        ],
+        "title": "AreaIn",
+        "type": "object"
+      },
+      "AssetCollectionIn": {
+        "additionalProperties": true,
+        "description": "Collection of assets organized by type.",
+        "properties": {
+          "ev_charger": {
+            "additionalProperties": {
+              "$ref": "#/components/schemas/EVChargerAssetIn"
+            },
+            "title": "Ev Charger",
+            "type": "object"
+          },
+          "heat_pump": {
+            "additionalProperties": {
+              "$ref": "#/components/schemas/HeatPumpAssetIn"
+            },
+            "title": "Heat Pump",
+            "type": "object"
+          },
+          "load": {
+            "additionalProperties": {
+              "$ref": "#/components/schemas/LoadAssetIn"
+            },
+            "title": "Load",
+            "type": "object"
+          },
+          "meter": {
+            "additionalProperties": {
+              "$ref": "#/components/schemas/MeterAssetIn"
+            },
+            "title": "Meter",
+            "type": "object"
+          },
+          "pv": {
+            "additionalProperties": {
+              "$ref": "#/components/schemas/PVAssetIn"
+            },
+            "title": "Pv",
+            "type": "object"
+          },
+          "storage": {
+            "additionalProperties": {
+              "$ref": "#/components/schemas/StorageAssetIn"
+            },
+            "title": "Storage",
+            "type": "object"
+          }
+        },
+        "title": "AssetCollectionIn",
+        "type": "object"
+      },
+      "AssetRelationshipsIn": {
+        "additionalProperties": true,
+        "description": "Relationships between assets.",
+        "properties": {
+          "measures": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Measures",
+            "type": "array"
+          },
+          "paired_with": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Paired With"
+          }
+        },
+        "title": "AssetRelationshipsIn",
+        "type": "object"
+      },
+      "CommunityIn": {
+        "additionalProperties": true,
+        "description": "Community definition.",
+        "properties": {
+          "areas": {
+            "additionalProperties": {
+              "$ref": "#/components/schemas/AreaIn"
+            },
+            "title": "Areas",
+            "type": "object"
+          },
+          "contact": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ContactIn"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "description": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Description"
+          },
+          "id": {
+            "title": "Id",
+            "type": "string"
+          },
+          "legal": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/LegalInfoIn"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "links": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/LinksIn"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          },
+          "settings": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/SettingsIn"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "topology": {
+            "items": {
+              "$ref": "#/components/schemas/TopologyNodeIn"
+            },
+            "title": "Topology",
+            "type": "array"
+          }
+        },
+        "required": [
+          "id",
+          "name"
+        ],
+        "title": "CommunityIn",
+        "type": "object"
+      },
+      "ContactIn": {
+        "additionalProperties": true,
+        "description": "Contact information.",
+        "properties": {
+          "address": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Address"
+          },
+          "email": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Email"
+          },
+          "pec": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Pec"
+          },
+          "phone": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Phone"
+          }
+        },
+        "title": "ContactIn",
+        "type": "object"
+      },
+      "DeliveryPointIn": {
+        "additionalProperties": true,
+        "description": "Physical delivery point (POD, CUPS, PRM, etc.).",
+        "properties": {
+          "active": {
+            "default": true,
+            "title": "Active",
+            "type": "boolean"
+          },
+          "address": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Address"
+          },
+          "description": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Description"
+          },
+          "id": {
+            "title": "Id",
+            "type": "string"
+          },
+          "tariff": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Tariff"
+          },
+          "type": {
+            "title": "Type",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "type"
+        ],
+        "title": "DeliveryPointIn",
+        "type": "object"
+      },
+      "DeviceIn": {
+        "additionalProperties": true,
+        "description": "SAREF-inspired device specification.",
+        "properties": {
+          "firmware_version": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Firmware Version"
+          },
+          "mac_address": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Mac Address"
+          },
+          "model": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Model"
+          },
+          "serial_number": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Serial Number"
+          },
+          "type": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Type"
+          }
+        },
+        "title": "DeviceIn",
+        "type": "object"
+      },
+      "EVChargerAssetIn": {
+        "additionalProperties": true,
+        "description": "EV charger asset.",
+        "properties": {
+          "bidirectional": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Bidirectional"
+          },
+          "charger_type": {
+            "title": "Charger Type",
+            "type": "string"
+          },
+          "connector_types": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Connector Types",
+            "type": "array"
+          },
+          "device": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/DeviceIn"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "installation_date": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Installation Date"
+          },
+          "max_power": {
+            "title": "Max Power",
+            "type": "number"
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          },
+          "num_ports": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Num Ports"
+          },
+          "relationships": {
+            "$ref": "#/components/schemas/AssetRelationshipsIn"
+          },
+          "smart_charging": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Smart Charging"
+          }
+        },
+        "required": [
+          "name",
+          "max_power",
+          "charger_type"
+        ],
+        "title": "EVChargerAssetIn",
+        "type": "object"
+      },
+      "HTTPValidationError": {
+        "properties": {
+          "detail": {
+            "items": {
+              "$ref": "#/components/schemas/ValidationError"
+            },
+            "title": "Detail",
+            "type": "array"
+          }
+        },
+        "title": "HTTPValidationError",
+        "type": "object"
+      },
+      "HeatPumpAssetIn": {
+        "additionalProperties": true,
+        "description": "Heat pump asset.",
+        "properties": {
+          "cop": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Cop"
+          },
+          "device": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/DeviceIn"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "eer": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Eer"
+          },
+          "electrical_power": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Electrical Power"
+          },
+          "heat_pump_type": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Heat Pump Type"
+          },
+          "installation_date": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Installation Date"
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          },
+          "refrigerant": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Refrigerant"
+          },
+          "relationships": {
+            "$ref": "#/components/schemas/AssetRelationshipsIn"
+          },
+          "reversible": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Reversible"
+          },
+          "scop": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Scop"
+          },
+          "seer": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Seer"
+          },
+          "thermal_power": {
+            "title": "Thermal Power",
+            "type": "number"
+          }
+        },
+        "required": [
+          "name",
+          "thermal_power"
+        ],
+        "title": "HeatPumpAssetIn",
+        "type": "object"
+      },
+      "ImportReport": {
+        "description": "Import operation report.",
+        "properties": {
+          "community_key": {
+            "title": "Community Key",
+            "type": "string"
+          },
+          "deleted": {
+            "additionalProperties": {
+              "type": "integer"
+            },
+            "title": "Deleted",
+            "type": "object"
+          },
+          "inserted": {
+            "additionalProperties": {
+              "type": "integer"
+            },
+            "title": "Inserted",
+            "type": "object"
+          },
+          "warnings": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Warnings",
+            "type": "array"
+          }
+        },
+        "required": [
+          "community_key"
+        ],
+        "title": "ImportReport",
+        "type": "object"
+      },
+      "ImportRequest": {
+        "description": "Import request payload.",
+        "properties": {
+          "bundle": {
+            "$ref": "#/components/schemas/RegistryBundleIn"
+          },
+          "dry_run": {
+            "default": false,
+            "title": "Dry Run",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "bundle"
+        ],
+        "title": "ImportRequest",
+        "type": "object"
+      },
+      "LegalInfoIn": {
+        "additionalProperties": true,
+        "description": "Legal and administrative details.",
+        "properties": {
+          "fiscal_code": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Fiscal Code"
+          },
+          "legal_form": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Legal Form"
+          },
+          "name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Name"
+          },
+          "registered_office": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Registered Office"
+          },
+          "registration_number": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Registration Number"
+          },
+          "vat": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Vat"
+          }
+        },
+        "title": "LegalInfoIn",
+        "type": "object"
+      },
+      "LinksIn": {
+        "additionalProperties": true,
+        "description": "Public URLs for the community.",
+        "properties": {
+          "logo": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Logo"
+          },
+          "privacy_policy": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Privacy Policy"
+          },
+          "regulations": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Regulations"
+          },
+          "statute": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Statute"
+          },
+          "terms": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Terms"
+          },
+          "website": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Website"
+          }
+        },
+        "title": "LinksIn",
+        "type": "object"
+      },
+      "LoadAssetIn": {
+        "additionalProperties": true,
+        "description": "Load asset.",
+        "properties": {
+          "controllable": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Controllable"
+          },
+          "device": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/DeviceIn"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "flexibility_kw": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Flexibility Kw"
+          },
+          "load_type": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Load Type"
+          },
+          "min_power": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Min Power"
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          },
+          "priority": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Priority"
+          },
+          "rated_power": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Rated Power"
+          },
+          "relationships": {
+            "$ref": "#/components/schemas/AssetRelationshipsIn"
+          }
+        },
+        "required": [
+          "name"
+        ],
+        "title": "LoadAssetIn",
+        "type": "object"
+      },
+      "LocationIn": {
+        "additionalProperties": true,
+        "description": "Geographic location.",
+        "properties": {
+          "lat": {
+            "title": "Lat",
+            "type": "number"
+          },
+          "lon": {
+            "title": "Lon",
+            "type": "number"
+          }
+        },
+        "required": [
+          "lat",
+          "lon"
+        ],
+        "title": "LocationIn",
+        "type": "object"
+      },
+      "MemberIn": {
+        "additionalProperties": true,
+        "description": "Community member.",
+        "properties": {
+          "area": {
+            "title": "Area",
+            "type": "string"
+          },
+          "assets": {
+            "$ref": "#/components/schemas/AssetCollectionIn"
+          },
+          "delivery_points": {
+            "items": {
+              "$ref": "#/components/schemas/DeliveryPointIn"
+            },
+            "title": "Delivery Points",
+            "type": "array"
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          },
+          "role": {
+            "title": "Role",
+            "type": "string"
+          },
+          "status": {
+            "title": "Status",
+            "type": "string"
+          },
+          "user_id": {
+            "title": "User Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "user_id",
+          "name",
+          "role",
+          "area",
+          "status"
+        ],
+        "title": "MemberIn",
+        "type": "object"
+      },
+      "MetadataIn": {
+        "additionalProperties": true,
+        "description": "Registry metadata.",
+        "properties": {
+          "created": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Created"
+          },
+          "description": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Description"
+          },
+          "updated": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Updated"
+          },
+          "updated_by": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Updated By"
+          }
+        },
+        "title": "MetadataIn",
+        "type": "object"
+      },
+      "MeterAssetIn": {
+        "additionalProperties": true,
+        "description": "Meter asset.",
+        "properties": {
+          "device": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/DeviceIn"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "installation_date": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Installation Date"
+          },
+          "meter_type": {
+            "title": "Meter Type",
+            "type": "string"
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          },
+          "pod": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Pod"
+          },
+          "protocol": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Protocol"
+          },
+          "relationships": {
+            "$ref": "#/components/schemas/AssetRelationshipsIn"
+          },
+          "sensor_id": {
+            "title": "Sensor Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "name",
+          "sensor_id",
+          "meter_type"
+        ],
+        "title": "MeterAssetIn",
+        "type": "object"
+      },
+      "PVAssetIn": {
+        "additionalProperties": true,
+        "description": "PV system asset.",
+        "properties": {
+          "device": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/DeviceIn"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "installation_date": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Installation Date"
+          },
+          "inverter_power": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Inverter Power"
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          },
+          "orientation": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Orientation"
+          },
+          "panel_type": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Panel Type"
+          },
+          "rated_power": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Rated Power"
+          },
+          "relationships": {
+            "$ref": "#/components/schemas/AssetRelationshipsIn"
+          },
+          "tilt_angle": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Tilt Angle"
+          }
+        },
+        "required": [
+          "name"
+        ],
+        "title": "PVAssetIn",
+        "type": "object"
+      },
+      "RegistryBundleIn": {
+        "additionalProperties": true,
+        "description": "Complete registry bundle for import.\n\nMatches v0.4 structure.",
+        "properties": {
+          "community": {
+            "$ref": "#/components/schemas/CommunityIn"
+          },
+          "members": {
+            "additionalProperties": {
+              "$ref": "#/components/schemas/MemberIn"
+            },
+            "title": "Members",
+            "type": "object"
+          },
+          "metadata": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/MetadataIn"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "schema_version": {
+            "default": "1.0",
+            "title": "Schema Version",
+            "type": "string"
+          },
+          "version": {
+            "default": "1.0",
+            "title": "Version",
+            "type": "string"
+          }
+        },
+        "required": [
+          "community"
+        ],
+        "title": "RegistryBundleIn",
+        "type": "object"
+      },
+      "SettingsIn": {
+        "additionalProperties": true,
+        "description": "Operational settings.",
+        "properties": {
+          "currency": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Currency"
+          },
+          "energy_unit": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Energy Unit"
+          },
+          "power_unit": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Power Unit"
+          },
+          "timezone": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Timezone"
+          }
+        },
+        "title": "SettingsIn",
+        "type": "object"
+      },
+      "StorageAssetIn": {
+        "additionalProperties": true,
+        "description": "Battery storage asset.",
+        "properties": {
+          "battery_type": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Battery Type"
+          },
+          "capacity": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Capacity"
+          },
+          "device": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/DeviceIn"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "installation_date": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Installation Date"
+          },
+          "max_charge_power": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Max Charge Power"
+          },
+          "max_discharge_power": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Max Discharge Power"
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          },
+          "relationships": {
+            "$ref": "#/components/schemas/AssetRelationshipsIn"
+          },
+          "round_trip_efficiency": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Round Trip Efficiency"
+          }
+        },
+        "required": [
+          "name"
+        ],
+        "title": "StorageAssetIn",
+        "type": "object"
+      },
+      "TopologyNodeIn": {
+        "additionalProperties": true,
+        "description": "Grid topology node (substation, transformer, etc.).",
+        "properties": {
+          "area": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Area"
+          },
+          "id": {
+            "title": "Id",
+            "type": "string"
+          },
+          "name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Name"
+          },
+          "operator": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Operator"
+          },
+          "parent": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Parent"
+          },
+          "type": {
+            "title": "Type",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "type"
+        ],
+        "title": "TopologyNodeIn",
+        "type": "object"
+      },
+      "ValidationError": {
+        "properties": {
+          "loc": {
+            "items": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "integer"
+                }
+              ]
+            },
+            "title": "Location",
+            "type": "array"
+          },
+          "msg": {
+            "title": "Message",
+            "type": "string"
+          },
+          "type": {
+            "title": "Error Type",
+            "type": "string"
+          }
+        },
+        "required": [
+          "loc",
+          "msg",
+          "type"
+        ],
+        "title": "ValidationError",
+        "type": "object"
+      }
+    }
+  },
+  "info": {
+    "description": "Registry API for Renewable Energy Communities (v0.4 schema)",
+    "title": "CELINE REC Registry API",
+    "version": "1.0.0"
+  },
+  "openapi": "3.1.0",
+  "paths": {
+    "/admin/communities": {
+      "get": {
+        "description": "List all communities.",
+        "operationId": "list_communities_admin_communities_get",
+        "parameters": [
+          {
+            "description": "Filter by community key",
+            "in": "query",
+            "name": "key",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Filter by community key",
+              "title": "Key"
+            }
+          },
+          {
+            "in": "query",
+            "name": "limit",
+            "required": false,
+            "schema": {
+              "default": 50,
+              "maximum": 500,
+              "minimum": 1,
+              "title": "Limit",
+              "type": "integer"
+            }
+          },
+          {
+            "description": "Pagination cursor",
+            "in": "query",
+            "name": "cursor",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Pagination cursor",
+              "title": "Cursor"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "List Communities",
+        "tags": [
+          "admin"
+        ]
+      }
+    },
+    "/admin/communities/{community_key}": {
+      "get": {
+        "description": "Get a community by key with full details.",
+        "operationId": "get_community_admin_communities__community_key__get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "community_key",
+            "required": true,
+            "schema": {
+              "title": "Community Key",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Get Community",
+        "tags": [
+          "admin"
+        ]
+      }
+    },
+    "/admin/communities/{community_key}/assets": {
+      "get": {
+        "description": "List assets in a community.",
+        "operationId": "list_assets_admin_communities__community_key__assets_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "community_key",
+            "required": true,
+            "schema": {
+              "title": "Community Key",
+              "type": "string"
+            }
+          },
+          {
+            "description": "Filter by asset type",
+            "in": "query",
+            "name": "asset_type",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Filter by asset type",
+              "title": "Asset Type"
+            }
+          },
+          {
+            "description": "Filter by owner member key",
+            "in": "query",
+            "name": "owner",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Filter by owner member key",
+              "title": "Owner"
+            }
+          },
+          {
+            "in": "query",
+            "name": "limit",
+            "required": false,
+            "schema": {
+              "default": 50,
+              "maximum": 500,
+              "minimum": 1,
+              "title": "Limit",
+              "type": "integer"
+            }
+          },
+          {
+            "description": "Pagination cursor",
+            "in": "query",
+            "name": "cursor",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Pagination cursor",
+              "title": "Cursor"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "List Assets",
+        "tags": [
+          "admin"
+        ]
+      }
+    },
+    "/admin/communities/{community_key}/assets/by-sensor-id/{sensor_id}": {
+      "get": {
+        "description": "Get a meter asset by its sensor_id.",
+        "operationId": "get_asset_by_sensor_id_admin_communities__community_key__assets_by_sensor_id__sensor_id__get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "community_key",
+            "required": true,
+            "schema": {
+              "title": "Community Key",
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "sensor_id",
+            "required": true,
+            "schema": {
+              "title": "Sensor Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Get Asset By Sensor Id",
+        "tags": [
+          "admin"
+        ]
+      }
+    },
+    "/admin/communities/{community_key}/assets/{asset_key}": {
+      "get": {
+        "description": "Get an asset by key with full details.",
+        "operationId": "get_asset_admin_communities__community_key__assets__asset_key__get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "community_key",
+            "required": true,
+            "schema": {
+              "title": "Community Key",
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "asset_key",
+            "required": true,
+            "schema": {
+              "title": "Asset Key",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Get Asset",
+        "tags": [
+          "admin"
+        ]
+      }
+    },
+    "/admin/communities/{community_key}/delivery-points": {
+      "get": {
+        "description": "List all delivery points in a community.",
+        "operationId": "list_delivery_points_admin_communities__community_key__delivery_points_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "community_key",
+            "required": true,
+            "schema": {
+              "title": "Community Key",
+              "type": "string"
+            }
+          },
+          {
+            "description": "Filter by type (pod, cups, etc.)",
+            "in": "query",
+            "name": "type",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Filter by type (pod, cups, etc.)",
+              "title": "Type"
+            }
+          },
+          {
+            "description": "Filter by active status",
+            "in": "query",
+            "name": "active",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "boolean"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Filter by active status",
+              "title": "Active"
+            }
+          },
+          {
+            "in": "query",
+            "name": "limit",
+            "required": false,
+            "schema": {
+              "default": 50,
+              "maximum": 500,
+              "minimum": 1,
+              "title": "Limit",
+              "type": "integer"
+            }
+          },
+          {
+            "description": "Pagination cursor",
+            "in": "query",
+            "name": "cursor",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Pagination cursor",
+              "title": "Cursor"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "List Delivery Points",
+        "tags": [
+          "admin"
+        ]
+      }
+    },
+    "/admin/communities/{community_key}/delivery-points/by-id/{dp_id}": {
+      "get": {
+        "description": "Find a delivery point by its ID (POD, CUPS, etc.).",
+        "operationId": "get_delivery_point_by_id_admin_communities__community_key__delivery_points_by_id__dp_id__get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "community_key",
+            "required": true,
+            "schema": {
+              "title": "Community Key",
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "dp_id",
+            "required": true,
+            "schema": {
+              "title": "Dp Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Get Delivery Point By Id",
+        "tags": [
+          "admin"
+        ]
+      }
+    },
+    "/admin/communities/{community_key}/members": {
+      "get": {
+        "description": "List members of a community.",
+        "operationId": "list_members_admin_communities__community_key__members_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "community_key",
+            "required": true,
+            "schema": {
+              "title": "Community Key",
+              "type": "string"
+            }
+          },
+          {
+            "description": "Filter by role",
+            "in": "query",
+            "name": "role",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Filter by role",
+              "title": "Role"
+            }
+          },
+          {
+            "description": "Filter by status",
+            "in": "query",
+            "name": "status",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Filter by status",
+              "title": "Status"
+            }
+          },
+          {
+            "description": "Filter by area",
+            "in": "query",
+            "name": "area",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Filter by area",
+              "title": "Area"
+            }
+          },
+          {
+            "in": "query",
+            "name": "limit",
+            "required": false,
+            "schema": {
+              "default": 50,
+              "maximum": 500,
+              "minimum": 1,
+              "title": "Limit",
+              "type": "integer"
+            }
+          },
+          {
+            "description": "Pagination cursor",
+            "in": "query",
+            "name": "cursor",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Pagination cursor",
+              "title": "Cursor"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "List Members",
+        "tags": [
+          "admin"
+        ]
+      }
+    },
+    "/admin/communities/{community_key}/members/by-user-id/{user_id}": {
+      "get": {
+        "description": "Get a member by their external user_id (e.g., Keycloak UUID).",
+        "operationId": "get_member_by_user_id_admin_communities__community_key__members_by_user_id__user_id__get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "community_key",
+            "required": true,
+            "schema": {
+              "title": "Community Key",
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "user_id",
+            "required": true,
+            "schema": {
+              "title": "User Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Get Member By User Id",
+        "tags": [
+          "admin"
+        ]
+      }
+    },
+    "/admin/communities/{community_key}/members/{member_key}": {
+      "get": {
+        "description": "Get a member by key with full details.",
+        "operationId": "get_member_admin_communities__community_key__members__member_key__get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "community_key",
+            "required": true,
+            "schema": {
+              "title": "Community Key",
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "member_key",
+            "required": true,
+            "schema": {
+              "title": "Member Key",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Get Member",
+        "tags": [
+          "admin"
+        ]
+      }
+    },
+    "/admin/communities/{community_key}/members/{member_key}/delivery-points": {
+      "get": {
+        "description": "Get delivery points for a member.",
+        "operationId": "get_member_delivery_points_admin_communities__community_key__members__member_key__delivery_points_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "community_key",
+            "required": true,
+            "schema": {
+              "title": "Community Key",
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "member_key",
+            "required": true,
+            "schema": {
+              "title": "Member Key",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Get Member Delivery Points",
+        "tags": [
+          "admin"
+        ]
+      }
+    },
+    "/admin/communities/{community_key}/meters": {
+      "get": {
+        "description": "List meters in a community (shortcut for assets?asset_type=meter).",
+        "operationId": "list_meters_admin_communities__community_key__meters_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "community_key",
+            "required": true,
+            "schema": {
+              "title": "Community Key",
+              "type": "string"
+            }
+          },
+          {
+            "description": "Filter by owner member key",
+            "in": "query",
+            "name": "owner",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Filter by owner member key",
+              "title": "Owner"
+            }
+          },
+          {
+            "in": "query",
+            "name": "limit",
+            "required": false,
+            "schema": {
+              "default": 50,
+              "maximum": 500,
+              "minimum": 1,
+              "title": "Limit",
+              "type": "integer"
+            }
+          },
+          {
+            "description": "Pagination cursor",
+            "in": "query",
+            "name": "cursor",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Pagination cursor",
+              "title": "Cursor"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "List Meters",
+        "tags": [
+          "admin"
+        ]
+      }
+    },
+    "/admin/communities/{community_key}/topology": {
+      "get": {
+        "description": "Get community grid topology.",
+        "operationId": "get_community_topology_admin_communities__community_key__topology_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "community_key",
+            "required": true,
+            "schema": {
+              "title": "Community Key",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Get Community Topology",
+        "tags": [
+          "admin"
+        ]
+      }
+    },
+    "/admin/export": {
+      "get": {
+        "description": "Export a community to v0.4 YAML format.\n\nReturns the complete registry bundle as YAML text.",
+        "operationId": "admin_export_admin_export_get",
+        "parameters": [
+          {
+            "description": "Community key to export",
+            "in": "query",
+            "name": "community",
+            "required": true,
+            "schema": {
+              "description": "Community key to export",
+              "title": "Community",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Admin Export",
+        "tags": [
+          "admin"
+        ]
+      }
+    },
+    "/admin/import": {
+      "post": {
+        "description": "Idempotent replacement import of a REC registry bundle.\n\n- Deletes existing community (by community.id/key) with all related data\n- Creates new community with members and assets atomically\n- Returns counts of deleted and inserted entities\n\nUse `dry_run=true` to validate without making changes.",
+        "operationId": "admin_import_admin_import_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ImportRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ImportReport"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Admin Import",
+        "tags": [
+          "admin"
+        ]
+      }
+    },
+    "/admin/lookup/asset-by-sensor-id/{sensor_id}": {
+      "get": {
+        "description": "Global lookup: find an asset (meter) by sensor_id across all communities.",
+        "operationId": "lookup_asset_by_sensor_id_admin_lookup_asset_by_sensor_id__sensor_id__get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "sensor_id",
+            "required": true,
+            "schema": {
+              "title": "Sensor Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Lookup Asset By Sensor Id",
+        "tags": [
+          "admin"
+        ]
+      }
+    },
+    "/admin/lookup/community-by-delivery-point/{dp_id}": {
+      "get": {
+        "description": "Find which community a delivery point belongs to by its ID.",
+        "operationId": "lookup_community_by_delivery_point_admin_lookup_community_by_delivery_point__dp_id__get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "dp_id",
+            "required": true,
+            "schema": {
+              "title": "Dp Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Lookup Community By Delivery Point",
+        "tags": [
+          "admin"
+        ]
+      }
+    },
+    "/admin/lookup/community-by-sensor-id/{sensor_id}": {
+      "get": {
+        "description": "Find which community a meter belongs to by its sensor_id.",
+        "operationId": "lookup_community_by_sensor_id_admin_lookup_community_by_sensor_id__sensor_id__get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "sensor_id",
+            "required": true,
+            "schema": {
+              "title": "Sensor Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Lookup Community By Sensor Id",
+        "tags": [
+          "admin"
+        ]
+      }
+    },
+    "/admin/lookup/community-by-user-id/{user_id}": {
+      "get": {
+        "description": "Find which community a user belongs to by their user_id.",
+        "operationId": "lookup_community_by_user_id_admin_lookup_community_by_user_id__user_id__get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "user_id",
+            "required": true,
+            "schema": {
+              "title": "User Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Lookup Community By User Id",
+        "tags": [
+          "admin"
+        ]
+      }
+    },
+    "/admin/lookup/member-by-user-id/{user_id}": {
+      "get": {
+        "description": "Global lookup: find a member by user_id across all communities.",
+        "operationId": "lookup_member_by_user_id_admin_lookup_member_by_user_id__user_id__get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "user_id",
+            "required": true,
+            "schema": {
+              "title": "User Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Lookup Member By User Id",
+        "tags": [
+          "admin"
+        ]
+      }
+    },
+    "/health": {
+      "get": {
+        "description": "Health check endpoint.",
+        "operationId": "health_health_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "summary": "Health",
+        "tags": [
+          "meta"
+        ]
+      }
+    },
+    "/user": {
+      "get": {
+        "description": "Get current user's profile and membership information.\n\nReturns:\n- JWT profile information\n- Community membership (if any)\n- Member details\n- Summary of owned assets",
+        "operationId": "get_me_user_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "summary": "Get Me",
+        "tags": [
+          "me"
+        ]
+      }
+    },
+    "/user/assets": {
+      "get": {
+        "description": "Get current user's assets. Optionally filter by asset_type.",
+        "operationId": "get_my_assets_user_assets_get",
+        "parameters": [
+          {
+            "description": "Filter by asset type",
+            "in": "query",
+            "name": "asset_type",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Filter by asset type",
+              "title": "Asset Type"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Get My Assets",
+        "tags": [
+          "me"
+        ]
+      }
+    },
+    "/user/assets/{asset_key}": {
+      "get": {
+        "description": "Get a specific asset owned by the current user.",
+        "operationId": "get_my_asset_user_assets__asset_key__get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "asset_key",
+            "required": true,
+            "schema": {
+              "title": "Asset Key",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Get My Asset",
+        "tags": [
+          "me"
+        ]
+      }
+    },
+    "/user/community": {
+      "get": {
+        "description": "Get the community the current user belongs to.",
+        "operationId": "get_my_community_user_community_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "summary": "Get My Community",
+        "tags": [
+          "me"
+        ]
+      }
+    },
+    "/user/delivery-points": {
+      "get": {
+        "description": "Get current user's delivery points (PODs, CUPS, etc.).",
+        "operationId": "get_my_delivery_points_user_delivery_points_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "summary": "Get My Delivery Points",
+        "tags": [
+          "me"
+        ]
+      }
+    },
+    "/user/member": {
+      "get": {
+        "description": "Get current user's full member details including delivery points.",
+        "operationId": "get_my_member_user_member_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "summary": "Get My Member",
+        "tags": [
+          "me"
+        ]
+      }
+    },
+    "/version": {
+      "get": {
+        "description": "API version info.",
+        "operationId": "version_version_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "summary": "Version",
+        "tags": [
+          "meta"
+        ]
+      }
+    }
+  }
+}

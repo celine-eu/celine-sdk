@@ -17,11 +17,13 @@ T = TypeVar("T", bound="ImportRequest")
 
 @_attrs_define
 class ImportRequest:
-    """Import request where the client already parsed YAML into a JSON object.
+    """Import request payload.
 
     Attributes:
-        bundle (RegistryBundleIn):
-        dry_run (bool | Unset): Validate without writing to DB Default: False.
+        bundle (RegistryBundleIn): Complete registry bundle for import.
+
+            Matches v0.4 structure.
+        dry_run (bool | Unset):  Default: False.
     """
 
     bundle: RegistryBundleIn

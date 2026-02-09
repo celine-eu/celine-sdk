@@ -644,9 +644,192 @@
         ]
       }
     },
+    "/participants/{participant_id}/assets": {
+      "get": {
+        "description": "Get participant's assets from registry.",
+        "operationId": "participant_assets_participants__participant_id__assets_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "participant_id",
+            "required": true,
+            "schema": {
+              "title": "Participant Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "header",
+            "name": "authorization",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "title": "Response Participant Assets Participants  Participant Id  Assets Get",
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Participant Assets",
+        "tags": [
+          "it-participant"
+        ]
+      }
+    },
+    "/participants/{participant_id}/community": {
+      "get": {
+        "description": "Get participant's community details from registry.",
+        "operationId": "participant_community_participants__participant_id__community_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "participant_id",
+            "required": true,
+            "schema": {
+              "title": "Participant Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "header",
+            "name": "authorization",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "title": "Response Participant Community Participants  Participant Id  Community Get",
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Participant Community",
+        "tags": [
+          "it-participant"
+        ]
+      }
+    },
+    "/participants/{participant_id}/delivery-points": {
+      "get": {
+        "description": "Get participant's delivery points from registry.",
+        "operationId": "participant_delivery_points_participants__participant_id__delivery_points_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "participant_id",
+            "required": true,
+            "schema": {
+              "title": "Participant Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "header",
+            "name": "authorization",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "title": "Response Participant Delivery Points Participants  Participant Id  Delivery Points Get",
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Participant Delivery Points",
+        "tags": [
+          "it-participant"
+        ]
+      }
+    },
     "/participants/{participant_id}/flexibility": {
       "get": {
-        "description": "Flexibility assessment for demand response.\n\nPlaceholder for real flexibility computation.",
+        "description": "Flexibility assessment for demand response.\n\nCombines registry data with local calculations.",
         "operationId": "flexibility_participants__participant_id__flexibility_get",
         "parameters": [
           {
@@ -656,6 +839,22 @@
             "schema": {
               "title": "Participant Id",
               "type": "string"
+            }
+          },
+          {
+            "in": "header",
+            "name": "authorization",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
             }
           }
         ],
@@ -689,9 +888,70 @@
         ]
       }
     },
+    "/participants/{participant_id}/member": {
+      "get": {
+        "description": "Get participant's member details from registry.",
+        "operationId": "participant_member_participants__participant_id__member_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "participant_id",
+            "required": true,
+            "schema": {
+              "title": "Participant Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "header",
+            "name": "authorization",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "title": "Response Participant Member Participants  Participant Id  Member Get",
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Participant Member",
+        "tags": [
+          "it-participant"
+        ]
+      }
+    },
     "/participants/{participant_id}/profile": {
       "get": {
-        "description": "Participant profile and metadata.",
+        "description": "Get participant profile from registry.\n\nReturns enriched profile with member and community details.",
         "operationId": "participant_profile_participants__participant_id__profile_get",
         "parameters": [
           {
@@ -701,6 +961,22 @@
             "schema": {
               "title": "Participant Id",
               "type": "string"
+            }
+          },
+          {
+            "in": "header",
+            "name": "authorization",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
             }
           }
         ],

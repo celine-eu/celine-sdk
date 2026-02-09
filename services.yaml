@@ -2,8 +2,6 @@ services:
   digital-twin:
     package: dt
     openapi: http://api.celine.localhost/dt/openapi.json
-  policies:
-    openapi: http://api.celine.localhost/policies/openapi.json
   datasets:
     openapi: http://api.celine.localhost/datasets/openapi.json
   rec-registry:

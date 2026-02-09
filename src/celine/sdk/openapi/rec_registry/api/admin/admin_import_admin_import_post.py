@@ -67,14 +67,16 @@ def sync_detailed(
 ) -> Response[HTTPValidationError | ImportReport]:
     """Admin Import
 
-     Replacement import of a REC YAML bundle.
+     Idempotent replacement import of a REC registry bundle.
 
-    - Deletes existing community graph (by community.key)
-    - Recreates it atomically
+    - Deletes existing community (by community.id/key) with all related data
+    - Creates new community with members and assets atomically
+    - Returns counts of deleted and inserted entities
+
+    Use `dry_run=true` to validate without making changes.
 
     Args:
-        body (ImportRequest): Import request where the client already parsed YAML into a JSON
-            object.
+        body (ImportRequest): Import request payload.
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
@@ -102,14 +104,16 @@ def sync(
 ) -> HTTPValidationError | ImportReport | None:
     """Admin Import
 
-     Replacement import of a REC YAML bundle.
+     Idempotent replacement import of a REC registry bundle.
 
-    - Deletes existing community graph (by community.key)
-    - Recreates it atomically
+    - Deletes existing community (by community.id/key) with all related data
+    - Creates new community with members and assets atomically
+    - Returns counts of deleted and inserted entities
+
+    Use `dry_run=true` to validate without making changes.
 
     Args:
-        body (ImportRequest): Import request where the client already parsed YAML into a JSON
-            object.
+        body (ImportRequest): Import request payload.
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
@@ -132,14 +136,16 @@ async def asyncio_detailed(
 ) -> Response[HTTPValidationError | ImportReport]:
     """Admin Import
 
-     Replacement import of a REC YAML bundle.
+     Idempotent replacement import of a REC registry bundle.
 
-    - Deletes existing community graph (by community.key)
-    - Recreates it atomically
+    - Deletes existing community (by community.id/key) with all related data
+    - Creates new community with members and assets atomically
+    - Returns counts of deleted and inserted entities
+
+    Use `dry_run=true` to validate without making changes.
 
     Args:
-        body (ImportRequest): Import request where the client already parsed YAML into a JSON
-            object.
+        body (ImportRequest): Import request payload.
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
@@ -165,14 +171,16 @@ async def asyncio(
 ) -> HTTPValidationError | ImportReport | None:
     """Admin Import
 
-     Replacement import of a REC YAML bundle.
+     Idempotent replacement import of a REC registry bundle.
 
-    - Deletes existing community graph (by community.key)
-    - Recreates it atomically
+    - Deletes existing community (by community.id/key) with all related data
+    - Creates new community with members and assets atomically
+    - Returns counts of deleted and inserted entities
+
+    Use `dry_run=true` to validate without making changes.
 
     Args:
-        body (ImportRequest): Import request where the client already parsed YAML into a JSON
-            object.
+        body (ImportRequest): Import request payload.
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.

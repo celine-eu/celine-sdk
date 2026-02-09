@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from pathlib import Path
+
 from pydantic import Field
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
@@ -34,6 +36,30 @@ class MqttSettings(BaseSettings):
     token_refresh_margin: float = 30.0
 
 
+class PoliciesSettings(BaseSettings):
+    """Policy engine settings."""
+
+    model_config = SettingsConfigDict(env_prefix="CELINE_POLICIES_", extra="ignore")
+
+    policies_dir: Path = Field(
+        default=Path("./policies"),
+        description="Directory containing .rego policy files",
+    )
+    policies_data_dir: Path | None = Field(
+        default=None,
+        description="Optional directory containing policy data JSON files",
+    )
+    policies_cache_enabled: bool = Field(
+        default=True, description="Enable in-memory decision caching"
+    )
+    policies_cache_ttl: int = Field(
+        default=300, description="Cache TTL in seconds"
+    )
+    policies_cache_maxsize: int = Field(
+        default=10000, description="Maximum cache entries"
+    )
+
+
 class SdkSettings(BaseSettings):
     """Top-level SDK settings.
 
@@ -45,6 +71,7 @@ class SdkSettings(BaseSettings):
 
     oidc: OidcSettings = Field(default_factory=OidcSettings)
     mqtt: MqttSettings = Field(default_factory=MqttSettings)
+    policies: PoliciesSettings = Field(default_factory=PoliciesSettings)
 
     config_file: str | None = Field(
         default=None, description="Optional path to YAML config"

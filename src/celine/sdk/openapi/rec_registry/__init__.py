@@ -1,4 +1,4 @@
-"""A client library for accessing CELINE Registry API"""
+"""A client library for accessing CELINE REC Registry API"""
 
 from .client import AuthenticatedClient, Client
 
