@@ -56,10 +56,10 @@ wheels = [
 
 [[package]]
 name = "celine-regorus"
-version = "0.9.0"
+version = "0.9.1"
 source = { registry = "https://pypi.org/simple" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/7a/e2/dd1348a1f1aca11eb32942e2dd929b8f95f6457f1a9aae060bc7299f5b27/celine_regorus-0.9.0-cp310-abi3-manylinux_2_34_x86_64.whl", hash = "sha256:34982138f6f933a62b517f1486801da8fc87a9baa6c26e4305d117721af763e4", size = 3622457, upload-time = "2026-01-31T02:28:59.399Z" },
+    { url = "https://files.pythonhosted.org/packages/75/c9/23a23717975b2e59b675302f3d92bc878366aac86d8879badf934559d019/celine_regorus-0.9.1-cp310-abi3-manylinux_2_34_x86_64.whl", hash = "sha256:aaa2da00a380d66a3a82717296a0159a5790983046033a5a2c1a8b33c714ef76", size = 3621102, upload-time = "2026-02-09T19:25:33.629Z" },
 ]
 
 [[package]]
