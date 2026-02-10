@@ -5,24 +5,40 @@ ParticipantClient — curated async wrapper for the it_participant domain.
 from __future__ import annotations
 
 import logging
-from typing import Any, TYPE_CHECKING
-
-from celine.sdk.openapi.dt.api.it_participant import (
-    it_participant_get_value as _get_value,
-    it_participant_post_value as _post_value,
-    it_participant_info as _info,
-    it_participant_list_values as _list_values,
-    it_participant_list_simulations as _list_sims,
-    it_participant_describe_value as _describe_value,
-    it_participant_describe_simulation as _describe_sim,
-    participant_profile_participants_participant_id_profile_get as _profile,
-    flexibility_participants_participant_id_flexibility_get as _flexibility,
-)
-from celine.sdk.openapi.dt.models import ValuesRequest, Payload
-from celine.sdk.openapi.dt.models.http_validation_error import HTTPValidationError
-from celine.sdk.openapi.dt.types import UNSET
+from typing import TYPE_CHECKING, Any
 
 from celine.sdk.dt.community import DTApiError, _unwrap
+from celine.sdk.openapi.dt.api.it_participant import (
+    flexibility_participants_participant_id_flexibility_get as _flexibility,
+)
+from celine.sdk.openapi.dt.api.it_participant import (
+    it_participant_describe_simulation as _describe_sim,
+)
+from celine.sdk.openapi.dt.api.it_participant import (
+    it_participant_describe_value as _describe_value,
+)
+from celine.sdk.openapi.dt.api.it_participant import (
+    it_participant_get_value as _get_value,
+)
+from celine.sdk.openapi.dt.api.it_participant import it_participant_info as _info
+from celine.sdk.openapi.dt.api.it_participant import (
+    it_participant_list_simulations as _list_sims,
+)
+from celine.sdk.openapi.dt.api.it_participant import (
+    it_participant_list_values as _list_values,
+)
+from celine.sdk.openapi.dt.api.it_participant import (
+    it_participant_post_value as _post_value,
+)
+from celine.sdk.openapi.dt.api.it_participant import (
+    participant_profile_participants_participant_id_profile_get as _profile,
+)
+from celine.sdk.openapi.dt.models import Payload, ValuesRequest
+from celine.sdk.openapi.dt.models.http_validation_error import HTTPValidationError
+from celine.sdk.openapi.dt.models.response_it_participant_info import (
+    ResponseItParticipantInfo,
+)
+from celine.sdk.openapi.dt.types import UNSET
 
 if TYPE_CHECKING:
     from celine.sdk.dt.client import DTClient
