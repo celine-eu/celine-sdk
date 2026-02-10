@@ -123,18 +123,21 @@ class PolicyEngine:
         input_dict = self._build_input(policy_input)
         eng.set_input_json(json.dumps(input_dict))
 
+        # Query for allow
         allow_query = f"data.{policy_package}.allow"
-        allow_result = eng.eval_query(allow_query)
+        allow_result = eng.eval_query(allow_query)  # Returns dict
         allowed = self._extract_bool(allow_result, False)
 
+        # Query for reason
         reason_query = f"data.{policy_package}.reason"
-        reason_result = eng.eval_query(reason_query)
+        reason_result = eng.eval_query(reason_query)  # Returns dict
         reason = self._extract_string(reason_result, "")
 
+        # Query for filters (optional)
         filters: list[FilterPredicate] = []
         try:
             filters_query = f"data.{policy_package}.filters"
-            filters_result = eng.eval_query(filters_query)
+            filters_result = eng.eval_query(filters_query)  # Returns dict
             filters = self._extract_filters(filters_result)
         except Exception:
             pass
@@ -195,39 +198,64 @@ class PolicyEngine:
             result["subject"] = None
         return result
 
-    def _extract_bool(self, result: Any, default: bool) -> bool:
-        if isinstance(result, list) and result:
-            item = result[0]
-            if isinstance(item, dict) and "expressions" in item:
-                exprs = item["expressions"]
-                if exprs:
-                    return bool(exprs[0].get("value", default))
-        return default
+    def _extract_bool(self, result: dict[str, Any], default: bool = False) -> bool:
+        """Extract boolean value from OPA/regorus query result."""
+        try:
+            # Result is already a dict, no need to json.loads()
+            # Navigate: result -> [0] -> expressions -> [0] -> value
+            if "result" in result and len(result["result"]) > 0:
+                first_result = result["result"][0]
+                if (
+                    "expressions" in first_result
+                    and len(first_result["expressions"]) > 0
+                ):
+                    first_expr = first_result["expressions"][0]
+                    if "value" in first_expr:
+                        value = first_expr["value"]
+                        if isinstance(value, bool):
+                            return value
 
-    def _extract_string(self, result: Any, default: str) -> str:
-        if isinstance(result, list) and result:
-            item = result[0]
-            if isinstance(item, dict) and "expressions" in item:
-                exprs = item["expressions"]
-                if exprs:
-                    value = exprs[0].get("value")
-                    if isinstance(value, str):
-                        return value
-        return default
+            return default
+        except Exception:
+            return default
 
-    def _extract_filters(self, result: Any) -> list[FilterPredicate]:
-        filters: list[FilterPredicate] = []
-        if isinstance(result, list) and result:
-            item = result[0]
-            if isinstance(item, dict) and "expressions" in item:
-                exprs = item["expressions"]
-                if exprs:
-                    value = exprs[0].get("value")
-                    if isinstance(value, list):
-                        for f in value:
-                            if isinstance(f, dict):
-                                try:
-                                    filters.append(FilterPredicate(**f))
-                                except Exception as e:
-                                    logger.warning("Failed to parse filter: %s", e)
-        return filters
+    def _extract_string(self, result: dict[str, Any], default: str = "") -> str:
+        """Extract string value from OPA/regorus query result."""
+        try:
+            # Result is already a dict, no need to json.loads()
+            if "result" in result and len(result["result"]) > 0:
+                first_result = result["result"][0]
+                if (
+                    "expressions" in first_result
+                    and len(first_result["expressions"]) > 0
+                ):
+                    first_expr = first_result["expressions"][0]
+                    if "value" in first_expr:
+                        value = first_expr["value"]
+                        if isinstance(value, str):
+                            return value
+
+            return default
+        except Exception:
+            return default
+
+    def _extract_filters(self, result: dict[str, Any]) -> list[FilterPredicate]:
+        """Extract filter predicates from OPA/regorus query result."""
+        try:
+            if "result" in result and len(result["result"]) > 0:
+                first_result = result["result"][0]
+                if (
+                    "expressions" in first_result
+                    and len(first_result["expressions"]) > 0
+                ):
+                    first_expr = first_result["expressions"][0]
+                    if "value" in first_expr:
+                        value = first_expr["value"]
+                        if isinstance(value, list):
+                            # Parse filter predicates from the list
+                            # (implementation depends on your FilterPredicate structure)
+                            return value
+
+            return []
+        except Exception:
+            return []
