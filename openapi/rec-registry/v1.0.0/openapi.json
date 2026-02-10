@@ -1,6 +1,23 @@
 {
   "components": {
     "schemas": {
+      "Area": {
+        "properties": {
+          "location": {
+            "$ref": "#/components/schemas/Location"
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          }
+        },
+        "required": [
+          "name",
+          "location"
+        ],
+        "title": "Area",
+        "type": "object"
+      },
       "AreaIn": {
         "additionalProperties": true,
         "description": "Community area definition.",
@@ -70,6 +87,196 @@
         "title": "AssetCollectionIn",
         "type": "object"
       },
+      "AssetDetail": {
+        "properties": {
+          "asset_type": {
+            "title": "Asset Type",
+            "type": "string"
+          },
+          "created_at": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Created At"
+          },
+          "device": {
+            "additionalProperties": true,
+            "title": "AssetDetailDevice",
+            "type": "object"
+          },
+          "extra": {
+            "additionalProperties": true,
+            "title": "AssetDetailExtra",
+            "type": "object"
+          },
+          "id": {
+            "title": "Id",
+            "type": "string"
+          },
+          "key": {
+            "title": "Key",
+            "type": "string"
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          },
+          "owner_key": {
+            "title": "Owner Key",
+            "type": "string"
+          },
+          "owner_user_id": {
+            "title": "Owner User Id",
+            "type": "string"
+          },
+          "properties": {
+            "additionalProperties": true,
+            "title": "AssetDetailProperties",
+            "type": "object"
+          },
+          "relationships": {
+            "additionalProperties": true,
+            "title": "AssetDetailRelationships",
+            "type": "object"
+          },
+          "sensor_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Sensor Id"
+          },
+          "updated_at": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Updated At"
+          }
+        },
+        "required": [
+          "id",
+          "key",
+          "asset_type",
+          "name",
+          "owner_key",
+          "owner_user_id"
+        ],
+        "title": "AssetDetail",
+        "type": "object"
+      },
+      "AssetListItem": {
+        "properties": {
+          "asset_type": {
+            "title": "Asset Type",
+            "type": "string"
+          },
+          "device_type": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Device Type"
+          },
+          "id": {
+            "title": "Id",
+            "type": "string"
+          },
+          "key": {
+            "title": "Key",
+            "type": "string"
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          },
+          "owner_key": {
+            "title": "Owner Key",
+            "type": "string"
+          },
+          "owner_user_id": {
+            "title": "Owner User Id",
+            "type": "string"
+          },
+          "sensor_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Sensor Id"
+          }
+        },
+        "required": [
+          "id",
+          "key",
+          "asset_type",
+          "name",
+          "owner_key",
+          "owner_user_id"
+        ],
+        "title": "AssetListItem",
+        "type": "object"
+      },
+      "AssetRef": {
+        "properties": {
+          "asset_type": {
+            "title": "Asset Type",
+            "type": "string"
+          },
+          "id": {
+            "title": "Id",
+            "type": "string"
+          },
+          "key": {
+            "title": "Key",
+            "type": "string"
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          },
+          "sensor_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Sensor Id"
+          }
+        },
+        "required": [
+          "id",
+          "key",
+          "asset_type",
+          "name"
+        ],
+        "title": "AssetRef",
+        "type": "object"
+      },
       "AssetRelationshipsIn": {
         "additionalProperties": true,
         "description": "Relationships between assets.",
@@ -94,6 +301,101 @@
           }
         },
         "title": "AssetRelationshipsIn",
+        "type": "object"
+      },
+      "CommunityDetail": {
+        "properties": {
+          "areas": {
+            "additionalProperties": {
+              "$ref": "#/components/schemas/Area"
+            },
+            "title": "CommunityDetailAreas",
+            "type": "object"
+          },
+          "contact": {
+            "additionalProperties": true,
+            "title": "CommunityDetailContact",
+            "type": "object"
+          },
+          "created_at": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Created At"
+          },
+          "description": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Description"
+          },
+          "extra": {
+            "additionalProperties": true,
+            "title": "CommunityDetailExtra",
+            "type": "object"
+          },
+          "id": {
+            "title": "Id",
+            "type": "string"
+          },
+          "key": {
+            "title": "Key",
+            "type": "string"
+          },
+          "legal": {
+            "additionalProperties": true,
+            "title": "CommunityDetailLegal",
+            "type": "object"
+          },
+          "links": {
+            "additionalProperties": true,
+            "title": "CommunityDetailLinks",
+            "type": "object"
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          },
+          "settings": {
+            "additionalProperties": true,
+            "title": "CommunityDetailSettings",
+            "type": "object"
+          },
+          "topology": {
+            "items": {
+              "$ref": "#/components/schemas/TopologyNode"
+            },
+            "title": "Topology",
+            "type": "array"
+          },
+          "updated_at": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Updated At"
+          }
+        },
+        "required": [
+          "id",
+          "key",
+          "name"
+        ],
+        "title": "CommunityDetail",
         "type": "object"
       },
       "CommunityIn": {
@@ -181,6 +483,70 @@
         "title": "CommunityIn",
         "type": "object"
       },
+      "CommunityListItem": {
+        "properties": {
+          "areas": {
+            "additionalProperties": {
+              "$ref": "#/components/schemas/Area"
+            },
+            "title": "CommunityListItemAreas",
+            "type": "object"
+          },
+          "description": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Description"
+          },
+          "id": {
+            "title": "Id",
+            "type": "string"
+          },
+          "key": {
+            "title": "Key",
+            "type": "string"
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "key",
+          "name"
+        ],
+        "title": "CommunityListItem",
+        "type": "object"
+      },
+      "CommunityRef": {
+        "properties": {
+          "id": {
+            "title": "Id",
+            "type": "string"
+          },
+          "key": {
+            "title": "Key",
+            "type": "string"
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "key",
+          "name"
+        ],
+        "title": "CommunityRef",
+        "type": "object"
+      },
       "ContactIn": {
         "additionalProperties": true,
         "description": "Contact information.",
@@ -231,6 +597,62 @@
           }
         },
         "title": "ContactIn",
+        "type": "object"
+      },
+      "DeliveryPoint": {
+        "properties": {
+          "active": {
+            "default": true,
+            "title": "Active",
+            "type": "boolean"
+          },
+          "address": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Address"
+          },
+          "description": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Description"
+          },
+          "id": {
+            "title": "Id",
+            "type": "string"
+          },
+          "tariff": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Tariff"
+          },
+          "type": {
+            "title": "Type",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "type"
+        ],
+        "title": "DeliveryPoint",
         "type": "object"
       },
       "DeliveryPointIn": {
@@ -289,6 +711,106 @@
           "type"
         ],
         "title": "DeliveryPointIn",
+        "type": "object"
+      },
+      "DeliveryPointLookup": {
+        "properties": {
+          "delivery_point": {
+            "$ref": "#/components/schemas/DeliveryPoint"
+          },
+          "member": {
+            "$ref": "#/components/schemas/MemberRef"
+          }
+        },
+        "required": [
+          "delivery_point",
+          "member"
+        ],
+        "title": "DeliveryPointLookup",
+        "type": "object"
+      },
+      "DeliveryPointWithOwner": {
+        "properties": {
+          "active": {
+            "default": true,
+            "title": "Active",
+            "type": "boolean"
+          },
+          "address": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Address"
+          },
+          "description": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Description"
+          },
+          "id": {
+            "title": "Id",
+            "type": "string"
+          },
+          "key": {
+            "title": "Key",
+            "type": "string"
+          },
+          "member_key": {
+            "title": "Member Key",
+            "type": "string"
+          },
+          "member_name": {
+            "title": "Member Name",
+            "type": "string"
+          },
+          "tariff": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Tariff"
+          },
+          "type": {
+            "title": "Type",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "key",
+          "type",
+          "member_key",
+          "member_name"
+        ],
+        "title": "DeliveryPointWithOwner",
+        "type": "object"
+      },
+      "DeliveryPointsResponse": {
+        "properties": {
+          "delivery_points": {
+            "items": {
+              "$ref": "#/components/schemas/DeliveryPoint"
+            },
+            "title": "Delivery Points",
+            "type": "array"
+          }
+        },
+        "title": "DeliveryPointsResponse",
         "type": "object"
       },
       "DeviceIn": {
@@ -441,6 +963,140 @@
           "charger_type"
         ],
         "title": "EVChargerAssetIn",
+        "type": "object"
+      },
+      "GlobalAssetLookup": {
+        "properties": {
+          "asset_type": {
+            "title": "Asset Type",
+            "type": "string"
+          },
+          "community_key": {
+            "title": "Community Key",
+            "type": "string"
+          },
+          "community_name": {
+            "title": "Community Name",
+            "type": "string"
+          },
+          "device": {
+            "additionalProperties": true,
+            "title": "GlobalAssetLookupDevice",
+            "type": "object"
+          },
+          "id": {
+            "title": "Id",
+            "type": "string"
+          },
+          "key": {
+            "title": "Key",
+            "type": "string"
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          },
+          "owner_key": {
+            "title": "Owner Key",
+            "type": "string"
+          },
+          "owner_user_id": {
+            "title": "Owner User Id",
+            "type": "string"
+          },
+          "properties": {
+            "additionalProperties": true,
+            "title": "GlobalAssetLookupProperties",
+            "type": "object"
+          },
+          "relationships": {
+            "additionalProperties": true,
+            "title": "GlobalAssetLookupRelationships",
+            "type": "object"
+          },
+          "sensor_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Sensor Id"
+          }
+        },
+        "required": [
+          "id",
+          "key",
+          "asset_type",
+          "name",
+          "owner_key",
+          "owner_user_id",
+          "community_key",
+          "community_name"
+        ],
+        "title": "GlobalAssetLookup",
+        "type": "object"
+      },
+      "GlobalMemberLookup": {
+        "properties": {
+          "area": {
+            "title": "Area",
+            "type": "string"
+          },
+          "community_key": {
+            "title": "Community Key",
+            "type": "string"
+          },
+          "community_name": {
+            "title": "Community Name",
+            "type": "string"
+          },
+          "delivery_points": {
+            "items": {
+              "$ref": "#/components/schemas/DeliveryPoint"
+            },
+            "title": "Delivery Points",
+            "type": "array"
+          },
+          "id": {
+            "title": "Id",
+            "type": "string"
+          },
+          "key": {
+            "title": "Key",
+            "type": "string"
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          },
+          "role": {
+            "title": "Role",
+            "type": "string"
+          },
+          "status": {
+            "title": "Status",
+            "type": "string"
+          },
+          "user_id": {
+            "title": "User Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "key",
+          "user_id",
+          "name",
+          "role",
+          "area",
+          "status",
+          "community_key",
+          "community_name"
+        ],
+        "title": "GlobalMemberLookup",
         "type": "object"
       },
       "HTTPValidationError": {
@@ -883,6 +1539,24 @@
         "title": "LoadAssetIn",
         "type": "object"
       },
+      "Location": {
+        "properties": {
+          "lat": {
+            "title": "Lat",
+            "type": "number"
+          },
+          "lon": {
+            "title": "Lon",
+            "type": "number"
+          }
+        },
+        "required": [
+          "lat",
+          "lon"
+        ],
+        "title": "Location",
+        "type": "object"
+      },
       "LocationIn": {
         "additionalProperties": true,
         "description": "Geographic location.",
@@ -901,6 +1575,139 @@
           "lon"
         ],
         "title": "LocationIn",
+        "type": "object"
+      },
+      "LookupByDeliveryPointResponse": {
+        "properties": {
+          "community": {
+            "$ref": "#/components/schemas/CommunityRef"
+          },
+          "delivery_point": {
+            "$ref": "#/components/schemas/DeliveryPoint"
+          },
+          "member": {
+            "$ref": "#/components/schemas/MemberRef"
+          }
+        },
+        "required": [
+          "community",
+          "member",
+          "delivery_point"
+        ],
+        "title": "LookupByDeliveryPointResponse",
+        "type": "object"
+      },
+      "LookupBySensorIdResponse": {
+        "properties": {
+          "asset": {
+            "$ref": "#/components/schemas/AssetRef"
+          },
+          "community": {
+            "$ref": "#/components/schemas/CommunityRef"
+          },
+          "member": {
+            "$ref": "#/components/schemas/MemberInCommunity"
+          }
+        },
+        "required": [
+          "community",
+          "member",
+          "asset"
+        ],
+        "title": "LookupBySensorIdResponse",
+        "type": "object"
+      },
+      "LookupByUserIdResponse": {
+        "properties": {
+          "community": {
+            "$ref": "#/components/schemas/CommunityRef"
+          },
+          "member": {
+            "$ref": "#/components/schemas/MemberInCommunity"
+          }
+        },
+        "required": [
+          "community",
+          "member"
+        ],
+        "title": "LookupByUserIdResponse",
+        "type": "object"
+      },
+      "MemberDetail": {
+        "properties": {
+          "area": {
+            "title": "Area",
+            "type": "string"
+          },
+          "created_at": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Created At"
+          },
+          "delivery_points": {
+            "items": {
+              "$ref": "#/components/schemas/DeliveryPoint"
+            },
+            "title": "Delivery Points",
+            "type": "array"
+          },
+          "extra": {
+            "additionalProperties": true,
+            "title": "MemberDetailExtra",
+            "type": "object"
+          },
+          "id": {
+            "title": "Id",
+            "type": "string"
+          },
+          "key": {
+            "title": "Key",
+            "type": "string"
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          },
+          "role": {
+            "title": "Role",
+            "type": "string"
+          },
+          "status": {
+            "title": "Status",
+            "type": "string"
+          },
+          "updated_at": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Updated At"
+          },
+          "user_id": {
+            "title": "User Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "key",
+          "user_id",
+          "name",
+          "role",
+          "area",
+          "status"
+        ],
+        "title": "MemberDetail",
         "type": "object"
       },
       "MemberIn": {
@@ -946,6 +1753,120 @@
           "status"
         ],
         "title": "MemberIn",
+        "type": "object"
+      },
+      "MemberInCommunity": {
+        "properties": {
+          "id": {
+            "title": "Id",
+            "type": "string"
+          },
+          "key": {
+            "title": "Key",
+            "type": "string"
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          },
+          "role": {
+            "title": "Role",
+            "type": "string"
+          },
+          "status": {
+            "title": "Status",
+            "type": "string"
+          },
+          "user_id": {
+            "title": "User Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "key",
+          "user_id",
+          "name",
+          "role",
+          "status"
+        ],
+        "title": "MemberInCommunity",
+        "type": "object"
+      },
+      "MemberListItem": {
+        "properties": {
+          "area": {
+            "title": "Area",
+            "type": "string"
+          },
+          "delivery_points_count": {
+            "default": 0,
+            "title": "Delivery Points Count",
+            "type": "integer"
+          },
+          "id": {
+            "title": "Id",
+            "type": "string"
+          },
+          "key": {
+            "title": "Key",
+            "type": "string"
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          },
+          "role": {
+            "title": "Role",
+            "type": "string"
+          },
+          "status": {
+            "title": "Status",
+            "type": "string"
+          },
+          "user_id": {
+            "title": "User Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "key",
+          "user_id",
+          "name",
+          "role",
+          "area",
+          "status"
+        ],
+        "title": "MemberListItem",
+        "type": "object"
+      },
+      "MemberRef": {
+        "properties": {
+          "key": {
+            "title": "Key",
+            "type": "string"
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          },
+          "role": {
+            "title": "Role",
+            "type": "string"
+          },
+          "user_id": {
+            "title": "User Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "key",
+          "user_id",
+          "name",
+          "role"
+        ],
+        "title": "MemberRef",
         "type": "object"
       },
       "MetadataIn": {
@@ -1071,6 +1992,77 @@
         "title": "MeterAssetIn",
         "type": "object"
       },
+      "MeterListItem": {
+        "properties": {
+          "device": {
+            "additionalProperties": true,
+            "title": "MeterListItemDevice",
+            "type": "object"
+          },
+          "id": {
+            "title": "Id",
+            "type": "string"
+          },
+          "key": {
+            "title": "Key",
+            "type": "string"
+          },
+          "meter_type": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Meter Type"
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          },
+          "owner_key": {
+            "title": "Owner Key",
+            "type": "string"
+          },
+          "owner_user_id": {
+            "title": "Owner User Id",
+            "type": "string"
+          },
+          "pod": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Pod"
+          },
+          "sensor_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Sensor Id"
+          }
+        },
+        "required": [
+          "id",
+          "key",
+          "name",
+          "owner_key",
+          "owner_user_id"
+        ],
+        "title": "MeterListItem",
+        "type": "object"
+      },
       "PVAssetIn": {
         "additionalProperties": true,
         "description": "PV system asset.",
@@ -1163,6 +2155,141 @@
           "name"
         ],
         "title": "PVAssetIn",
+        "type": "object"
+      },
+      "PaginatedResponse_AssetListItem_": {
+        "properties": {
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/AssetListItem"
+            },
+            "title": "Items",
+            "type": "array"
+          },
+          "next_cursor": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Next Cursor"
+          }
+        },
+        "required": [
+          "items"
+        ],
+        "title": "PaginatedResponse[AssetListItem]",
+        "type": "object"
+      },
+      "PaginatedResponse_CommunityListItem_": {
+        "properties": {
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/CommunityListItem"
+            },
+            "title": "Items",
+            "type": "array"
+          },
+          "next_cursor": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Next Cursor"
+          }
+        },
+        "required": [
+          "items"
+        ],
+        "title": "PaginatedResponse[CommunityListItem]",
+        "type": "object"
+      },
+      "PaginatedResponse_DeliveryPointWithOwner_": {
+        "properties": {
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/DeliveryPointWithOwner"
+            },
+            "title": "Items",
+            "type": "array"
+          },
+          "next_cursor": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Next Cursor"
+          }
+        },
+        "required": [
+          "items"
+        ],
+        "title": "PaginatedResponse[DeliveryPointWithOwner]",
+        "type": "object"
+      },
+      "PaginatedResponse_MemberListItem_": {
+        "properties": {
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/MemberListItem"
+            },
+            "title": "Items",
+            "type": "array"
+          },
+          "next_cursor": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Next Cursor"
+          }
+        },
+        "required": [
+          "items"
+        ],
+        "title": "PaginatedResponse[MemberListItem]",
+        "type": "object"
+      },
+      "PaginatedResponse_MeterListItem_": {
+        "properties": {
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/MeterListItem"
+            },
+            "title": "Items",
+            "type": "array"
+          },
+          "next_cursor": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Next Cursor"
+          }
+        },
+        "required": [
+          "items"
+        ],
+        "title": "PaginatedResponse[MeterListItem]",
         "type": "object"
       },
       "RegistryBundleIn": {
@@ -1352,6 +2479,62 @@
         "title": "StorageAssetIn",
         "type": "object"
       },
+      "TopologyNode": {
+        "properties": {
+          "area": {
+            "additionalProperties": true,
+            "title": "TopologyNodeArea",
+            "type": "object"
+          },
+          "id": {
+            "title": "Id",
+            "type": "string"
+          },
+          "name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Name"
+          },
+          "operator": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Operator"
+          },
+          "parent": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Parent"
+          },
+          "type": {
+            "title": "Type",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "type"
+        ],
+        "title": "TopologyNode",
+        "type": "object"
+      },
       "TopologyNodeIn": {
         "additionalProperties": true,
         "description": "Grid topology node (substation, transformer, etc.).",
@@ -1415,6 +2598,484 @@
           "type"
         ],
         "title": "TopologyNodeIn",
+        "type": "object"
+      },
+      "TopologyResponse": {
+        "properties": {
+          "topology": {
+            "items": {
+              "$ref": "#/components/schemas/TopologyNode"
+            },
+            "title": "Topology",
+            "type": "array"
+          }
+        },
+        "title": "TopologyResponse",
+        "type": "object"
+      },
+      "UserAsset": {
+        "properties": {
+          "asset_type": {
+            "title": "Asset Type",
+            "type": "string"
+          },
+          "device": {
+            "additionalProperties": true,
+            "title": "UserAssetDevice",
+            "type": "object"
+          },
+          "key": {
+            "title": "Key",
+            "type": "string"
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          },
+          "properties": {
+            "additionalProperties": true,
+            "title": "UserAssetProperties",
+            "type": "object"
+          },
+          "relationships": {
+            "additionalProperties": true,
+            "title": "UserAssetRelationships",
+            "type": "object"
+          },
+          "sensor_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Sensor Id"
+          }
+        },
+        "required": [
+          "key",
+          "asset_type",
+          "name"
+        ],
+        "title": "UserAsset",
+        "type": "object"
+      },
+      "UserAssetDetail": {
+        "properties": {
+          "asset_type": {
+            "title": "Asset Type",
+            "type": "string"
+          },
+          "created_at": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Created At"
+          },
+          "device": {
+            "additionalProperties": true,
+            "title": "UserAssetDetailDevice",
+            "type": "object"
+          },
+          "extra": {
+            "additionalProperties": true,
+            "title": "UserAssetDetailExtra",
+            "type": "object"
+          },
+          "key": {
+            "title": "Key",
+            "type": "string"
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          },
+          "properties": {
+            "additionalProperties": true,
+            "title": "UserAssetDetailProperties",
+            "type": "object"
+          },
+          "relationships": {
+            "additionalProperties": true,
+            "title": "UserAssetDetailRelationships",
+            "type": "object"
+          },
+          "sensor_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Sensor Id"
+          },
+          "updated_at": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Updated At"
+          }
+        },
+        "required": [
+          "key",
+          "asset_type",
+          "name"
+        ],
+        "title": "UserAssetDetail",
+        "type": "object"
+      },
+      "UserAssetsResponse": {
+        "properties": {
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/UserAsset"
+            },
+            "title": "Items",
+            "type": "array"
+          },
+          "total": {
+            "title": "Total",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "items",
+          "total"
+        ],
+        "title": "UserAssetsResponse",
+        "type": "object"
+      },
+      "UserCommunityDetail": {
+        "properties": {
+          "areas": {
+            "additionalProperties": {
+              "$ref": "#/components/schemas/Area"
+            },
+            "title": "UserCommunityDetailAreas",
+            "type": "object"
+          },
+          "contact": {
+            "additionalProperties": true,
+            "title": "UserCommunityDetailContact",
+            "type": "object"
+          },
+          "description": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Description"
+          },
+          "key": {
+            "title": "Key",
+            "type": "string"
+          },
+          "legal": {
+            "additionalProperties": true,
+            "title": "UserCommunityDetailLegal",
+            "type": "object"
+          },
+          "links": {
+            "additionalProperties": true,
+            "title": "UserCommunityDetailLinks",
+            "type": "object"
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          },
+          "settings": {
+            "additionalProperties": true,
+            "title": "UserCommunityDetailSettings",
+            "type": "object"
+          },
+          "topology": {
+            "items": {
+              "$ref": "#/components/schemas/TopologyNode"
+            },
+            "title": "Topology",
+            "type": "array"
+          },
+          "your_area": {
+            "title": "Your Area",
+            "type": "string"
+          },
+          "your_role": {
+            "title": "Your Role",
+            "type": "string"
+          }
+        },
+        "required": [
+          "key",
+          "name",
+          "your_area",
+          "your_role"
+        ],
+        "title": "UserCommunityDetail",
+        "type": "object"
+      },
+      "UserCommunitySummary": {
+        "properties": {
+          "description": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Description"
+          },
+          "key": {
+            "title": "Key",
+            "type": "string"
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          }
+        },
+        "required": [
+          "key",
+          "name"
+        ],
+        "title": "UserCommunitySummary",
+        "type": "object"
+      },
+      "UserDeliveryPointsResponse": {
+        "properties": {
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/DeliveryPoint"
+            },
+            "title": "Items",
+            "type": "array"
+          },
+          "total": {
+            "title": "Total",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "items",
+          "total"
+        ],
+        "title": "UserDeliveryPointsResponse",
+        "type": "object"
+      },
+      "UserMeResponse": {
+        "properties": {
+          "membership": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/UserMembership"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "profile": {
+            "$ref": "#/components/schemas/UserProfile"
+          }
+        },
+        "required": [
+          "profile"
+        ],
+        "title": "UserMeResponse",
+        "type": "object"
+      },
+      "UserMemberDetail": {
+        "properties": {
+          "area": {
+            "title": "Area",
+            "type": "string"
+          },
+          "created_at": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Created At"
+          },
+          "delivery_points": {
+            "items": {
+              "$ref": "#/components/schemas/DeliveryPoint"
+            },
+            "title": "Delivery Points",
+            "type": "array"
+          },
+          "extra": {
+            "additionalProperties": true,
+            "title": "UserMemberDetailExtra",
+            "type": "object"
+          },
+          "key": {
+            "title": "Key",
+            "type": "string"
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          },
+          "role": {
+            "title": "Role",
+            "type": "string"
+          },
+          "status": {
+            "title": "Status",
+            "type": "string"
+          },
+          "updated_at": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Updated At"
+          }
+        },
+        "required": [
+          "key",
+          "name",
+          "role",
+          "area",
+          "status"
+        ],
+        "title": "UserMemberDetail",
+        "type": "object"
+      },
+      "UserMemberSummary": {
+        "properties": {
+          "area": {
+            "title": "Area",
+            "type": "string"
+          },
+          "key": {
+            "title": "Key",
+            "type": "string"
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          },
+          "role": {
+            "title": "Role",
+            "type": "string"
+          },
+          "status": {
+            "title": "Status",
+            "type": "string"
+          }
+        },
+        "required": [
+          "key",
+          "name",
+          "role",
+          "area",
+          "status"
+        ],
+        "title": "UserMemberSummary",
+        "type": "object"
+      },
+      "UserMembership": {
+        "properties": {
+          "assets_count": {
+            "additionalProperties": {
+              "type": "integer"
+            },
+            "title": "UserMembershipAssetsCount",
+            "type": "object"
+          },
+          "community": {
+            "$ref": "#/components/schemas/UserCommunitySummary"
+          },
+          "delivery_points_count": {
+            "default": 0,
+            "title": "Delivery Points Count",
+            "type": "integer"
+          },
+          "member": {
+            "$ref": "#/components/schemas/UserMemberSummary"
+          }
+        },
+        "required": [
+          "member",
+          "community"
+        ],
+        "title": "UserMembership",
+        "type": "object"
+      },
+      "UserProfile": {
+        "properties": {
+          "email": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Email"
+          },
+          "name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Name"
+          },
+          "preferred_username": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Preferred Username"
+          },
+          "sub": {
+            "title": "Sub",
+            "type": "string"
+          }
+        },
+        "required": [
+          "sub"
+        ],
+        "title": "UserProfile",
         "type": "object"
       },
       "ValidationError": {
@@ -1517,7 +3178,9 @@
           "200": {
             "content": {
               "application/json": {
-                "schema": {}
+                "schema": {
+                  "$ref": "#/components/schemas/PaginatedResponse_CommunityListItem_"
+                }
               }
             },
             "description": "Successful Response"
@@ -1558,7 +3221,9 @@
           "200": {
             "content": {
               "application/json": {
-                "schema": {}
+                "schema": {
+                  "$ref": "#/components/schemas/CommunityDetail"
+                }
               }
             },
             "description": "Successful Response"
@@ -1665,7 +3330,9 @@
           "200": {
             "content": {
               "application/json": {
-                "schema": {}
+                "schema": {
+                  "$ref": "#/components/schemas/PaginatedResponse_AssetListItem_"
+                }
               }
             },
             "description": "Successful Response"
@@ -1689,7 +3356,7 @@
     },
     "/admin/communities/{community_key}/assets/by-sensor-id/{sensor_id}": {
       "get": {
-        "description": "Get a meter asset by its sensor_id.",
+        "description": "Get an asset by its sensor_id.",
         "operationId": "get_asset_by_sensor_id_admin_communities__community_key__assets_by_sensor_id__sensor_id__get",
         "parameters": [
           {
@@ -1715,7 +3382,9 @@
           "200": {
             "content": {
               "application/json": {
-                "schema": {}
+                "schema": {
+                  "$ref": "#/components/schemas/AssetDetail"
+                }
               }
             },
             "description": "Successful Response"
@@ -1765,7 +3434,9 @@
           "200": {
             "content": {
               "application/json": {
-                "schema": {}
+                "schema": {
+                  "$ref": "#/components/schemas/AssetDetail"
+                }
               }
             },
             "description": "Successful Response"
@@ -1802,7 +3473,7 @@
             }
           },
           {
-            "description": "Filter by type (pod, cups, etc.)",
+            "description": "Filter by type",
             "in": "query",
             "name": "type",
             "required": false,
@@ -1815,7 +3486,7 @@
                   "type": "null"
                 }
               ],
-              "description": "Filter by type (pod, cups, etc.)",
+              "description": "Filter by type",
               "title": "Type"
             }
           },
@@ -1872,7 +3543,9 @@
           "200": {
             "content": {
               "application/json": {
-                "schema": {}
+                "schema": {
+                  "$ref": "#/components/schemas/PaginatedResponse_DeliveryPointWithOwner_"
+                }
               }
             },
             "description": "Successful Response"
@@ -1896,7 +3569,7 @@
     },
     "/admin/communities/{community_key}/delivery-points/by-id/{dp_id}": {
       "get": {
-        "description": "Find a delivery point by its ID (POD, CUPS, etc.).",
+        "description": "Find a delivery point by its ID.",
         "operationId": "get_delivery_point_by_id_admin_communities__community_key__delivery_points_by_id__dp_id__get",
         "parameters": [
           {
@@ -1922,7 +3595,9 @@
           "200": {
             "content": {
               "application/json": {
-                "schema": {}
+                "schema": {
+                  "$ref": "#/components/schemas/DeliveryPointLookup"
+                }
               }
             },
             "description": "Successful Response"
@@ -2047,7 +3722,9 @@
           "200": {
             "content": {
               "application/json": {
-                "schema": {}
+                "schema": {
+                  "$ref": "#/components/schemas/PaginatedResponse_MemberListItem_"
+                }
               }
             },
             "description": "Successful Response"
@@ -2071,7 +3748,7 @@
     },
     "/admin/communities/{community_key}/members/by-user-id/{user_id}": {
       "get": {
-        "description": "Get a member by their external user_id (e.g., Keycloak UUID).",
+        "description": "Get a member by their external user_id.",
         "operationId": "get_member_by_user_id_admin_communities__community_key__members_by_user_id__user_id__get",
         "parameters": [
           {
@@ -2097,7 +3774,9 @@
           "200": {
             "content": {
               "application/json": {
-                "schema": {}
+                "schema": {
+                  "$ref": "#/components/schemas/MemberDetail"
+                }
               }
             },
             "description": "Successful Response"
@@ -2147,7 +3826,9 @@
           "200": {
             "content": {
               "application/json": {
-                "schema": {}
+                "schema": {
+                  "$ref": "#/components/schemas/MemberDetail"
+                }
               }
             },
             "description": "Successful Response"
@@ -2197,7 +3878,9 @@
           "200": {
             "content": {
               "application/json": {
-                "schema": {}
+                "schema": {
+                  "$ref": "#/components/schemas/DeliveryPointsResponse"
+                }
               }
             },
             "description": "Successful Response"
@@ -2221,7 +3904,7 @@
     },
     "/admin/communities/{community_key}/meters": {
       "get": {
-        "description": "List meters in a community (shortcut for assets?asset_type=meter).",
+        "description": "List meters in a community.",
         "operationId": "list_meters_admin_communities__community_key__meters_get",
         "parameters": [
           {
@@ -2286,7 +3969,9 @@
           "200": {
             "content": {
               "application/json": {
-                "schema": {}
+                "schema": {
+                  "$ref": "#/components/schemas/PaginatedResponse_MeterListItem_"
+                }
               }
             },
             "description": "Successful Response"
@@ -2327,7 +4012,9 @@
           "200": {
             "content": {
               "application/json": {
-                "schema": {}
+                "schema": {
+                  "$ref": "#/components/schemas/TopologyResponse"
+                }
               }
             },
             "description": "Successful Response"
@@ -2438,7 +4125,7 @@
     },
     "/admin/lookup/asset-by-sensor-id/{sensor_id}": {
       "get": {
-        "description": "Global lookup: find an asset (meter) by sensor_id across all communities.",
+        "description": "Find an asset by sensor_id across all communities.",
         "operationId": "lookup_asset_by_sensor_id_admin_lookup_asset_by_sensor_id__sensor_id__get",
         "parameters": [
           {
@@ -2455,7 +4142,9 @@
           "200": {
             "content": {
               "application/json": {
-                "schema": {}
+                "schema": {
+                  "$ref": "#/components/schemas/GlobalAssetLookup"
+                }
               }
             },
             "description": "Successful Response"
@@ -2479,7 +4168,7 @@
     },
     "/admin/lookup/community-by-delivery-point/{dp_id}": {
       "get": {
-        "description": "Find which community a delivery point belongs to by its ID.",
+        "description": "Find which community a delivery point belongs to.",
         "operationId": "lookup_community_by_delivery_point_admin_lookup_community_by_delivery_point__dp_id__get",
         "parameters": [
           {
@@ -2496,7 +4185,9 @@
           "200": {
             "content": {
               "application/json": {
-                "schema": {}
+                "schema": {
+                  "$ref": "#/components/schemas/LookupByDeliveryPointResponse"
+                }
               }
             },
             "description": "Successful Response"
@@ -2520,7 +4211,7 @@
     },
     "/admin/lookup/community-by-sensor-id/{sensor_id}": {
       "get": {
-        "description": "Find which community a meter belongs to by its sensor_id.",
+        "description": "Find which community a meter belongs to.",
         "operationId": "lookup_community_by_sensor_id_admin_lookup_community_by_sensor_id__sensor_id__get",
         "parameters": [
           {
@@ -2537,7 +4228,9 @@
           "200": {
             "content": {
               "application/json": {
-                "schema": {}
+                "schema": {
+                  "$ref": "#/components/schemas/LookupBySensorIdResponse"
+                }
               }
             },
             "description": "Successful Response"
@@ -2561,7 +4254,7 @@
     },
     "/admin/lookup/community-by-user-id/{user_id}": {
       "get": {
-        "description": "Find which community a user belongs to by their user_id.",
+        "description": "Find which community a user belongs to.",
         "operationId": "lookup_community_by_user_id_admin_lookup_community_by_user_id__user_id__get",
         "parameters": [
           {
@@ -2578,7 +4271,9 @@
           "200": {
             "content": {
               "application/json": {
-                "schema": {}
+                "schema": {
+                  "$ref": "#/components/schemas/LookupByUserIdResponse"
+                }
               }
             },
             "description": "Successful Response"
@@ -2602,7 +4297,7 @@
     },
     "/admin/lookup/member-by-user-id/{user_id}": {
       "get": {
-        "description": "Global lookup: find a member by user_id across all communities.",
+        "description": "Find a member by user_id across all communities.",
         "operationId": "lookup_member_by_user_id_admin_lookup_member_by_user_id__user_id__get",
         "parameters": [
           {
@@ -2619,7 +4314,9 @@
           "200": {
             "content": {
               "application/json": {
-                "schema": {}
+                "schema": {
+                  "$ref": "#/components/schemas/GlobalMemberLookup"
+                }
               }
             },
             "description": "Successful Response"
@@ -2663,13 +4360,15 @@
     },
     "/user": {
       "get": {
-        "description": "Get current user's profile and membership information.\n\nReturns:\n- JWT profile information\n- Community membership (if any)\n- Member details\n- Summary of owned assets",
+        "description": "Get current user's profile and membership summary.",
         "operationId": "get_me_user_get",
         "responses": {
           "200": {
             "content": {
               "application/json": {
-                "schema": {}
+                "schema": {
+                  "$ref": "#/components/schemas/UserMeResponse"
+                }
               }
             },
             "description": "Successful Response"
@@ -2683,7 +4382,7 @@
     },
     "/user/assets": {
       "get": {
-        "description": "Get current user's assets. Optionally filter by asset_type.",
+        "description": "Get current user's assets.\n\nNote: Does not include owner info (user already knows it's theirs).",
         "operationId": "get_my_assets_user_assets_get",
         "parameters": [
           {
@@ -2709,7 +4408,9 @@
           "200": {
             "content": {
               "application/json": {
-                "schema": {}
+                "schema": {
+                  "$ref": "#/components/schemas/UserAssetsResponse"
+                }
               }
             },
             "description": "Successful Response"
@@ -2750,7 +4451,9 @@
           "200": {
             "content": {
               "application/json": {
-                "schema": {}
+                "schema": {
+                  "$ref": "#/components/schemas/UserAssetDetail"
+                }
               }
             },
             "description": "Successful Response"
@@ -2774,13 +4477,15 @@
     },
     "/user/community": {
       "get": {
-        "description": "Get the community the current user belongs to.",
+        "description": "Get the community the current user belongs to.\n\nIncludes user's own area and role for context.",
         "operationId": "get_my_community_user_community_get",
         "responses": {
           "200": {
             "content": {
               "application/json": {
-                "schema": {}
+                "schema": {
+                  "$ref": "#/components/schemas/UserCommunityDetail"
+                }
               }
             },
             "description": "Successful Response"
@@ -2794,13 +4499,15 @@
     },
     "/user/delivery-points": {
       "get": {
-        "description": "Get current user's delivery points (PODs, CUPS, etc.).",
+        "description": "Get current user's delivery points.",
         "operationId": "get_my_delivery_points_user_delivery_points_get",
         "responses": {
           "200": {
             "content": {
               "application/json": {
-                "schema": {}
+                "schema": {
+                  "$ref": "#/components/schemas/UserDeliveryPointsResponse"
+                }
               }
             },
             "description": "Successful Response"
@@ -2814,13 +4521,15 @@
     },
     "/user/member": {
       "get": {
-        "description": "Get current user's full member details including delivery points.",
+        "description": "Get current user's full member details.\n\nNote: Does not include user_id in response (user already knows it).",
         "operationId": "get_my_member_user_member_get",
         "responses": {
           "200": {
             "content": {
               "application/json": {
-                "schema": {}
+                "schema": {
+                  "$ref": "#/components/schemas/UserMemberDetail"
+                }
               }
             },
             "description": "Successful Response"

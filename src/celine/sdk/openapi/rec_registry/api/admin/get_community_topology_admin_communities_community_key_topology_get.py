@@ -7,6 +7,7 @@ import httpx
 from ... import errors
 from ...client import AuthenticatedClient, Client
 from ...models.http_validation_error import HTTPValidationError
+from ...models.topology_response import TopologyResponse
 from ...types import Response
 
 
@@ -25,9 +26,10 @@ def _get_kwargs(
 
 def _parse_response(
     *, client: AuthenticatedClient | Client, response: httpx.Response
-) -> Any | HTTPValidationError | None:
+) -> HTTPValidationError | TopologyResponse | None:
     if response.status_code == 200:
-        response_200 = response.json()
+        response_200 = TopologyResponse.from_dict(response.json())
+
         return response_200
 
     if response.status_code == 422:
@@ -43,7 +45,7 @@ def _parse_response(
 
 def _build_response(
     *, client: AuthenticatedClient | Client, response: httpx.Response
-) -> Response[Any | HTTPValidationError]:
+) -> Response[HTTPValidationError | TopologyResponse]:
     return Response(
         status_code=HTTPStatus(response.status_code),
         content=response.content,
@@ -56,7 +58,7 @@ def sync_detailed(
     community_key: str,
     *,
     client: AuthenticatedClient | Client,
-) -> Response[Any | HTTPValidationError]:
+) -> Response[HTTPValidationError | TopologyResponse]:
     """Get Community Topology
 
      Get community grid topology.
@@ -69,7 +71,7 @@ def sync_detailed(
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Response[Any | HTTPValidationError]
+        Response[HTTPValidationError | TopologyResponse]
     """
 
     kwargs = _get_kwargs(
@@ -87,7 +89,7 @@ def sync(
     community_key: str,
     *,
     client: AuthenticatedClient | Client,
-) -> Any | HTTPValidationError | None:
+) -> HTTPValidationError | TopologyResponse | None:
     """Get Community Topology
 
      Get community grid topology.
@@ -100,7 +102,7 @@ def sync(
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Any | HTTPValidationError
+        HTTPValidationError | TopologyResponse
     """
 
     return sync_detailed(
@@ -113,7 +115,7 @@ async def asyncio_detailed(
     community_key: str,
     *,
     client: AuthenticatedClient | Client,
-) -> Response[Any | HTTPValidationError]:
+) -> Response[HTTPValidationError | TopologyResponse]:
     """Get Community Topology
 
      Get community grid topology.
@@ -126,7 +128,7 @@ async def asyncio_detailed(
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Response[Any | HTTPValidationError]
+        Response[HTTPValidationError | TopologyResponse]
     """
 
     kwargs = _get_kwargs(
@@ -142,7 +144,7 @@ async def asyncio(
     community_key: str,
     *,
     client: AuthenticatedClient | Client,
-) -> Any | HTTPValidationError | None:
+) -> HTTPValidationError | TopologyResponse | None:
     """Get Community Topology
 
      Get community grid topology.
@@ -155,7 +157,7 @@ async def asyncio(
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Any | HTTPValidationError
+        HTTPValidationError | TopologyResponse
     """
 
     return (

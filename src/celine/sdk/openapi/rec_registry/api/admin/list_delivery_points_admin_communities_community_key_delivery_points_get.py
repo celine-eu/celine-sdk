@@ -7,6 +7,7 @@ import httpx
 from ... import errors
 from ...client import AuthenticatedClient, Client
 from ...models.http_validation_error import HTTPValidationError
+from ...models.paginated_response_delivery_point_with_owner import PaginatedResponseDeliveryPointWithOwner
 from ...types import UNSET, Response, Unset
 
 
@@ -58,9 +59,10 @@ def _get_kwargs(
 
 def _parse_response(
     *, client: AuthenticatedClient | Client, response: httpx.Response
-) -> Any | HTTPValidationError | None:
+) -> HTTPValidationError | PaginatedResponseDeliveryPointWithOwner | None:
     if response.status_code == 200:
-        response_200 = response.json()
+        response_200 = PaginatedResponseDeliveryPointWithOwner.from_dict(response.json())
+
         return response_200
 
     if response.status_code == 422:
@@ -76,7 +78,7 @@ def _parse_response(
 
 def _build_response(
     *, client: AuthenticatedClient | Client, response: httpx.Response
-) -> Response[Any | HTTPValidationError]:
+) -> Response[HTTPValidationError | PaginatedResponseDeliveryPointWithOwner]:
     return Response(
         status_code=HTTPStatus(response.status_code),
         content=response.content,
@@ -93,14 +95,14 @@ def sync_detailed(
     active: bool | None | Unset = UNSET,
     limit: int | Unset = 50,
     cursor: None | str | Unset = UNSET,
-) -> Response[Any | HTTPValidationError]:
+) -> Response[HTTPValidationError | PaginatedResponseDeliveryPointWithOwner]:
     """List Delivery Points
 
      List all delivery points in a community.
 
     Args:
         community_key (str):
-        type_ (None | str | Unset): Filter by type (pod, cups, etc.)
+        type_ (None | str | Unset): Filter by type
         active (bool | None | Unset): Filter by active status
         limit (int | Unset):  Default: 50.
         cursor (None | str | Unset): Pagination cursor
@@ -110,7 +112,7 @@ def sync_detailed(
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Response[Any | HTTPValidationError]
+        Response[HTTPValidationError | PaginatedResponseDeliveryPointWithOwner]
     """
 
     kwargs = _get_kwargs(
@@ -136,14 +138,14 @@ def sync(
     active: bool | None | Unset = UNSET,
     limit: int | Unset = 50,
     cursor: None | str | Unset = UNSET,
-) -> Any | HTTPValidationError | None:
+) -> HTTPValidationError | PaginatedResponseDeliveryPointWithOwner | None:
     """List Delivery Points
 
      List all delivery points in a community.
 
     Args:
         community_key (str):
-        type_ (None | str | Unset): Filter by type (pod, cups, etc.)
+        type_ (None | str | Unset): Filter by type
         active (bool | None | Unset): Filter by active status
         limit (int | Unset):  Default: 50.
         cursor (None | str | Unset): Pagination cursor
@@ -153,7 +155,7 @@ def sync(
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Any | HTTPValidationError
+        HTTPValidationError | PaginatedResponseDeliveryPointWithOwner
     """
 
     return sync_detailed(
@@ -174,14 +176,14 @@ async def asyncio_detailed(
     active: bool | None | Unset = UNSET,
     limit: int | Unset = 50,
     cursor: None | str | Unset = UNSET,
-) -> Response[Any | HTTPValidationError]:
+) -> Response[HTTPValidationError | PaginatedResponseDeliveryPointWithOwner]:
     """List Delivery Points
 
      List all delivery points in a community.
 
     Args:
         community_key (str):
-        type_ (None | str | Unset): Filter by type (pod, cups, etc.)
+        type_ (None | str | Unset): Filter by type
         active (bool | None | Unset): Filter by active status
         limit (int | Unset):  Default: 50.
         cursor (None | str | Unset): Pagination cursor
@@ -191,7 +193,7 @@ async def asyncio_detailed(
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Response[Any | HTTPValidationError]
+        Response[HTTPValidationError | PaginatedResponseDeliveryPointWithOwner]
     """
 
     kwargs = _get_kwargs(
@@ -215,14 +217,14 @@ async def asyncio(
     active: bool | None | Unset = UNSET,
     limit: int | Unset = 50,
     cursor: None | str | Unset = UNSET,
-) -> Any | HTTPValidationError | None:
+) -> HTTPValidationError | PaginatedResponseDeliveryPointWithOwner | None:
     """List Delivery Points
 
      List all delivery points in a community.
 
     Args:
         community_key (str):
-        type_ (None | str | Unset): Filter by type (pod, cups, etc.)
+        type_ (None | str | Unset): Filter by type
         active (bool | None | Unset): Filter by active status
         limit (int | Unset):  Default: 50.
         cursor (None | str | Unset): Pagination cursor
@@ -232,7 +234,7 @@ async def asyncio(
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Any | HTTPValidationError
+        HTTPValidationError | PaginatedResponseDeliveryPointWithOwner
     """
 
     return (

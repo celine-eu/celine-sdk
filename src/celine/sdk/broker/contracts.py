@@ -23,7 +23,7 @@ class QoS(int, Enum):
     EXACTLY_ONCE = 2  # Guaranteed single delivery
 
 
-@dataclass(frozen=True)
+@dataclass()
 class BrokerMessage:
     """
     A message to be published via the broker.

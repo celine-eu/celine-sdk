@@ -5,6 +5,7 @@ import httpx
 
 from ... import errors
 from ...client import AuthenticatedClient, Client
+from ...models.user_member_detail import UserMemberDetail
 from ...types import Response
 
 
@@ -17,9 +18,11 @@ def _get_kwargs() -> dict[str, Any]:
     return _kwargs
 
 
-def _parse_response(*, client: AuthenticatedClient | Client, response: httpx.Response) -> Any | None:
+def _parse_response(*, client: AuthenticatedClient | Client, response: httpx.Response) -> UserMemberDetail | None:
     if response.status_code == 200:
-        return None
+        response_200 = UserMemberDetail.from_dict(response.json())
+
+        return response_200
 
     if client.raise_on_unexpected_status:
         raise errors.UnexpectedStatus(response.status_code, response.content)
@@ -27,7 +30,7 @@ def _parse_response(*, client: AuthenticatedClient | Client, response: httpx.Res
         return None
 
 
-def _build_response(*, client: AuthenticatedClient | Client, response: httpx.Response) -> Response[Any]:
+def _build_response(*, client: AuthenticatedClient | Client, response: httpx.Response) -> Response[UserMemberDetail]:
     return Response(
         status_code=HTTPStatus(response.status_code),
         content=response.content,
@@ -39,17 +42,19 @@ def _build_response(*, client: AuthenticatedClient | Client, response: httpx.Res
 def sync_detailed(
     *,
     client: AuthenticatedClient | Client,
-) -> Response[Any]:
+) -> Response[UserMemberDetail]:
     """Get My Member
 
-     Get current user's full member details including delivery points.
+     Get current user's full member details.
+
+    Note: Does not include user_id in response (user already knows it).
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Response[Any]
+        Response[UserMemberDetail]
     """
 
     kwargs = _get_kwargs()
@@ -61,20 +66,45 @@ def sync_detailed(
     return _build_response(client=client, response=response)
 
 
-async def asyncio_detailed(
+def sync(
     *,
     client: AuthenticatedClient | Client,
-) -> Response[Any]:
+) -> UserMemberDetail | None:
     """Get My Member
 
-     Get current user's full member details including delivery points.
+     Get current user's full member details.
+
+    Note: Does not include user_id in response (user already knows it).
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Response[Any]
+        UserMemberDetail
+    """
+
+    return sync_detailed(
+        client=client,
+    ).parsed
+
+
+async def asyncio_detailed(
+    *,
+    client: AuthenticatedClient | Client,
+) -> Response[UserMemberDetail]:
+    """Get My Member
+
+     Get current user's full member details.
+
+    Note: Does not include user_id in response (user already knows it).
+
+    Raises:
+        errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
+        httpx.TimeoutException: If the request takes longer than Client.timeout.
+
+    Returns:
+        Response[UserMemberDetail]
     """
 
     kwargs = _get_kwargs()
@@ -82,3 +112,28 @@ async def asyncio_detailed(
     response = await client.get_async_httpx_client().request(**kwargs)
 
     return _build_response(client=client, response=response)
+
+
+async def asyncio(
+    *,
+    client: AuthenticatedClient | Client,
+) -> UserMemberDetail | None:
+    """Get My Member
+
+     Get current user's full member details.
+
+    Note: Does not include user_id in response (user already knows it).
+
+    Raises:
+        errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
+        httpx.TimeoutException: If the request takes longer than Client.timeout.
+
+    Returns:
+        UserMemberDetail
+    """
+
+    return (
+        await asyncio_detailed(
+            client=client,
+        )
+    ).parsed

@@ -56,10 +56,10 @@ wheels = [
 
 [[package]]
 name = "celine-regorus"
-version = "0.9.0"
+version = "0.9.1.post20260210043442"
 source = { registry = "https://pypi.org/simple" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/7a/e2/dd1348a1f1aca11eb32942e2dd929b8f95f6457f1a9aae060bc7299f5b27/celine_regorus-0.9.0-cp310-abi3-manylinux_2_34_x86_64.whl", hash = "sha256:34982138f6f933a62b517f1486801da8fc87a9baa6c26e4305d117721af763e4", size = 3622457, upload-time = "2026-01-31T02:28:59.399Z" },
+    { url = "https://files.pythonhosted.org/packages/40/b9/829c73421787125033ba6731754b068b41af3f16a482dc4398ee7fc1b654/celine_regorus-0.9.1.post20260210043442-cp310-abi3-manylinux_2_34_x86_64.whl", hash = "sha256:36a010c27ec6ba3f32c573774d4bd3868c93533988a35b458ffde032a4939dc3", size = 3622300, upload-time = "2026-02-10T04:37:11.886Z" },
 ]
 
 [[package]]
@@ -94,7 +94,7 @@ requires-dist = [
     { name = "aiomqtt", specifier = ">=2.5.0" },
     { name = "attrs", specifier = ">=25.4.0" },
     { name = "cachetools", specifier = ">=7.0.0" },
-    { name = "celine-regorus", specifier = ">=0.9.0" },
+    { name = "celine-regorus", specifier = ">=0.9.1.post20260210043442" },
     { name = "httpx", specifier = ">=0.28.1" },
     { name = "pydantic", specifier = ">=2.12.5" },
     { name = "pydantic-settings", specifier = ">=2.12.0" },

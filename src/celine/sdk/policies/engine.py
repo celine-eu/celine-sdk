@@ -1,10 +1,9 @@
-"""Policy engine using regorus (embedded Rego evaluator)."""
-
 import json
 import logging
 import threading
+from dataclasses import dataclass
 from pathlib import Path
-from typing import Any
+from typing import Any, Iterable
 
 from regorus import Engine
 
@@ -14,210 +13,131 @@ logger = logging.getLogger(__name__)
 
 
 class PolicyEngineError(Exception):
-    """Base exception for policy engine errors."""
-
     pass
 
 
-class PolicyEngine:
-    """Embedded OPA policy engine using regorus.
+@dataclass(frozen=True)
+class _Bundle:
+    policies: tuple[tuple[str, str], ...]  # (path, rego source)
+    data_json: tuple[str, ...]  # raw JSON strings (each add_data_json)
 
-    Thread-safe policy evaluation with support for:
-    - Loading policies from directory
-    - Loading data from JSON files
-    - Hot reload of policies
-    - Package existence checking for routing
+
+class PolicyEngine:
+    """
+    Production policy engine:
+      - immutable policy/data bundle loaded once
+      - per-thread regorus Engine instance (no cross-thread mutation)
     """
 
-    def __init__(
-        self,
-        policies_dir: Path | str | None = None,
-        data_dir: Path | str | None = None,
-    ):
-        """Initialize the policy engine.
-
-        Args:
-            policies_dir: Directory containing .rego policy files
-            data_dir: Optional directory containing JSON data files
-        """
-        self._policies_dir = Path(policies_dir) if policies_dir else None
+    def __init__(self, policies_dir: Path | str, data_dir: Path | str | None = None):
+        self._policies_dir = Path(policies_dir)
         self._data_dir = Path(data_dir) if data_dir else None
-        self._engine: Engine | None = None
-        self._lock = threading.RLock()
-        self._loaded = False
-        self._policy_count = 0
+
+        self._bundle: _Bundle | None = None
         self._known_packages: set[str] = set()
+        self._policy_count = 0
+
+        self._tls = threading.local()
 
     @property
     def is_loaded(self) -> bool:
-        """Check if policies are loaded."""
-        return self._loaded
+        return self._bundle is not None
+
+    def build_input_dict(self, policy_input: PolicyInput) -> dict[str, Any]:
+        return self._build_input(policy_input)
+
+    def load(self) -> None:
+        """
+        Load and freeze policies/data into an immutable bundle.
+        Call once at process startup.
+        """
+        if not self._policies_dir.exists():
+            raise PolicyEngineError(
+                f"policies_dir does not exist: {self._policies_dir}"
+            )
+
+        policies = list(self._read_policies(self._policies_dir))
+        data_json = list(self._read_data_json(self._data_dir) if self._data_dir else [])
+
+        known_packages: set[str] = set()
+        for _, content in policies:
+            pkg = self._extract_package_name(content)
+            if pkg:
+                known_packages.add(pkg)
+
+        self._bundle = _Bundle(policies=tuple(policies), data_json=tuple(data_json))
+        self._known_packages = known_packages
+        self._policy_count = len(policies)
+
+        logger.info(
+            "Policy engine bundle loaded: %d policies, %d data files, packages=%s",
+            self._policy_count,
+            len(data_json),
+            sorted(self._known_packages),
+        )
 
     @property
     def policy_count(self) -> int:
-        """Get the number of loaded policies."""
         return self._policy_count
 
-    def load(self) -> None:
-        """Load policies and data from configured directories."""
-        with self._lock:
-            self._engine = Engine()
-            self._policy_count = 0
-            self._known_packages = set()
-
-            if self._policies_dir and self._policies_dir.exists():
-                self._load_policies(self._policies_dir)
-
-            if self._data_dir and self._data_dir.exists():
-                self._load_data(self._data_dir)
-
-            self._loaded = True
-            logger.info(
-                "Policy engine loaded: %d policies, packages: %s",
-                self._policy_count,
-                sorted(self._known_packages),
-            )
-
-    def reload(self) -> None:
-        """Reload all policies and data."""
-        logger.info("Reloading policies...")
-        self.load()
-
-    def get_engine(self) -> Engine:
-        if not self._engine:
-            raise Exception("engine not loaded")
-        return self._engine
-
-    def _load_policies(self, directory: Path) -> None:
-        """Recursively load .rego files from directory."""
-        for rego_file in directory.rglob("*.rego"):
-            if rego_file.name.endswith("_test.rego"):
-                continue  # Skip test files in production
-
-            try:
-                content = rego_file.read_text()
-                self.get_engine().add_policy(str(rego_file), content)
-                self._policy_count += 1
-
-                # Extract package name for routing
-                package_name = self._extract_package_name(content)
-                if package_name:
-                    self._known_packages.add(package_name)
-
-                logger.debug("Loaded policy: %s (package: %s)", rego_file, package_name)
-            except Exception as e:
-                logger.error("Failed to load policy %s: %s", rego_file, e)
-                raise PolicyEngineError(f"Failed to load {rego_file}: {e}") from e
-
-    def _extract_package_name(self, content: str) -> str | None:
-        """Extract package name from Rego policy content."""
-        for line in content.split("\n"):
-            line = line.strip()
-            if line.startswith("package "):
-                return line.split()[1].strip()
-        return None
-
-    def _load_data(self, directory: Path) -> None:
-        """Load JSON data files into the engine."""
-        for json_file in directory.rglob("*.json"):
-            try:
-                content = json_file.read_text()
-                data = json.loads(content)
-
-                # Derive data path from filename
-                # e.g., data/celine.json -> data.celine
-                relative = json_file.relative_to(directory)
-                path_parts = list(relative.parts[:-1]) + [json_file.stem]
-                data_path = "data." + ".".join(path_parts)
-
-                self.get_engine().add_data_json(content)
-                logger.debug("Loaded data: %s -> %s", json_file, data_path)
-            except Exception as e:
-                logger.error("Failed to load data %s: %s", json_file, e)
-                raise PolicyEngineError(f"Failed to load {json_file}: {e}") from e
-
     def has_package(self, package: str) -> bool:
-        """Check if a policy package exists.
-
-        Used for routing decisions - try specific policy first,
-        fall back to generic if not found.
-
-        Args:
-            package: Package name (e.g., "celine.dataset")
-
-        Returns:
-            True if package exists, False otherwise
-        """
         return package in self._known_packages
 
     def get_packages(self) -> list[str]:
-        """Get list of all loaded policy packages."""
         return sorted(self._known_packages)
 
-    def evaluate(self, query: str, input_data: dict[str, Any]) -> Any:
-        """Evaluate a Rego query with input data.
-
-        Args:
-            query: Rego query path (e.g., "data.celine.authz.allow")
-            input_data: Input data for the query
-
-        Returns:
-            Query result
-
-        Raises:
-            PolicyEngineError: If engine is not loaded
+    def _engine_for_thread(self) -> Engine:
         """
-        if not self._loaded:
-            raise PolicyEngineError("Policy engine not loaded")
+        Get or create the per-thread Engine. No locking required because
+        each thread initializes its own instance once.
+        """
+        eng = getattr(self._tls, "engine", None)
+        if eng is not None:
+            return eng
 
-        with self._lock:
-            self.get_engine().set_input_json(json.dumps(input_data))
-            result = self.get_engine().eval_query(query)
-            return result
+        if self._bundle is None:
+            raise PolicyEngineError("Policy engine not loaded (call load() at startup)")
+
+        eng = Engine()
+
+        # Add policies
+        for path, content in self._bundle.policies:
+            eng.add_policy(path, content)
+
+        # Add data (raw JSON blobs)
+        for blob in self._bundle.data_json:
+            eng.add_data_json(blob)
+
+        self._tls.engine = eng
+        return eng
+
+    def evaluate(self, query: str, input_data: dict[str, Any]) -> Any:
+        eng = self._engine_for_thread()
+        eng.set_input_json(json.dumps(input_data))
+        return eng.eval_query(query)
 
     def evaluate_decision(
-        self,
-        policy_package: str,
-        policy_input: PolicyInput,
+        self, policy_package: str, policy_input: PolicyInput
     ) -> Decision:
-        """Evaluate a policy and return a Decision.
-
-        Args:
-            policy_package: Policy package (e.g., "celine.dataset.access")
-            policy_input: Structured policy input
-
-        Returns:
-            Decision with allowed, reason, filters
-
-        Raises:
-            PolicyEngineError: If engine is not loaded
-        """
-        if not self._loaded:
-            raise PolicyEngineError("Policy engine not loaded")
-
+        eng = self._engine_for_thread()
         input_dict = self._build_input(policy_input)
+        eng.set_input_json(json.dumps(input_dict))
 
-        with self._lock:
-            self.get_engine().set_input_json(json.dumps(input_dict))
+        allow_query = f"data.{policy_package}.allow"
+        allow_result = eng.eval_query(allow_query)
+        allowed = self._extract_bool(allow_result, False)
 
-            # Query allow
-            allow_query = f"data.{policy_package}.allow"
-            allow_result = self.get_engine().eval_query(allow_query)
-            allowed = self._extract_bool(allow_result, False)
+        reason_query = f"data.{policy_package}.reason"
+        reason_result = eng.eval_query(reason_query)
+        reason = self._extract_string(reason_result, "")
 
-            # Query reason
-            reason_query = f"data.{policy_package}.reason"
-            reason_result = self.get_engine().eval_query(reason_query)
-            reason = self._extract_string(reason_result, "")
-
-            # Query filters (optional)
-            filters: list[FilterPredicate] = []
-            try:
-                filters_query = f"data.{policy_package}.filters"
-                filters_result = self.get_engine().eval_query(filters_query)
-                filters = self._extract_filters(filters_result)
-            except Exception:
-                pass  # Filters are optional
+        filters: list[FilterPredicate] = []
+        try:
+            filters_query = f"data.{policy_package}.filters"
+            filters_result = eng.eval_query(filters_query)
+            filters = self._extract_filters(filters_result)
+        except Exception:
+            pass
 
         return Decision(
             allowed=allowed,
@@ -227,8 +147,30 @@ class PolicyEngine:
             cached=False,
         )
 
+    # ---------- bundle reading ----------
+
+    def _read_policies(self, directory: Path) -> Iterable[tuple[str, str]]:
+        for rego_file in directory.rglob("*.rego"):
+            if rego_file.name.endswith("_test.rego"):
+                continue
+            yield (str(rego_file), rego_file.read_text())
+
+    def _read_data_json(self, directory: Path | None) -> Iterable[str]:
+        if directory is None or not directory.exists():
+            return
+        for json_file in directory.rglob("*.json"):
+            yield json_file.read_text()
+
+    def _extract_package_name(self, content: str) -> str | None:
+        for line in content.split("\n"):
+            line = line.strip()
+            if line.startswith("package "):
+                return line.split()[1].strip()
+        return None
+
+    # ---------- same extraction helpers as you already have ----------
+
     def _build_input(self, policy_input: PolicyInput) -> dict[str, Any]:
-        """Build OPA input from PolicyInput."""
         result: dict[str, Any] = {
             "resource": {
                 "type": policy_input.resource.type.value,
@@ -241,7 +183,6 @@ class PolicyEngine:
             },
             "environment": policy_input.environment,
         }
-
         if policy_input.subject:
             result["subject"] = {
                 "id": policy_input.subject.id,
@@ -252,39 +193,35 @@ class PolicyEngine:
             }
         else:
             result["subject"] = None
-
         return result
 
     def _extract_bool(self, result: Any, default: bool) -> bool:
-        """Extract boolean from query result."""
-        if isinstance(result, list) and len(result) > 0:
+        if isinstance(result, list) and result:
             item = result[0]
             if isinstance(item, dict) and "expressions" in item:
                 exprs = item["expressions"]
-                if exprs and len(exprs) > 0:
+                if exprs:
                     return bool(exprs[0].get("value", default))
         return default
 
     def _extract_string(self, result: Any, default: str) -> str:
-        """Extract string from query result."""
-        if isinstance(result, list) and len(result) > 0:
+        if isinstance(result, list) and result:
             item = result[0]
             if isinstance(item, dict) and "expressions" in item:
                 exprs = item["expressions"]
-                if exprs and len(exprs) > 0:
+                if exprs:
                     value = exprs[0].get("value")
                     if isinstance(value, str):
                         return value
         return default
 
     def _extract_filters(self, result: Any) -> list[FilterPredicate]:
-        """Extract filter predicates from query result."""
-        filters = []
-        if isinstance(result, list) and len(result) > 0:
+        filters: list[FilterPredicate] = []
+        if isinstance(result, list) and result:
             item = result[0]
             if isinstance(item, dict) and "expressions" in item:
                 exprs = item["expressions"]
-                if exprs and len(exprs) > 0:
+                if exprs:
                     value = exprs[0].get("value")
                     if isinstance(value, list):
                         for f in value:

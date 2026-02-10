@@ -47,6 +47,14 @@ from celine.sdk.openapi.rec_registry.models.http_validation_error import (
     HTTPValidationError,
 )
 from celine.sdk.openapi.rec_registry.models.import_request import ImportRequest
+from celine.sdk.openapi.rec_registry.models.user_assets_response import (
+    UserAssetsResponse,
+)
+from celine.sdk.openapi.rec_registry.models.user_community_detail import (
+    UserCommunityDetail,
+)
+from celine.sdk.openapi.rec_registry.models.user_me_response import UserMeResponse
+from celine.sdk.openapi.rec_registry.models.user_member_detail import UserMemberDetail
 from celine.sdk.openapi.rec_registry.types import UNSET
 
 __all__ = [
@@ -119,40 +127,56 @@ class RecRegistryUserClient:
             raise_on_unexpected_status=True,
         )
 
-    async def get_me(self, *, token: Optional[str] = None) -> Any:
+    async def get_me(self, *, token: Optional[str] = None) -> UserMeResponse | None:
         """Get current user profile and membership information."""
         client = self._get_client(token)
-        return await get_me_user_get.asyncio_detailed(client=client)
+        res = await get_me_user_get.asyncio_detailed(client=client)
+        return res.parsed
 
-    async def get_my_community(self, *, token: Optional[str] = None) -> Any:
+    async def get_my_community(
+        self, *, token: Optional[str] = None
+    ) -> UserCommunityDetail | None:
         """Get user's community details."""
         client = self._get_client(token)
-        return await get_my_community_user_community_get.asyncio_detailed(client=client)
+        res = await get_my_community_user_community_get.asyncio_detailed(client=client)
+        return res.parsed
 
-    async def get_my_member(self, *, token: Optional[str] = None) -> Any:
+    async def get_my_member(
+        self, *, token: Optional[str] = None
+    ) -> UserMemberDetail | None:
         """Get user's member details."""
         client = self._get_client(token)
-        return await get_my_member_user_member_get.asyncio_detailed(client=client)
+        res = await get_my_member_user_member_get.asyncio_detailed(client=client)
+        return res.parsed
 
-    async def get_my_assets(self, *, token: Optional[str] = None) -> Any:
+    async def get_my_assets(
+        self, *, token: Optional[str] = None
+    ) -> UserAssetsResponse | None:
         """List all assets owned by the user."""
         client = self._get_client(token)
-        return await get_my_assets_user_assets_get.asyncio_detailed(client=client)
+        res = await get_my_assets_user_assets_get.asyncio_detailed(client=client)
+        if isinstance(res.parsed, HTTPValidationError):
+            raise Exception(res.parsed)
+        return res.parsed
 
     async def get_my_asset(self, asset_key: str, *, token: Optional[str] = None) -> Any:
         """Get specific asset owned by the user."""
         client = self._get_client(token)
-        return await get_my_asset_user_assets_asset_key_get.asyncio_detailed(
+        res = await get_my_asset_user_assets_asset_key_get.asyncio_detailed(
             client=client,
             asset_key=asset_key,
         )
 
+        return res.parsed
+
     async def get_my_delivery_points(self, *, token: Optional[str] = None) -> Any:
         """Get user's delivery points."""
         client = self._get_client(token)
-        return await get_my_delivery_points_user_delivery_points_get.asyncio_detailed(
+
+        res = await get_my_delivery_points_user_delivery_points_get.asyncio_detailed(
             client=client
         )
+        return res.parsed
 
 
 class RecRegistryAdminClient:
