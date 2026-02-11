@@ -43,18 +43,30 @@ from celine.sdk.openapi.rec_registry.api.me import (
     get_my_delivery_points_user_delivery_points_get,
     get_my_member_user_member_get,
 )
-from celine.sdk.openapi.rec_registry.models.http_validation_error import (
+from celine.sdk.openapi.rec_registry.models import (
     HTTPValidationError,
-)
-from celine.sdk.openapi.rec_registry.models.import_request import ImportRequest
-from celine.sdk.openapi.rec_registry.models.user_assets_response import (
     UserAssetsResponse,
-)
-from celine.sdk.openapi.rec_registry.models.user_community_detail import (
     UserCommunityDetail,
+    UserMeResponse,
+    UserMemberDetail,
+    ImportRequest,
+    UserDeliveryPointsResponse,
+    UserAssetDetail,
 )
-from celine.sdk.openapi.rec_registry.models.user_me_response import UserMeResponse
-from celine.sdk.openapi.rec_registry.models.user_member_detail import UserMemberDetail
+
+from celine.sdk.utils.convert import to_schema
+
+from celine.sdk.openapi.rec_registry.schemas import (
+    HTTPValidationErrorSchema,
+    UserAssetsResponseSchema,
+    UserCommunityDetailSchema,
+    UserMeResponseSchema,
+    UserMemberDetailSchema,
+    ImportRequestSchema,
+    UserDeliveryPointsResponseSchema,
+    UserAssetDetailSchema,
+)
+
 from celine.sdk.openapi.rec_registry.types import UNSET
 
 __all__ = [
@@ -127,39 +139,43 @@ class RecRegistryUserClient:
             raise_on_unexpected_status=True,
         )
 
-    async def get_me(self, *, token: Optional[str] = None) -> UserMeResponse | None:
+    async def get_me(
+        self, *, token: Optional[str] = None
+    ) -> UserMeResponseSchema | None:
         """Get current user profile and membership information."""
         client = self._get_client(token)
         res = await get_me_user_get.asyncio_detailed(client=client)
-        return res.parsed
+        return to_schema(res.parsed, UserMeResponseSchema)
 
     async def get_my_community(
         self, *, token: Optional[str] = None
-    ) -> UserCommunityDetail | None:
+    ) -> UserCommunityDetailSchema | None:
         """Get user's community details."""
         client = self._get_client(token)
         res = await get_my_community_user_community_get.asyncio_detailed(client=client)
-        return res.parsed
+        return to_schema(res.parsed, UserCommunityDetailSchema)
 
     async def get_my_member(
         self, *, token: Optional[str] = None
-    ) -> UserMemberDetail | None:
+    ) -> UserMemberDetailSchema | None:
         """Get user's member details."""
         client = self._get_client(token)
         res = await get_my_member_user_member_get.asyncio_detailed(client=client)
-        return res.parsed
+        return to_schema(res.parsed, UserMemberDetailSchema)
 
     async def get_my_assets(
         self, *, token: Optional[str] = None
-    ) -> UserAssetsResponse | None:
+    ) -> UserAssetsResponseSchema | None:
         """List all assets owned by the user."""
         client = self._get_client(token)
         res = await get_my_assets_user_assets_get.asyncio_detailed(client=client)
         if isinstance(res.parsed, HTTPValidationError):
             raise Exception(res.parsed)
-        return res.parsed
+        return to_schema(res.parsed, UserAssetsResponseSchema)
 
-    async def get_my_asset(self, asset_key: str, *, token: Optional[str] = None) -> Any:
+    async def get_my_asset(
+        self, asset_key: str, *, token: Optional[str] = None
+    ) -> UserAssetDetailSchema | None:
         """Get specific asset owned by the user."""
         client = self._get_client(token)
         res = await get_my_asset_user_assets_asset_key_get.asyncio_detailed(
@@ -167,16 +183,22 @@ class RecRegistryUserClient:
             asset_key=asset_key,
         )
 
-        return res.parsed
+        if isinstance(res.parsed, HTTPValidationError):
+            raise Exception(res.parsed)
 
-    async def get_my_delivery_points(self, *, token: Optional[str] = None) -> Any:
+        return to_schema(res.parsed, UserAssetDetailSchema)
+
+    async def get_my_delivery_points(
+        self, *, token: Optional[str] = None
+    ) -> UserDeliveryPointsResponseSchema | None:
         """Get user's delivery points."""
         client = self._get_client(token)
 
         res = await get_my_delivery_points_user_delivery_points_get.asyncio_detailed(
             client=client
         )
-        return res.parsed
+
+        return to_schema(res.parsed, UserDeliveryPointsResponseSchema)
 
 
 class RecRegistryAdminClient:

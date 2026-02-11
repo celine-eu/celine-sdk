@@ -27,7 +27,7 @@ def _write_config(path: Path, package_name: str) -> None:
     )
 
 
-def _run_generation(spec_path: Path, out_dir: Path, package_name: str) -> None:
+def _generate_openapi_client(spec_path: Path, out_dir: Path, package_name: str) -> None:
     cfg = out_dir / "openapi-python-client.yml"
     _write_config(cfg, package_name)
 
@@ -55,6 +55,42 @@ def _run_generation(spec_path: Path, out_dir: Path, package_name: str) -> None:
             "openapi-python-client failed\nSTDOUT:\n%s\nSTDERR:\n%s"
             % (proc.stdout, proc.stderr)
         )
+
+
+def _generate_openapi_schemas(spec_path: Path, schemas_path: Path) -> None:
+    cmd = [
+        "datamodel-codegen",
+        "--input",
+        str(spec_path),
+        "--input-file-type",
+        "openapi",
+        "--output",
+        str(schemas_path),
+        "--class-name-suffix",
+        "Schema",
+        "--use-title-as-name",
+        "--collapse-root-models",
+        "--use-schema-description",
+        "--formatters",
+        "ruff-format",
+        "--formatters",
+        "ruff-check",
+    ]
+
+    proc = subprocess.run(cmd, capture_output=True, text=True)
+
+    if proc.stdout:
+        typer.echo(proc.stdout)
+    if proc.stderr:
+        typer.echo(proc.stderr, err=True)
+
+    if proc.returncode != 0:
+        raise RuntimeError(
+            "datamodel-code-generator failed\nSTDOUT:\n%s\nSTDERR:\n%s"
+            % (proc.stdout, proc.stderr)
+        )
+
+    typer.echo(f"Wrote schemas to: {schemas_path}")
 
 
 @gen_app.callback(invoke_without_command=True)
@@ -91,7 +127,7 @@ def generate(
 
         with tempfile.TemporaryDirectory(prefix=f"celine-sdk-{pkg}-") as td:
             out_dir = Path(td)
-            _run_generation(spec_path, out_dir, pkg)
+            _generate_openapi_client(spec_path, out_dir, pkg)
 
             generated_pkg_dir = out_dir / pkg
             if not generated_pkg_dir.exists():
@@ -112,5 +148,7 @@ def generate(
             if dest_dir.exists():
                 shutil.rmtree(dest_dir)
             shutil.copytree(generated_pkg_dir, dest_dir)
+
+        _generate_openapi_schemas(spec_path, dest_dir / "schemas.py")
 
         typer.echo(f"Wrote: {dest_dir}")

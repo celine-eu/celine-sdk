@@ -7,38 +7,30 @@ from __future__ import annotations
 import logging
 from typing import TYPE_CHECKING, Any
 
-from celine.sdk.dt.community import DTApiError, _unwrap
-from celine.sdk.openapi.dt.api.it_participant import (
-    flexibility_participants_participant_id_flexibility_get as _flexibility,
-)
-from celine.sdk.openapi.dt.api.it_participant import (
-    it_participant_describe_simulation as _describe_sim,
-)
-from celine.sdk.openapi.dt.api.it_participant import (
-    it_participant_describe_value as _describe_value,
-)
-from celine.sdk.openapi.dt.api.it_participant import (
-    it_participant_get_value as _get_value,
-)
-from celine.sdk.openapi.dt.api.it_participant import it_participant_info as _info
-from celine.sdk.openapi.dt.api.it_participant import (
-    it_participant_list_simulations as _list_sims,
-)
-from celine.sdk.openapi.dt.api.it_participant import (
-    it_participant_list_values as _list_values,
-)
-from celine.sdk.openapi.dt.api.it_participant import (
-    it_participant_post_value as _post_value,
-)
-from celine.sdk.openapi.dt.api.it_participant import (
-    participant_profile_participants_participant_id_profile_get as _profile,
-)
-from celine.sdk.openapi.dt.models import Payload, ValuesRequest
-from celine.sdk.openapi.dt.models.http_validation_error import HTTPValidationError
-from celine.sdk.openapi.dt.models.response_it_participant_info import (
-    ResponseItParticipantInfo,
-)
+from celine.sdk.dt.community import unwrap
+
+from celine.sdk.dt.util import DTApiError
 from celine.sdk.openapi.dt.types import UNSET
+
+from celine.sdk.openapi.dt.models import (
+    UserMeResponseSchema,
+    ValueDescriptorSchema,
+    HTTPValidationError,
+    DescribeResponseSchema,
+    ValueResponseSchema,
+    ValuesRequestSchema,
+    GenericPayload,
+    SimulationDescriptorSchema,
+)
+from celine.sdk.openapi.dt.api.it_participant import (
+    it_participant_profile as _profile,
+    it_participant_list_values as _list_values,
+    it_participant_get_value as _get_value,
+    it_participant_post_value as _post_value,
+    it_participant_describe_value as _describe_value,
+    it_participant_list_simulations as _list_simulations,
+    it_participant_describe_simulation as _describe_simulations,
+)
 
 if TYPE_CHECKING:
     from celine.sdk.dt.client import DTClient
@@ -55,45 +47,36 @@ class ParticipantClient:
     def __init__(self, dt: DTClient) -> None:
         self._dt = dt
 
-    async def info(self, participant_id: str) -> dict[str, Any]:
-        client = await self._dt._get_client()
-        result = await _info.asyncio(participant_id=participant_id, client=client)
-        return _unwrap(result, f"info({participant_id})")
-
-    async def profile(self, participant_id: str) -> dict[str, Any]:
+    async def profile(self, participant_id: str) -> UserMeResponseSchema:
         """Get the participant profile."""
         client = await self._dt._get_client()
-        result = await _profile.asyncio(participant_id=participant_id, client=client)
-        data = _unwrap(result, f"profile({participant_id})")
-        if hasattr(data, "to_dict"):
-            return data.to_dict()
-        return data
-
-    async def flexibility(self, participant_id: str) -> dict[str, Any]:
-        """Get the participant flexibility status."""
-        client = await self._dt._get_client()
-        result = await _flexibility.asyncio(
+        result = await _profile.asyncio_detailed(
             participant_id=participant_id, client=client
         )
-        data = _unwrap(result, f"flexibility({participant_id})")
-        if hasattr(data, "to_dict"):
-            return data.to_dict()
+        data = unwrap(result)
+        if isinstance(data, HTTPValidationError):
+            logger.warning(data.detail)
+            raise DTApiError("Validation error", 500)
         return data
 
-    async def list_values(self, participant_id: str) -> list[dict[str, Any]]:
+    async def list_values(self, participant_id: str) -> list[ValueDescriptorSchema]:
         """List available value fetchers for a participant."""
         client = await self._dt._get_client()
-        result = await _list_values.asyncio(
+        result = await _list_values.asyncio_detailed(
             participant_id=participant_id, client=client
         )
-        return _unwrap(result, f"list_values({participant_id})")
+        data = unwrap(result)
+        if isinstance(data, HTTPValidationError):
+            logger.warning(data.detail)
+            raise DTApiError("Validation error", 500)
+        return data
 
     async def get_value(
         self,
         participant_id: str,
         fetcher_id: str,
         **params: Any,
-    ) -> dict[str, Any]:
+    ) -> ValueResponseSchema:
         """Fetch a value using query-string parameters.
 
         Args:
@@ -102,60 +85,84 @@ class ParticipantClient:
             **params: Query parameters passed to the fetcher.
         """
         client = await self._dt._get_client()
-        result = await _get_value.asyncio(
+        result = await _get_value.asyncio_detailed(
             participant_id=participant_id,
             fetcher_id=fetcher_id,
             client=client,
         )
-        return _unwrap(result, f"get_value({participant_id}, {fetcher_id})")
+        data = unwrap(result)
+        if isinstance(data, HTTPValidationError):
+            logger.warning(data.detail)
+            raise DTApiError("Validation error", 500)
+        return data
 
     async def post_value(
         self,
         participant_id: str,
         fetcher_id: str,
         payload: dict[str, Any],
-    ) -> dict[str, Any]:
+    ) -> ValueResponseSchema:
         """Fetch a value using a JSON payload (POST)."""
         client = await self._dt._get_client()
-        body = ValuesRequest(payload=Payload.from_dict(payload))
-        result = await _post_value.asyncio(
+        body = ValuesRequestSchema(payload=GenericPayload.from_dict(payload))
+        result = await _post_value.asyncio_detailed(
             participant_id=participant_id,
             fetcher_id=fetcher_id,
             client=client,
             body=body,
         )
-        return _unwrap(result, f"post_value({participant_id}, {fetcher_id})")
+        data = unwrap(result)
+        if isinstance(data, HTTPValidationError):
+            logger.warning(data.detail)
+            raise DTApiError("Validation error", 500)
+        return data
 
     async def describe_value(
         self,
         participant_id: str,
         fetcher_id: str,
-    ) -> dict[str, Any]:
+    ) -> DescribeResponseSchema:
         """Describe a value fetcher's schema and metadata."""
         client = await self._dt._get_client()
-        result = await _describe_value.asyncio(
+        result = await _describe_value.asyncio_detailed(
             participant_id=participant_id,
             fetcher_id=fetcher_id,
             client=client,
         )
-        return _unwrap(result, f"describe_value({participant_id}, {fetcher_id})")
+        data = unwrap(result)
+        if isinstance(data, HTTPValidationError):
+            logger.warning(data.detail)
+            raise DTApiError("Validation error", 500)
+        return data
 
-    async def list_simulations(self, participant_id: str) -> list[dict[str, Any]]:
+    async def list_simulations(
+        self, participant_id: str
+    ) -> list[SimulationDescriptorSchema]:
         """List available simulations for a participant."""
         client = await self._dt._get_client()
-        result = await _list_sims.asyncio(participant_id=participant_id, client=client)
-        return _unwrap(result, f"list_simulations({participant_id})")
+        result = await _list_simulations.asyncio_detailed(
+            participant_id=participant_id, client=client
+        )
+        data = unwrap(result)
+        if isinstance(data, HTTPValidationError):
+            logger.warning(data.detail)
+            raise DTApiError("Validation error", 500)
+        return data
 
     async def describe_simulation(
         self,
         participant_id: str,
         sim_key: str,
-    ) -> dict[str, Any]:
+    ) -> DescribeResponseSchema:
         """Describe a simulation's parameters and configuration."""
         client = await self._dt._get_client()
-        result = await _describe_sim.asyncio(
+        result = await _describe_simulations.asyncio_detailed(
             participant_id=participant_id,
             sim_key=sim_key,
             client=client,
         )
-        return _unwrap(result, f"describe_simulation({participant_id}, {sim_key})")
+        data = unwrap(result)
+        if isinstance(data, HTTPValidationError):
+            logger.warning(data.detail)
+            raise DTApiError("Validation error", 500)
+        return data

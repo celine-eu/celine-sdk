@@ -7,8 +7,8 @@ import httpx
 from ... import errors
 from ...client import AuthenticatedClient, Client
 from ...models.http_validation_error import HTTPValidationError
-from ...models.response_it_participant_post_value import ResponseItParticipantPostValue
-from ...models.values_request import ValuesRequest
+from ...models.value_response_schema import ValueResponseSchema
+from ...models.values_request_schema import ValuesRequestSchema
 from ...types import Response
 
 
@@ -16,7 +16,7 @@ def _get_kwargs(
     participant_id: str,
     fetcher_id: str,
     *,
-    body: ValuesRequest,
+    body: ValuesRequestSchema,
 ) -> dict[str, Any]:
     headers: dict[str, Any] = {}
 
@@ -38,9 +38,9 @@ def _get_kwargs(
 
 def _parse_response(
     *, client: AuthenticatedClient | Client, response: httpx.Response
-) -> HTTPValidationError | ResponseItParticipantPostValue | None:
+) -> HTTPValidationError | ValueResponseSchema | None:
     if response.status_code == 200:
-        response_200 = ResponseItParticipantPostValue.from_dict(response.json())
+        response_200 = ValueResponseSchema.from_dict(response.json())
 
         return response_200
 
@@ -57,7 +57,7 @@ def _parse_response(
 
 def _build_response(
     *, client: AuthenticatedClient | Client, response: httpx.Response
-) -> Response[HTTPValidationError | ResponseItParticipantPostValue]:
+) -> Response[HTTPValidationError | ValueResponseSchema]:
     return Response(
         status_code=HTTPStatus(response.status_code),
         content=response.content,
@@ -71,23 +71,21 @@ def sync_detailed(
     fetcher_id: str,
     *,
     client: AuthenticatedClient | Client,
-    body: ValuesRequest,
-) -> Response[HTTPValidationError | ResponseItParticipantPostValue]:
+    body: ValuesRequestSchema,
+) -> Response[HTTPValidationError | ValueResponseSchema]:
     """Post Value
-
-     Fetch a value using a JSON payload.
 
     Args:
         participant_id (str):
         fetcher_id (str):
-        body (ValuesRequest): POST body for the values API.
+        body (ValuesRequestSchema):
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Response[HTTPValidationError | ResponseItParticipantPostValue]
+        Response[HTTPValidationError | ValueResponseSchema]
     """
 
     kwargs = _get_kwargs(
@@ -108,23 +106,21 @@ def sync(
     fetcher_id: str,
     *,
     client: AuthenticatedClient | Client,
-    body: ValuesRequest,
-) -> HTTPValidationError | ResponseItParticipantPostValue | None:
+    body: ValuesRequestSchema,
+) -> HTTPValidationError | ValueResponseSchema | None:
     """Post Value
-
-     Fetch a value using a JSON payload.
 
     Args:
         participant_id (str):
         fetcher_id (str):
-        body (ValuesRequest): POST body for the values API.
+        body (ValuesRequestSchema):
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        HTTPValidationError | ResponseItParticipantPostValue
+        HTTPValidationError | ValueResponseSchema
     """
 
     return sync_detailed(
@@ -140,23 +136,21 @@ async def asyncio_detailed(
     fetcher_id: str,
     *,
     client: AuthenticatedClient | Client,
-    body: ValuesRequest,
-) -> Response[HTTPValidationError | ResponseItParticipantPostValue]:
+    body: ValuesRequestSchema,
+) -> Response[HTTPValidationError | ValueResponseSchema]:
     """Post Value
-
-     Fetch a value using a JSON payload.
 
     Args:
         participant_id (str):
         fetcher_id (str):
-        body (ValuesRequest): POST body for the values API.
+        body (ValuesRequestSchema):
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Response[HTTPValidationError | ResponseItParticipantPostValue]
+        Response[HTTPValidationError | ValueResponseSchema]
     """
 
     kwargs = _get_kwargs(
@@ -175,23 +169,21 @@ async def asyncio(
     fetcher_id: str,
     *,
     client: AuthenticatedClient | Client,
-    body: ValuesRequest,
-) -> HTTPValidationError | ResponseItParticipantPostValue | None:
+    body: ValuesRequestSchema,
+) -> HTTPValidationError | ValueResponseSchema | None:
     """Post Value
-
-     Fetch a value using a JSON payload.
 
     Args:
         participant_id (str):
         fetcher_id (str):
-        body (ValuesRequest): POST body for the values API.
+        body (ValuesRequestSchema):
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        HTTPValidationError | ResponseItParticipantPostValue
+        HTTPValidationError | ValueResponseSchema
     """
 
     return (

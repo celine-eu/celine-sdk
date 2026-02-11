@@ -1,6 +1,103 @@
 {
   "components": {
     "schemas": {
+      "AreaSchema": {
+        "properties": {
+          "location": {
+            "$ref": "#/components/schemas/LocationSchema"
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          }
+        },
+        "required": [
+          "location",
+          "name"
+        ],
+        "title": "AreaSchema",
+        "type": "object"
+      },
+      "DeliveryPointSchema": {
+        "properties": {
+          "active": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": true,
+            "title": "Active"
+          },
+          "address": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Address"
+          },
+          "description": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Description"
+          },
+          "id": {
+            "title": "Id",
+            "type": "string"
+          },
+          "tariff": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Tariff"
+          },
+          "type": {
+            "title": "Type",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "type"
+        ],
+        "title": "DeliveryPointSchema",
+        "type": "object"
+      },
+      "DescribeResponseSchema": {
+        "properties": {
+          "payload": {
+            "$ref": "#/components/schemas/GenericPayload"
+          }
+        },
+        "required": [
+          "payload"
+        ],
+        "title": "DescribeResponseSchema",
+        "type": "object"
+      },
+      "GenericPayload": {
+        "additionalProperties": true,
+        "title": "GenericPayload",
+        "type": "object"
+      },
       "HTTPValidationError": {
         "properties": {
           "detail": {
@@ -12,6 +109,619 @@
           }
         },
         "title": "HTTPValidationError",
+        "type": "object"
+      },
+      "LocationSchema": {
+        "properties": {
+          "lat": {
+            "title": "Lat",
+            "type": "number"
+          },
+          "lon": {
+            "title": "Lon",
+            "type": "number"
+          }
+        },
+        "required": [
+          "lat",
+          "lon"
+        ],
+        "title": "LocationSchema",
+        "type": "object"
+      },
+      "SimulationDescriptorSchema": {
+        "properties": {
+          "description": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Description"
+          },
+          "key": {
+            "description": "Simulation key.",
+            "title": "Key",
+            "type": "string"
+          },
+          "meta": {
+            "$ref": "#/components/schemas/GenericPayload"
+          },
+          "title": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Title"
+          }
+        },
+        "required": [
+          "key",
+          "meta"
+        ],
+        "title": "SimulationDescriptorSchema",
+        "type": "object"
+      },
+      "SummaryResponseSchema": {
+        "properties": {
+          "payload": {
+            "$ref": "#/components/schemas/GenericPayload"
+          }
+        },
+        "required": [
+          "payload"
+        ],
+        "title": "SummaryResponseSchema",
+        "type": "object"
+      },
+      "TopologyNodeSchema": {
+        "properties": {
+          "area": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "TopologyNodeArea"
+          },
+          "id": {
+            "title": "Id",
+            "type": "string"
+          },
+          "name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Name"
+          },
+          "operator": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Operator"
+          },
+          "parent": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Parent"
+          },
+          "type": {
+            "title": "Type",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "type"
+        ],
+        "title": "TopologyNodeSchema",
+        "type": "object"
+      },
+      "UserAssetSchema": {
+        "properties": {
+          "asset_type": {
+            "title": "Asset Type",
+            "type": "string"
+          },
+          "device": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "UserAssetDevice"
+          },
+          "key": {
+            "title": "Key",
+            "type": "string"
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          },
+          "properties": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "UserAssetProperties"
+          },
+          "relationships": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "UserAssetRelationships"
+          },
+          "sensor_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Sensor Id"
+          }
+        },
+        "required": [
+          "asset_type",
+          "key",
+          "name"
+        ],
+        "title": "UserAssetSchema",
+        "type": "object"
+      },
+      "UserAssetsResponseSchema": {
+        "properties": {
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/UserAssetSchema"
+            },
+            "title": "Items",
+            "type": "array"
+          },
+          "total": {
+            "title": "Total",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "items",
+          "total"
+        ],
+        "title": "UserAssetsResponseSchema",
+        "type": "object"
+      },
+      "UserCommunityDetailSchema": {
+        "properties": {
+          "areas": {
+            "anyOf": [
+              {
+                "additionalProperties": {
+                  "$ref": "#/components/schemas/AreaSchema"
+                },
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "UserCommunityDetailAreas"
+          },
+          "contact": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "UserCommunityDetailContact"
+          },
+          "description": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Description"
+          },
+          "key": {
+            "title": "Key",
+            "type": "string"
+          },
+          "legal": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "UserCommunityDetailLegal"
+          },
+          "links": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "UserCommunityDetailLinks"
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          },
+          "settings": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "UserCommunityDetailSettings"
+          },
+          "topology": {
+            "anyOf": [
+              {
+                "items": {
+                  "$ref": "#/components/schemas/TopologyNodeSchema"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Topology"
+          },
+          "your_area": {
+            "title": "Your Area",
+            "type": "string"
+          },
+          "your_role": {
+            "title": "Your Role",
+            "type": "string"
+          }
+        },
+        "required": [
+          "key",
+          "name",
+          "your_area",
+          "your_role"
+        ],
+        "title": "UserCommunityDetailSchema",
+        "type": "object"
+      },
+      "UserCommunitySummarySchema": {
+        "properties": {
+          "description": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Description"
+          },
+          "key": {
+            "title": "Key",
+            "type": "string"
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          }
+        },
+        "required": [
+          "key",
+          "name"
+        ],
+        "title": "UserCommunitySummarySchema",
+        "type": "object"
+      },
+      "UserDeliveryPointsResponseSchema": {
+        "properties": {
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/DeliveryPointSchema"
+            },
+            "title": "Items",
+            "type": "array"
+          },
+          "total": {
+            "title": "Total",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "items",
+          "total"
+        ],
+        "title": "UserDeliveryPointsResponseSchema",
+        "type": "object"
+      },
+      "UserMeResponseSchema": {
+        "properties": {
+          "membership": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/UserMembershipSchema"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "profile": {
+            "$ref": "#/components/schemas/UserProfileSchema"
+          }
+        },
+        "required": [
+          "profile"
+        ],
+        "title": "UserMeResponseSchema",
+        "type": "object"
+      },
+      "UserMemberDetailSchema": {
+        "properties": {
+          "area": {
+            "title": "Area",
+            "type": "string"
+          },
+          "created_at": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Created At"
+          },
+          "delivery_points": {
+            "anyOf": [
+              {
+                "items": {
+                  "$ref": "#/components/schemas/DeliveryPointSchema"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Delivery Points"
+          },
+          "extra": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "UserMemberDetailExtra"
+          },
+          "key": {
+            "title": "Key",
+            "type": "string"
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          },
+          "role": {
+            "title": "Role",
+            "type": "string"
+          },
+          "status": {
+            "title": "Status",
+            "type": "string"
+          },
+          "updated_at": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Updated At"
+          }
+        },
+        "required": [
+          "area",
+          "key",
+          "name",
+          "role",
+          "status"
+        ],
+        "title": "UserMemberDetailSchema",
+        "type": "object"
+      },
+      "UserMemberSummarySchema": {
+        "properties": {
+          "area": {
+            "title": "Area",
+            "type": "string"
+          },
+          "key": {
+            "title": "Key",
+            "type": "string"
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          },
+          "role": {
+            "title": "Role",
+            "type": "string"
+          },
+          "status": {
+            "title": "Status",
+            "type": "string"
+          }
+        },
+        "required": [
+          "area",
+          "key",
+          "name",
+          "role",
+          "status"
+        ],
+        "title": "UserMemberSummarySchema",
+        "type": "object"
+      },
+      "UserMembershipSchema": {
+        "properties": {
+          "assets_count": {
+            "anyOf": [
+              {
+                "additionalProperties": {
+                  "type": "integer"
+                },
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "UserMembershipAssetsCount"
+          },
+          "community": {
+            "$ref": "#/components/schemas/UserCommunitySummarySchema"
+          },
+          "delivery_points_count": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": 0,
+            "title": "Delivery Points Count"
+          },
+          "member": {
+            "$ref": "#/components/schemas/UserMemberSummarySchema"
+          }
+        },
+        "required": [
+          "community",
+          "member"
+        ],
+        "title": "UserMembershipSchema",
+        "type": "object"
+      },
+      "UserProfileSchema": {
+        "properties": {
+          "email": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Email"
+          },
+          "name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Name"
+          },
+          "preferred_username": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Preferred Username"
+          },
+          "sub": {
+            "title": "Sub",
+            "type": "string"
+          }
+        },
+        "required": [
+          "sub"
+        ],
+        "title": "UserProfileSchema",
         "type": "object"
       },
       "ValidationError": {
@@ -47,16 +757,80 @@
         "title": "ValidationError",
         "type": "object"
       },
-      "ValuesRequest": {
-        "description": "POST body for the values API.",
+      "ValueDescriptorSchema": {
         "properties": {
-          "payload": {
-            "additionalProperties": true,
-            "title": "Payload",
-            "type": "object"
+          "description": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Description"
+          },
+          "id": {
+            "description": "Fetcher ID (domain-scoped).",
+            "title": "Id",
+            "type": "string"
+          },
+          "kind": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Optional kind/category (e.g. timeseries, scalar).",
+            "title": "Kind"
+          },
+          "meta": {
+            "$ref": "#/components/schemas/GenericPayload"
+          },
+          "title": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Title"
           }
         },
-        "title": "ValuesRequest",
+        "required": [
+          "id",
+          "meta"
+        ],
+        "title": "ValueDescriptorSchema",
+        "type": "object"
+      },
+      "ValueResponseSchema": {
+        "properties": {
+          "payload": {
+            "$ref": "#/components/schemas/GenericPayload"
+          }
+        },
+        "required": [
+          "payload"
+        ],
+        "title": "ValueResponseSchema",
+        "type": "object"
+      },
+      "ValuesRequestSchema": {
+        "properties": {
+          "payload": {
+            "$ref": "#/components/schemas/GenericPayload"
+          }
+        },
+        "required": [
+          "payload"
+        ],
+        "title": "ValuesRequestSchema",
         "type": "object"
       }
     }
@@ -68,55 +842,10 @@
   },
   "openapi": "3.1.0",
   "paths": {
-    "/communities/it/{community_id}": {
-      "get": {
-        "description": "Describe available capabilities for this entity.",
-        "operationId": "it_energy_community_info",
-        "parameters": [
-          {
-            "in": "path",
-            "name": "community_id",
-            "required": true,
-            "schema": {
-              "title": "Community Id",
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "additionalProperties": true,
-                  "title": "Response It Energy Community Info",
-                  "type": "object"
-                }
-              }
-            },
-            "description": "Successful Response"
-          },
-          "422": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
-                }
-              }
-            },
-            "description": "Validation Error"
-          }
-        },
-        "summary": "Info",
-        "tags": [
-          "it-energy-community"
-        ]
-      }
-    },
     "/communities/it/{community_id}/energy-balance": {
       "get": {
-        "description": "Compute current energy balance for the community.\n\nThis is a sample custom endpoint. A real implementation would\nfetch consumption + generation timeseries and compute metrics.",
-        "operationId": "energy_balance_communities_it__community_id__energy_balance_get",
+        "description": "Get energy balance for community.",
+        "operationId": "it_energy_community__energy_balance",
         "parameters": [
           {
             "in": "path",
@@ -164,9 +893,101 @@
           "200": {
             "content": {
               "application/json": {
+                "schema": {}
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Get Energy Balance",
+        "tags": [
+          "it-energy-community",
+          "it-energy-community"
+        ]
+      }
+    },
+    "/communities/it/{community_id}/energy-balance/hourly": {
+      "get": {
+        "description": "Hourly breakdown.",
+        "operationId": "it_energy_community__energy_balance_hourly",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "community_id",
+            "required": true,
+            "schema": {
+              "title": "Community Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "date",
+            "required": true,
+            "schema": {
+              "title": "Date",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Get Hourly",
+        "tags": [
+          "it-energy-community",
+          "it-energy-community"
+        ]
+      }
+    },
+    "/communities/it/{community_id}/info": {
+      "get": {
+        "operationId": "it_energy_community__get_info",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "community_id",
+            "required": true,
+            "schema": {
+              "title": "Community Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
                 "schema": {
                   "additionalProperties": true,
-                  "title": "Response Energy Balance Communities It  Community Id  Energy Balance Get",
+                  "title": "Response It Energy Community  Get Info",
                   "type": "object"
                 }
               }
@@ -184,7 +1005,7 @@
             "description": "Validation Error"
           }
         },
-        "summary": "Energy Balance",
+        "summary": "Get Info",
         "tags": [
           "it-energy-community"
         ]
@@ -192,8 +1013,7 @@
     },
     "/communities/it/{community_id}/simulations": {
       "get": {
-        "description": "List simulations available for this entity.",
-        "operationId": "it_energy_community_list_simulations",
+        "operationId": "it_energy_community__list_simulations",
         "parameters": [
           {
             "in": "path",
@@ -211,10 +1031,9 @@
               "application/json": {
                 "schema": {
                   "items": {
-                    "additionalProperties": true,
-                    "type": "object"
+                    "$ref": "#/components/schemas/SimulationDescriptorSchema"
                   },
-                  "title": "Response It Energy Community List Simulations",
+                  "title": "Response It Energy Community  List Simulations",
                   "type": "array"
                 }
               }
@@ -240,8 +1059,7 @@
     },
     "/communities/it/{community_id}/simulations/{sim_key}/describe": {
       "get": {
-        "description": "Describe a simulation's parameters and configuration.",
-        "operationId": "it_energy_community_describe_simulation",
+        "operationId": "it_energy_community__describe_simulation",
         "parameters": [
           {
             "in": "path",
@@ -267,9 +1085,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "additionalProperties": true,
-                  "title": "Response It Energy Community Describe Simulation",
-                  "type": "object"
+                  "$ref": "#/components/schemas/DescribeResponseSchema"
                 }
               }
             },
@@ -294,8 +1110,7 @@
     },
     "/communities/it/{community_id}/summary": {
       "get": {
-        "description": "High-level community summary.",
-        "operationId": "community_summary_communities_it__community_id__summary_get",
+        "operationId": "it_energy_community__get_summary",
         "parameters": [
           {
             "in": "path",
@@ -312,9 +1127,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "additionalProperties": true,
-                  "title": "Response Community Summary Communities It  Community Id  Summary Get",
-                  "type": "object"
+                  "$ref": "#/components/schemas/SummaryResponseSchema"
                 }
               }
             },
@@ -331,7 +1144,7 @@
             "description": "Validation Error"
           }
         },
-        "summary": "Community Summary",
+        "summary": "Get Summary",
         "tags": [
           "it-energy-community"
         ]
@@ -339,8 +1152,7 @@
     },
     "/communities/it/{community_id}/values": {
       "get": {
-        "description": "List value fetchers available for this entity.",
-        "operationId": "it_energy_community_list_values",
+        "operationId": "it_energy_community__list_values",
         "parameters": [
           {
             "in": "path",
@@ -358,10 +1170,9 @@
               "application/json": {
                 "schema": {
                   "items": {
-                    "additionalProperties": true,
-                    "type": "object"
+                    "$ref": "#/components/schemas/ValueDescriptorSchema"
                   },
-                  "title": "Response It Energy Community List Values",
+                  "title": "Response It Energy Community  List Values",
                   "type": "array"
                 }
               }
@@ -387,8 +1198,7 @@
     },
     "/communities/it/{community_id}/values/{fetcher_id}": {
       "get": {
-        "description": "Fetch a value using query-string parameters as payload.",
-        "operationId": "it_energy_community_get_value",
+        "operationId": "it_energy_community__get_value",
         "parameters": [
           {
             "in": "path",
@@ -407,6 +1217,60 @@
               "title": "Community Id",
               "type": "string"
             }
+          },
+          {
+            "description": "Optional ISO datetime start",
+            "in": "query",
+            "name": "start",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Optional ISO datetime start",
+              "title": "Start"
+            }
+          },
+          {
+            "description": "Optional ISO datetime end",
+            "in": "query",
+            "name": "end",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Optional ISO datetime end",
+              "title": "End"
+            }
+          },
+          {
+            "description": "Optional granularity (e.g. hourly, daily)",
+            "in": "query",
+            "name": "granularity",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Optional granularity (e.g. hourly, daily)",
+              "title": "Granularity"
+            }
           }
         ],
         "responses": {
@@ -414,9 +1278,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "additionalProperties": true,
-                  "title": "Response It Energy Community Get Value",
-                  "type": "object"
+                  "$ref": "#/components/schemas/ValueResponseSchema"
                 }
               }
             },
@@ -439,8 +1301,7 @@
         ]
       },
       "post": {
-        "description": "Fetch a value using a JSON payload.",
-        "operationId": "it_energy_community_post_value",
+        "operationId": "it_energy_community__post_value",
         "parameters": [
           {
             "in": "path",
@@ -465,7 +1326,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/ValuesRequest"
+                "$ref": "#/components/schemas/ValuesRequestSchema"
               }
             }
           },
@@ -476,9 +1337,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "additionalProperties": true,
-                  "title": "Response It Energy Community Post Value",
-                  "type": "object"
+                  "$ref": "#/components/schemas/ValueResponseSchema"
                 }
               }
             },
@@ -503,8 +1362,7 @@
     },
     "/communities/it/{community_id}/values/{fetcher_id}/describe": {
       "get": {
-        "description": "Describe a value fetcher's schema and metadata.",
-        "operationId": "it_energy_community_describe_value",
+        "operationId": "it_energy_community__describe_value",
         "parameters": [
           {
             "in": "path",
@@ -530,9 +1388,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "additionalProperties": true,
-                  "title": "Response It Energy Community Describe Value",
-                  "type": "object"
+                  "$ref": "#/components/schemas/DescribeResponseSchema"
                 }
               }
             },
@@ -599,55 +1455,10 @@
         "summary": "Health"
       }
     },
-    "/participants/{participant_id}": {
-      "get": {
-        "description": "Describe available capabilities for this entity.",
-        "operationId": "it_participant_info",
-        "parameters": [
-          {
-            "in": "path",
-            "name": "participant_id",
-            "required": true,
-            "schema": {
-              "title": "Participant Id",
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "additionalProperties": true,
-                  "title": "Response It Participant Info",
-                  "type": "object"
-                }
-              }
-            },
-            "description": "Successful Response"
-          },
-          "422": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
-                }
-              }
-            },
-            "description": "Validation Error"
-          }
-        },
-        "summary": "Info",
-        "tags": [
-          "it-participant"
-        ]
-      }
-    },
     "/participants/{participant_id}/assets": {
       "get": {
         "description": "Get participant's assets from registry.",
-        "operationId": "participant_assets_participants__participant_id__assets_get",
+        "operationId": "it_participant__assets",
         "parameters": [
           {
             "in": "path",
@@ -657,22 +1468,6 @@
               "title": "Participant Id",
               "type": "string"
             }
-          },
-          {
-            "in": "header",
-            "name": "authorization",
-            "required": false,
-            "schema": {
-              "anyOf": [
-                {
-                  "type": "string"
-                },
-                {
-                  "type": "null"
-                }
-              ],
-              "title": "Authorization"
-            }
           }
         ],
         "responses": {
@@ -680,9 +1475,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "additionalProperties": true,
-                  "title": "Response Participant Assets Participants  Participant Id  Assets Get",
-                  "type": "object"
+                  "$ref": "#/components/schemas/UserAssetsResponseSchema"
                 }
               }
             },
@@ -699,8 +1492,9 @@
             "description": "Validation Error"
           }
         },
-        "summary": "Participant Assets",
+        "summary": "Get Assets",
         "tags": [
+          "it-participant",
           "it-participant"
         ]
       }
@@ -708,7 +1502,7 @@
     "/participants/{participant_id}/community": {
       "get": {
         "description": "Get participant's community details from registry.",
-        "operationId": "participant_community_participants__participant_id__community_get",
+        "operationId": "it_participant__community",
         "parameters": [
           {
             "in": "path",
@@ -718,22 +1512,6 @@
               "title": "Participant Id",
               "type": "string"
             }
-          },
-          {
-            "in": "header",
-            "name": "authorization",
-            "required": false,
-            "schema": {
-              "anyOf": [
-                {
-                  "type": "string"
-                },
-                {
-                  "type": "null"
-                }
-              ],
-              "title": "Authorization"
-            }
           }
         ],
         "responses": {
@@ -741,9 +1519,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "additionalProperties": true,
-                  "title": "Response Participant Community Participants  Participant Id  Community Get",
-                  "type": "object"
+                  "$ref": "#/components/schemas/UserCommunityDetailSchema"
                 }
               }
             },
@@ -760,8 +1536,9 @@
             "description": "Validation Error"
           }
         },
-        "summary": "Participant Community",
+        "summary": "Get Community",
         "tags": [
+          "it-participant",
           "it-participant"
         ]
       }
@@ -769,7 +1546,7 @@
     "/participants/{participant_id}/delivery-points": {
       "get": {
         "description": "Get participant's delivery points from registry.",
-        "operationId": "participant_delivery_points_participants__participant_id__delivery_points_get",
+        "operationId": "it_participant__delivery_points",
         "parameters": [
           {
             "in": "path",
@@ -779,22 +1556,6 @@
               "title": "Participant Id",
               "type": "string"
             }
-          },
-          {
-            "in": "header",
-            "name": "authorization",
-            "required": false,
-            "schema": {
-              "anyOf": [
-                {
-                  "type": "string"
-                },
-                {
-                  "type": "null"
-                }
-              ],
-              "title": "Authorization"
-            }
           }
         ],
         "responses": {
@@ -802,9 +1563,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "additionalProperties": true,
-                  "title": "Response Participant Delivery Points Participants  Participant Id  Delivery Points Get",
-                  "type": "object"
+                  "$ref": "#/components/schemas/UserDeliveryPointsResponseSchema"
                 }
               }
             },
@@ -821,16 +1580,17 @@
             "description": "Validation Error"
           }
         },
-        "summary": "Participant Delivery Points",
+        "summary": "Get Delivery Points",
         "tags": [
+          "it-participant",
           "it-participant"
         ]
       }
     },
-    "/participants/{participant_id}/flexibility": {
+    "/participants/{participant_id}/energy-balance": {
       "get": {
-        "description": "Flexibility assessment for demand response.\n\nCombines registry data with local calculations.",
-        "operationId": "flexibility_participants__participant_id__flexibility_get",
+        "description": "Get energy balance for community.",
+        "operationId": "it_participant__energy_balance",
         "parameters": [
           {
             "in": "path",
@@ -842,8 +1602,8 @@
             }
           },
           {
-            "in": "header",
-            "name": "authorization",
+            "in": "query",
+            "name": "start",
             "required": false,
             "schema": {
               "anyOf": [
@@ -854,7 +1614,115 @@
                   "type": "null"
                 }
               ],
-              "title": "Authorization"
+              "title": "Start"
+            }
+          },
+          {
+            "in": "query",
+            "name": "end",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "End"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Get Energy Balance",
+        "tags": [
+          "it-participant",
+          "it-participant"
+        ]
+      }
+    },
+    "/participants/{participant_id}/energy-balance/hourly": {
+      "get": {
+        "description": "Hourly breakdown.",
+        "operationId": "it_participant__energy_balance_hourly",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "participant_id",
+            "required": true,
+            "schema": {
+              "title": "Participant Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "date",
+            "required": true,
+            "schema": {
+              "title": "Date",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Get Hourly",
+        "tags": [
+          "it-participant",
+          "it-participant"
+        ]
+      }
+    },
+    "/participants/{participant_id}/info": {
+      "get": {
+        "operationId": "it_participant__get_info",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "participant_id",
+            "required": true,
+            "schema": {
+              "title": "Participant Id",
+              "type": "string"
             }
           }
         ],
@@ -864,7 +1732,7 @@
               "application/json": {
                 "schema": {
                   "additionalProperties": true,
-                  "title": "Response Flexibility Participants  Participant Id  Flexibility Get",
+                  "title": "Response It Participant  Get Info",
                   "type": "object"
                 }
               }
@@ -882,7 +1750,7 @@
             "description": "Validation Error"
           }
         },
-        "summary": "Flexibility",
+        "summary": "Get Info",
         "tags": [
           "it-participant"
         ]
@@ -891,7 +1759,7 @@
     "/participants/{participant_id}/member": {
       "get": {
         "description": "Get participant's member details from registry.",
-        "operationId": "participant_member_participants__participant_id__member_get",
+        "operationId": "it_participant__member",
         "parameters": [
           {
             "in": "path",
@@ -901,22 +1769,6 @@
               "title": "Participant Id",
               "type": "string"
             }
-          },
-          {
-            "in": "header",
-            "name": "authorization",
-            "required": false,
-            "schema": {
-              "anyOf": [
-                {
-                  "type": "string"
-                },
-                {
-                  "type": "null"
-                }
-              ],
-              "title": "Authorization"
-            }
           }
         ],
         "responses": {
@@ -924,9 +1776,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "additionalProperties": true,
-                  "title": "Response Participant Member Participants  Participant Id  Member Get",
-                  "type": "object"
+                  "$ref": "#/components/schemas/UserMemberDetailSchema"
                 }
               }
             },
@@ -943,16 +1793,17 @@
             "description": "Validation Error"
           }
         },
-        "summary": "Participant Member",
+        "summary": "Get Member",
         "tags": [
+          "it-participant",
           "it-participant"
         ]
       }
     },
     "/participants/{participant_id}/profile": {
       "get": {
-        "description": "Get participant profile from registry.\n\nReturns enriched profile with member and community details.",
-        "operationId": "participant_profile_participants__participant_id__profile_get",
+        "description": "Get participant profile from registry.",
+        "operationId": "it_participant__profile",
         "parameters": [
           {
             "in": "path",
@@ -962,22 +1813,6 @@
               "title": "Participant Id",
               "type": "string"
             }
-          },
-          {
-            "in": "header",
-            "name": "authorization",
-            "required": false,
-            "schema": {
-              "anyOf": [
-                {
-                  "type": "string"
-                },
-                {
-                  "type": "null"
-                }
-              ],
-              "title": "Authorization"
-            }
           }
         ],
         "responses": {
@@ -985,9 +1820,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "additionalProperties": true,
-                  "title": "Response Participant Profile Participants  Participant Id  Profile Get",
-                  "type": "object"
+                  "$ref": "#/components/schemas/UserMeResponseSchema"
                 }
               }
             },
@@ -1004,16 +1837,16 @@
             "description": "Validation Error"
           }
         },
-        "summary": "Participant Profile",
+        "summary": "Get Profile",
         "tags": [
+          "it-participant",
           "it-participant"
         ]
       }
     },
     "/participants/{participant_id}/simulations": {
       "get": {
-        "description": "List simulations available for this entity.",
-        "operationId": "it_participant_list_simulations",
+        "operationId": "it_participant__list_simulations",
         "parameters": [
           {
             "in": "path",
@@ -1031,10 +1864,9 @@
               "application/json": {
                 "schema": {
                   "items": {
-                    "additionalProperties": true,
-                    "type": "object"
+                    "$ref": "#/components/schemas/SimulationDescriptorSchema"
                   },
-                  "title": "Response It Participant List Simulations",
+                  "title": "Response It Participant  List Simulations",
                   "type": "array"
                 }
               }
@@ -1060,8 +1892,7 @@
     },
     "/participants/{participant_id}/simulations/{sim_key}/describe": {
       "get": {
-        "description": "Describe a simulation's parameters and configuration.",
-        "operationId": "it_participant_describe_simulation",
+        "operationId": "it_participant__describe_simulation",
         "parameters": [
           {
             "in": "path",
@@ -1087,9 +1918,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "additionalProperties": true,
-                  "title": "Response It Participant Describe Simulation",
-                  "type": "object"
+                  "$ref": "#/components/schemas/DescribeResponseSchema"
                 }
               }
             },
@@ -1112,10 +1941,51 @@
         ]
       }
     },
+    "/participants/{participant_id}/summary": {
+      "get": {
+        "operationId": "it_participant__get_summary",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "participant_id",
+            "required": true,
+            "schema": {
+              "title": "Participant Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SummaryResponseSchema"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Get Summary",
+        "tags": [
+          "it-participant"
+        ]
+      }
+    },
     "/participants/{participant_id}/values": {
       "get": {
-        "description": "List value fetchers available for this entity.",
-        "operationId": "it_participant_list_values",
+        "operationId": "it_participant__list_values",
         "parameters": [
           {
             "in": "path",
@@ -1133,10 +2003,9 @@
               "application/json": {
                 "schema": {
                   "items": {
-                    "additionalProperties": true,
-                    "type": "object"
+                    "$ref": "#/components/schemas/ValueDescriptorSchema"
                   },
-                  "title": "Response It Participant List Values",
+                  "title": "Response It Participant  List Values",
                   "type": "array"
                 }
               }
@@ -1162,8 +2031,7 @@
     },
     "/participants/{participant_id}/values/{fetcher_id}": {
       "get": {
-        "description": "Fetch a value using query-string parameters as payload.",
-        "operationId": "it_participant_get_value",
+        "operationId": "it_participant__get_value",
         "parameters": [
           {
             "in": "path",
@@ -1182,6 +2050,60 @@
               "title": "Participant Id",
               "type": "string"
             }
+          },
+          {
+            "description": "Optional ISO datetime start",
+            "in": "query",
+            "name": "start",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Optional ISO datetime start",
+              "title": "Start"
+            }
+          },
+          {
+            "description": "Optional ISO datetime end",
+            "in": "query",
+            "name": "end",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Optional ISO datetime end",
+              "title": "End"
+            }
+          },
+          {
+            "description": "Optional granularity (e.g. hourly, daily)",
+            "in": "query",
+            "name": "granularity",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Optional granularity (e.g. hourly, daily)",
+              "title": "Granularity"
+            }
           }
         ],
         "responses": {
@@ -1189,9 +2111,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "additionalProperties": true,
-                  "title": "Response It Participant Get Value",
-                  "type": "object"
+                  "$ref": "#/components/schemas/ValueResponseSchema"
                 }
               }
             },
@@ -1214,8 +2134,7 @@
         ]
       },
       "post": {
-        "description": "Fetch a value using a JSON payload.",
-        "operationId": "it_participant_post_value",
+        "operationId": "it_participant__post_value",
         "parameters": [
           {
             "in": "path",
@@ -1240,7 +2159,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/ValuesRequest"
+                "$ref": "#/components/schemas/ValuesRequestSchema"
               }
             }
           },
@@ -1251,9 +2170,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "additionalProperties": true,
-                  "title": "Response It Participant Post Value",
-                  "type": "object"
+                  "$ref": "#/components/schemas/ValueResponseSchema"
                 }
               }
             },
@@ -1278,8 +2195,7 @@
     },
     "/participants/{participant_id}/values/{fetcher_id}/describe": {
       "get": {
-        "description": "Describe a value fetcher's schema and metadata.",
-        "operationId": "it_participant_describe_value",
+        "operationId": "it_participant__describe_value",
         "parameters": [
           {
             "in": "path",
@@ -1305,9 +2221,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "additionalProperties": true,
-                  "title": "Response It Participant Describe Value",
-                  "type": "object"
+                  "$ref": "#/components/schemas/DescribeResponseSchema"
                 }
               }
             },

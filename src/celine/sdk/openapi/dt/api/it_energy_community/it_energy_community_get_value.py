@@ -7,20 +7,50 @@ import httpx
 from ... import errors
 from ...client import AuthenticatedClient, Client
 from ...models.http_validation_error import HTTPValidationError
-from ...models.response_it_energy_community_get_value import ResponseItEnergyCommunityGetValue
-from ...types import Response
+from ...models.value_response_schema import ValueResponseSchema
+from ...types import UNSET, Response, Unset
 
 
 def _get_kwargs(
     community_id: str,
     fetcher_id: str,
+    *,
+    start: None | str | Unset = UNSET,
+    end: None | str | Unset = UNSET,
+    granularity: None | str | Unset = UNSET,
 ) -> dict[str, Any]:
+    params: dict[str, Any] = {}
+
+    json_start: None | str | Unset
+    if isinstance(start, Unset):
+        json_start = UNSET
+    else:
+        json_start = start
+    params["start"] = json_start
+
+    json_end: None | str | Unset
+    if isinstance(end, Unset):
+        json_end = UNSET
+    else:
+        json_end = end
+    params["end"] = json_end
+
+    json_granularity: None | str | Unset
+    if isinstance(granularity, Unset):
+        json_granularity = UNSET
+    else:
+        json_granularity = granularity
+    params["granularity"] = json_granularity
+
+    params = {k: v for k, v in params.items() if v is not UNSET and v is not None}
+
     _kwargs: dict[str, Any] = {
         "method": "get",
         "url": "/communities/it/{community_id}/values/{fetcher_id}".format(
             community_id=quote(str(community_id), safe=""),
             fetcher_id=quote(str(fetcher_id), safe=""),
         ),
+        "params": params,
     }
 
     return _kwargs
@@ -28,9 +58,9 @@ def _get_kwargs(
 
 def _parse_response(
     *, client: AuthenticatedClient | Client, response: httpx.Response
-) -> HTTPValidationError | ResponseItEnergyCommunityGetValue | None:
+) -> HTTPValidationError | ValueResponseSchema | None:
     if response.status_code == 200:
-        response_200 = ResponseItEnergyCommunityGetValue.from_dict(response.json())
+        response_200 = ValueResponseSchema.from_dict(response.json())
 
         return response_200
 
@@ -47,7 +77,7 @@ def _parse_response(
 
 def _build_response(
     *, client: AuthenticatedClient | Client, response: httpx.Response
-) -> Response[HTTPValidationError | ResponseItEnergyCommunityGetValue]:
+) -> Response[HTTPValidationError | ValueResponseSchema]:
     return Response(
         status_code=HTTPStatus(response.status_code),
         content=response.content,
@@ -61,26 +91,33 @@ def sync_detailed(
     fetcher_id: str,
     *,
     client: AuthenticatedClient | Client,
-) -> Response[HTTPValidationError | ResponseItEnergyCommunityGetValue]:
+    start: None | str | Unset = UNSET,
+    end: None | str | Unset = UNSET,
+    granularity: None | str | Unset = UNSET,
+) -> Response[HTTPValidationError | ValueResponseSchema]:
     """Get Value
-
-     Fetch a value using query-string parameters as payload.
 
     Args:
         community_id (str):
         fetcher_id (str):
+        start (None | str | Unset): Optional ISO datetime start
+        end (None | str | Unset): Optional ISO datetime end
+        granularity (None | str | Unset): Optional granularity (e.g. hourly, daily)
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Response[HTTPValidationError | ResponseItEnergyCommunityGetValue]
+        Response[HTTPValidationError | ValueResponseSchema]
     """
 
     kwargs = _get_kwargs(
         community_id=community_id,
         fetcher_id=fetcher_id,
+        start=start,
+        end=end,
+        granularity=granularity,
     )
 
     response = client.get_httpx_client().request(
@@ -95,27 +132,34 @@ def sync(
     fetcher_id: str,
     *,
     client: AuthenticatedClient | Client,
-) -> HTTPValidationError | ResponseItEnergyCommunityGetValue | None:
+    start: None | str | Unset = UNSET,
+    end: None | str | Unset = UNSET,
+    granularity: None | str | Unset = UNSET,
+) -> HTTPValidationError | ValueResponseSchema | None:
     """Get Value
-
-     Fetch a value using query-string parameters as payload.
 
     Args:
         community_id (str):
         fetcher_id (str):
+        start (None | str | Unset): Optional ISO datetime start
+        end (None | str | Unset): Optional ISO datetime end
+        granularity (None | str | Unset): Optional granularity (e.g. hourly, daily)
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        HTTPValidationError | ResponseItEnergyCommunityGetValue
+        HTTPValidationError | ValueResponseSchema
     """
 
     return sync_detailed(
         community_id=community_id,
         fetcher_id=fetcher_id,
         client=client,
+        start=start,
+        end=end,
+        granularity=granularity,
     ).parsed
 
 
@@ -124,26 +168,33 @@ async def asyncio_detailed(
     fetcher_id: str,
     *,
     client: AuthenticatedClient | Client,
-) -> Response[HTTPValidationError | ResponseItEnergyCommunityGetValue]:
+    start: None | str | Unset = UNSET,
+    end: None | str | Unset = UNSET,
+    granularity: None | str | Unset = UNSET,
+) -> Response[HTTPValidationError | ValueResponseSchema]:
     """Get Value
-
-     Fetch a value using query-string parameters as payload.
 
     Args:
         community_id (str):
         fetcher_id (str):
+        start (None | str | Unset): Optional ISO datetime start
+        end (None | str | Unset): Optional ISO datetime end
+        granularity (None | str | Unset): Optional granularity (e.g. hourly, daily)
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Response[HTTPValidationError | ResponseItEnergyCommunityGetValue]
+        Response[HTTPValidationError | ValueResponseSchema]
     """
 
     kwargs = _get_kwargs(
         community_id=community_id,
         fetcher_id=fetcher_id,
+        start=start,
+        end=end,
+        granularity=granularity,
     )
 
     response = await client.get_async_httpx_client().request(**kwargs)
@@ -156,21 +207,25 @@ async def asyncio(
     fetcher_id: str,
     *,
     client: AuthenticatedClient | Client,
-) -> HTTPValidationError | ResponseItEnergyCommunityGetValue | None:
+    start: None | str | Unset = UNSET,
+    end: None | str | Unset = UNSET,
+    granularity: None | str | Unset = UNSET,
+) -> HTTPValidationError | ValueResponseSchema | None:
     """Get Value
-
-     Fetch a value using query-string parameters as payload.
 
     Args:
         community_id (str):
         fetcher_id (str):
+        start (None | str | Unset): Optional ISO datetime start
+        end (None | str | Unset): Optional ISO datetime end
+        granularity (None | str | Unset): Optional granularity (e.g. hourly, daily)
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        HTTPValidationError | ResponseItEnergyCommunityGetValue
+        HTTPValidationError | ValueResponseSchema
     """
 
     return (
@@ -178,5 +233,8 @@ async def asyncio(
             community_id=community_id,
             fetcher_id=fetcher_id,
             client=client,
+            start=start,
+            end=end,
+            granularity=granularity,
         )
     ).parsed
