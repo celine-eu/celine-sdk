@@ -17,7 +17,7 @@ from celine.sdk.openapi.dt.models import (
     ValueDescriptorSchema,
     HTTPValidationError,
     DescribeResponseSchema,
-    ValueResponseSchema,
+    FetchResultSchema,
     ValuesRequestSchema,
     GenericPayload,
     SimulationDescriptorSchema,
@@ -25,8 +25,7 @@ from celine.sdk.openapi.dt.models import (
 from celine.sdk.openapi.dt.api.it_participant import (
     it_participant_profile as _profile,
     it_participant_list_values as _list_values,
-    it_participant_get_value as _get_value,
-    it_participant_post_value as _post_value,
+    it_participant_fetch_values_post as _post_value,
     it_participant_describe_value as _describe_value,
     it_participant_list_simulations as _list_simulations,
     it_participant_describe_simulation as _describe_simulations,
@@ -71,39 +70,22 @@ class ParticipantClient:
             raise DTApiError("Validation error", 500)
         return data
 
-    async def get_value(
+    async def fetch_values(
         self,
         participant_id: str,
         fetcher_id: str,
-        **params: Any,
-    ) -> ValueResponseSchema:
-        """Fetch a value using query-string parameters.
-
-        Args:
-            participant_id: Participant entity ID.
-            fetcher_id: Value fetcher identifier.
-            **params: Query parameters passed to the fetcher.
-        """
-        client = await self._dt._get_client()
-        result = await _get_value.asyncio_detailed(
-            participant_id=participant_id,
-            fetcher_id=fetcher_id,
-            client=client,
-        )
-        data = unwrap(result)
-        if isinstance(data, HTTPValidationError):
-            logger.warning(data.detail)
-            raise DTApiError("Validation error", 500)
-        return data
-
-    async def post_value(
-        self,
-        participant_id: str,
-        fetcher_id: str,
-        payload: dict[str, Any],
-    ) -> ValueResponseSchema:
+        payload: dict[str, Any] = {},
+        limit: int | None = None,
+        offset: int = 0,
+    ) -> FetchResultSchema:
         """Fetch a value using a JSON payload (POST)."""
         client = await self._dt._get_client()
+
+        if limit is not None:
+            payload["limit"] = limit
+        if offset is not None:
+            payload["offset"] = offset
+
         body = ValuesRequestSchema(payload=GenericPayload.from_dict(payload))
         result = await _post_value.asyncio_detailed(
             participant_id=participant_id,
@@ -121,7 +103,7 @@ class ParticipantClient:
         self,
         participant_id: str,
         fetcher_id: str,
-    ) -> DescribeResponseSchema:
+    ) -> ValueDescriptorSchema:
         """Describe a value fetcher's schema and metadata."""
         client = await self._dt._get_client()
         result = await _describe_value.asyncio_detailed(

@@ -11,27 +11,25 @@ import logging
 from typing import Any, TYPE_CHECKING
 
 from celine.sdk.dt.util import unwrap, DTApiError
-from celine.sdk.openapi.dt.models.describe_response_schema import DescribeResponseSchema
-from celine.sdk.openapi.dt.models.generic_payload import GenericPayload
-from celine.sdk.openapi.dt.models.simulation_descriptor_schema import (
-    SimulationDescriptorSchema,
-)
-from celine.sdk.openapi.dt.models.value_descriptor_schema import ValueDescriptorSchema
-from celine.sdk.openapi.dt.models.value_response_schema import ValueResponseSchema
-from celine.sdk.openapi.dt.models.values_request_schema import ValuesRequestSchema
+
 from celine.sdk.openapi.dt.types import UNSET
 
 from celine.sdk.openapi.dt.models import (
     HTTPValidationError,
     ResponseItEnergyCommunityGetInfo,
+    ValuesRequestSchema,
+    ValueDescriptorSchema,
+    DescribeResponseSchema,
+    GenericPayload,
+    SimulationDescriptorSchema,
+    FetchResultSchema,
 )
 from celine.sdk.openapi.dt.api.it_energy_community import (
     it_energy_community_energy_balance as _energy_balance,
     it_energy_community_energy_balance_hourly as _energy_balance_hourly,
     it_energy_community_get_info as _info,
     it_energy_community_list_values as _list_values,
-    it_energy_community_get_value as _get_value,
-    it_energy_community_post_value as _post_value,
+    it_energy_community_fetch_values_post as _post_value,
     it_energy_community_describe_value as _describe_value,
     it_energy_community_list_simulations as _list_simulations,
     it_energy_community_describe_simulation as _describe_simulations,
@@ -105,41 +103,24 @@ class CommunityClient:
             raise DTApiError("Validation error", 500)
         return data
 
-    async def get_value(
+    async def fetch_values(
         self,
         community_id: str,
         fetcher_id: str,
-        **params: Any,
-    ) -> ValueResponseSchema:
-        """Fetch a value using query-string parameters.
-
-        Args:
-            participant_id: Participant entity ID.
-            fetcher_id: Value fetcher identifier.
-            **params: Query parameters passed to the fetcher.
-        """
-        client = await self._dt._get_client()
-        result = await _get_value.asyncio_detailed(
-            community_id=community_id,
-            fetcher_id=fetcher_id,
-            client=client,
-            **params,
-        )
-        data = unwrap(result)
-        if isinstance(data, HTTPValidationError):
-            logger.warning(data.detail)
-            raise DTApiError("Validation error", 500)
-        return data
-
-    async def post_value(
-        self,
-        community_id: str,
-        fetcher_id: str,
-        payload: dict[str, Any],
-    ) -> ValueResponseSchema:
+        payload: dict[str, Any] = {},
+        limit: int | None = None,
+        offset: int | None = None,
+    ) -> FetchResultSchema:
         """Fetch a value using a JSON payload (POST)."""
         client = await self._dt._get_client()
+
+        if limit is not None:
+            payload["limit"] = limit
+        if offset is not None:
+            payload["offset"] = offset
+
         body = ValuesRequestSchema(payload=GenericPayload.from_dict(payload))
+
         result = await _post_value.asyncio_detailed(
             community_id=community_id,
             fetcher_id=fetcher_id,
@@ -156,7 +137,7 @@ class CommunityClient:
         self,
         community_id: str,
         fetcher_id: str,
-    ) -> DescribeResponseSchema:
+    ) -> ValueDescriptorSchema:
         """Describe a value fetcher's schema and metadata."""
         client = await self._dt._get_client()
         result = await _describe_value.asyncio_detailed(

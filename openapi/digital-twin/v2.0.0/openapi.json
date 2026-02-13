@@ -93,6 +93,111 @@
         "title": "DescribeResponseSchema",
         "type": "object"
       },
+      "DescriptorSpecSchema": {
+        "properties": {
+          "client": {
+            "default": "dataset_api",
+            "description": "Fetcher client",
+            "title": "Client",
+            "type": "string"
+          },
+          "id": {
+            "description": "Fetcher ID (domain-scoped).",
+            "title": "Id",
+            "type": "string"
+          },
+          "limit": {
+            "default": 100,
+            "description": "Query limit",
+            "title": "Limit",
+            "type": "integer"
+          },
+          "offset": {
+            "default": 0,
+            "description": "Query offset",
+            "title": "Offset",
+            "type": "integer"
+          },
+          "output_mapper": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Payload mapper",
+            "title": "Output Mapper"
+          },
+          "payload_schema": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Payload schema",
+            "title": "Payload Schema"
+          },
+          "query": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": "",
+            "description": "Query",
+            "title": "Query"
+          }
+        },
+        "required": [
+          "id",
+          "output_mapper"
+        ],
+        "title": "DescriptorSpecSchema",
+        "type": "object"
+      },
+      "FetchResultSchema": {
+        "additionalProperties": false,
+        "description": "Result of a value fetch operation.",
+        "properties": {
+          "count": {
+            "title": "Count",
+            "type": "integer"
+          },
+          "items": {
+            "items": {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            "title": "Items",
+            "type": "array"
+          },
+          "limit": {
+            "title": "Limit",
+            "type": "integer"
+          },
+          "offset": {
+            "title": "Offset",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "items",
+          "limit",
+          "offset",
+          "count"
+        ],
+        "title": "FetchResultSchema",
+        "type": "object"
+      },
       "GenericPayload": {
         "additionalProperties": true,
         "title": "GenericPayload",
@@ -759,66 +864,21 @@
       },
       "ValueDescriptorSchema": {
         "properties": {
-          "description": {
-            "anyOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Description"
-          },
           "id": {
             "description": "Fetcher ID (domain-scoped).",
             "title": "Id",
             "type": "string"
           },
-          "kind": {
-            "anyOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "description": "Optional kind/category (e.g. timeseries, scalar).",
-            "title": "Kind"
-          },
-          "meta": {
-            "$ref": "#/components/schemas/GenericPayload"
-          },
-          "title": {
-            "anyOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Title"
+          "spec": {
+            "$ref": "#/components/schemas/DescriptorSpecSchema",
+            "description": "Fetcher specs (domain-scoped)."
           }
         },
         "required": [
           "id",
-          "meta"
+          "spec"
         ],
         "title": "ValueDescriptorSchema",
-        "type": "object"
-      },
-      "ValueResponseSchema": {
-        "properties": {
-          "payload": {
-            "$ref": "#/components/schemas/GenericPayload"
-          }
-        },
-        "required": [
-          "payload"
-        ],
-        "title": "ValueResponseSchema",
         "type": "object"
       },
       "ValuesRequestSchema": {
@@ -1198,7 +1258,7 @@
     },
     "/communities/it/{community_id}/values/{fetcher_id}": {
       "get": {
-        "operationId": "it_energy_community__get_value",
+        "operationId": "it_energy_community__fetch_values_get",
         "parameters": [
           {
             "in": "path",
@@ -1219,57 +1279,37 @@
             }
           },
           {
-            "description": "Optional ISO datetime start",
             "in": "query",
-            "name": "start",
+            "name": "limit",
             "required": false,
             "schema": {
               "anyOf": [
                 {
-                  "type": "string"
+                  "minimum": 0,
+                  "type": "integer"
                 },
                 {
                   "type": "null"
                 }
               ],
-              "description": "Optional ISO datetime start",
-              "title": "Start"
+              "title": "Limit"
             }
           },
           {
-            "description": "Optional ISO datetime end",
             "in": "query",
-            "name": "end",
+            "name": "offset",
             "required": false,
             "schema": {
               "anyOf": [
                 {
-                  "type": "string"
+                  "minimum": 0,
+                  "type": "integer"
                 },
                 {
                   "type": "null"
                 }
               ],
-              "description": "Optional ISO datetime end",
-              "title": "End"
-            }
-          },
-          {
-            "description": "Optional granularity (e.g. hourly, daily)",
-            "in": "query",
-            "name": "granularity",
-            "required": false,
-            "schema": {
-              "anyOf": [
-                {
-                  "type": "string"
-                },
-                {
-                  "type": "null"
-                }
-              ],
-              "description": "Optional granularity (e.g. hourly, daily)",
-              "title": "Granularity"
+              "title": "Offset"
             }
           }
         ],
@@ -1278,7 +1318,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ValueResponseSchema"
+                  "$ref": "#/components/schemas/FetchResultSchema"
                 }
               }
             },
@@ -1295,13 +1335,13 @@
             "description": "Validation Error"
           }
         },
-        "summary": "Get Value",
+        "summary": "Fetch Values Get",
         "tags": [
           "it-energy-community"
         ]
       },
       "post": {
-        "operationId": "it_energy_community__post_value",
+        "operationId": "it_energy_community__fetch_values_post",
         "parameters": [
           {
             "in": "path",
@@ -1337,7 +1377,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ValueResponseSchema"
+                  "$ref": "#/components/schemas/FetchResultSchema"
                 }
               }
             },
@@ -1354,7 +1394,7 @@
             "description": "Validation Error"
           }
         },
-        "summary": "Post Value",
+        "summary": "Fetch Values Post",
         "tags": [
           "it-energy-community"
         ]
@@ -1388,7 +1428,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/DescribeResponseSchema"
+                  "$ref": "#/components/schemas/ValueDescriptorSchema"
                 }
               }
             },
@@ -2031,7 +2071,7 @@
     },
     "/participants/{participant_id}/values/{fetcher_id}": {
       "get": {
-        "operationId": "it_participant__get_value",
+        "operationId": "it_participant__fetch_values_get",
         "parameters": [
           {
             "in": "path",
@@ -2052,57 +2092,37 @@
             }
           },
           {
-            "description": "Optional ISO datetime start",
             "in": "query",
-            "name": "start",
+            "name": "limit",
             "required": false,
             "schema": {
               "anyOf": [
                 {
-                  "type": "string"
+                  "minimum": 0,
+                  "type": "integer"
                 },
                 {
                   "type": "null"
                 }
               ],
-              "description": "Optional ISO datetime start",
-              "title": "Start"
+              "title": "Limit"
             }
           },
           {
-            "description": "Optional ISO datetime end",
             "in": "query",
-            "name": "end",
+            "name": "offset",
             "required": false,
             "schema": {
               "anyOf": [
                 {
-                  "type": "string"
+                  "minimum": 0,
+                  "type": "integer"
                 },
                 {
                   "type": "null"
                 }
               ],
-              "description": "Optional ISO datetime end",
-              "title": "End"
-            }
-          },
-          {
-            "description": "Optional granularity (e.g. hourly, daily)",
-            "in": "query",
-            "name": "granularity",
-            "required": false,
-            "schema": {
-              "anyOf": [
-                {
-                  "type": "string"
-                },
-                {
-                  "type": "null"
-                }
-              ],
-              "description": "Optional granularity (e.g. hourly, daily)",
-              "title": "Granularity"
+              "title": "Offset"
             }
           }
         ],
@@ -2111,7 +2131,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ValueResponseSchema"
+                  "$ref": "#/components/schemas/FetchResultSchema"
                 }
               }
             },
@@ -2128,13 +2148,13 @@
             "description": "Validation Error"
           }
         },
-        "summary": "Get Value",
+        "summary": "Fetch Values Get",
         "tags": [
           "it-participant"
         ]
       },
       "post": {
-        "operationId": "it_participant__post_value",
+        "operationId": "it_participant__fetch_values_post",
         "parameters": [
           {
             "in": "path",
@@ -2170,7 +2190,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ValueResponseSchema"
+                  "$ref": "#/components/schemas/FetchResultSchema"
                 }
               }
             },
@@ -2187,7 +2207,7 @@
             "description": "Validation Error"
           }
         },
-        "summary": "Post Value",
+        "summary": "Fetch Values Post",
         "tags": [
           "it-participant"
         ]
@@ -2221,7 +2241,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/DescribeResponseSchema"
+                  "$ref": "#/components/schemas/ValueDescriptorSchema"
                 }
               }
             },
