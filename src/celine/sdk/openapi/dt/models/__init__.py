@@ -3,6 +3,10 @@
 from .area_schema import AreaSchema
 from .delivery_point_schema import DeliveryPointSchema
 from .describe_response_schema import DescribeResponseSchema
+from .descriptor_spec_schema import DescriptorSpecSchema
+from .descriptor_spec_schema_payload_schema_type_0 import DescriptorSpecSchemaPayloadSchemaType0
+from .fetch_result_schema import FetchResultSchema
+from .fetch_result_schema_items_item import FetchResultSchemaItemsItem
 from .generic_payload import GenericPayload
 from .http_validation_error import HTTPValidationError
 from .list_domains_domains_get_response_200_item import ListDomainsDomainsGetResponse200Item
@@ -36,13 +40,16 @@ from .user_membership_schema_assets_count_type_0 import UserMembershipSchemaAsse
 from .user_profile_schema import UserProfileSchema
 from .validation_error import ValidationError
 from .value_descriptor_schema import ValueDescriptorSchema
-from .value_response_schema import ValueResponseSchema
 from .values_request_schema import ValuesRequestSchema
 
 __all__ = (
     "AreaSchema",
     "DeliveryPointSchema",
     "DescribeResponseSchema",
+    "DescriptorSpecSchema",
+    "DescriptorSpecSchemaPayloadSchemaType0",
+    "FetchResultSchema",
+    "FetchResultSchemaItemsItem",
     "GenericPayload",
     "HTTPValidationError",
     "ListDomainsDomainsGetResponse200Item",
@@ -76,6 +83,5 @@ __all__ = (
     "UserProfileSchema",
     "ValidationError",
     "ValueDescriptorSchema",
-    "ValueResponseSchema",
     "ValuesRequestSchema",
 )

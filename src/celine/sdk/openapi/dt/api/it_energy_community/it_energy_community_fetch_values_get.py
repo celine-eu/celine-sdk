@@ -6,8 +6,8 @@ import httpx
 
 from ... import errors
 from ...client import AuthenticatedClient, Client
+from ...models.fetch_result_schema import FetchResultSchema
 from ...models.http_validation_error import HTTPValidationError
-from ...models.value_response_schema import ValueResponseSchema
 from ...types import UNSET, Response, Unset
 
 
@@ -15,32 +15,24 @@ def _get_kwargs(
     community_id: str,
     fetcher_id: str,
     *,
-    start: None | str | Unset = UNSET,
-    end: None | str | Unset = UNSET,
-    granularity: None | str | Unset = UNSET,
+    limit: int | None | Unset = UNSET,
+    offset: int | None | Unset = UNSET,
 ) -> dict[str, Any]:
     params: dict[str, Any] = {}
 
-    json_start: None | str | Unset
-    if isinstance(start, Unset):
-        json_start = UNSET
+    json_limit: int | None | Unset
+    if isinstance(limit, Unset):
+        json_limit = UNSET
     else:
-        json_start = start
-    params["start"] = json_start
+        json_limit = limit
+    params["limit"] = json_limit
 
-    json_end: None | str | Unset
-    if isinstance(end, Unset):
-        json_end = UNSET
+    json_offset: int | None | Unset
+    if isinstance(offset, Unset):
+        json_offset = UNSET
     else:
-        json_end = end
-    params["end"] = json_end
-
-    json_granularity: None | str | Unset
-    if isinstance(granularity, Unset):
-        json_granularity = UNSET
-    else:
-        json_granularity = granularity
-    params["granularity"] = json_granularity
+        json_offset = offset
+    params["offset"] = json_offset
 
     params = {k: v for k, v in params.items() if v is not UNSET and v is not None}
 
@@ -58,9 +50,9 @@ def _get_kwargs(
 
 def _parse_response(
     *, client: AuthenticatedClient | Client, response: httpx.Response
-) -> HTTPValidationError | ValueResponseSchema | None:
+) -> FetchResultSchema | HTTPValidationError | None:
     if response.status_code == 200:
-        response_200 = ValueResponseSchema.from_dict(response.json())
+        response_200 = FetchResultSchema.from_dict(response.json())
 
         return response_200
 
@@ -77,7 +69,7 @@ def _parse_response(
 
 def _build_response(
     *, client: AuthenticatedClient | Client, response: httpx.Response
-) -> Response[HTTPValidationError | ValueResponseSchema]:
+) -> Response[FetchResultSchema | HTTPValidationError]:
     return Response(
         status_code=HTTPStatus(response.status_code),
         content=response.content,
@@ -91,33 +83,30 @@ def sync_detailed(
     fetcher_id: str,
     *,
     client: AuthenticatedClient | Client,
-    start: None | str | Unset = UNSET,
-    end: None | str | Unset = UNSET,
-    granularity: None | str | Unset = UNSET,
-) -> Response[HTTPValidationError | ValueResponseSchema]:
-    """Get Value
+    limit: int | None | Unset = UNSET,
+    offset: int | None | Unset = UNSET,
+) -> Response[FetchResultSchema | HTTPValidationError]:
+    """Fetch Values Get
 
     Args:
         community_id (str):
         fetcher_id (str):
-        start (None | str | Unset): Optional ISO datetime start
-        end (None | str | Unset): Optional ISO datetime end
-        granularity (None | str | Unset): Optional granularity (e.g. hourly, daily)
+        limit (int | None | Unset):
+        offset (int | None | Unset):
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Response[HTTPValidationError | ValueResponseSchema]
+        Response[FetchResultSchema | HTTPValidationError]
     """
 
     kwargs = _get_kwargs(
         community_id=community_id,
         fetcher_id=fetcher_id,
-        start=start,
-        end=end,
-        granularity=granularity,
+        limit=limit,
+        offset=offset,
     )
 
     response = client.get_httpx_client().request(
@@ -132,34 +121,31 @@ def sync(
     fetcher_id: str,
     *,
     client: AuthenticatedClient | Client,
-    start: None | str | Unset = UNSET,
-    end: None | str | Unset = UNSET,
-    granularity: None | str | Unset = UNSET,
-) -> HTTPValidationError | ValueResponseSchema | None:
-    """Get Value
+    limit: int | None | Unset = UNSET,
+    offset: int | None | Unset = UNSET,
+) -> FetchResultSchema | HTTPValidationError | None:
+    """Fetch Values Get
 
     Args:
         community_id (str):
         fetcher_id (str):
-        start (None | str | Unset): Optional ISO datetime start
-        end (None | str | Unset): Optional ISO datetime end
-        granularity (None | str | Unset): Optional granularity (e.g. hourly, daily)
+        limit (int | None | Unset):
+        offset (int | None | Unset):
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        HTTPValidationError | ValueResponseSchema
+        FetchResultSchema | HTTPValidationError
     """
 
     return sync_detailed(
         community_id=community_id,
         fetcher_id=fetcher_id,
         client=client,
-        start=start,
-        end=end,
-        granularity=granularity,
+        limit=limit,
+        offset=offset,
     ).parsed
 
 
@@ -168,33 +154,30 @@ async def asyncio_detailed(
     fetcher_id: str,
     *,
     client: AuthenticatedClient | Client,
-    start: None | str | Unset = UNSET,
-    end: None | str | Unset = UNSET,
-    granularity: None | str | Unset = UNSET,
-) -> Response[HTTPValidationError | ValueResponseSchema]:
-    """Get Value
+    limit: int | None | Unset = UNSET,
+    offset: int | None | Unset = UNSET,
+) -> Response[FetchResultSchema | HTTPValidationError]:
+    """Fetch Values Get
 
     Args:
         community_id (str):
         fetcher_id (str):
-        start (None | str | Unset): Optional ISO datetime start
-        end (None | str | Unset): Optional ISO datetime end
-        granularity (None | str | Unset): Optional granularity (e.g. hourly, daily)
+        limit (int | None | Unset):
+        offset (int | None | Unset):
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Response[HTTPValidationError | ValueResponseSchema]
+        Response[FetchResultSchema | HTTPValidationError]
     """
 
     kwargs = _get_kwargs(
         community_id=community_id,
         fetcher_id=fetcher_id,
-        start=start,
-        end=end,
-        granularity=granularity,
+        limit=limit,
+        offset=offset,
     )
 
     response = await client.get_async_httpx_client().request(**kwargs)
@@ -207,25 +190,23 @@ async def asyncio(
     fetcher_id: str,
     *,
     client: AuthenticatedClient | Client,
-    start: None | str | Unset = UNSET,
-    end: None | str | Unset = UNSET,
-    granularity: None | str | Unset = UNSET,
-) -> HTTPValidationError | ValueResponseSchema | None:
-    """Get Value
+    limit: int | None | Unset = UNSET,
+    offset: int | None | Unset = UNSET,
+) -> FetchResultSchema | HTTPValidationError | None:
+    """Fetch Values Get
 
     Args:
         community_id (str):
         fetcher_id (str):
-        start (None | str | Unset): Optional ISO datetime start
-        end (None | str | Unset): Optional ISO datetime end
-        granularity (None | str | Unset): Optional granularity (e.g. hourly, daily)
+        limit (int | None | Unset):
+        offset (int | None | Unset):
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        HTTPValidationError | ValueResponseSchema
+        FetchResultSchema | HTTPValidationError
     """
 
     return (
@@ -233,8 +214,7 @@ async def asyncio(
             community_id=community_id,
             fetcher_id=fetcher_id,
             client=client,
-            start=start,
-            end=end,
-            granularity=granularity,
+            limit=limit,
+            offset=offset,
         )
     ).parsed

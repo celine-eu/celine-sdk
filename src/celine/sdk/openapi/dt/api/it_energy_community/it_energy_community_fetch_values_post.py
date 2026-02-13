@@ -6,8 +6,8 @@ import httpx
 
 from ... import errors
 from ...client import AuthenticatedClient, Client
+from ...models.fetch_result_schema import FetchResultSchema
 from ...models.http_validation_error import HTTPValidationError
-from ...models.value_response_schema import ValueResponseSchema
 from ...models.values_request_schema import ValuesRequestSchema
 from ...types import Response
 
@@ -38,9 +38,9 @@ def _get_kwargs(
 
 def _parse_response(
     *, client: AuthenticatedClient | Client, response: httpx.Response
-) -> HTTPValidationError | ValueResponseSchema | None:
+) -> FetchResultSchema | HTTPValidationError | None:
     if response.status_code == 200:
-        response_200 = ValueResponseSchema.from_dict(response.json())
+        response_200 = FetchResultSchema.from_dict(response.json())
 
         return response_200
 
@@ -57,7 +57,7 @@ def _parse_response(
 
 def _build_response(
     *, client: AuthenticatedClient | Client, response: httpx.Response
-) -> Response[HTTPValidationError | ValueResponseSchema]:
+) -> Response[FetchResultSchema | HTTPValidationError]:
     return Response(
         status_code=HTTPStatus(response.status_code),
         content=response.content,
@@ -72,8 +72,8 @@ def sync_detailed(
     *,
     client: AuthenticatedClient | Client,
     body: ValuesRequestSchema,
-) -> Response[HTTPValidationError | ValueResponseSchema]:
-    """Post Value
+) -> Response[FetchResultSchema | HTTPValidationError]:
+    """Fetch Values Post
 
     Args:
         community_id (str):
@@ -85,7 +85,7 @@ def sync_detailed(
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Response[HTTPValidationError | ValueResponseSchema]
+        Response[FetchResultSchema | HTTPValidationError]
     """
 
     kwargs = _get_kwargs(
@@ -107,8 +107,8 @@ def sync(
     *,
     client: AuthenticatedClient | Client,
     body: ValuesRequestSchema,
-) -> HTTPValidationError | ValueResponseSchema | None:
-    """Post Value
+) -> FetchResultSchema | HTTPValidationError | None:
+    """Fetch Values Post
 
     Args:
         community_id (str):
@@ -120,7 +120,7 @@ def sync(
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        HTTPValidationError | ValueResponseSchema
+        FetchResultSchema | HTTPValidationError
     """
 
     return sync_detailed(
@@ -137,8 +137,8 @@ async def asyncio_detailed(
     *,
     client: AuthenticatedClient | Client,
     body: ValuesRequestSchema,
-) -> Response[HTTPValidationError | ValueResponseSchema]:
-    """Post Value
+) -> Response[FetchResultSchema | HTTPValidationError]:
+    """Fetch Values Post
 
     Args:
         community_id (str):
@@ -150,7 +150,7 @@ async def asyncio_detailed(
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Response[HTTPValidationError | ValueResponseSchema]
+        Response[FetchResultSchema | HTTPValidationError]
     """
 
     kwargs = _get_kwargs(
@@ -170,8 +170,8 @@ async def asyncio(
     *,
     client: AuthenticatedClient | Client,
     body: ValuesRequestSchema,
-) -> HTTPValidationError | ValueResponseSchema | None:
-    """Post Value
+) -> FetchResultSchema | HTTPValidationError | None:
+    """Fetch Values Post
 
     Args:
         community_id (str):
@@ -183,7 +183,7 @@ async def asyncio(
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        HTTPValidationError | ValueResponseSchema
+        FetchResultSchema | HTTPValidationError
     """
 
     return (

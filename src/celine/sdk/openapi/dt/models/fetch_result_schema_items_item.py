@@ -1,54 +1,33 @@
 from __future__ import annotations
 
 from collections.abc import Mapping
-from typing import TYPE_CHECKING, Any, TypeVar
+from typing import Any, TypeVar
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
 
-if TYPE_CHECKING:
-    from ..models.generic_payload import GenericPayload
-
-
-T = TypeVar("T", bound="ValueResponseSchema")
+T = TypeVar("T", bound="FetchResultSchemaItemsItem")
 
 
 @_attrs_define
-class ValueResponseSchema:
-    """
-    Attributes:
-        payload (GenericPayload):
-    """
+class FetchResultSchemaItemsItem:
+    """ """
 
-    payload: GenericPayload
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
-        payload = self.payload.to_dict()
-
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
-        field_dict.update(
-            {
-                "payload": payload,
-            }
-        )
 
         return field_dict
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
-        from ..models.generic_payload import GenericPayload
-
         d = dict(src_dict)
-        payload = GenericPayload.from_dict(d.pop("payload"))
+        fetch_result_schema_items_item = cls()
 
-        value_response_schema = cls(
-            payload=payload,
-        )
-
-        value_response_schema.additional_properties = d
-        return value_response_schema
+        fetch_result_schema_items_item.additional_properties = d
+        return fetch_result_schema_items_item
 
     @property
     def additional_keys(self) -> list[str]:

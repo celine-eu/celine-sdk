@@ -1,62 +1,33 @@
 from __future__ import annotations
 
 from collections.abc import Mapping
-from typing import TYPE_CHECKING, Any, TypeVar
+from typing import Any, TypeVar
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
 
-if TYPE_CHECKING:
-    from ..models.descriptor_spec_schema import DescriptorSpecSchema
-
-
-T = TypeVar("T", bound="ValueDescriptorSchema")
+T = TypeVar("T", bound="DescriptorSpecSchemaPayloadSchemaType0")
 
 
 @_attrs_define
-class ValueDescriptorSchema:
-    """
-    Attributes:
-        id (str): Fetcher ID (domain-scoped).
-        spec (DescriptorSpecSchema):
-    """
+class DescriptorSpecSchemaPayloadSchemaType0:
+    """ """
 
-    id: str
-    spec: DescriptorSpecSchema
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
-        id = self.id
-
-        spec = self.spec.to_dict()
-
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
-        field_dict.update(
-            {
-                "id": id,
-                "spec": spec,
-            }
-        )
 
         return field_dict
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
-        from ..models.descriptor_spec_schema import DescriptorSpecSchema
-
         d = dict(src_dict)
-        id = d.pop("id")
+        descriptor_spec_schema_payload_schema_type_0 = cls()
 
-        spec = DescriptorSpecSchema.from_dict(d.pop("spec"))
-
-        value_descriptor_schema = cls(
-            id=id,
-            spec=spec,
-        )
-
-        value_descriptor_schema.additional_properties = d
-        return value_descriptor_schema
+        descriptor_spec_schema_payload_schema_type_0.additional_properties = d
+        return descriptor_spec_schema_payload_schema_type_0
 
     @property
     def additional_keys(self) -> list[str]:
