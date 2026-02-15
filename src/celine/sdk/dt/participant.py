@@ -21,9 +21,11 @@ from celine.sdk.openapi.dt.models import (
     ValuesRequestSchema,
     GenericPayload,
     SimulationDescriptorSchema,
+    UserAssetsResponseSchema,
 )
 from celine.sdk.openapi.dt.api.it_participant import (
     it_participant_profile as _profile,
+    it_participant_assets as _assets,
     it_participant_list_values as _list_values,
     it_participant_fetch_values_post as _post_value,
     it_participant_describe_value as _describe_value,
@@ -50,6 +52,18 @@ class ParticipantClient:
         """Get the participant profile."""
         client = await self._dt._get_client()
         result = await _profile.asyncio_detailed(
+            participant_id=participant_id, client=client
+        )
+        data = unwrap(result)
+        if isinstance(data, HTTPValidationError):
+            logger.warning(data.detail)
+            raise DTApiError("Validation error", 500)
+        return data
+
+    async def assets(self, participant_id: str) -> UserAssetsResponseSchema:
+        """Get the participant assets."""
+        client = await self._dt._get_client()
+        result = await _assets.asyncio_detailed(
             participant_id=participant_id, client=client
         )
         data = unwrap(result)

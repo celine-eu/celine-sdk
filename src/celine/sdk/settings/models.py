@@ -9,11 +9,40 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 class OidcSettings(BaseSettings):
     model_config = SettingsConfigDict(env_prefix="CELINE_OIDC_", extra="ignore")
 
-    base_url: str | None = Field(default=None, description="OIDC issuer base URL")
-    client_id: str | None = None
-    client_secret: str | None = None
-    scope: str | None = Field(default=None, description="OAuth2 scope string")
     timeout: float = 10.0
+
+    scope: str | None = Field(default=None, description="OAuth2 scope string")
+
+    # OIDC issuer (base URL of your auth server)
+    base_url: str = Field(
+        default="http://keycloak.celine.localhost/realms/celine",
+        description="OIDC issuer URL (e.g., https://auth.example.com/realms/celine)",
+    )
+
+    # JWKS URI for JWT signature verification
+    # NEW: celine.sdk.auth.JwtUser uses this directly
+    jwks_uri: str = Field(
+        default="http://keycloak.celine.localhost/realms/celine/protocol/openid-connect/certs",
+        description="JWKS URI for JWT verification (e.g., https://auth.example.com/realms/celine/protocol/openid-connect/certs)",
+    )
+
+    # Client ID (for client-specific roles and audience validation)
+    client_id: str | None = Field(default=None, description="OIDC client ID")
+    client_secret: str | None = Field(default=None, description="OIDC client secret")
+
+    # Expected audience (optional - can validate multiple)
+    audience: str | None = Field(
+        default=None, description="Expected JWT audience (optional)"
+    )
+
+    allowed_audiences: str | None = Field(
+        default=None,
+        description="Optional extra accepted audiences (comma-separated). Use sparingly.",
+    )
+    include_client_id_as_audience: bool = Field(
+        default=True,
+        description="If true, also accept CELINE_OIDC_CLIENT_ID as an audience.",
+    )
 
 
 class MqttSettings(BaseSettings):
@@ -52,9 +81,7 @@ class PoliciesSettings(BaseSettings):
     policies_cache_enabled: bool = Field(
         default=True, description="Enable in-memory decision caching"
     )
-    policies_cache_ttl: int = Field(
-        default=300, description="Cache TTL in seconds"
-    )
+    policies_cache_ttl: int = Field(default=300, description="Cache TTL in seconds")
     policies_cache_maxsize: int = Field(
         default=10000, description="Maximum cache entries"
     )

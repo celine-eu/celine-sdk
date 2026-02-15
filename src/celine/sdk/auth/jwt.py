@@ -3,11 +3,41 @@
 from __future__ import annotations
 
 from dataclasses import dataclass, field
+import logging
 from typing import Any, Optional
 import time
 
+from fastapi import HTTPException
 import jwt
 from jwt import PyJWKClient
+
+from celine.sdk.settings.models import OidcSettings
+
+
+logger = logging.getLogger(__name__)
+
+
+def get_expected_audiences(oidc: OidcSettings) -> list[str] | str | None:
+    """
+    Get expected audience(s) for token validation.
+
+    Returns:
+        List of audience strings, single string, or None to skip aud validation
+    """
+    audiences = []
+
+    if oidc.audience:
+        audiences.append(oidc.audience)
+
+    if (
+        oidc.include_client_id_as_audience
+        and oidc.client_id
+        and oidc.client_id != oidc.audience
+    ):
+        audiences.append(oidc.client_id)
+
+    # Return list if we have audiences, None to skip validation
+    return audiences if audiences else None
 
 
 @dataclass
@@ -34,14 +64,7 @@ class JwtUser:
 
     @classmethod
     def from_token(
-        cls,
-        token: str,
-        *,
-        verify: bool = False,
-        jwks_uri: Optional[str] = None,
-        audience: Optional[str | list[str]] = None,
-        issuer: Optional[str] = None,
-        algorithms: Optional[list[str]] = None,
+        cls, token: str, oidc: OidcSettings, algorithms: Optional[list[str]] = None
     ) -> JwtUser:
         """
         Parse JWT token and extract user information.
@@ -80,30 +103,27 @@ class JwtUser:
         if algorithms is None:
             algorithms = ["RS256", "HS256", "ES256"]
 
-        # Decode token
-        if verify and jwks_uri:
-            # Verified decode with signature check
-            jwks_client = PyJWKClient(jwks_uri)
-            signing_key = jwks_client.get_signing_key_from_jwt(token)
+        # Verified decode with signature check
+        jwks_client = PyJWKClient(oidc.jwks_uri)
+        signing_key = jwks_client.get_signing_key_from_jwt(token)
 
+        try:
             payload = jwt.decode(
                 token,
                 signing_key.key,
                 algorithms=algorithms,
-                audience=audience,
-                issuer=issuer,
-                options={"verify_exp": True},
-            )
-        else:
-            # Unverified decode (assumes upstream verification)
-            payload = jwt.decode(
-                token,
+                audience=oidc.audience,
+                issuer=oidc.base_url,
+                leeway=30,
                 options={
-                    "verify_signature": False,
-                    "verify_exp": False,
-                    "verify_aud": False,
+                    "verify_exp": True,
+                    "verify_aud": True if oidc.audience is not None else False,
+                    "verify_nbf": True,
                 },
             )
+        except Exception as e:
+            logger.warning(f"Failed to parse token: {e}")
+            raise
 
         # Extract standard claims
         sub = payload.get("sub")

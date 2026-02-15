@@ -29,7 +29,10 @@ class StaticTokenProvider(TokenProvider):
     def __init__(self, access_token: str) -> None:
         # Strip "Bearer " prefix if present
         if access_token.lower().startswith("bearer "):
-            access_token = access_token[7:]
+            token = access_token.strip()
+            parts = token.split()
+            access_token = parts[-1] if parts else token
+
         self._token = AccessToken(
             access_token=access_token,
             # Far future — we don't manage expiry for forwarded tokens
