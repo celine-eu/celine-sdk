@@ -48,7 +48,7 @@ class OidcSettings(BaseSettings):
 class MqttSettings(BaseSettings):
     model_config = SettingsConfigDict(env_prefix="CELINE_MQTT_", extra="ignore")
 
-    host: str = "localhost"
+    host: str = "172.17.0.1"
     port: int = 1883
     client_id: str | None = None
     topic_prefix: str = ""

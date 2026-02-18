@@ -68,7 +68,7 @@ class MqttBroker(BrokerBase):
     Features:
     - Publish messages to topics
     - Subscribe to topics with wildcard support
-    - Automatic reconnection handling
+    - Automatic reconnection handling (network loss + token expiry)
     - TLS/SSL support
     - QoS level support
     - Message retention
@@ -211,7 +211,11 @@ class MqttBroker(BrokerBase):
         )
 
     async def _refresh_token_and_reconnect(self, delay: float) -> None:
-        """Wait for delay, then refresh token and reconnect."""
+        """Wait for delay, then trigger a reconnect with fresh credentials.
+
+        Delegates to _reconnect_with_resubscribe, which is the single
+        authoritative reconnect path shared with the network-loss recovery.
+        """
         try:
             await asyncio.sleep(delay)
 
@@ -219,28 +223,45 @@ class MqttBroker(BrokerBase):
                 return
 
             logger.info("Token expiring, reconnecting with fresh credentials")
-
-            # Store current subscriptions
-            subs = list(self._subscriptions.values())
-
-            # Reconnect
-            await self._disconnect_internal()
-            await self._connect_internal()
-
-            # Resubscribe
-            if subs and self._client:
-                for sub in subs:
-                    for topic in sub.topics:
-                        full_topic = self._full_topic(topic)
-                        await self._client.subscribe(full_topic, qos=sub.qos.value)
-
-                # Restart listener if we have subscriptions
-                self._start_listener()
+            await self._reconnect_with_resubscribe()
 
         except asyncio.CancelledError:
             raise
         except Exception as exc:
-            logger.error("Error during token refresh: %s", exc)
+            logger.error("Error during token refresh reconnect: %s", exc)
+
+    async def _reconnect_with_resubscribe(self) -> None:
+        """Single authoritative reconnect path.
+
+        - Snapshots current subscriptions.
+        - Disconnects and reconnects (which also reschedules token refresh
+          via _get_credentials → _schedule_token_refresh).
+        - Re-issues SUBSCRIBE packets for every stored subscription.
+        - Restarts the listener task.
+
+        Callers: _refresh_token_and_reconnect, _listen_loop recovery.
+        Must NOT be called while holding self._lock.
+        """
+        subs = list(self._subscriptions.values())
+
+        await self._disconnect_internal()
+        await self._connect_internal()  # also reschedules token refresh
+
+        if subs and self._client:
+            for sub in subs:
+                for topic in sub.topics:
+                    full_topic = self._full_topic(topic)
+                    await self._client.subscribe(full_topic, qos=sub.qos.value)
+                    logger.debug("Resubscribed to: %s", full_topic)
+
+        # Restart the listener regardless of whether we have subscriptions —
+        # new ones may arrive while we are connected.
+        self._start_listener()
+
+        logger.info(
+            "Reconnected and resubscribed %d subscription(s)",
+            len(subs),
+        )
 
     async def _connect_internal(self) -> None:
         """Internal connect without lock."""
@@ -486,23 +507,71 @@ class MqttBroker(BrokerBase):
             )
 
     async def _listen_loop(self) -> None:
-        """Listen for incoming messages and dispatch to handlers."""
-        if self._client is None:
-            return
+        """Listen for incoming messages, reconnecting on network errors.
 
-        try:
-            async for message in self._client.messages:
-                if not self._connected:
-                    break
+        Reconnect behaviour:
+        - On any exception from the aiomqtt message iterator, wait
+          ``reconnect_interval`` seconds then call _reconnect_with_resubscribe.
+        - Respects ``max_reconnect_attempts`` (0 = unlimited).
+        - Stops cleanly when self._connected is set to False (i.e. explicit
+          disconnect() call).
+        """
+        reconnect_attempts = 0
 
-                await self._dispatch_message(message)
+        while self._connected:
+            if self._client is None:
+                return
 
-        except asyncio.CancelledError:
-            logger.debug("Listener loop cancelled")
-            raise
-        except Exception as exc:
-            logger.error("Listener error: %s", exc)
-            self._error_count += 1
+            try:
+                async for message in self._client.messages:
+                    if not self._connected:
+                        return
+                    await self._dispatch_message(message)
+                # Iterator exhausted cleanly → connection closed by broker
+                logger.warning(
+                    "MQTT message stream ended (connection closed by broker)"
+                )
+
+            except asyncio.CancelledError:
+                logger.debug("Listener loop cancelled")
+                raise
+            except Exception as exc:
+                self._error_count += 1
+                logger.error("Listener error: %s", exc)
+
+            # If we get here the connection is gone. Stop if shutting down.
+            if not self._connected:
+                return
+
+            reconnect_attempts += 1
+            max_attempts = self._config.max_reconnect_attempts
+            if max_attempts and reconnect_attempts > max_attempts:
+                logger.error(
+                    "Max reconnect attempts (%d) reached, giving up",
+                    max_attempts,
+                )
+                self._connected = False
+                return
+
+            logger.info(
+                "Reconnecting in %.1fs (attempt %d%s)...",
+                self._config.reconnect_interval,
+                reconnect_attempts,
+                f"/{max_attempts}" if max_attempts else "",
+            )
+            await asyncio.sleep(self._config.reconnect_interval)
+
+            if not self._connected:
+                return
+
+            try:
+                await self._reconnect_with_resubscribe()
+                reconnect_attempts = 0  # reset counter on success
+            except asyncio.CancelledError:
+                raise
+            except Exception as exc:
+                logger.error("Reconnect attempt %d failed: %s", reconnect_attempts, exc)
+                # Loop continues → will wait reconnect_interval and retry
 
     async def _dispatch_message(self, message: aiomqtt.Message) -> None:
         """Dispatch a received message to matching handlers."""
