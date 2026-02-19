@@ -2,6 +2,22 @@
 
 <!-- version list -->
 
+## v1.2.0 (2026-02-19)
+
+### Chores
+
+- Update regoruse
+  ([`c6a188e`](https://github.com/celine-eu/celine-sdk/commit/c6a188e5e2d3a0563fd3fccefeafe76b45f09d55))
+
+### Features
+
+- Improve mqtt reconnection
+  ([`0d424fe`](https://github.com/celine-eu/celine-sdk/commit/0d424fe0451cd230b04f9cbb4bb8b1bedb05cd4e))
+
+- Improve oidc token refresh, force mqtt reconnect on token expiration
+  ([`704c279`](https://github.com/celine-eu/celine-sdk/commit/704c2791eeed62600ce1900a40afd75c7d852bb2))
+
+
 ## v1.1.0 (2026-02-16)
 
 ### Bug Fixes
