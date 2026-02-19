@@ -19,6 +19,7 @@ class OidcClientCredentialsProvider(TokenProvider):
         scope: str | None = None,
         timeout: float = 10.0,
     ):
+        super().__init__()
         self._discovery = OidcDiscoveryClient(base_url, timeout)
         self._client_id = client_id
         self._client_secret = client_secret
@@ -33,11 +34,13 @@ class OidcClientCredentialsProvider(TokenProvider):
         if self._token and self._token.refresh_token:
             try:
                 self._token = await self._refresh(self._token.refresh_token)
+                await self._fire_token_renewed()
                 return self._token
             except Exception:
                 pass
 
         self._token = await self._authenticate()
+        await self._fire_token_renewed()
         return self._token
 
     async def _authenticate(self) -> AccessToken:

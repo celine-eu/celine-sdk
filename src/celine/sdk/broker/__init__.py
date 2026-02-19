@@ -9,6 +9,7 @@ from celine.sdk.broker.contracts import (
     MessageHandler,
 )
 from celine.sdk.broker.mqtt import MqttBroker, MqttConfig, create_mqtt_broker
+from celine.sdk.broker.models import PipelineRunEvent
 
 __all__ = [
     "Broker",
@@ -22,4 +23,5 @@ __all__ = [
     "MqttBroker",
     "MqttConfig",
     "create_mqtt_broker",
+    "PipelineRunEvent",
 ]
