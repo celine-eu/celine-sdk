@@ -5,7 +5,9 @@ from pydantic import BaseModel, Field
 
 
 class PipelineRunEvent(BaseModel):
-    pipeline: str = Field(..., description="Pipeline identifier")
+    
+    namespace: str = Field(..., description="Pipeline namespace")
+    flow: Optional[str] = Field(..., description="Pipeline flow")
     status: str = Field(
         ..., description="Run status: started | completed | failed | ..."
     )
@@ -15,6 +17,9 @@ class PipelineRunEvent(BaseModel):
         default=0, description="Duration in milliseconds (0 when status=started)"
     )
     error: Optional[str] = Field(default=None, description="Error message")
-    received_on: Optional[datetime] = Field(
+    created: Optional[datetime] = Field(
         default=None, description="Internal ingestion timestamp"
+    )
+    correlation_id: Optional[str] = Field(
+        default=None, description="Tracking id"
     )

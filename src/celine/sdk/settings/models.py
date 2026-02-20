@@ -60,8 +60,8 @@ class MqttSettings(BaseSettings):
     keyfile: str | None = None
     keepalive: int = 60
     clean_session: bool = True
-    reconnect_interval: float = 5.0
-    max_reconnect_attempts: int = 0
+    reconnect_interval: float = 0.0
+    max_reconnect_attempts: int = 10
     token_refresh_margin: float = 30.0
 
 

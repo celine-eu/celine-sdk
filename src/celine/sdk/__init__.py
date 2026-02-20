@@ -52,6 +52,12 @@ def configure_celine_logging() -> None:
     base_logger.setLevel(level)
     base_logger.propagate = True
 
+    muted_loggers = ["httpcore"]
+    for logger_name in muted_loggers:
+        logger = logging.getLogger(logger_name)
+        logger.setLevel(logging.WARNING)
+        logger.propagate = True
+
 
 configure_celine_logging()
 start_debugger()

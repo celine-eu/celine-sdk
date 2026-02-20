@@ -25,7 +25,6 @@ The OIDC provider calls ``_on_token_renewed`` whenever it issues a new token.
 We post a reconnect request.  The loop tears down cleanly, fetches fresh
 credentials, reconnects, and resubscribes every tracked subscription.
 """
-
 from __future__ import annotations
 
 import asyncio
@@ -57,7 +56,6 @@ logger = logging.getLogger(__name__)
 # Configuration
 # ---------------------------------------------------------------------------
 
-
 @dataclass
 class MqttConfig:
     host: str = "localhost"
@@ -86,7 +84,6 @@ class MqttConfig:
 # Internal subscription record
 # ---------------------------------------------------------------------------
 
-
 @dataclass
 class _Subscription:
     id: str
@@ -98,7 +95,6 @@ class _Subscription:
 # ---------------------------------------------------------------------------
 # MqttBroker
 # ---------------------------------------------------------------------------
-
 
 class MqttBroker(BrokerBase):
     """
@@ -185,6 +181,7 @@ class MqttBroker(BrokerBase):
         """Start the connection loop and wait for the first successful connect.
 
         Idempotent — safe to call when already connected.
+        Propagates CancelledError so shutdown during connect works cleanly.
         """
         if self._conn_task is not None and not self._conn_task.done():
             logger.debug("Already connecting / connected")
@@ -197,13 +194,17 @@ class MqttBroker(BrokerBase):
         self._conn_task = asyncio.create_task(
             self._connection_loop(), name="mqtt-connection-loop"
         )
-        # Wait for the first successful connection before registering the
-        # token renewal callback.  The initial connect() itself causes a token
-        # to be issued — if we registered the listener first, that issuance
-        # would fire _on_token_renewed and immediately tear down the brand-new
-        # connection before any subscriptions are in place.
-        await self._ready.wait()
 
+        # Block until connected. If cancelled (shutdown during startup),
+        # stop the connection loop and re-raise.
+        try:
+            await self._ready.wait()
+        except asyncio.CancelledError:
+            await self.disconnect()
+            raise
+
+        # Register token renewal only after first successful connect so the
+        # initial token issuance doesn't trigger an immediate reconnect.
         if self._token_provider is not None:
             self._token_provider.add_token_renewed_listener(self._on_token_renewed)
             self._token_watcher_task = asyncio.create_task(
@@ -244,10 +245,11 @@ class MqttBroker(BrokerBase):
 
         topic = self._full_topic(message.topic)
         payload_dict = dict(message.payload)
+
         ts = message.timestamp or datetime.now(timezone.utc)
-        payload_dict.setdefault("_timestamp", ts.isoformat())
+        payload_dict.setdefault("created", ts.isoformat())
         if message.correlation_id:
-            payload_dict.setdefault("_correlationId", message.correlation_id)
+            payload_dict.setdefault("correlation_id", message.correlation_id)
 
         try:
             payload_bytes = json.dumps(payload_dict, default=str).encode()
@@ -264,9 +266,7 @@ class MqttBroker(BrokerBase):
             self._publish_count += 1
             logger.debug(
                 "Published to %s (qos=%d, %d bytes)",
-                topic,
-                message.qos.value,
-                len(payload_bytes),
+                topic, message.qos.value, len(payload_bytes),
             )
             return PublishResult(success=True, message_id=str(uuid4()))
         except Exception as exc:
@@ -347,9 +347,7 @@ class MqttBroker(BrokerBase):
                 wait = self._config.reconnect_interval
                 logger.error(
                     "Connection failed (attempt %d): %s — retrying in %.1fs",
-                    attempt,
-                    exc,
-                    wait,
+                    attempt, exc, wait,
                 )
                 await self._sleep_or_shutdown(wait)
                 continue
@@ -438,15 +436,11 @@ class MqttBroker(BrokerBase):
         while not self._shutdown.is_set():
             # Step 1: get current token (may be cached, that's fine)
             try:
-                if not self._token_provider:
-                    raise ValueError("token provider is not set")
                 token = await self._token_provider.get_token()
             except asyncio.CancelledError:
                 raise
             except Exception as exc:
-                logger.warning(
-                    "Token watcher: get_token failed: %s — retrying in 10s", exc
-                )
+                logger.warning("Token watcher: get_token failed: %s — retrying in 10s", exc)
                 await self._sleep_or_shutdown(10)
                 continue
 
@@ -463,21 +457,17 @@ class MqttBroker(BrokerBase):
             # False, so get_token() will authenticate/refresh and fire the callback
             logger.debug("Token refresh window reached — requesting new token")
             try:
-                if not self._token_provider:
-                    raise ValueError("token provider is not set")
                 await self._token_provider.get_token()
             except asyncio.CancelledError:
                 raise
             except Exception as exc:
-                logger.warning(
-                    "Token watcher: refresh failed: %s — retrying in 10s", exc
-                )
+                logger.warning("Token watcher: refresh failed: %s — retrying in 10s", exc)
                 await self._sleep_or_shutdown(10)
             # Loop: next iteration reads the new token's expiry
 
     async def _on_token_renewed(self) -> None:
         """Called by the OIDC provider when a fresh token is issued."""
-        if self._shutdown.is_set():
+        if self._shutdown.is_set() or not self._ready.is_set():
             return
         logger.info("Token expiring, reconnecting with fresh credentials")
         self._reconnect_requested.set()
@@ -487,14 +477,13 @@ class MqttBroker(BrokerBase):
     # ------------------------------------------------------------------
 
     async def _do_connect(self) -> None:
-        """Build and enter a new aiomqtt.Client, then resubscribe all topics."""
+        """Build and enter a new aiomqtt.Client and resubscribe all topics."""
         username, password = await self._get_credentials()
         tls_context = self._build_tls_context()
 
         logger.info(
             "Connecting to MQTT broker at %s:%d",
-            self._config.host,
-            self._config.port,
+            self._config.host, self._config.port,
         )
 
         client = aiomqtt.Client(
@@ -614,13 +603,20 @@ class MqttBroker(BrokerBase):
         return bool(m and attempt > m)
 
     async def _sleep_or_shutdown(self, seconds: float) -> None:
-        """Sleep for ``seconds``, waking early if shutdown is requested."""
+        """Sleep for ``seconds``, or return early if _shutdown is set.
+        CancelledError propagates naturally — never caught here.
+        """
+        sleep_task = asyncio.ensure_future(asyncio.sleep(seconds))
+        shutdown_task = asyncio.ensure_future(self._shutdown.wait())
         try:
-            await asyncio.wait_for(
-                asyncio.shield(self._shutdown.wait()), timeout=seconds
+            done, pending = await asyncio.wait(
+                [sleep_task, shutdown_task],
+                return_when=asyncio.FIRST_COMPLETED,
             )
-        except asyncio.TimeoutError:
-            pass
+        finally:
+            for t in (sleep_task, shutdown_task):
+                if not t.done():
+                    t.cancel()
 
     async def _get_credentials(self) -> tuple[str | None, str | None]:
         if self._token_provider is not None:
@@ -706,7 +702,8 @@ class MqttBroker(BrokerBase):
             "error_count": self._error_count,
             "subscription_count": len(self._subscriptions),
             "subscriptions": [
-                {"id": s.id, "topics": s.topics} for s in self._subscriptions.values()
+                {"id": s.id, "topics": s.topics}
+                for s in self._subscriptions.values()
             ],
         }
 
@@ -714,7 +711,6 @@ class MqttBroker(BrokerBase):
 # ---------------------------------------------------------------------------
 # Factory
 # ---------------------------------------------------------------------------
-
 
 def create_mqtt_broker(**kwargs: Any) -> MqttBroker:
     return MqttBroker(MqttConfig(**kwargs))
