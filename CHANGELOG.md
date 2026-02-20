@@ -2,6 +2,14 @@
 
 <!-- version list -->
 
+## v1.2.1 (2026-02-20)
+
+### Bug Fixes
+
+- Improve setting, logging
+  ([`d4f76ac`](https://github.com/celine-eu/celine-sdk/commit/d4f76acb6d13bbc29893967eb8331f27b75b26fa))
+
+
 ## v1.2.0 (2026-02-19)
 
 ### Chores
