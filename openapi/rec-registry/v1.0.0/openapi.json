@@ -2333,6 +2333,22 @@
         "title": "RegistryBundleIn",
         "type": "object"
       },
+      "SensorIdsBatchRequest": {
+        "properties": {
+          "sensor_ids": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Sensor Ids",
+            "type": "array"
+          }
+        },
+        "required": [
+          "sensor_ids"
+        ],
+        "title": "SensorIdsBatchRequest",
+        "type": "object"
+      },
       "SettingsIn": {
         "additionalProperties": true,
         "description": "Operational settings.",
@@ -4126,7 +4142,7 @@
     "/admin/lookup/asset-by-sensor-id/{sensor_id}": {
       "get": {
         "description": "Find an asset by sensor_id across all communities.",
-        "operationId": "lookup_asset_by_sensor_id_admin_lookup_asset_by_sensor_id__sensor_id__get",
+        "operationId": "lookup_asset_by_sensor_id",
         "parameters": [
           {
             "in": "path",
@@ -4166,10 +4182,56 @@
         ]
       }
     },
+    "/admin/lookup/assets-by-sensor-ids": {
+      "post": {
+        "description": "Find assets by multiple sensor_ids across all communities.",
+        "operationId": "lookup_assets_by_sensor_ids",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SensorIdsBatchRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/GlobalAssetLookup"
+                  },
+                  "title": "Response Lookup Assets By Sensor Ids",
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Lookup Assets By Sensor Ids",
+        "tags": [
+          "admin"
+        ]
+      }
+    },
     "/admin/lookup/community-by-delivery-point/{dp_id}": {
       "get": {
         "description": "Find which community a delivery point belongs to.",
-        "operationId": "lookup_community_by_delivery_point_admin_lookup_community_by_delivery_point__dp_id__get",
+        "operationId": "lookup_community_by_delivery_point",
         "parameters": [
           {
             "in": "path",
@@ -4212,7 +4274,7 @@
     "/admin/lookup/community-by-sensor-id/{sensor_id}": {
       "get": {
         "description": "Find which community a meter belongs to.",
-        "operationId": "lookup_community_by_sensor_id_admin_lookup_community_by_sensor_id__sensor_id__get",
+        "operationId": "lookup_community_by_sensor_id",
         "parameters": [
           {
             "in": "path",
@@ -4255,7 +4317,7 @@
     "/admin/lookup/community-by-user-id/{user_id}": {
       "get": {
         "description": "Find which community a user belongs to.",
-        "operationId": "lookup_community_by_user_id_admin_lookup_community_by_user_id__user_id__get",
+        "operationId": "lookup_community_by_user_id",
         "parameters": [
           {
             "in": "path",
@@ -4298,7 +4360,7 @@
     "/admin/lookup/member-by-user-id/{user_id}": {
       "get": {
         "description": "Find a member by user_id across all communities.",
-        "operationId": "lookup_member_by_user_id_admin_lookup_member_by_user_id__user_id__get",
+        "operationId": "lookup_member_by_user_id",
         "parameters": [
           {
             "in": "path",

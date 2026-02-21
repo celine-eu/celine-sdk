@@ -29,11 +29,12 @@ from celine.sdk.openapi.rec_registry.api.admin import (
     list_delivery_points_admin_communities_community_key_delivery_points_get,
     list_members_admin_communities_community_key_members_get,
     list_meters_admin_communities_community_key_meters_get,
-    lookup_asset_by_sensor_id_admin_lookup_asset_by_sensor_id_sensor_id_get,
-    lookup_community_by_delivery_point_admin_lookup_community_by_delivery_point_dp_id_get,
-    lookup_community_by_sensor_id_admin_lookup_community_by_sensor_id_sensor_id_get,
-    lookup_community_by_user_id_admin_lookup_community_by_user_id_user_id_get,
-    lookup_member_by_user_id_admin_lookup_member_by_user_id_user_id_get,
+    lookup_asset_by_sensor_id,
+    lookup_community_by_delivery_point,
+    lookup_community_by_sensor_id,
+    lookup_community_by_user_id,
+    lookup_member_by_user_id,
+    lookup_assets_by_sensor_ids
 )
 from celine.sdk.openapi.rec_registry.api.me import (
     get_me_user_get,
@@ -52,12 +53,22 @@ from celine.sdk.openapi.rec_registry.models import (
     ImportRequest,
     UserDeliveryPointsResponse,
     UserAssetDetail,
+    SensorIdsBatchRequest,
 )
 
+from celine.sdk.openapi.rec_registry.models.global_asset_lookup import GlobalAssetLookup
+from celine.sdk.openapi.rec_registry.models.global_member_lookup import GlobalMemberLookup
 from celine.sdk.utils.convert import to_schema
 
 from celine.sdk.openapi.rec_registry.schemas import (
+    DeliveryPointLookupSchema,
+    DeliveryPointsResponseSchema,
+    GlobalAssetLookupSchema,
+    GlobalMemberLookupSchema,
     HTTPValidationErrorSchema,
+    LookupByDeliveryPointResponseSchema,
+    LookupBySensorIdResponseSchema,
+    LookupByUserIdResponseSchema,
     UserAssetsResponseSchema,
     UserCommunityDetailSchema,
     UserMeResponseSchema,
@@ -487,25 +498,27 @@ class RecRegistryAdminClient:
 
     async def get_member_delivery_points(
         self, community_key: str, member_key: str, *, token: Optional[str] = None
-    ) -> Any:
+    ) -> DeliveryPointsResponseSchema | None:
         """Get member's delivery points."""
         client = await self._get_client(token)
-        return await get_member_delivery_points_admin_communities_community_key_members_member_key_delivery_points_get.asyncio_detailed(
+        res = await get_member_delivery_points_admin_communities_community_key_members_member_key_delivery_points_get.asyncio_detailed(
             client=client,
             community_key=community_key,
             member_key=member_key,
         )
+        return to_schema(res.parsed, DeliveryPointsResponseSchema)
 
     async def get_delivery_point_by_id(
         self, community_key: str, dp_id: str, *, token: Optional[str] = None
-    ) -> Any:
+    ) -> DeliveryPointLookupSchema | None:
         """Get delivery point by ID."""
         client = await self._get_client(token)
-        return await get_delivery_point_by_id_admin_communities_community_key_delivery_points_by_id_dp_id_get.asyncio_detailed(
+        res = await get_delivery_point_by_id_admin_communities_community_key_delivery_points_by_id_dp_id_get.asyncio_detailed(
             client=client,
             community_key=community_key,
             dp_id=dp_id,
         )
+        return to_schema(res.parsed, DeliveryPointLookupSchema)
 
     # Lookup operations (cross-community queries)
     async def lookup_community_by_user_id(
@@ -513,47 +526,68 @@ class RecRegistryAdminClient:
     ) -> Any:
         """Find community for a user ID."""
         client = await self._get_client(token)
-        return await lookup_community_by_user_id_admin_lookup_community_by_user_id_user_id_get.asyncio_detailed(
+        res = await lookup_community_by_user_id.asyncio_detailed(
             client=client,
             user_id=user_id,
         )
+        return to_schema(res.parsed, LookupBySensorIdResponseSchema)
 
     async def lookup_community_by_sensor_id(
         self, sensor_id: str, *, token: Optional[str] = None
-    ) -> Any:
+    ) -> LookupByUserIdResponseSchema | None:
         """Find community for a sensor ID."""
         client = await self._get_client(token)
-        return await lookup_community_by_sensor_id_admin_lookup_community_by_sensor_id_sensor_id_get.asyncio_detailed(
+        res = await lookup_community_by_sensor_id.asyncio_detailed(
             client=client,
             sensor_id=sensor_id,
         )
+        return to_schema(res.parsed, LookupByUserIdResponseSchema)
 
     async def lookup_community_by_delivery_point(
         self, dp_id: str, *, token: Optional[str] = None
-    ) -> Any:
+    ) -> LookupByDeliveryPointResponseSchema | None:
         """Find community for a delivery point ID."""
         client = await self._get_client(token)
-        return await lookup_community_by_delivery_point_admin_lookup_community_by_delivery_point_dp_id_get.asyncio_detailed(
+        res = await lookup_community_by_delivery_point.asyncio_detailed(
             client=client,
             dp_id=dp_id,
         )
+        return to_schema(res.parsed, LookupByDeliveryPointResponseSchema)
 
     async def lookup_asset_by_sensor_id(
         self, sensor_id: str, *, token: Optional[str] = None
-    ) -> Any:
+    ) -> GlobalAssetLookupSchema | None:
         """Find asset for a sensor ID."""
         client = await self._get_client(token)
-        return await lookup_asset_by_sensor_id_admin_lookup_asset_by_sensor_id_sensor_id_get.asyncio_detailed(
+        res = await lookup_asset_by_sensor_id.asyncio_detailed(
             client=client,
             sensor_id=sensor_id,
         )
+        return to_schema(res.parsed, GlobalAssetLookupSchema)
 
     async def lookup_member_by_user_id(
         self, user_id: str, *, token: Optional[str] = None
-    ) -> Any:
+    ) -> GlobalMemberLookupSchema | None:
         """Find member for a user ID."""
         client = await self._get_client(token)
-        return await lookup_member_by_user_id_admin_lookup_member_by_user_id_user_id_get.asyncio_detailed(
+        res = await lookup_member_by_user_id.asyncio_detailed(
             client=client,
             user_id=user_id,
         )
+        return to_schema(res.parsed, GlobalMemberLookupSchema)
+    
+    async def lookup_asset_by_sensor_ids(
+        self, sensor_ids: list[str], *, token: Optional[str] = None
+    ) -> list[GlobalAssetLookupSchema]:
+        """Find assets by multiple sensor IDs."""
+        client = await self._get_client(token)
+        res = await lookup_assets_by_sensor_ids.asyncio_detailed(
+            client=client,
+            body=SensorIdsBatchRequest(sensor_ids=sensor_ids),
+        )
+        if not isinstance(res.parsed, list):
+            return []
+        return [
+            GlobalAssetLookupSchema.model_validate(item.to_dict())
+            for item in res.parsed
+        ]

@@ -138,6 +138,9 @@ class MqttBroker(BrokerBase):
         # each connect attempt (not after teardown) to avoid missing signals.
         self._reconnect_requested = asyncio.Event()
 
+        # Set by _on_token_renewed to skip the reconnect_interval sleep.
+        self._immediate_reconnect = False
+
         # Set by disconnect() to stop the loop.
         self._shutdown = asyncio.Event()
 
@@ -378,9 +381,13 @@ class MqttBroker(BrokerBase):
             await self._cancel_listen_task(silent=True)
             await self._close_client()
 
-            wait = self._config.reconnect_interval
-            logger.info("Reconnecting in %.1fs...", wait)
-            await self._sleep_or_shutdown(wait)
+            if self._immediate_reconnect:
+                self._immediate_reconnect = False
+                logger.info("Reconnecting immediately (token renewal)")
+            else:
+                wait = self._config.reconnect_interval
+                logger.info("Reconnecting in %.1fs...", wait)
+                await self._sleep_or_shutdown(wait)
             # Loop back: _reconnect_requested.clear() is the first thing above.
 
         logger.debug("Connection loop exiting")
@@ -436,6 +443,8 @@ class MqttBroker(BrokerBase):
         while not self._shutdown.is_set():
             # Step 1: get current token (may be cached, that's fine)
             try:
+                if not self._token_provider:
+                    raise ValueError("_token_provider not initialized")
                 token = await self._token_provider.get_token()
             except asyncio.CancelledError:
                 raise
@@ -457,6 +466,8 @@ class MqttBroker(BrokerBase):
             # False, so get_token() will authenticate/refresh and fire the callback
             logger.debug("Token refresh window reached — requesting new token")
             try:
+                if not self._token_provider:
+                    raise ValueError("_token_provider not initialized")
                 await self._token_provider.get_token()
             except asyncio.CancelledError:
                 raise
@@ -469,7 +480,8 @@ class MqttBroker(BrokerBase):
         """Called by the OIDC provider when a fresh token is issued."""
         if self._shutdown.is_set() or not self._ready.is_set():
             return
-        logger.info("Token expiring, reconnecting with fresh credentials")
+        logger.info("Token renewed — reconnecting immediately with fresh credentials")
+        self._immediate_reconnect = True
         self._reconnect_requested.set()
 
     # ------------------------------------------------------------------

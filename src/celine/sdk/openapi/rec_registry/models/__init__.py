@@ -73,6 +73,7 @@ from .paginated_response_meter_list_item import PaginatedResponseMeterListItem
 from .pv import Pv
 from .pv_asset_in import PVAssetIn
 from .registry_bundle_in import RegistryBundleIn
+from .sensor_ids_batch_request import SensorIdsBatchRequest
 from .settings_in import SettingsIn
 from .storage import Storage
 from .storage_asset_in import StorageAssetIn
@@ -182,6 +183,7 @@ __all__ = (
     "Pv",
     "PVAssetIn",
     "RegistryBundleIn",
+    "SensorIdsBatchRequest",
     "SettingsIn",
     "Storage",
     "StorageAssetIn",

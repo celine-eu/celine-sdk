@@ -1,36 +1,45 @@
 from http import HTTPStatus
 from typing import Any
-from urllib.parse import quote
 
 import httpx
 
 from ... import errors
 from ...client import AuthenticatedClient, Client
-from ...models.describe_response_schema import DescribeResponseSchema
+from ...models.global_asset_lookup import GlobalAssetLookup
 from ...models.http_validation_error import HTTPValidationError
+from ...models.sensor_ids_batch_request import SensorIdsBatchRequest
 from ...types import Response
 
 
 def _get_kwargs(
-    community_id: str,
-    sim_key: str,
+    *,
+    body: SensorIdsBatchRequest,
 ) -> dict[str, Any]:
+    headers: dict[str, Any] = {}
+
     _kwargs: dict[str, Any] = {
-        "method": "get",
-        "url": "/communities/it/{community_id}/simulations/{sim_key}/describe".format(
-            community_id=quote(str(community_id), safe=""),
-            sim_key=quote(str(sim_key), safe=""),
-        ),
+        "method": "post",
+        "url": "/admin/lookup/assets-by-sensor-ids",
     }
 
+    _kwargs["json"] = body.to_dict()
+
+    headers["Content-Type"] = "application/json"
+
+    _kwargs["headers"] = headers
     return _kwargs
 
 
 def _parse_response(
     *, client: AuthenticatedClient | Client, response: httpx.Response
-) -> DescribeResponseSchema | HTTPValidationError | None:
+) -> HTTPValidationError | list[GlobalAssetLookup] | None:
     if response.status_code == 200:
-        response_200 = DescribeResponseSchema.from_dict(response.json())
+        response_200 = []
+        _response_200 = response.json()
+        for response_200_item_data in _response_200:
+            response_200_item = GlobalAssetLookup.from_dict(response_200_item_data)
+
+            response_200.append(response_200_item)
 
         return response_200
 
@@ -47,7 +56,7 @@ def _parse_response(
 
 def _build_response(
     *, client: AuthenticatedClient | Client, response: httpx.Response
-) -> Response[DescribeResponseSchema | HTTPValidationError]:
+) -> Response[HTTPValidationError | list[GlobalAssetLookup]]:
     return Response(
         status_code=HTTPStatus(response.status_code),
         content=response.content,
@@ -57,28 +66,27 @@ def _build_response(
 
 
 def sync_detailed(
-    community_id: str,
-    sim_key: str,
     *,
     client: AuthenticatedClient | Client,
-) -> Response[DescribeResponseSchema | HTTPValidationError]:
-    """Describe Simulation
+    body: SensorIdsBatchRequest,
+) -> Response[HTTPValidationError | list[GlobalAssetLookup]]:
+    """Lookup Assets By Sensor Ids
+
+     Find assets by multiple sensor_ids across all communities.
 
     Args:
-        community_id (str):
-        sim_key (str):
+        body (SensorIdsBatchRequest):
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Response[DescribeResponseSchema | HTTPValidationError]
+        Response[HTTPValidationError | list[GlobalAssetLookup]]
     """
 
     kwargs = _get_kwargs(
-        community_id=community_id,
-        sim_key=sim_key,
+        body=body,
     )
 
     response = client.get_httpx_client().request(
@@ -89,55 +97,53 @@ def sync_detailed(
 
 
 def sync(
-    community_id: str,
-    sim_key: str,
     *,
     client: AuthenticatedClient | Client,
-) -> DescribeResponseSchema | HTTPValidationError | None:
-    """Describe Simulation
+    body: SensorIdsBatchRequest,
+) -> HTTPValidationError | list[GlobalAssetLookup] | None:
+    """Lookup Assets By Sensor Ids
+
+     Find assets by multiple sensor_ids across all communities.
 
     Args:
-        community_id (str):
-        sim_key (str):
+        body (SensorIdsBatchRequest):
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        DescribeResponseSchema | HTTPValidationError
+        HTTPValidationError | list[GlobalAssetLookup]
     """
 
     return sync_detailed(
-        community_id=community_id,
-        sim_key=sim_key,
         client=client,
+        body=body,
     ).parsed
 
 
 async def asyncio_detailed(
-    community_id: str,
-    sim_key: str,
     *,
     client: AuthenticatedClient | Client,
-) -> Response[DescribeResponseSchema | HTTPValidationError]:
-    """Describe Simulation
+    body: SensorIdsBatchRequest,
+) -> Response[HTTPValidationError | list[GlobalAssetLookup]]:
+    """Lookup Assets By Sensor Ids
+
+     Find assets by multiple sensor_ids across all communities.
 
     Args:
-        community_id (str):
-        sim_key (str):
+        body (SensorIdsBatchRequest):
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Response[DescribeResponseSchema | HTTPValidationError]
+        Response[HTTPValidationError | list[GlobalAssetLookup]]
     """
 
     kwargs = _get_kwargs(
-        community_id=community_id,
-        sim_key=sim_key,
+        body=body,
     )
 
     response = await client.get_async_httpx_client().request(**kwargs)
@@ -146,29 +152,28 @@ async def asyncio_detailed(
 
 
 async def asyncio(
-    community_id: str,
-    sim_key: str,
     *,
     client: AuthenticatedClient | Client,
-) -> DescribeResponseSchema | HTTPValidationError | None:
-    """Describe Simulation
+    body: SensorIdsBatchRequest,
+) -> HTTPValidationError | list[GlobalAssetLookup] | None:
+    """Lookup Assets By Sensor Ids
+
+     Find assets by multiple sensor_ids across all communities.
 
     Args:
-        community_id (str):
-        sim_key (str):
+        body (SensorIdsBatchRequest):
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        DescribeResponseSchema | HTTPValidationError
+        HTTPValidationError | list[GlobalAssetLookup]
     """
 
     return (
         await asyncio_detailed(
-            community_id=community_id,
-            sim_key=sim_key,
             client=client,
+            body=body,
         )
     ).parsed

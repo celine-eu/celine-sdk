@@ -26,25 +26,24 @@ def to_schema(client_obj: None, schema_cls: type[SchemaT]) -> None: ...
 
 
 @overload
-def to_schema(client_obj: ClientToT, schema_cls: type[SchemaT]) -> SchemaT: ...
+def to_schema(client_obj: SupportsToDict, schema_cls: type[SchemaT]) -> SchemaT: ...
 
 
 @overload
 def to_schema(
-    client_obj: ClientToT | None, schema_cls: type[SchemaT]
+    client_obj: SupportsToDict | None, schema_cls: type[SchemaT]
 ) -> SchemaT | None: ...
 
 
 def to_schema(
-    client_obj: ClientToT | None, schema_cls: type[SchemaT]
+    client_obj: SupportsToDict | None, schema_cls: type[SchemaT]
 ) -> SchemaT | None:
     if client_obj is None:
         return None
     return schema_cls.model_validate(client_obj.to_dict())
 
-
 def to_client(
-    schema_obj: SchemaT | None, client_cls: type[ClientFromT]
+    schema_obj: BaseModel | None, client_cls: type[ClientFromT]
 ) -> ClientFromT | None:
     if schema_obj is None:
         return None

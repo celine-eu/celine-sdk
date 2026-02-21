@@ -2,7 +2,6 @@
 
 from .area_schema import AreaSchema
 from .delivery_point_schema import DeliveryPointSchema
-from .describe_response_schema import DescribeResponseSchema
 from .descriptor_spec_schema import DescriptorSpecSchema
 from .descriptor_spec_schema_payload_schema_type_0 import DescriptorSpecSchemaPayloadSchemaType0
 from .fetch_result_schema import FetchResultSchema
@@ -45,7 +44,6 @@ from .values_request_schema import ValuesRequestSchema
 __all__ = (
     "AreaSchema",
     "DeliveryPointSchema",
-    "DescribeResponseSchema",
     "DescriptorSpecSchema",
     "DescriptorSpecSchemaPayloadSchemaType0",
     "FetchResultSchema",

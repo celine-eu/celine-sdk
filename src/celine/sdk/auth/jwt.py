@@ -7,7 +7,6 @@ import logging
 from typing import Any, Optional
 import time
 
-from fastapi import HTTPException
 import jwt
 from jwt import PyJWKClient
 
@@ -15,6 +14,38 @@ from celine.sdk.settings.models import OidcSettings
 
 
 logger = logging.getLogger(__name__)
+
+
+def is_service_account(claims: dict) -> bool:
+    """
+    Detect a Keycloak client_credentials service account token.
+
+    Keycloak sets preferred_username to 'service-account-<client_id>'
+    for all client credentials grants. This is the most reliable signal.
+
+    Fallback: presence of client_id / azp with no email is a secondary hint,
+    but preferred_username is authoritative for Keycloak.
+    """
+
+    if claims.get("groups"):
+        return False
+
+    if claims.get("scope"):
+        return True
+    
+    preferred_username = claims.get("preferred_username", "")
+    if isinstance(preferred_username, str) and preferred_username.startswith("service-account-"):
+        return True
+
+    # Fallback for non-Keycloak IdPs (Auth0 uses gty, others use client_id)
+    if claims.get("gty") == "client-credentials":
+        return True
+
+    # Generic heuristic: has client_id/azp but no email (no human behind the token)
+    if claims.get("client_id") and not claims.get("email"):
+        return True
+
+    return False
 
 
 def get_expected_audiences(oidc: OidcSettings) -> list[str] | str | None:
@@ -52,7 +83,7 @@ class JwtUser:
     given_name: Optional[str] = None
     family_name: Optional[str] = None
     preferred_username: Optional[str] = None
-
+   
     # Token metadata
     iss: Optional[str] = None  # Issuer
     aud: Optional[str | list[str]] = None  # Audience
@@ -61,6 +92,10 @@ class JwtUser:
 
     # All claims as dict for custom/service-specific claims
     claims: dict[str, Any] = field(default_factory=dict)
+
+    @property
+    def is_service_account(self) -> bool:
+        return is_service_account(self.claims or {})
 
     @classmethod
     def from_token(

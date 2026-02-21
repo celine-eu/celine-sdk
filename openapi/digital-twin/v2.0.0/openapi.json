@@ -81,18 +81,6 @@
         "title": "DeliveryPointSchema",
         "type": "object"
       },
-      "DescribeResponseSchema": {
-        "properties": {
-          "payload": {
-            "$ref": "#/components/schemas/GenericPayload"
-          }
-        },
-        "required": [
-          "payload"
-        ],
-        "title": "DescribeResponseSchema",
-        "type": "object"
-      },
       "DescriptorSpecSchema": {
         "properties": {
           "client": {
@@ -1117,57 +1105,6 @@
         ]
       }
     },
-    "/communities/it/{community_id}/simulations/{sim_key}/describe": {
-      "get": {
-        "operationId": "it_energy_community__describe_simulation",
-        "parameters": [
-          {
-            "in": "path",
-            "name": "sim_key",
-            "required": true,
-            "schema": {
-              "title": "Sim Key",
-              "type": "string"
-            }
-          },
-          {
-            "in": "path",
-            "name": "community_id",
-            "required": true,
-            "schema": {
-              "title": "Community Id",
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/DescribeResponseSchema"
-                }
-              }
-            },
-            "description": "Successful Response"
-          },
-          "422": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
-                }
-              }
-            },
-            "description": "Validation Error"
-          }
-        },
-        "summary": "Describe Simulation",
-        "tags": [
-          "it-energy-community"
-        ]
-      }
-    },
     "/communities/it/{community_id}/summary": {
       "get": {
         "operationId": "it_energy_community__get_summary",
@@ -1925,57 +1862,6 @@
           }
         },
         "summary": "List Simulations",
-        "tags": [
-          "it-participant"
-        ]
-      }
-    },
-    "/participants/{participant_id}/simulations/{sim_key}/describe": {
-      "get": {
-        "operationId": "it_participant__describe_simulation",
-        "parameters": [
-          {
-            "in": "path",
-            "name": "sim_key",
-            "required": true,
-            "schema": {
-              "title": "Sim Key",
-              "type": "string"
-            }
-          },
-          {
-            "in": "path",
-            "name": "participant_id",
-            "required": true,
-            "schema": {
-              "title": "Participant Id",
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/DescribeResponseSchema"
-                }
-              }
-            },
-            "description": "Successful Response"
-          },
-          "422": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
-                }
-              }
-            },
-            "description": "Validation Error"
-          }
-        },
-        "summary": "Describe Simulation",
         "tags": [
           "it-participant"
         ]
