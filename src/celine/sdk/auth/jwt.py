@@ -32,9 +32,11 @@ def is_service_account(claims: dict) -> bool:
 
     if claims.get("scope"):
         return True
-    
+
     preferred_username = claims.get("preferred_username", "")
-    if isinstance(preferred_username, str) and preferred_username.startswith("service-account-"):
+    if isinstance(preferred_username, str) and preferred_username.startswith(
+        "service-account-"
+    ):
         return True
 
     # Fallback for non-Keycloak IdPs (Auth0 uses gty, others use client_id)
@@ -83,7 +85,7 @@ class JwtUser:
     given_name: Optional[str] = None
     family_name: Optional[str] = None
     preferred_username: Optional[str] = None
-   
+
     # Token metadata
     iss: Optional[str] = None  # Issuer
     aud: Optional[str | list[str]] = None  # Audience
@@ -92,6 +94,8 @@ class JwtUser:
 
     # All claims as dict for custom/service-specific claims
     claims: dict[str, Any] = field(default_factory=dict)
+
+    token: Optional[str] = None
 
     @property
     def is_service_account(self) -> bool:
@@ -178,6 +182,7 @@ class JwtUser:
             exp=payload.get("exp"),
             iat=payload.get("iat"),
             claims=payload,
+            token=token,
         )
 
     def is_expired(self, leeway: int = 0) -> bool:

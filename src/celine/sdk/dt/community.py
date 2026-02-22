@@ -19,7 +19,6 @@ from celine.sdk.openapi.dt.models import (
     ResponseItEnergyCommunityGetInfo,
     ValuesRequestSchema,
     ValueDescriptorSchema,
-    DescribeResponseSchema,
     GenericPayload,
     SimulationDescriptorSchema,
     FetchResultSchema,
@@ -32,7 +31,6 @@ from celine.sdk.openapi.dt.api.it_energy_community import (
     it_energy_community_fetch_values_post as _post_value,
     it_energy_community_describe_value as _describe_value,
     it_energy_community_list_simulations as _list_simulations,
-    it_energy_community_describe_simulation as _describe_simulations,
 )
 
 
@@ -158,24 +156,6 @@ class CommunityClient:
         client = await self._dt._get_client()
         result = await _list_simulations.asyncio_detailed(
             community_id=community_id, client=client
-        )
-        data = unwrap(result)
-        if isinstance(data, HTTPValidationError):
-            logger.warning(data.detail)
-            raise DTApiError("Validation error", 500)
-        return data
-
-    async def describe_simulation(
-        self,
-        community_id: str,
-        sim_key: str,
-    ) -> DescribeResponseSchema:
-        """Describe a simulation's parameters and configuration."""
-        client = await self._dt._get_client()
-        result = await _describe_simulations.asyncio_detailed(
-            community_id=community_id,
-            sim_key=sim_key,
-            client=client,
         )
         data = unwrap(result)
         if isinstance(data, HTTPValidationError):

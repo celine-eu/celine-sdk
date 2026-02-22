@@ -16,7 +16,6 @@ from celine.sdk.openapi.dt.models import (
     UserMeResponseSchema,
     ValueDescriptorSchema,
     HTTPValidationError,
-    DescribeResponseSchema,
     FetchResultSchema,
     ValuesRequestSchema,
     GenericPayload,
@@ -30,7 +29,6 @@ from celine.sdk.openapi.dt.api.it_participant import (
     it_participant_fetch_values_post as _post_value,
     it_participant_describe_value as _describe_value,
     it_participant_list_simulations as _list_simulations,
-    it_participant_describe_simulation as _describe_simulations,
 )
 
 if TYPE_CHECKING:
@@ -138,24 +136,6 @@ class ParticipantClient:
         client = await self._dt._get_client()
         result = await _list_simulations.asyncio_detailed(
             participant_id=participant_id, client=client
-        )
-        data = unwrap(result)
-        if isinstance(data, HTTPValidationError):
-            logger.warning(data.detail)
-            raise DTApiError("Validation error", 500)
-        return data
-
-    async def describe_simulation(
-        self,
-        participant_id: str,
-        sim_key: str,
-    ) -> DescribeResponseSchema:
-        """Describe a simulation's parameters and configuration."""
-        client = await self._dt._get_client()
-        result = await _describe_simulations.asyncio_detailed(
-            participant_id=participant_id,
-            sim_key=sim_key,
-            client=client,
         )
         data = unwrap(result)
         if isinstance(data, HTTPValidationError):

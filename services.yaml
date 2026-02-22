@@ -7,3 +7,6 @@ services:
   rec-registry:
     package: rec_registry
     openapi: http://api.celine.localhost/rec-registry/openapi.json
+  nudging:
+    package: nudging
+    openapi: http://api.celine.localhost/nudging/openapi.json
