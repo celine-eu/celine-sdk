@@ -1,6 +1,11 @@
 version: "3"
 
 tasks:
+  setup:
+    desc: Setup
+    cmds:
+      - uv sync
+
   test:
     desc: "Run tests"
     cmds:
