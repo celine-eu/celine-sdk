@@ -2,6 +2,17 @@
 
 <!-- version list -->
 
+## v1.3.0 (2026-02-23)
+
+### Features
+
+- Add nudging client
+  ([`45e7758`](https://github.com/celine-eu/celine-sdk/commit/45e77589e97c11da97c49a419f61ffa211cedb76))
+
+- Upgrade rec registry api, update wrapper
+  ([`ac678c5`](https://github.com/celine-eu/celine-sdk/commit/ac678c5e0ff2c38bebbc64484c1bc44e541cb036))
+
+
 ## v1.2.1 (2026-02-20)
 
 ### Bug Fixes
