@@ -2,6 +2,19 @@
 
 <!-- version list -->
 
+## v1.3.1 (2026-02-27)
+
+### Bug Fixes
+
+- Update regours
+  ([`5ca0fe1`](https://github.com/celine-eu/celine-sdk/commit/5ca0fe1a3ae0b61a47e1d58d081bf1dff0602348))
+
+### Chores
+
+- Upgrade taskfile with setup
+  ([`6fa02fd`](https://github.com/celine-eu/celine-sdk/commit/6fa02fd2ef322925d26399b9408d0601e2fa2103))
+
+
 ## v1.3.0 (2026-02-23)
 
 ### Features
