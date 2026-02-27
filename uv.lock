@@ -97,10 +97,12 @@ wheels = [
 
 [[package]]
 name = "celine-regorus"
-version = "0.9.1.post20260219101142"
+version = "0.9.1.post20260227075446"
 source = { registry = "https://pypi.org/simple" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/33/de/0d09e6b5b783a85ba3d4713c371befe5eda07974f1e6b7257e4b808a60bf/celine_regorus-0.9.1.post20260219101142-cp310-abi3-manylinux_2_34_x86_64.whl", hash = "sha256:734a7adf098b94ad3d7ad580d2006b76b91458f6c813758c0e5c98599e97bc56", size = 3643063, upload-time = "2026-02-19T10:14:33.277Z" },
+    { url = "https://files.pythonhosted.org/packages/1e/a1/87996627c5101893c9c9474e9098b4525a975de44bd912bec4f38c1d2976/celine_regorus-0.9.1.post20260227075446-cp310-abi3-macosx_10_12_x86_64.whl", hash = "sha256:cd6aa6b84f99ca0497e3e0ee318a86a88310e885bec5a0b0535a4ef6bd6f4568", size = 3350311, upload-time = "2026-02-27T07:57:55.221Z" },
+    { url = "https://files.pythonhosted.org/packages/7a/bc/5f92f4fd5dbd301a76b632cba577bc20a3251d0453c7934faa6369945079/celine_regorus-0.9.1.post20260227075446-cp310-abi3-macosx_11_0_arm64.whl", hash = "sha256:653f95d5b3d3c85f51dd697400dfbfcba5479c2c9c33b7e6916ee7b0319940fc", size = 3184722, upload-time = "2026-02-27T07:57:56.906Z" },
+    { url = "https://files.pythonhosted.org/packages/58/93/df79bcce2c4fc027c0f794a497c9e1ccebe85bb2f9d75eaa146331e23e5b/celine_regorus-0.9.1.post20260227075446-cp310-abi3-manylinux_2_34_x86_64.whl", hash = "sha256:b1b5cd141ad6029b5e9e668b803516efc909aabbf3f3e480636f54fee56e5309", size = 3643096, upload-time = "2026-02-27T07:57:58.641Z" },
 ]
 
 [[package]]
@@ -138,7 +140,7 @@ requires-dist = [
     { name = "aiomqtt", specifier = ">=2.5.0" },
     { name = "attrs", specifier = ">=25.4.0" },
     { name = "cachetools", specifier = ">=7.0.0" },
-    { name = "celine-regorus", specifier = ">=0.9.1.post20260219095826" },
+    { name = "celine-regorus", specifier = ">=0.9.1.post20260227075446" },
     { name = "cryptography", specifier = ">=46.0.5" },
     { name = "httpx", specifier = ">=0.28.1" },
     { name = "pydantic", specifier = ">=2.12.5" },
