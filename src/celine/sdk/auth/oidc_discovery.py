@@ -13,17 +13,22 @@ class OidcConfiguration:
 
 
 class OidcDiscoveryClient:
-    def __init__(self, issuer_base_url: str, timeout: float = 10.0):
+    def __init__(
+        self, issuer_base_url: str, timeout: float = 10.0, verify_ssl: bool = True
+    ):
         self._issuer = issuer_base_url.rstrip("/")
         self._timeout = timeout
         self._config: OidcConfiguration | None = None
+        self._verify_ssl = verify_ssl
 
     async def get_config(self) -> OidcConfiguration:
         if self._config:
             return self._config
 
         url = f"{self._issuer}/.well-known/openid-configuration"
-        async with httpx.AsyncClient(timeout=self._timeout) as client:
+        async with httpx.AsyncClient(
+            timeout=self._timeout, verify=self._verify_ssl
+        ) as client:
             r = await client.get(url)
             r.raise_for_status()
             payload = r.json()

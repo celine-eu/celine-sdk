@@ -10,6 +10,7 @@ class OidcSettings(BaseSettings):
     model_config = SettingsConfigDict(env_prefix="CELINE_OIDC_", extra="ignore")
 
     timeout: float = 10.0
+    verify_ssl: bool = Field(default=True, description="Verify TLS certificates")
 
     scope: str | None = Field(default=None, description="OAuth2 scope string")
 

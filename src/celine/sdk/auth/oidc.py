@@ -18,14 +18,16 @@ class OidcClientCredentialsProvider(TokenProvider):
         client_secret: str,
         scope: str | None = None,
         timeout: float = 10.0,
+        verify_ssl: bool = True,
     ):
         super().__init__()
-        self._discovery = OidcDiscoveryClient(base_url, timeout)
+        self._discovery = OidcDiscoveryClient(base_url, timeout, verify_ssl=verify_ssl)
         self._client_id = client_id
         self._client_secret = client_secret
         self._scope = scope
         self._timeout = timeout
         self._token: AccessToken | None = None
+        self._verify_ssl = verify_ssl
 
     async def get_token(self) -> AccessToken:
         if self._token and self._token.is_valid():
@@ -53,7 +55,9 @@ class OidcClientCredentialsProvider(TokenProvider):
         if self._scope:
             data["scope"] = self._scope
 
-        async with httpx.AsyncClient(timeout=self._timeout) as client:
+        async with httpx.AsyncClient(
+            timeout=self._timeout, verify=self._verify_ssl
+        ) as client:
             r = await client.post(cfg.token_endpoint, data=data)
             r.raise_for_status()
             payload = r.json()
@@ -69,7 +73,9 @@ class OidcClientCredentialsProvider(TokenProvider):
             "client_secret": self._client_secret,
         }
 
-        async with httpx.AsyncClient(timeout=self._timeout) as client:
+        async with httpx.AsyncClient(
+            timeout=self._timeout, verify=self._verify_ssl
+        ) as client:
             r = await client.post(cfg.token_endpoint, data=data)
             r.raise_for_status()
             payload = r.json()
