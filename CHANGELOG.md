@@ -2,6 +2,14 @@
 
 <!-- version list -->
 
+## v1.4.0 (2026-02-28)
+
+### Features
+
+- Add verify_ssl flag
+  ([`bbe21f6`](https://github.com/celine-eu/celine-sdk/commit/bbe21f6c922cee377b3b7ab95330701a4153b522))
+
+
 ## v1.3.1 (2026-02-27)
 
 ### Bug Fixes
