@@ -2,6 +2,14 @@
 
 <!-- version list -->
 
+## v1.4.1 (2026-03-02)
+
+### Bug Fixes
+
+- Expose JwtUser.get_username
+  ([`b82522a`](https://github.com/celine-eu/celine-sdk/commit/b82522a78fba04c2caab0b7bbcdfc074943033ce))
+
+
 ## v1.4.0 (2026-02-28)
 
 ### Features
