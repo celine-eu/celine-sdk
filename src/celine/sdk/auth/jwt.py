@@ -223,6 +223,12 @@ class JwtUser:
         """Get best available display name."""
         return self.name or self.preferred_username or self.email or f"user-{self.sub}"
 
+    def get_username(self) -> str:
+        """Get best available display name."""
+        if not self.preferred_username:
+            logger.warning(f"preferred_username claims not available for {self.sub}, defaulting to sub")
+        return self.preferred_username or f"user-{self.sub}"
+
     def to_dict(self) -> dict[str, Any]:
         """Convert to dictionary."""
         return {
