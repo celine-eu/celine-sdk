@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from collections.abc import Mapping
-from typing import Any, TypeVar
+from typing import Any, TypeVar, cast
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
@@ -18,12 +18,14 @@ class SendTestRequest:
     Attributes:
         user_id (str): Target user ID
         body (str | Unset):  Default: 'Hello!'.
+        community_id (None | str | Unset): Optional community scope for the test send
         title (str | Unset):  Default: 'Test'.
         url (str | Unset):  Default: '/'.
     """
 
     user_id: str
     body: str | Unset = "Hello!"
+    community_id: None | str | Unset = UNSET
     title: str | Unset = "Test"
     url: str | Unset = "/"
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
@@ -32,6 +34,12 @@ class SendTestRequest:
         user_id = self.user_id
 
         body = self.body
+
+        community_id: None | str | Unset
+        if isinstance(self.community_id, Unset):
+            community_id = UNSET
+        else:
+            community_id = self.community_id
 
         title = self.title
 
@@ -46,6 +54,8 @@ class SendTestRequest:
         )
         if body is not UNSET:
             field_dict["body"] = body
+        if community_id is not UNSET:
+            field_dict["community_id"] = community_id
         if title is not UNSET:
             field_dict["title"] = title
         if url is not UNSET:
@@ -60,6 +70,15 @@ class SendTestRequest:
 
         body = d.pop("body", UNSET)
 
+        def _parse_community_id(data: object) -> None | str | Unset:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            return cast(None | str | Unset, data)
+
+        community_id = _parse_community_id(d.pop("community_id", UNSET))
+
         title = d.pop("title", UNSET)
 
         url = d.pop("url", UNSET)
@@ -67,6 +86,7 @@ class SendTestRequest:
         send_test_request = cls(
             user_id=user_id,
             body=body,
+            community_id=community_id,
             title=title,
             url=url,
         )

@@ -157,6 +157,17 @@
       },
       "DigitalTwinEvent": {
         "properties": {
+          "community_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Community Id"
+          },
           "event_type": {
             "title": "Event Type",
             "type": "string"
@@ -490,6 +501,81 @@
         "title": "NudgeCreatedItem",
         "type": "object"
       },
+      "SeedApplyRequest": {
+        "properties": {
+          "overrides": {
+            "default": [],
+            "items": {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            "title": "Overrides",
+            "type": "array"
+          },
+          "preferences": {
+            "default": [],
+            "items": {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            "title": "Preferences",
+            "type": "array"
+          },
+          "rules": {
+            "default": [],
+            "items": {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            "title": "Rules",
+            "type": "array"
+          },
+          "templates": {
+            "default": [],
+            "items": {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            "title": "Templates",
+            "type": "array"
+          }
+        },
+        "title": "SeedApplyRequest",
+        "type": "object"
+      },
+      "SeedApplyResponse": {
+        "properties": {
+          "overrides": {
+            "title": "Overrides",
+            "type": "integer"
+          },
+          "preferences": {
+            "title": "Preferences",
+            "type": "integer"
+          },
+          "rules": {
+            "title": "Rules",
+            "type": "integer"
+          },
+          "status": {
+            "default": "ok",
+            "title": "Status",
+            "type": "string"
+          },
+          "templates": {
+            "title": "Templates",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "rules",
+          "templates",
+          "preferences",
+          "overrides"
+        ],
+        "title": "SeedApplyResponse",
+        "type": "object"
+      },
       "SendTestRequest": {
         "description": "Admin-only: user_id is explicit because an admin targets any user.",
         "properties": {
@@ -500,6 +586,18 @@
             ],
             "title": "Body",
             "type": "string"
+          },
+          "community_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Optional community scope for the test send",
+            "title": "Community Id"
           },
           "title": {
             "default": "Test",
@@ -583,6 +681,18 @@
       "SubscribeRequest": {
         "description": "user_id is derived from the JWT \u2013 not accepted from the caller.",
         "properties": {
+          "community_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Optional community scope for the subscription",
+            "title": "Community Id"
+          },
           "subscription": {
             "$ref": "#/components/schemas/WebPushSubscriptionIn"
           }
@@ -596,6 +706,18 @@
       "UnsubscribeRequest": {
         "description": "user_id is derived from the JWT \u2013 not accepted from the caller.",
         "properties": {
+          "community_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Optional community scope for the subscription",
+            "title": "Community Id"
+          },
           "endpoint": {
             "title": "Endpoint",
             "type": "string"
@@ -605,6 +727,74 @@
           "endpoint"
         ],
         "title": "UnsubscribeRequest",
+        "type": "object"
+      },
+      "UserPreferenceOut": {
+        "properties": {
+          "channel_email": {
+            "default": false,
+            "title": "Channel Email",
+            "type": "boolean"
+          },
+          "email": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Email"
+          },
+          "max_per_day": {
+            "maximum": 10.0,
+            "minimum": 1.0,
+            "title": "Max Per Day",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "max_per_day"
+        ],
+        "title": "UserPreferenceOut",
+        "type": "object"
+      },
+      "UserPreferenceUpdateIn": {
+        "properties": {
+          "channel_email": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Channel Email"
+          },
+          "email": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Email"
+          },
+          "max_per_day": {
+            "maximum": 10.0,
+            "minimum": 1.0,
+            "title": "Max Per Day",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "max_per_day"
+        ],
+        "title": "UserPreferenceUpdateIn",
         "type": "object"
       },
       "ValidationError": {
@@ -929,6 +1119,49 @@
         ]
       }
     },
+    "/admin/seed/apply": {
+      "post": {
+        "description": "Upserts rules, templates and preferences from the provided payload. Idempotent \u2014 safe to call multiple times or at application startup.",
+        "operationId": "seed_apply_admin_seed_apply_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SeedApplyRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SeedApplyResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Apply seed data",
+        "tags": [
+          "admin",
+          "admin"
+        ]
+      }
+    },
     "/admin/webpush/send-test": {
       "post": {
         "description": "Sends a test Web Push notification to all active subscriptions for a given user. Requires nudging.admin scope or admin group. user_id is explicit in the body because an admin targets any user.",
@@ -968,6 +1201,25 @@
         "summary": "Send a test push notification",
         "tags": [
           "admin"
+        ]
+      }
+    },
+    "/health": {
+      "get": {
+        "operationId": "health_health_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "summary": "Health",
+        "tags": [
+          "meta"
         ]
       }
     },
@@ -1131,6 +1383,66 @@
         "summary": "Mark notification as read",
         "tags": [
           "notifications"
+        ]
+      }
+    },
+    "/preferences/me": {
+      "get": {
+        "operationId": "get_my_preferences_preferences_me_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserPreferenceOut"
+                }
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "summary": "Get My Preferences",
+        "tags": [
+          "preferences"
+        ]
+      },
+      "put": {
+        "operationId": "update_my_preferences_preferences_me_put",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UserPreferenceUpdateIn"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserPreferenceOut"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Update My Preferences",
+        "tags": [
+          "preferences"
         ]
       }
     },

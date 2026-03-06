@@ -14,11 +14,19 @@ from .ingest_ok_response import IngestOkResponse
 from .notification_out import NotificationOut
 from .nudge_created_item import NudgeCreatedItem
 from .payload import Payload
+from .seed_apply_request import SeedApplyRequest
+from .seed_apply_request_overrides_item import SeedApplyRequestOverridesItem
+from .seed_apply_request_preferences_item import SeedApplyRequestPreferencesItem
+from .seed_apply_request_rules_item import SeedApplyRequestRulesItem
+from .seed_apply_request_templates_item import SeedApplyRequestTemplatesItem
+from .seed_apply_response import SeedApplyResponse
 from .send_test_request import SendTestRequest
 from .send_test_response import SendTestResponse
 from .status_response import StatusResponse
 from .subscribe_request import SubscribeRequest
 from .unsubscribe_request import UnsubscribeRequest
+from .user_preference_out import UserPreferenceOut
+from .user_preference_update_in import UserPreferenceUpdateIn
 from .validation_error import ValidationError
 from .vapid_public_key_response import VapidPublicKeyResponse
 from .web_push_keys_in import WebPushKeysIn
@@ -39,11 +47,19 @@ __all__ = (
     "NotificationOut",
     "NudgeCreatedItem",
     "Payload",
+    "SeedApplyRequest",
+    "SeedApplyRequestOverridesItem",
+    "SeedApplyRequestPreferencesItem",
+    "SeedApplyRequestRulesItem",
+    "SeedApplyRequestTemplatesItem",
+    "SeedApplyResponse",
     "SendTestRequest",
     "SendTestResponse",
     "StatusResponse",
     "SubscribeRequest",
     "UnsubscribeRequest",
+    "UserPreferenceOut",
+    "UserPreferenceUpdateIn",
     "ValidationError",
     "VapidPublicKeyResponse",
     "WebPushKeysIn",

@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import datetime
 from collections.abc import Mapping
-from typing import TYPE_CHECKING, Any, TypeVar
+from typing import TYPE_CHECKING, Any, TypeVar, cast
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
@@ -24,6 +24,7 @@ class DigitalTwinEvent:
     Attributes:
         event_type (str):
         user_id (str):
+        community_id (None | str | Unset):
         facts (Facts | Unset): Enriched facts computed by Digital Twin
         payload (Payload | Unset):
         timestamp (datetime.datetime | Unset):
@@ -31,6 +32,7 @@ class DigitalTwinEvent:
 
     event_type: str
     user_id: str
+    community_id: None | str | Unset = UNSET
     facts: Facts | Unset = UNSET
     payload: Payload | Unset = UNSET
     timestamp: datetime.datetime | Unset = UNSET
@@ -40,6 +42,12 @@ class DigitalTwinEvent:
         event_type = self.event_type
 
         user_id = self.user_id
+
+        community_id: None | str | Unset
+        if isinstance(self.community_id, Unset):
+            community_id = UNSET
+        else:
+            community_id = self.community_id
 
         facts: dict[str, Any] | Unset = UNSET
         if not isinstance(self.facts, Unset):
@@ -61,6 +69,8 @@ class DigitalTwinEvent:
                 "user_id": user_id,
             }
         )
+        if community_id is not UNSET:
+            field_dict["community_id"] = community_id
         if facts is not UNSET:
             field_dict["facts"] = facts
         if payload is not UNSET:
@@ -79,6 +89,15 @@ class DigitalTwinEvent:
         event_type = d.pop("event_type")
 
         user_id = d.pop("user_id")
+
+        def _parse_community_id(data: object) -> None | str | Unset:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            return cast(None | str | Unset, data)
+
+        community_id = _parse_community_id(d.pop("community_id", UNSET))
 
         _facts = d.pop("facts", UNSET)
         facts: Facts | Unset
@@ -104,6 +123,7 @@ class DigitalTwinEvent:
         digital_twin_event = cls(
             event_type=event_type,
             user_id=user_id,
+            community_id=community_id,
             facts=facts,
             payload=payload,
             timestamp=timestamp,

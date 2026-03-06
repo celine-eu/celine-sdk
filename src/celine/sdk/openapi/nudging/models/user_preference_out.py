@@ -8,64 +8,72 @@ from attrs import field as _attrs_field
 
 from ..types import UNSET, Unset
 
-T = TypeVar("T", bound="UnsubscribeRequest")
+T = TypeVar("T", bound="UserPreferenceOut")
 
 
 @_attrs_define
-class UnsubscribeRequest:
-    """user_id is derived from the JWT – not accepted from the caller.
-
+class UserPreferenceOut:
+    """
     Attributes:
-        endpoint (str):
-        community_id (None | str | Unset): Optional community scope for the subscription
+        max_per_day (int):
+        channel_email (bool | Unset):  Default: False.
+        email (None | str | Unset):
     """
 
-    endpoint: str
-    community_id: None | str | Unset = UNSET
+    max_per_day: int
+    channel_email: bool | Unset = False
+    email: None | str | Unset = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
-        endpoint = self.endpoint
+        max_per_day = self.max_per_day
 
-        community_id: None | str | Unset
-        if isinstance(self.community_id, Unset):
-            community_id = UNSET
+        channel_email = self.channel_email
+
+        email: None | str | Unset
+        if isinstance(self.email, Unset):
+            email = UNSET
         else:
-            community_id = self.community_id
+            email = self.email
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update(
             {
-                "endpoint": endpoint,
+                "max_per_day": max_per_day,
             }
         )
-        if community_id is not UNSET:
-            field_dict["community_id"] = community_id
+        if channel_email is not UNSET:
+            field_dict["channel_email"] = channel_email
+        if email is not UNSET:
+            field_dict["email"] = email
 
         return field_dict
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
         d = dict(src_dict)
-        endpoint = d.pop("endpoint")
+        max_per_day = d.pop("max_per_day")
 
-        def _parse_community_id(data: object) -> None | str | Unset:
+        channel_email = d.pop("channel_email", UNSET)
+
+        def _parse_email(data: object) -> None | str | Unset:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
             return cast(None | str | Unset, data)
 
-        community_id = _parse_community_id(d.pop("community_id", UNSET))
+        email = _parse_email(d.pop("email", UNSET))
 
-        unsubscribe_request = cls(
-            endpoint=endpoint,
-            community_id=community_id,
+        user_preference_out = cls(
+            max_per_day=max_per_day,
+            channel_email=channel_email,
+            email=email,
         )
 
-        unsubscribe_request.additional_properties = d
-        return unsubscribe_request
+        user_preference_out.additional_properties = d
+        return user_preference_out
 
     @property
     def additional_keys(self) -> list[str]:
