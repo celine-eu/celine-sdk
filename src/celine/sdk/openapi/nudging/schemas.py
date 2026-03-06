@@ -106,6 +106,10 @@ class StatusResponseSchema(BaseModel):
     status: str = Field(..., examples=['ok'], title='Status')
 
 
+class UserPreferenceSchema(BaseModel):
+    max_per_day: int = Field(..., title='Max Per Day')
+
+
 class UnsubscribeRequestSchema(BaseModel):
     """
     user_id is derived from the JWT – not accepted from the caller.

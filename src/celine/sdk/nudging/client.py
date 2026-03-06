@@ -42,6 +42,7 @@ from celine.sdk.openapi.nudging.schemas import (
     NotificationOutSchema,
     SendTestResponseSchema,
     StatusResponseSchema,
+    UserPreferenceSchema,
     VapidPublicKeyResponseSchema,
 )
 from celine.sdk.openapi.nudging.types import UNSET, Unset
@@ -192,6 +193,31 @@ class NudgingClient:
             body=body,
         )
         return to_schema(res.parsed, StatusResponseSchema)
+
+    # ------------------------------------------------------------------ #
+    # Preferences                                                          #
+    # ------------------------------------------------------------------ #
+
+    async def get_preferences(
+        self,
+        *,
+        token: Optional[str] = None,
+    ) -> UserPreferenceSchema:
+        client = self._get_client(token).get_async_httpx_client()
+        res = await client.get("/preferences/me")
+        res.raise_for_status()
+        return UserPreferenceSchema.model_validate(res.json())
+
+    async def update_preferences(
+        self,
+        max_per_day: int,
+        *,
+        token: Optional[str] = None,
+    ) -> UserPreferenceSchema:
+        client = self._get_client(token).get_async_httpx_client()
+        res = await client.put("/preferences/me", json={"max_per_day": max_per_day})
+        res.raise_for_status()
+        return UserPreferenceSchema.model_validate(res.json())
 
 
 class NudgingAdminClient:
