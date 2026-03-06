@@ -2,6 +2,14 @@
 
 <!-- version list -->
 
+## v1.4.2 (2026-03-06)
+
+### Bug Fixes
+
+- Release
+  ([`1ede3ea`](https://github.com/celine-eu/celine-sdk/commit/1ede3ea3c6653bc35879377369689472df222a12))
+
+
 ## v1.4.1 (2026-03-02)
 
 ### Bug Fixes
