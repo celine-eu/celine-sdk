@@ -8,6 +8,7 @@ Shared CELINE SDK:
   - OIDC token providers (`celine.sdk.auth`)
   - MQTT broker abstraction (`celine.sdk.broker`)
   - Pydantic settings (`celine.sdk.settings`)
+  
 
 ## CLI
 
