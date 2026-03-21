@@ -2,6 +2,14 @@
 
 <!-- version list -->
 
+## v1.4.3 (2026-03-21)
+
+### Bug Fixes
+
+- Correct types, regen api
+  ([`403fa99`](https://github.com/celine-eu/celine-sdk/commit/403fa9955521583f3a826fac4f9ffae36516e141))
+
+
 ## v1.4.2 (2026-03-06)
 
 ### Bug Fixes
