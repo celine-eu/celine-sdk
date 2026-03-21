@@ -218,10 +218,18 @@ class MqttBroker(BrokerBase):
         """Gracefully stop everything."""
         self._shutdown.set()
 
+        # Cancel all background tasks synchronously before any await.
+        # task.cancel() is non-blocking — it schedules CancelledError injection.
+        # Doing this first guarantees they're cancelled even if disconnect() is
+        # itself re-cancelled mid-execution (e.g. during Ctrl+C handling).
+        if self._token_watcher_task and not self._token_watcher_task.done():
+            self._token_watcher_task.cancel()
+        if self._conn_task and not self._conn_task.done():
+            self._conn_task.cancel()
+
         await self._cancel_listen_task(silent=True)
 
         if self._token_watcher_task and not self._token_watcher_task.done():
-            self._token_watcher_task.cancel()
             try:
                 await self._token_watcher_task
             except asyncio.CancelledError:
@@ -229,7 +237,6 @@ class MqttBroker(BrokerBase):
         self._token_watcher_task = None
 
         if self._conn_task and not self._conn_task.done():
-            self._conn_task.cancel()
             try:
                 await self._conn_task
             except asyncio.CancelledError:

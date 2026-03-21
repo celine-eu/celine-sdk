@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass, field
+from functools import lru_cache
 import logging
 from typing import Any, Optional
 import time
@@ -14,6 +15,12 @@ from celine.sdk.settings.models import OidcSettings
 
 
 logger = logging.getLogger(__name__)
+
+
+@lru_cache(maxsize=8)
+def _get_jwks_client(jwks_uri: str) -> PyJWKClient:
+    logger.info(f"Loading JWKS from {jwks_uri}")
+    return PyJWKClient(jwks_uri, cache_jwk_set=True, lifespan=3600)
 
 
 def is_service_account(claims: dict) -> bool:
@@ -142,9 +149,14 @@ class JwtUser:
         if algorithms is None:
             algorithms = ["RS256", "HS256", "ES256"]
 
-        # Verified decode with signature check
-        jwks_client = PyJWKClient(oidc.jwks_uri)
-        signing_key = jwks_client.get_signing_key_from_jwt(token)
+        # Verified decode with signature check (reuse cached client to avoid per-request JWKS fetch)
+        jwks_client = _get_jwks_client(oidc.jwks_uri)
+
+        try:
+            signing_key = jwks_client.get_signing_key_from_jwt(token)
+        except Exception as e:
+            logger.warning(f"Failed to fetch signing key from {oidc.jwks_uri}: {e}")
+            raise
 
         try:
             payload = jwt.decode(
@@ -226,7 +238,9 @@ class JwtUser:
     def get_username(self) -> str:
         """Get best available display name."""
         if not self.preferred_username:
-            logger.warning(f"preferred_username claims not available for {self.sub}, defaulting to sub")
+            logger.warning(
+                f"preferred_username claims not available for {self.sub}, defaulting to sub"
+            )
         return self.preferred_username or f"user-{self.sub}"
 
     def to_dict(self) -> dict[str, Any]:
