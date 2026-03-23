@@ -21,6 +21,9 @@ from celine.sdk.openapi.dt.models import (
     GenericPayload,
     SimulationDescriptorSchema,
     UserAssetsResponseSchema,
+    OntologySpecDescriptor,
+    OntologyRequest,
+    Payload,
 )
 from celine.sdk.openapi.dt.api.it_participant import (
     it_participant_profile as _profile,
@@ -29,6 +32,9 @@ from celine.sdk.openapi.dt.api.it_participant import (
     it_participant_fetch_values_post as _post_value,
     it_participant_describe_value as _describe_value,
     it_participant_list_simulations as _list_simulations,
+    it_participant_list_ontology_specs as _list_ontology_specs,
+    it_participant_fetch_ontology_get as _fetch_ontology_get,
+    it_participant_fetch_ontology_post as _fetch_ontology_post,
 )
 
 if TYPE_CHECKING:
@@ -137,6 +143,72 @@ class ParticipantClient:
         result = await _list_simulations.asyncio_detailed(
             participant_id=participant_id, client=client
         )
+        data = unwrap(result)
+        if isinstance(data, HTTPValidationError):
+            logger.warning(data.detail)
+            raise DTApiError("Validation error", 500)
+        return data
+
+    async def list_ontology_specs(
+        self, participant_id: str
+    ) -> list[OntologySpecDescriptor]:
+        """List available ontology concept views for a participant."""
+        client = await self._dt._get_client()
+        result = await _list_ontology_specs.asyncio_detailed(
+            participant_id=participant_id, client=client
+        )
+        data = unwrap(result)
+        if isinstance(data, HTTPValidationError):
+            logger.warning(data.detail)
+            raise DTApiError("Validation error", 500)
+        return data
+
+    async def fetch_ontology(
+        self,
+        participant_id: str,
+        spec_id: str,
+        payload: dict[str, Any] | None = None,
+        *,
+        limit: int | None = None,
+        offset: int | None = None,
+    ) -> dict[str, Any]:
+        """Fetch an ontology concept view as a JSON-LD document.
+
+        Uses POST when a payload is provided, GET otherwise.
+
+        Args:
+            participant_id: Participant entity ID.
+            spec_id: Ontology spec ID (e.g. ``"meters"``).
+            payload: Optional parameters forwarded to the underlying fetchers.
+            limit: Optional result limit per fetcher.
+            offset: Optional pagination offset.
+
+        Returns:
+            JSON-LD document with ``@context`` and ``@graph``.
+        """
+        client = await self._dt._get_client()
+
+        if payload:
+            if limit is not None:
+                payload["limit"] = limit
+            if offset is not None:
+                payload["offset"] = offset
+            body = OntologyRequest(payload=Payload.from_dict(payload))
+            result = await _fetch_ontology_post.asyncio_detailed(
+                participant_id=participant_id,
+                spec_id=spec_id,
+                client=client,
+                body=body,
+            )
+        else:
+            result = await _fetch_ontology_get.asyncio_detailed(
+                participant_id=participant_id,
+                spec_id=spec_id,
+                client=client,
+                limit=limit if limit is not None else UNSET,
+                offset=offset if offset is not None else UNSET,
+            )
+
         data = unwrap(result)
         if isinstance(data, HTTPValidationError):
             logger.warning(data.detail)

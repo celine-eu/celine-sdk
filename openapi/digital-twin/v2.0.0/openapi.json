@@ -222,6 +222,44 @@
         "title": "LocationSchema",
         "type": "object"
       },
+      "OntologyRequest": {
+        "properties": {
+          "payload": {
+            "additionalProperties": true,
+            "title": "Payload",
+            "type": "object"
+          }
+        },
+        "title": "OntologyRequest",
+        "type": "object"
+      },
+      "OntologySpecDescriptor": {
+        "description": "Metadata about a single ontology spec, for the listing endpoint.",
+        "properties": {
+          "description": {
+            "title": "Description",
+            "type": "string"
+          },
+          "fetcher_ids": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Fetcher Ids",
+            "type": "array"
+          },
+          "id": {
+            "title": "Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "description",
+          "fetcher_ids"
+        ],
+        "title": "OntologySpecDescriptor",
+        "type": "object"
+      },
       "SimulationDescriptorSchema": {
         "properties": {
           "description": {
@@ -1059,6 +1097,195 @@
         ]
       }
     },
+    "/communities/it/{community_id}/ontology": {
+      "get": {
+        "description": "List available ontology concept views for this entity's domain.",
+        "operationId": "it_energy_community__list_ontology_specs",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "community_id",
+            "required": true,
+            "schema": {
+              "title": "Community Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/OntologySpecDescriptor"
+                  },
+                  "title": "Response It Energy Community  List Ontology Specs",
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "List Ontology Specs",
+        "tags": [
+          "it-energy-community"
+        ]
+      }
+    },
+    "/communities/it/{community_id}/ontology/{spec_id}": {
+      "get": {
+        "description": "Fetch an ontology concept view as a JSON-LD document.\n\nQuery parameters (other than ``limit`` and ``offset``) are forwarded\nas payload to each underlying value fetcher.",
+        "operationId": "it_energy_community__fetch_ontology_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "spec_id",
+            "required": true,
+            "schema": {
+              "title": "Spec Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "community_id",
+            "required": true,
+            "schema": {
+              "title": "Community Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "limit",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "minimum": 0,
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Limit"
+            }
+          },
+          {
+            "in": "query",
+            "name": "offset",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "minimum": 0,
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Offset"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Fetch Ontology Get",
+        "tags": [
+          "it-energy-community"
+        ]
+      },
+      "post": {
+        "description": "Fetch an ontology concept view as a JSON-LD document (POST/body variant).",
+        "operationId": "it_energy_community__fetch_ontology_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "spec_id",
+            "required": true,
+            "schema": {
+              "title": "Spec Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "community_id",
+            "required": true,
+            "schema": {
+              "title": "Community Id",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/OntologyRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Fetch Ontology Post",
+        "tags": [
+          "it-energy-community"
+        ]
+      }
+    },
     "/communities/it/{community_id}/simulations": {
       "get": {
         "operationId": "it_energy_community__list_simulations",
@@ -1773,6 +2000,195 @@
         "summary": "Get Member",
         "tags": [
           "it-participant",
+          "it-participant"
+        ]
+      }
+    },
+    "/participants/{participant_id}/ontology": {
+      "get": {
+        "description": "List available ontology concept views for this entity's domain.",
+        "operationId": "it_participant__list_ontology_specs",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "participant_id",
+            "required": true,
+            "schema": {
+              "title": "Participant Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/OntologySpecDescriptor"
+                  },
+                  "title": "Response It Participant  List Ontology Specs",
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "List Ontology Specs",
+        "tags": [
+          "it-participant"
+        ]
+      }
+    },
+    "/participants/{participant_id}/ontology/{spec_id}": {
+      "get": {
+        "description": "Fetch an ontology concept view as a JSON-LD document.\n\nQuery parameters (other than ``limit`` and ``offset``) are forwarded\nas payload to each underlying value fetcher.",
+        "operationId": "it_participant__fetch_ontology_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "spec_id",
+            "required": true,
+            "schema": {
+              "title": "Spec Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "participant_id",
+            "required": true,
+            "schema": {
+              "title": "Participant Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "limit",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "minimum": 0,
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Limit"
+            }
+          },
+          {
+            "in": "query",
+            "name": "offset",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "minimum": 0,
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Offset"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Fetch Ontology Get",
+        "tags": [
+          "it-participant"
+        ]
+      },
+      "post": {
+        "description": "Fetch an ontology concept view as a JSON-LD document (POST/body variant).",
+        "operationId": "it_participant__fetch_ontology_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "spec_id",
+            "required": true,
+            "schema": {
+              "title": "Spec Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "participant_id",
+            "required": true,
+            "schema": {
+              "title": "Participant Id",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/OntologyRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Fetch Ontology Post",
+        "tags": [
           "it-participant"
         ]
       }

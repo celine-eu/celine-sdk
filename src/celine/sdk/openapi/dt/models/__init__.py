@@ -10,6 +10,9 @@ from .generic_payload import GenericPayload
 from .http_validation_error import HTTPValidationError
 from .list_domains_domains_get_response_200_item import ListDomainsDomainsGetResponse200Item
 from .location_schema import LocationSchema
+from .ontology_request import OntologyRequest
+from .ontology_spec_descriptor import OntologySpecDescriptor
+from .payload import Payload
 from .response_health_health_get import ResponseHealthHealthGet
 from .response_it_energy_community_get_info import ResponseItEnergyCommunityGetInfo
 from .response_it_participant_get_info import ResponseItParticipantGetInfo
@@ -52,6 +55,9 @@ __all__ = (
     "HTTPValidationError",
     "ListDomainsDomainsGetResponse200Item",
     "LocationSchema",
+    "OntologyRequest",
+    "OntologySpecDescriptor",
+    "Payload",
     "ResponseHealthHealthGet",
     "ResponseItEnergyCommunityGetInfo",
     "ResponseItParticipantGetInfo",
