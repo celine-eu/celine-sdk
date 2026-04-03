@@ -2,6 +2,17 @@
 
 <!-- version list -->
 
+## v1.5.0 (2026-04-03)
+
+### Features
+
+- Add dt commitment api call
+  ([`3d7e70e`](https://github.com/celine-eu/celine-sdk/commit/3d7e70e73933a1bbf7100b2bad5abbc696aeb6d5))
+
+- Update openapi, add ontology methods to DT client
+  ([`84a87e7`](https://github.com/celine-eu/celine-sdk/commit/84a87e71deba0e4d077c1d3387f9cef9e8f84f68))
+
+
 ## v1.4.3 (2026-03-21)
 
 ### Bug Fixes
