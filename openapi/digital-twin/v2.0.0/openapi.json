@@ -186,6 +186,46 @@
         "title": "FetchResultSchema",
         "type": "object"
       },
+      "FlexibilityCommittedRequest": {
+        "properties": {
+          "commitment_id": {
+            "title": "Commitment Id",
+            "type": "string"
+          },
+          "community_id": {
+            "title": "Community Id",
+            "type": "string"
+          },
+          "device_id": {
+            "title": "Device Id",
+            "type": "string"
+          },
+          "reward_points_estimated": {
+            "title": "Reward Points Estimated",
+            "type": "integer"
+          },
+          "window_end": {
+            "format": "date-time",
+            "title": "Window End",
+            "type": "string"
+          },
+          "window_start": {
+            "format": "date-time",
+            "title": "Window Start",
+            "type": "string"
+          }
+        },
+        "required": [
+          "commitment_id",
+          "community_id",
+          "device_id",
+          "window_start",
+          "window_end",
+          "reward_points_estimated"
+        ],
+        "title": "FlexibilityCommittedRequest",
+        "type": "object"
+      },
       "GenericPayload": {
         "additionalProperties": true,
         "title": "GenericPayload",
@@ -1910,6 +1950,58 @@
           }
         },
         "summary": "Get Hourly",
+        "tags": [
+          "it-participant",
+          "it-participant"
+        ]
+      }
+    },
+    "/participants/{participant_id}/flexibility/committed": {
+      "post": {
+        "description": "Publish a flexibility commitment event to MQTT.\n\nThe BFF calls this when a user accepts a load-shift suggestion.\nThe DT publishes the event to MQTT; the @on_event handler catches it\nasynchronously and computes settlement from rec_virtual_consumption_per_device.",
+        "operationId": "it_participant__flexibility_committed",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "participant_id",
+            "required": true,
+            "schema": {
+              "title": "Participant Id",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/FlexibilityCommittedRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "202": {
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Post Flexibility Committed",
         "tags": [
           "it-participant",
           "it-participant"
