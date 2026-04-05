@@ -98,6 +98,48 @@
         "title": "CatalogueImportResponse",
         "type": "object"
       },
+      "CatalogueSearchRequest": {
+        "properties": {
+          "access_level": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Access Level"
+          },
+          "keywords": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Keywords"
+          },
+          "q": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Q"
+          }
+        },
+        "title": "CatalogueSearchRequest",
+        "type": "object"
+      },
       "ContactPoint": {
         "properties": {
           "email": {
@@ -390,17 +432,6 @@
             ],
             "title": "Createdat"
           },
-          "description": {
-            "anyOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Description"
-          },
           "facets": {
             "anyOf": [
               {
@@ -481,17 +512,6 @@
               }
             ],
             "title": "Tags"
-          },
-          "title": {
-            "anyOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Title"
           },
           "updatedAt": {
             "anyOf": [
@@ -725,6 +745,7 @@
     },
     "/catalogue": {
       "get": {
+        "description": "Return the full DCAT-AP 3 catalog as JSON-LD (application/ld+json).\n\nOnly includes entries with expose=True. Entries with access_level='secret'\nare silently omitted even when expose=True.",
         "operationId": "list_catalogue_catalogue_get",
         "responses": {
           "200": {
@@ -737,6 +758,87 @@
           }
         },
         "summary": "List Catalogue",
+        "tags": [
+          "catalogue"
+        ]
+      }
+    },
+    "/catalogue/search": {
+      "post": {
+        "description": "Search the exposed catalogue.\n\nFilters (all optional, ANDed together):\n- q: full-text substring match on title and description\n- access_level: exact match on access_level\n- keywords: at least one keyword must appear in tags.keywords",
+        "operationId": "search_catalogue_catalogue_search_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CatalogueSearchRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Search Catalogue",
+        "tags": [
+          "catalogue"
+        ]
+      }
+    },
+    "/catalogue/{dataset_id}": {
+      "get": {
+        "description": "Return a single dcat:Dataset JSON-LD document.\n\nOnly exposed, non-secret entries are accessible here.",
+        "operationId": "get_catalogue_entry_catalogue__dataset_id__get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "dataset_id",
+            "required": true,
+            "schema": {
+              "title": "Dataset Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Get Catalogue Entry",
         "tags": [
           "catalogue"
         ]
@@ -803,6 +905,40 @@
       "post": {
         "description": "Query available datasets",
         "operationId": "Dataset_query_query_post",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "edc-contract-agreement-id",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Edc-Contract-Agreement-Id"
+            }
+          },
+          {
+            "in": "header",
+            "name": "edc-bpn",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Edc-Bpn"
+            }
+          }
+        ],
         "requestBody": {
           "content": {
             "application/json": {

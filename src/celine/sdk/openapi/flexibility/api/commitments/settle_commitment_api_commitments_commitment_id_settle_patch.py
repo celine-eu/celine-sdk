@@ -1,27 +1,29 @@
 from http import HTTPStatus
 from typing import Any
 from urllib.parse import quote
+from uuid import UUID
 
 import httpx
 
 from ... import errors
 from ...client import AuthenticatedClient, Client
-from ...models.flexibility_committed_request import FlexibilityCommittedRequest
+from ...models.commitment_out import CommitmentOut
+from ...models.commitment_settle import CommitmentSettle
 from ...models.http_validation_error import HTTPValidationError
 from ...types import Response
 
 
 def _get_kwargs(
-    participant_id: str,
+    commitment_id: UUID,
     *,
-    body: FlexibilityCommittedRequest,
+    body: CommitmentSettle,
 ) -> dict[str, Any]:
     headers: dict[str, Any] = {}
 
     _kwargs: dict[str, Any] = {
-        "method": "post",
-        "url": "/participants/{participant_id}/flexibility/committed".format(
-            participant_id=quote(str(participant_id), safe=""),
+        "method": "patch",
+        "url": "/api/commitments/{commitment_id}/settle".format(
+            commitment_id=quote(str(commitment_id), safe=""),
         ),
     }
 
@@ -35,10 +37,11 @@ def _get_kwargs(
 
 def _parse_response(
     *, client: AuthenticatedClient | Client, response: httpx.Response
-) -> Any | HTTPValidationError | None:
-    if response.status_code == 202:
-        response_202 = response.json()
-        return response_202
+) -> CommitmentOut | HTTPValidationError | None:
+    if response.status_code == 200:
+        response_200 = CommitmentOut.from_dict(response.json())
+
+        return response_200
 
     if response.status_code == 422:
         response_422 = HTTPValidationError.from_dict(response.json())
@@ -53,7 +56,7 @@ def _parse_response(
 
 def _build_response(
     *, client: AuthenticatedClient | Client, response: httpx.Response
-) -> Response[Any | HTTPValidationError]:
+) -> Response[CommitmentOut | HTTPValidationError]:
     return Response(
         status_code=HTTPStatus(response.status_code),
         content=response.content,
@@ -63,33 +66,29 @@ def _build_response(
 
 
 def sync_detailed(
-    participant_id: str,
+    commitment_id: UUID,
     *,
     client: AuthenticatedClient | Client,
-    body: FlexibilityCommittedRequest,
-) -> Response[Any | HTTPValidationError]:
-    """Post Flexibility Committed
+    body: CommitmentSettle,
+) -> Response[CommitmentOut | HTTPValidationError]:
+    """Settle Commitment
 
-     Publish a flexibility commitment event to MQTT.
-
-    The BFF calls this when a user accepts a load-shift suggestion.
-    The DT publishes the event to MQTT; the @on_event handler catches it
-    asynchronously and computes settlement from rec_virtual_consumption_per_device.
+     Settle a commitment with actual kWh and reward points.  Service only.
 
     Args:
-        participant_id (str):
-        body (FlexibilityCommittedRequest):
+        commitment_id (UUID):
+        body (CommitmentSettle):
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Response[Any | HTTPValidationError]
+        Response[CommitmentOut | HTTPValidationError]
     """
 
     kwargs = _get_kwargs(
-        participant_id=participant_id,
+        commitment_id=commitment_id,
         body=body,
     )
 
@@ -101,66 +100,58 @@ def sync_detailed(
 
 
 def sync(
-    participant_id: str,
+    commitment_id: UUID,
     *,
     client: AuthenticatedClient | Client,
-    body: FlexibilityCommittedRequest,
-) -> Any | HTTPValidationError | None:
-    """Post Flexibility Committed
+    body: CommitmentSettle,
+) -> CommitmentOut | HTTPValidationError | None:
+    """Settle Commitment
 
-     Publish a flexibility commitment event to MQTT.
-
-    The BFF calls this when a user accepts a load-shift suggestion.
-    The DT publishes the event to MQTT; the @on_event handler catches it
-    asynchronously and computes settlement from rec_virtual_consumption_per_device.
+     Settle a commitment with actual kWh and reward points.  Service only.
 
     Args:
-        participant_id (str):
-        body (FlexibilityCommittedRequest):
+        commitment_id (UUID):
+        body (CommitmentSettle):
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Any | HTTPValidationError
+        CommitmentOut | HTTPValidationError
     """
 
     return sync_detailed(
-        participant_id=participant_id,
+        commitment_id=commitment_id,
         client=client,
         body=body,
     ).parsed
 
 
 async def asyncio_detailed(
-    participant_id: str,
+    commitment_id: UUID,
     *,
     client: AuthenticatedClient | Client,
-    body: FlexibilityCommittedRequest,
-) -> Response[Any | HTTPValidationError]:
-    """Post Flexibility Committed
+    body: CommitmentSettle,
+) -> Response[CommitmentOut | HTTPValidationError]:
+    """Settle Commitment
 
-     Publish a flexibility commitment event to MQTT.
-
-    The BFF calls this when a user accepts a load-shift suggestion.
-    The DT publishes the event to MQTT; the @on_event handler catches it
-    asynchronously and computes settlement from rec_virtual_consumption_per_device.
+     Settle a commitment with actual kWh and reward points.  Service only.
 
     Args:
-        participant_id (str):
-        body (FlexibilityCommittedRequest):
+        commitment_id (UUID):
+        body (CommitmentSettle):
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Response[Any | HTTPValidationError]
+        Response[CommitmentOut | HTTPValidationError]
     """
 
     kwargs = _get_kwargs(
-        participant_id=participant_id,
+        commitment_id=commitment_id,
         body=body,
     )
 
@@ -170,34 +161,30 @@ async def asyncio_detailed(
 
 
 async def asyncio(
-    participant_id: str,
+    commitment_id: UUID,
     *,
     client: AuthenticatedClient | Client,
-    body: FlexibilityCommittedRequest,
-) -> Any | HTTPValidationError | None:
-    """Post Flexibility Committed
+    body: CommitmentSettle,
+) -> CommitmentOut | HTTPValidationError | None:
+    """Settle Commitment
 
-     Publish a flexibility commitment event to MQTT.
-
-    The BFF calls this when a user accepts a load-shift suggestion.
-    The DT publishes the event to MQTT; the @on_event handler catches it
-    asynchronously and computes settlement from rec_virtual_consumption_per_device.
+     Settle a commitment with actual kWh and reward points.  Service only.
 
     Args:
-        participant_id (str):
-        body (FlexibilityCommittedRequest):
+        commitment_id (UUID):
+        body (CommitmentSettle):
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Any | HTTPValidationError
+        CommitmentOut | HTTPValidationError
     """
 
     return (
         await asyncio_detailed(
-            participant_id=participant_id,
+            commitment_id=commitment_id,
             client=client,
             body=body,
         )

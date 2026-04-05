@@ -1,0 +1,775 @@
+{
+  "components": {
+    "schemas": {
+      "CommitmentCreate": {
+        "properties": {
+          "community_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Community Id"
+          },
+          "device_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Device Id"
+          },
+          "period_end": {
+            "format": "date-time",
+            "title": "Period End",
+            "type": "string"
+          },
+          "period_start": {
+            "format": "date-time",
+            "title": "Period Start",
+            "type": "string"
+          },
+          "reward_points_estimated": {
+            "default": 0,
+            "title": "Reward Points Estimated",
+            "type": "integer"
+          },
+          "suggestion_id": {
+            "title": "Suggestion Id",
+            "type": "string"
+          },
+          "suggestion_type": {
+            "default": "shift-consumption",
+            "title": "Suggestion Type",
+            "type": "string"
+          },
+          "user_id": {
+            "title": "User Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "user_id",
+          "suggestion_id",
+          "period_start",
+          "period_end"
+        ],
+        "title": "CommitmentCreate",
+        "type": "object"
+      },
+      "CommitmentListResponse": {
+        "properties": {
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/CommitmentOut"
+            },
+            "title": "Items",
+            "type": "array"
+          },
+          "total": {
+            "title": "Total",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "items",
+          "total"
+        ],
+        "title": "CommitmentListResponse",
+        "type": "object"
+      },
+      "CommitmentOut": {
+        "properties": {
+          "committed_at": {
+            "format": "date-time",
+            "title": "Committed At",
+            "type": "string"
+          },
+          "community_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Community Id"
+          },
+          "device_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Device Id"
+          },
+          "id": {
+            "format": "uuid",
+            "title": "Id",
+            "type": "string"
+          },
+          "period_end": {
+            "format": "date-time",
+            "title": "Period End",
+            "type": "string"
+          },
+          "period_start": {
+            "format": "date-time",
+            "title": "Period Start",
+            "type": "string"
+          },
+          "reminded_at": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Reminded At"
+          },
+          "reward_points_actual": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Reward Points Actual"
+          },
+          "reward_points_estimated": {
+            "title": "Reward Points Estimated",
+            "type": "integer"
+          },
+          "settled_at": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Settled At"
+          },
+          "status": {
+            "enum": [
+              "committed",
+              "settled",
+              "rejected",
+              "cancelled"
+            ],
+            "title": "Status",
+            "type": "string"
+          },
+          "suggestion_id": {
+            "title": "Suggestion Id",
+            "type": "string"
+          },
+          "suggestion_type": {
+            "title": "Suggestion Type",
+            "type": "string"
+          },
+          "user_id": {
+            "title": "User Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "user_id",
+          "suggestion_id",
+          "suggestion_type",
+          "community_id",
+          "device_id",
+          "period_start",
+          "period_end",
+          "committed_at",
+          "settled_at",
+          "reminded_at",
+          "status",
+          "reward_points_estimated",
+          "reward_points_actual"
+        ],
+        "title": "CommitmentOut",
+        "type": "object"
+      },
+      "CommitmentSettle": {
+        "properties": {
+          "actual_kwh": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Actual Kwh"
+          },
+          "reward_points_actual": {
+            "title": "Reward Points Actual",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "reward_points_actual"
+        ],
+        "title": "CommitmentSettle",
+        "type": "object"
+      },
+      "HTTPValidationError": {
+        "properties": {
+          "detail": {
+            "items": {
+              "$ref": "#/components/schemas/ValidationError"
+            },
+            "title": "Detail",
+            "type": "array"
+          }
+        },
+        "title": "HTTPValidationError",
+        "type": "object"
+      },
+      "SuggestionItem": {
+        "properties": {
+          "clock_range": {
+            "title": "Clock Range",
+            "type": "string"
+          },
+          "confidence": {
+            "title": "Confidence",
+            "type": "number"
+          },
+          "from_period": {
+            "title": "From Period",
+            "type": "string"
+          },
+          "id": {
+            "title": "Id",
+            "type": "string"
+          },
+          "impact_kwh_estimated": {
+            "title": "Impact Kwh Estimated",
+            "type": "number"
+          },
+          "period_end": {
+            "title": "Period End",
+            "type": "string"
+          },
+          "period_start": {
+            "title": "Period Start",
+            "type": "string"
+          },
+          "reward_points": {
+            "title": "Reward Points",
+            "type": "integer"
+          },
+          "suggestion_type": {
+            "title": "Suggestion Type",
+            "type": "string"
+          },
+          "to_is_tomorrow": {
+            "title": "To Is Tomorrow",
+            "type": "boolean"
+          },
+          "to_period": {
+            "title": "To Period",
+            "type": "string"
+          },
+          "to_time": {
+            "title": "To Time",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "suggestion_type",
+          "period_start",
+          "period_end",
+          "from_period",
+          "clock_range",
+          "to_is_tomorrow",
+          "to_period",
+          "to_time",
+          "impact_kwh_estimated",
+          "reward_points",
+          "confidence"
+        ],
+        "title": "SuggestionItem",
+        "type": "object"
+      },
+      "SuggestionRespondRequest": {
+        "properties": {
+          "period_end": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Period End"
+          },
+          "period_start": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Period Start"
+          },
+          "response": {
+            "enum": [
+              "accepted",
+              "declined"
+            ],
+            "title": "Response",
+            "type": "string"
+          },
+          "reward_points": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Reward Points"
+          }
+        },
+        "required": [
+          "response"
+        ],
+        "title": "SuggestionRespondRequest",
+        "type": "object"
+      },
+      "SuggestionRespondResponse": {
+        "properties": {
+          "commitment_id": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Commitment Id"
+          },
+          "reward_points_estimated": {
+            "title": "Reward Points Estimated",
+            "type": "integer"
+          },
+          "status": {
+            "enum": [
+              "committed",
+              "declined"
+            ],
+            "title": "Status",
+            "type": "string"
+          }
+        },
+        "required": [
+          "status",
+          "reward_points_estimated"
+        ],
+        "title": "SuggestionRespondResponse",
+        "type": "object"
+      },
+      "ValidationError": {
+        "properties": {
+          "ctx": {
+            "title": "Context",
+            "type": "object"
+          },
+          "input": {
+            "title": "Input"
+          },
+          "loc": {
+            "items": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "integer"
+                }
+              ]
+            },
+            "title": "Location",
+            "type": "array"
+          },
+          "msg": {
+            "title": "Message",
+            "type": "string"
+          },
+          "type": {
+            "title": "Error Type",
+            "type": "string"
+          }
+        },
+        "required": [
+          "loc",
+          "msg",
+          "type"
+        ],
+        "title": "ValidationError",
+        "type": "object"
+      }
+    }
+  },
+  "info": {
+    "description": "Commitment store for voluntary and automated load-shifting.",
+    "title": "CELINE Flexibility API",
+    "version": "0.1.0"
+  },
+  "openapi": "3.1.0",
+  "paths": {
+    "/api/commitments": {
+      "get": {
+        "description": "List commitments.\n\nUsers see only their own.  Service accounts may filter by any user_id.",
+        "operationId": "list_commitments_api_commitments_get",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "user_id",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "User Id"
+            }
+          },
+          {
+            "in": "query",
+            "name": "status",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Status"
+            }
+          },
+          {
+            "in": "query",
+            "name": "limit",
+            "required": false,
+            "schema": {
+              "default": 50,
+              "maximum": 200,
+              "title": "Limit",
+              "type": "integer"
+            }
+          },
+          {
+            "in": "query",
+            "name": "offset",
+            "required": false,
+            "schema": {
+              "default": 0,
+              "minimum": 0,
+              "title": "Offset",
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CommitmentListResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "List Commitments",
+        "tags": [
+          "commitments"
+        ]
+      },
+      "post": {
+        "description": "Create a new commitment.\n\nA user JWT may only create commitments for itself (body.user_id ignored \u2014 always\nset to caller's sub).  A service JWT may create on behalf of any user_id.",
+        "operationId": "create_commitment_api_commitments_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CommitmentCreate"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CommitmentOut"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Create Commitment",
+        "tags": [
+          "commitments"
+        ]
+      }
+    },
+    "/api/commitments/pending": {
+      "get": {
+        "description": "Return commitments whose window has opened but not yet closed.\n\nCalled by DT on each pipeline tick (meters-flow, every 5 min).\nMarks returned rows as reminded_at = now so they are not re-sent on the\nnext tick within the same window.",
+        "operationId": "get_pending_api_commitments_pending_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/CommitmentOut"
+                  },
+                  "title": "Response Get Pending Api Commitments Pending Get",
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "summary": "Get Pending",
+        "tags": [
+          "commitments"
+        ]
+      }
+    },
+    "/api/commitments/{commitment_id}": {
+      "delete": {
+        "description": "Cancel a pending commitment.  Only the owning user may cancel.",
+        "operationId": "cancel_commitment_api_commitments__commitment_id__delete",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "commitment_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Commitment Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Cancel Commitment",
+        "tags": [
+          "commitments"
+        ]
+      }
+    },
+    "/api/commitments/{commitment_id}/settle": {
+      "patch": {
+        "description": "Settle a commitment with actual kWh and reward points.  Service only.",
+        "operationId": "settle_commitment_api_commitments__commitment_id__settle_patch",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "commitment_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Commitment Id",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CommitmentSettle"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CommitmentOut"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Settle Commitment",
+        "tags": [
+          "commitments"
+        ]
+      }
+    },
+    "/api/suggestions": {
+      "get": {
+        "description": "Return load-shift windows from rec_flexibility_windows for this participant.\n\nUses a service OIDC token to call DTClient on behalf of the user; the\nparticipant_id is taken from user.sub (as in celine-webapp).",
+        "operationId": "list_suggestions_api_suggestions_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/SuggestionItem"
+                  },
+                  "title": "Response List Suggestions Api Suggestions Get",
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "summary": "List Suggestions",
+        "tags": [
+          "suggestions"
+        ]
+      }
+    },
+    "/api/suggestions/{suggestion_id}/respond": {
+      "post": {
+        "description": "Record a user's response to a flexibility suggestion.\n\nOn acceptance:\n  1. Resolves community_id and device_id via DTClient.\n  2. Creates a FlexibilityCommitment record in the DB.\n  3. Publishes flexibility.committed to MQTT.\n\nGamification points are awarded by celine-webapp (BFF layer), not here.",
+        "operationId": "respond_to_suggestion_api_suggestions__suggestion_id__respond_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "suggestion_id",
+            "required": true,
+            "schema": {
+              "title": "Suggestion Id",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SuggestionRespondRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SuggestionRespondResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Respond To Suggestion",
+        "tags": [
+          "suggestions"
+        ]
+      }
+    }
+  }
+}

@@ -10,3 +10,6 @@ services:
   nudging:
     package: nudging
     openapi: http://api.celine.localhost/nudging/openapi.json
+  flexibility:
+    package: flexibility
+    openapi: http://api.celine.localhost/flexibility/openapi.json

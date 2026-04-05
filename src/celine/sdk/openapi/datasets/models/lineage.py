@@ -20,7 +20,6 @@ class Lineage:
     """
     Attributes:
         created_at (None | str | Unset):
-        description (None | str | Unset):
         facets (LineageFacetsType0 | None | Unset):
         last_lifecycle_state (None | str | Unset):
         last_modified_at (None | str | Unset):
@@ -28,12 +27,10 @@ class Lineage:
         namespace (None | str | Unset):
         source_name (None | str | Unset):
         tags (list[str] | None | Unset):
-        title (None | str | Unset):
         updated_at (None | str | Unset):
     """
 
     created_at: None | str | Unset = UNSET
-    description: None | str | Unset = UNSET
     facets: LineageFacetsType0 | None | Unset = UNSET
     last_lifecycle_state: None | str | Unset = UNSET
     last_modified_at: None | str | Unset = UNSET
@@ -41,7 +38,6 @@ class Lineage:
     namespace: None | str | Unset = UNSET
     source_name: None | str | Unset = UNSET
     tags: list[str] | None | Unset = UNSET
-    title: None | str | Unset = UNSET
     updated_at: None | str | Unset = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
@@ -53,12 +49,6 @@ class Lineage:
             created_at = UNSET
         else:
             created_at = self.created_at
-
-        description: None | str | Unset
-        if isinstance(self.description, Unset):
-            description = UNSET
-        else:
-            description = self.description
 
         facets: dict[str, Any] | None | Unset
         if isinstance(self.facets, Unset):
@@ -107,12 +97,6 @@ class Lineage:
         else:
             tags = self.tags
 
-        title: None | str | Unset
-        if isinstance(self.title, Unset):
-            title = UNSET
-        else:
-            title = self.title
-
         updated_at: None | str | Unset
         if isinstance(self.updated_at, Unset):
             updated_at = UNSET
@@ -124,8 +108,6 @@ class Lineage:
         field_dict.update({})
         if created_at is not UNSET:
             field_dict["createdAt"] = created_at
-        if description is not UNSET:
-            field_dict["description"] = description
         if facets is not UNSET:
             field_dict["facets"] = facets
         if last_lifecycle_state is not UNSET:
@@ -140,8 +122,6 @@ class Lineage:
             field_dict["sourceName"] = source_name
         if tags is not UNSET:
             field_dict["tags"] = tags
-        if title is not UNSET:
-            field_dict["title"] = title
         if updated_at is not UNSET:
             field_dict["updatedAt"] = updated_at
 
@@ -161,15 +141,6 @@ class Lineage:
             return cast(None | str | Unset, data)
 
         created_at = _parse_created_at(d.pop("createdAt", UNSET))
-
-        def _parse_description(data: object) -> None | str | Unset:
-            if data is None:
-                return data
-            if isinstance(data, Unset):
-                return data
-            return cast(None | str | Unset, data)
-
-        description = _parse_description(d.pop("description", UNSET))
 
         def _parse_facets(data: object) -> LineageFacetsType0 | None | Unset:
             if data is None:
@@ -250,15 +221,6 @@ class Lineage:
 
         tags = _parse_tags(d.pop("tags", UNSET))
 
-        def _parse_title(data: object) -> None | str | Unset:
-            if data is None:
-                return data
-            if isinstance(data, Unset):
-                return data
-            return cast(None | str | Unset, data)
-
-        title = _parse_title(d.pop("title", UNSET))
-
         def _parse_updated_at(data: object) -> None | str | Unset:
             if data is None:
                 return data
@@ -270,7 +232,6 @@ class Lineage:
 
         lineage = cls(
             created_at=created_at,
-            description=description,
             facets=facets,
             last_lifecycle_state=last_lifecycle_state,
             last_modified_at=last_modified_at,
@@ -278,7 +239,6 @@ class Lineage:
             namespace=namespace,
             source_name=source_name,
             tags=tags,
-            title=title,
             updated_at=updated_at,
         )
 

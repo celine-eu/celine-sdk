@@ -5,28 +5,20 @@ import httpx
 
 from ... import errors
 from ...client import AuthenticatedClient, Client
-from ...models.dataset_query_model import DatasetQueryModel
-from ...models.dataset_query_result import DatasetQueryResult
+from ...models.catalogue_search_request import CatalogueSearchRequest
 from ...models.http_validation_error import HTTPValidationError
-from ...types import UNSET, Response, Unset
+from ...types import Response
 
 
 def _get_kwargs(
     *,
-    body: DatasetQueryModel,
-    edc_contract_agreement_id: None | str | Unset = UNSET,
-    edc_bpn: None | str | Unset = UNSET,
+    body: CatalogueSearchRequest,
 ) -> dict[str, Any]:
     headers: dict[str, Any] = {}
-    if not isinstance(edc_contract_agreement_id, Unset):
-        headers["edc-contract-agreement-id"] = edc_contract_agreement_id
-
-    if not isinstance(edc_bpn, Unset):
-        headers["edc-bpn"] = edc_bpn
 
     _kwargs: dict[str, Any] = {
         "method": "post",
-        "url": "/query",
+        "url": "/catalogue/search",
     }
 
     _kwargs["json"] = body.to_dict()
@@ -39,10 +31,9 @@ def _get_kwargs(
 
 def _parse_response(
     *, client: AuthenticatedClient | Client, response: httpx.Response
-) -> DatasetQueryResult | HTTPValidationError | None:
+) -> Any | HTTPValidationError | None:
     if response.status_code == 200:
-        response_200 = DatasetQueryResult.from_dict(response.json())
-
+        response_200 = response.json()
         return response_200
 
     if response.status_code == 422:
@@ -58,7 +49,7 @@ def _parse_response(
 
 def _build_response(
     *, client: AuthenticatedClient | Client, response: httpx.Response
-) -> Response[DatasetQueryResult | HTTPValidationError]:
+) -> Response[Any | HTTPValidationError]:
     return Response(
         status_code=HTTPStatus(response.status_code),
         content=response.content,
@@ -69,32 +60,31 @@ def _build_response(
 
 def sync_detailed(
     *,
-    client: AuthenticatedClient,
-    body: DatasetQueryModel,
-    edc_contract_agreement_id: None | str | Unset = UNSET,
-    edc_bpn: None | str | Unset = UNSET,
-) -> Response[DatasetQueryResult | HTTPValidationError]:
-    """Dataset Query
+    client: AuthenticatedClient | Client,
+    body: CatalogueSearchRequest,
+) -> Response[Any | HTTPValidationError]:
+    """Search Catalogue
 
-     Query available datasets
+     Search the exposed catalogue.
+
+    Filters (all optional, ANDed together):
+    - q: full-text substring match on title and description
+    - access_level: exact match on access_level
+    - keywords: at least one keyword must appear in tags.keywords
 
     Args:
-        edc_contract_agreement_id (None | str | Unset):
-        edc_bpn (None | str | Unset):
-        body (DatasetQueryModel):
+        body (CatalogueSearchRequest):
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Response[DatasetQueryResult | HTTPValidationError]
+        Response[Any | HTTPValidationError]
     """
 
     kwargs = _get_kwargs(
         body=body,
-        edc_contract_agreement_id=edc_contract_agreement_id,
-        edc_bpn=edc_bpn,
     )
 
     response = client.get_httpx_client().request(
@@ -106,64 +96,62 @@ def sync_detailed(
 
 def sync(
     *,
-    client: AuthenticatedClient,
-    body: DatasetQueryModel,
-    edc_contract_agreement_id: None | str | Unset = UNSET,
-    edc_bpn: None | str | Unset = UNSET,
-) -> DatasetQueryResult | HTTPValidationError | None:
-    """Dataset Query
+    client: AuthenticatedClient | Client,
+    body: CatalogueSearchRequest,
+) -> Any | HTTPValidationError | None:
+    """Search Catalogue
 
-     Query available datasets
+     Search the exposed catalogue.
+
+    Filters (all optional, ANDed together):
+    - q: full-text substring match on title and description
+    - access_level: exact match on access_level
+    - keywords: at least one keyword must appear in tags.keywords
 
     Args:
-        edc_contract_agreement_id (None | str | Unset):
-        edc_bpn (None | str | Unset):
-        body (DatasetQueryModel):
+        body (CatalogueSearchRequest):
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        DatasetQueryResult | HTTPValidationError
+        Any | HTTPValidationError
     """
 
     return sync_detailed(
         client=client,
         body=body,
-        edc_contract_agreement_id=edc_contract_agreement_id,
-        edc_bpn=edc_bpn,
     ).parsed
 
 
 async def asyncio_detailed(
     *,
-    client: AuthenticatedClient,
-    body: DatasetQueryModel,
-    edc_contract_agreement_id: None | str | Unset = UNSET,
-    edc_bpn: None | str | Unset = UNSET,
-) -> Response[DatasetQueryResult | HTTPValidationError]:
-    """Dataset Query
+    client: AuthenticatedClient | Client,
+    body: CatalogueSearchRequest,
+) -> Response[Any | HTTPValidationError]:
+    """Search Catalogue
 
-     Query available datasets
+     Search the exposed catalogue.
+
+    Filters (all optional, ANDed together):
+    - q: full-text substring match on title and description
+    - access_level: exact match on access_level
+    - keywords: at least one keyword must appear in tags.keywords
 
     Args:
-        edc_contract_agreement_id (None | str | Unset):
-        edc_bpn (None | str | Unset):
-        body (DatasetQueryModel):
+        body (CatalogueSearchRequest):
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Response[DatasetQueryResult | HTTPValidationError]
+        Response[Any | HTTPValidationError]
     """
 
     kwargs = _get_kwargs(
         body=body,
-        edc_contract_agreement_id=edc_contract_agreement_id,
-        edc_bpn=edc_bpn,
     )
 
     response = await client.get_async_httpx_client().request(**kwargs)
@@ -173,33 +161,32 @@ async def asyncio_detailed(
 
 async def asyncio(
     *,
-    client: AuthenticatedClient,
-    body: DatasetQueryModel,
-    edc_contract_agreement_id: None | str | Unset = UNSET,
-    edc_bpn: None | str | Unset = UNSET,
-) -> DatasetQueryResult | HTTPValidationError | None:
-    """Dataset Query
+    client: AuthenticatedClient | Client,
+    body: CatalogueSearchRequest,
+) -> Any | HTTPValidationError | None:
+    """Search Catalogue
 
-     Query available datasets
+     Search the exposed catalogue.
+
+    Filters (all optional, ANDed together):
+    - q: full-text substring match on title and description
+    - access_level: exact match on access_level
+    - keywords: at least one keyword must appear in tags.keywords
 
     Args:
-        edc_contract_agreement_id (None | str | Unset):
-        edc_bpn (None | str | Unset):
-        body (DatasetQueryModel):
+        body (CatalogueSearchRequest):
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        DatasetQueryResult | HTTPValidationError
+        Any | HTTPValidationError
     """
 
     return (
         await asyncio_detailed(
             client=client,
             body=body,
-            edc_contract_agreement_id=edc_contract_agreement_id,
-            edc_bpn=edc_bpn,
         )
     ).parsed

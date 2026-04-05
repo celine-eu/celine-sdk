@@ -42,6 +42,11 @@ def sync_detailed(
 ) -> Response[Any]:
     """List Catalogue
 
+     Return the full DCAT-AP 3 catalog as JSON-LD (application/ld+json).
+
+    Only includes entries with expose=True. Entries with access_level='secret'
+    are silently omitted even when expose=True.
+
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
@@ -64,6 +69,11 @@ async def asyncio_detailed(
     client: AuthenticatedClient | Client,
 ) -> Response[Any]:
     """List Catalogue
+
+     Return the full DCAT-AP 3 catalog as JSON-LD (application/ld+json).
+
+    Only includes entries with expose=True. Entries with access_level='secret'
+    are silently omitted even when expose=True.
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.

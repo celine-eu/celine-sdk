@@ -3,6 +3,7 @@
 from .backend_config import BackendConfig
 from .catalogue_import_model import CatalogueImportModel
 from .catalogue_import_response import CatalogueImportResponse
+from .catalogue_search_request import CatalogueSearchRequest
 from .contact_point import ContactPoint
 from .dataset_entry_model import DatasetEntryModel
 from .dataset_query_model import DatasetQueryModel
@@ -19,6 +20,7 @@ __all__ = (
     "BackendConfig",
     "CatalogueImportModel",
     "CatalogueImportResponse",
+    "CatalogueSearchRequest",
     "ContactPoint",
     "DatasetEntryModel",
     "DatasetQueryModel",

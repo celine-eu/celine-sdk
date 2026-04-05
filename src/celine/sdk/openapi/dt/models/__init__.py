@@ -6,7 +6,6 @@ from .descriptor_spec_schema import DescriptorSpecSchema
 from .descriptor_spec_schema_payload_schema_type_0 import DescriptorSpecSchemaPayloadSchemaType0
 from .fetch_result_schema import FetchResultSchema
 from .fetch_result_schema_items_item import FetchResultSchemaItemsItem
-from .flexibility_committed_request import FlexibilityCommittedRequest
 from .generic_payload import GenericPayload
 from .http_validation_error import HTTPValidationError
 from .list_domains_domains_get_response_200_item import ListDomainsDomainsGetResponse200Item
@@ -52,7 +51,6 @@ __all__ = (
     "DescriptorSpecSchemaPayloadSchemaType0",
     "FetchResultSchema",
     "FetchResultSchemaItemsItem",
-    "FlexibilityCommittedRequest",
     "GenericPayload",
     "HTTPValidationError",
     "ListDomainsDomainsGetResponse200Item",

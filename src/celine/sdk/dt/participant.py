@@ -5,7 +5,6 @@ ParticipantClient — curated async wrapper for the it_participant domain.
 from __future__ import annotations
 
 import logging
-from datetime import datetime
 from typing import TYPE_CHECKING, Any
 
 from celine.sdk.dt.community import unwrap
@@ -25,7 +24,6 @@ from celine.sdk.openapi.dt.models import (
     OntologySpecDescriptor,
     OntologyRequest,
     Payload,
-    FlexibilityCommittedRequest,
 )
 from celine.sdk.openapi.dt.api.it_participant import (
     it_participant_profile as _profile,
@@ -37,7 +35,6 @@ from celine.sdk.openapi.dt.api.it_participant import (
     it_participant_list_ontology_specs as _list_ontology_specs,
     it_participant_fetch_ontology_get as _fetch_ontology_get,
     it_participant_fetch_ontology_post as _fetch_ontology_post,
-    it_participant_flexibility_committed as _flexibility_committed,
 )
 
 if TYPE_CHECKING:
@@ -165,40 +162,6 @@ class ParticipantClient:
             logger.warning(data.detail)
             raise DTApiError("Validation error", 500)
         return data
-
-    async def flexibility_committed(
-        self,
-        participant_id: str,
-        *,
-        commitment_id: str,
-        community_id: str,
-        device_id: str,
-        window_start: datetime,
-        window_end: datetime,
-        reward_points_estimated: int,
-    ) -> None:
-        """Publish a flexibility commitment event to the DT.
-
-        The DT publishes the event to MQTT; the on_event handler settles it
-        asynchronously using rec_virtual_consumption_per_device data.
-
-        Returns when the DT has accepted the event (HTTP 202).
-        """
-        client = await self._dt._get_client()
-        body = FlexibilityCommittedRequest(
-            commitment_id=commitment_id,
-            community_id=community_id,
-            device_id=device_id,
-            window_start=window_start,
-            window_end=window_end,
-            reward_points_estimated=reward_points_estimated,
-        )
-        result = await _flexibility_committed.asyncio_detailed(
-            participant_id=participant_id,
-            client=client,
-            body=body,
-        )
-        unwrap(result)
 
     async def fetch_ontology(
         self,
