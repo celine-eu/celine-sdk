@@ -2,6 +2,14 @@
 
 <!-- version list -->
 
+## v1.6.0 (2026-04-05)
+
+### Features
+
+- Add flexibility api
+  ([`fa1717e`](https://github.com/celine-eu/celine-sdk/commit/fa1717eb7bfe087d08e16d4652d9558381b4daa2))
+
+
 ## v1.5.0 (2026-04-03)
 
 ### Features
