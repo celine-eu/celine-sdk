@@ -1,7 +1,9 @@
 """Contains all the data models used in inputs/outputs"""
 
 from .area import Area
+from .area_geometry_type_0 import AreaGeometryType0
 from .area_in import AreaIn
+from .area_in_geometry_type_0 import AreaInGeometryType0
 from .areas import Areas
 from .asset_collection_in import AssetCollectionIn
 from .asset_detail import AssetDetail
@@ -111,7 +113,9 @@ from .validation_error import ValidationError
 
 __all__ = (
     "Area",
+    "AreaGeometryType0",
     "AreaIn",
+    "AreaInGeometryType0",
     "Areas",
     "AssetCollectionIn",
     "AssetDetail",

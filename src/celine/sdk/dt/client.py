@@ -15,6 +15,7 @@ from httpx import Timeout
 from celine.sdk.auth.provider import TokenProvider
 from celine.sdk.openapi.dt import AuthenticatedClient
 from celine.sdk.dt.community import CommunityClient
+from celine.sdk.dt.grid import GridClient
 from celine.sdk.dt.participant import ParticipantClient
 
 logger = logging.getLogger(__name__)
@@ -82,3 +83,8 @@ class DTClient:
     def participants(self) -> ParticipantClient:
         """Access the participant domain API."""
         return ParticipantClient(self)
+
+    @cached_property
+    def grid(self) -> GridClient:
+        """Access the grid resilience domain API."""
+        return GridClient(self)

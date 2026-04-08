@@ -8,6 +8,10 @@ from .fetch_result_schema import FetchResultSchema
 from .fetch_result_schema_items_item import FetchResultSchemaItemsItem
 from .generic_payload import GenericPayload
 from .http_validation_error import HTTPValidationError
+from .it_grid_heat_alert_distribution_response_200_item import ItGridHeatAlertDistributionResponse200Item
+from .it_grid_heat_trend_response_200_item import ItGridHeatTrendResponse200Item
+from .it_grid_wind_alert_distribution_response_200_item import ItGridWindAlertDistributionResponse200Item
+from .it_grid_wind_trend_response_200_item import ItGridWindTrendResponse200Item
 from .list_domains_domains_get_response_200_item import ListDomainsDomainsGetResponse200Item
 from .location_schema import LocationSchema
 from .ontology_request import OntologyRequest
@@ -15,6 +19,10 @@ from .ontology_spec_descriptor import OntologySpecDescriptor
 from .payload import Payload
 from .response_health_health_get import ResponseHealthHealthGet
 from .response_it_energy_community_get_info import ResponseItEnergyCommunityGetInfo
+from .response_it_grid_get_info import ResponseItGridGetInfo
+from .response_it_grid_heat_map import ResponseItGridHeatMap
+from .response_it_grid_wind_bosco import ResponseItGridWindBosco
+from .response_it_grid_wind_map import ResponseItGridWindMap
 from .response_it_participant_get_info import ResponseItParticipantGetInfo
 from .simulation_descriptor_schema import SimulationDescriptorSchema
 from .summary_response_schema import SummaryResponseSchema
@@ -53,6 +61,10 @@ __all__ = (
     "FetchResultSchemaItemsItem",
     "GenericPayload",
     "HTTPValidationError",
+    "ItGridHeatAlertDistributionResponse200Item",
+    "ItGridHeatTrendResponse200Item",
+    "ItGridWindAlertDistributionResponse200Item",
+    "ItGridWindTrendResponse200Item",
     "ListDomainsDomainsGetResponse200Item",
     "LocationSchema",
     "OntologyRequest",
@@ -60,6 +72,10 @@ __all__ = (
     "Payload",
     "ResponseHealthHealthGet",
     "ResponseItEnergyCommunityGetInfo",
+    "ResponseItGridGetInfo",
+    "ResponseItGridHeatMap",
+    "ResponseItGridWindBosco",
+    "ResponseItGridWindMap",
     "ResponseItParticipantGetInfo",
     "SimulationDescriptorSchema",
     "SummaryResponseSchema",

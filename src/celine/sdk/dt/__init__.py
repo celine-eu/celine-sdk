@@ -20,10 +20,12 @@ Usage::
 """
 from celine.sdk.dt.client import DTClient
 from celine.sdk.dt.community import CommunityClient
+from celine.sdk.dt.grid import GridClient
 from celine.sdk.dt.participant import ParticipantClient
 
 __all__ = [
     "DTClient",
     "CommunityClient",
+    "GridClient",
     "ParticipantClient",
 ]

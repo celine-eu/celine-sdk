@@ -1639,6 +1639,1301 @@
         "summary": "List Domains"
       }
     },
+    "/grid/{network_id}/heat/alert-distribution": {
+      "get": {
+        "description": "COUNT of line-segment events per risk_level for heat (underground cables).",
+        "operationId": "it_grid__heat_alert_distribution",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "network_id",
+            "required": true,
+            "schema": {
+              "title": "Network Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "dates",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "items": {
+                    "type": "string"
+                  },
+                  "type": "array"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Dates"
+            }
+          },
+          {
+            "in": "query",
+            "name": "operational_unit",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "items": {
+                    "type": "string"
+                  },
+                  "type": "array"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Operational Unit"
+            }
+          },
+          {
+            "in": "query",
+            "name": "line_name",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "items": {
+                    "type": "string"
+                  },
+                  "type": "array"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Line Name"
+            }
+          },
+          {
+            "in": "query",
+            "name": "substation_name",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "items": {
+                    "type": "string"
+                  },
+                  "type": "array"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Substation Name"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "additionalProperties": true,
+                    "type": "object"
+                  },
+                  "title": "Response It Grid  Heat Alert Distribution",
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Heat Alert Distribution",
+        "tags": [
+          "it-grid",
+          "it-grid"
+        ]
+      }
+    },
+    "/grid/{network_id}/heat/map": {
+      "get": {
+        "description": "GeoJSON FeatureCollection of underground MT cable segments coloured by heat risk.",
+        "operationId": "it_grid__heat_map",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "network_id",
+            "required": true,
+            "schema": {
+              "title": "Network Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "dates",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "items": {
+                    "type": "string"
+                  },
+                  "type": "array"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Dates"
+            }
+          },
+          {
+            "in": "query",
+            "name": "operational_unit",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "items": {
+                    "type": "string"
+                  },
+                  "type": "array"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Operational Unit"
+            }
+          },
+          {
+            "in": "query",
+            "name": "line_name",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "items": {
+                    "type": "string"
+                  },
+                  "type": "array"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Line Name"
+            }
+          },
+          {
+            "in": "query",
+            "name": "substation_name",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "items": {
+                    "type": "string"
+                  },
+                  "type": "array"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Substation Name"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "title": "Response It Grid  Heat Map",
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Heat Map",
+        "tags": [
+          "it-grid",
+          "it-grid"
+        ]
+      }
+    },
+    "/grid/{network_id}/heat/trend": {
+      "get": {
+        "description": "Daily MAX(temp_max_c) over the rolling window now\u22123d \u2192 now+2d.",
+        "operationId": "it_grid__heat_trend",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "network_id",
+            "required": true,
+            "schema": {
+              "title": "Network Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "additionalProperties": true,
+                    "type": "object"
+                  },
+                  "title": "Response It Grid  Heat Trend",
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Heat Trend",
+        "tags": [
+          "it-grid",
+          "it-grid"
+        ]
+      }
+    },
+    "/grid/{network_id}/info": {
+      "get": {
+        "operationId": "it_grid__get_info",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "network_id",
+            "required": true,
+            "schema": {
+              "title": "Network Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "title": "Response It Grid  Get Info",
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Get Info",
+        "tags": [
+          "it-grid"
+        ]
+      }
+    },
+    "/grid/{network_id}/ontology": {
+      "get": {
+        "description": "List available ontology concept views for this entity's domain.",
+        "operationId": "it_grid__list_ontology_specs",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "network_id",
+            "required": true,
+            "schema": {
+              "title": "Network Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/OntologySpecDescriptor"
+                  },
+                  "title": "Response It Grid  List Ontology Specs",
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "List Ontology Specs",
+        "tags": [
+          "it-grid"
+        ]
+      }
+    },
+    "/grid/{network_id}/ontology/{spec_id}": {
+      "get": {
+        "description": "Fetch an ontology concept view as a JSON-LD document.\n\nQuery parameters (other than ``limit`` and ``offset``) are forwarded\nas payload to each underlying value fetcher.",
+        "operationId": "it_grid__fetch_ontology_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "spec_id",
+            "required": true,
+            "schema": {
+              "title": "Spec Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "network_id",
+            "required": true,
+            "schema": {
+              "title": "Network Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "limit",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "minimum": 0,
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Limit"
+            }
+          },
+          {
+            "in": "query",
+            "name": "offset",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "minimum": 0,
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Offset"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Fetch Ontology Get",
+        "tags": [
+          "it-grid"
+        ]
+      },
+      "post": {
+        "description": "Fetch an ontology concept view as a JSON-LD document (POST/body variant).",
+        "operationId": "it_grid__fetch_ontology_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "spec_id",
+            "required": true,
+            "schema": {
+              "title": "Spec Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "network_id",
+            "required": true,
+            "schema": {
+              "title": "Network Id",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/OntologyRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Fetch Ontology Post",
+        "tags": [
+          "it-grid"
+        ]
+      }
+    },
+    "/grid/{network_id}/simulations": {
+      "get": {
+        "operationId": "it_grid__list_simulations",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "network_id",
+            "required": true,
+            "schema": {
+              "title": "Network Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/SimulationDescriptorSchema"
+                  },
+                  "title": "Response It Grid  List Simulations",
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "List Simulations",
+        "tags": [
+          "it-grid"
+        ]
+      }
+    },
+    "/grid/{network_id}/summary": {
+      "get": {
+        "operationId": "it_grid__get_summary",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "network_id",
+            "required": true,
+            "schema": {
+              "title": "Network Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SummaryResponseSchema"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Get Summary",
+        "tags": [
+          "it-grid"
+        ]
+      }
+    },
+    "/grid/{network_id}/values": {
+      "get": {
+        "operationId": "it_grid__list_values",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "network_id",
+            "required": true,
+            "schema": {
+              "title": "Network Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/ValueDescriptorSchema"
+                  },
+                  "title": "Response It Grid  List Values",
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "List Values",
+        "tags": [
+          "it-grid"
+        ]
+      }
+    },
+    "/grid/{network_id}/values/{fetcher_id}": {
+      "get": {
+        "operationId": "it_grid__fetch_values_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "fetcher_id",
+            "required": true,
+            "schema": {
+              "title": "Fetcher Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "network_id",
+            "required": true,
+            "schema": {
+              "title": "Network Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "limit",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "minimum": 0,
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Limit"
+            }
+          },
+          {
+            "in": "query",
+            "name": "offset",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "minimum": 0,
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Offset"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FetchResultSchema"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Fetch Values Get",
+        "tags": [
+          "it-grid"
+        ]
+      },
+      "post": {
+        "operationId": "it_grid__fetch_values_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "fetcher_id",
+            "required": true,
+            "schema": {
+              "title": "Fetcher Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "network_id",
+            "required": true,
+            "schema": {
+              "title": "Network Id",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ValuesRequestSchema"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FetchResultSchema"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Fetch Values Post",
+        "tags": [
+          "it-grid"
+        ]
+      }
+    },
+    "/grid/{network_id}/values/{fetcher_id}/describe": {
+      "get": {
+        "operationId": "it_grid__describe_value",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "fetcher_id",
+            "required": true,
+            "schema": {
+              "title": "Fetcher Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "network_id",
+            "required": true,
+            "schema": {
+              "title": "Network Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValueDescriptorSchema"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Describe Value",
+        "tags": [
+          "it-grid"
+        ]
+      }
+    },
+    "/grid/{network_id}/wind/alert-distribution": {
+      "get": {
+        "description": "COUNT of line-segment events per risk_level for wind (overhead lines).",
+        "operationId": "it_grid__wind_alert_distribution",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "network_id",
+            "required": true,
+            "schema": {
+              "title": "Network Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "dates",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "items": {
+                    "type": "string"
+                  },
+                  "type": "array"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Dates"
+            }
+          },
+          {
+            "in": "query",
+            "name": "operational_unit",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "items": {
+                    "type": "string"
+                  },
+                  "type": "array"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Operational Unit"
+            }
+          },
+          {
+            "in": "query",
+            "name": "line_name",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "items": {
+                    "type": "string"
+                  },
+                  "type": "array"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Line Name"
+            }
+          },
+          {
+            "in": "query",
+            "name": "substation_name",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "items": {
+                    "type": "string"
+                  },
+                  "type": "array"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Substation Name"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "additionalProperties": true,
+                    "type": "object"
+                  },
+                  "title": "Response It Grid  Wind Alert Distribution",
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Wind Alert Distribution",
+        "tags": [
+          "it-grid",
+          "it-grid"
+        ]
+      }
+    },
+    "/grid/{network_id}/wind/bosco": {
+      "get": {
+        "description": "GeoJSON FeatureCollection of vegetated route wind risk segments.",
+        "operationId": "it_grid__wind_bosco",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "network_id",
+            "required": true,
+            "schema": {
+              "title": "Network Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "dates",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "items": {
+                    "type": "string"
+                  },
+                  "type": "array"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Dates"
+            }
+          },
+          {
+            "in": "query",
+            "name": "operational_unit",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "items": {
+                    "type": "string"
+                  },
+                  "type": "array"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Operational Unit"
+            }
+          },
+          {
+            "in": "query",
+            "name": "line_name",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "items": {
+                    "type": "string"
+                  },
+                  "type": "array"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Line Name"
+            }
+          },
+          {
+            "in": "query",
+            "name": "substation_name",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "items": {
+                    "type": "string"
+                  },
+                  "type": "array"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Substation Name"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "title": "Response It Grid  Wind Bosco",
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Wind Bosco",
+        "tags": [
+          "it-grid",
+          "it-grid"
+        ]
+      }
+    },
+    "/grid/{network_id}/wind/map": {
+      "get": {
+        "description": "GeoJSON FeatureCollection of overhead MT line segments coloured by wind risk.",
+        "operationId": "it_grid__wind_map",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "network_id",
+            "required": true,
+            "schema": {
+              "title": "Network Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "dates",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "items": {
+                    "type": "string"
+                  },
+                  "type": "array"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Dates"
+            }
+          },
+          {
+            "in": "query",
+            "name": "operational_unit",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "items": {
+                    "type": "string"
+                  },
+                  "type": "array"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Operational Unit"
+            }
+          },
+          {
+            "in": "query",
+            "name": "line_name",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "items": {
+                    "type": "string"
+                  },
+                  "type": "array"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Line Name"
+            }
+          },
+          {
+            "in": "query",
+            "name": "substation_name",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "items": {
+                    "type": "string"
+                  },
+                  "type": "array"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Substation Name"
+            }
+          },
+          {
+            "in": "query",
+            "name": "risk_level",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "items": {
+                    "type": "string"
+                  },
+                  "type": "array"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Risk Level"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "title": "Response It Grid  Wind Map",
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Wind Map",
+        "tags": [
+          "it-grid",
+          "it-grid"
+        ]
+      }
+    },
+    "/grid/{network_id}/wind/trend": {
+      "get": {
+        "description": "Daily MAX(gust_excess) over the rolling window now\u22121d \u2192 now+2d.",
+        "operationId": "it_grid__wind_trend",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "network_id",
+            "required": true,
+            "schema": {
+              "title": "Network Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "additionalProperties": true,
+                    "type": "object"
+                  },
+                  "title": "Response It Grid  Wind Trend",
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Wind Trend",
+        "tags": [
+          "it-grid",
+          "it-grid"
+        ]
+      }
+    },
     "/health": {
       "get": {
         "operationId": "health_health_get",

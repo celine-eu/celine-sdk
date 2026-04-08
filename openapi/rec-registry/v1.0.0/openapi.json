@@ -3,8 +3,27 @@
     "schemas": {
       "Area": {
         "properties": {
+          "geometry": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Geometry"
+          },
           "location": {
-            "$ref": "#/components/schemas/Location"
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Location"
+              },
+              {
+                "type": "null"
+              }
+            ]
           },
           "name": {
             "title": "Name",
@@ -12,8 +31,7 @@
           }
         },
         "required": [
-          "name",
-          "location"
+          "name"
         ],
         "title": "Area",
         "type": "object"
@@ -22,8 +40,27 @@
         "additionalProperties": true,
         "description": "Community area definition.",
         "properties": {
+          "geometry": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Geometry"
+          },
           "location": {
-            "$ref": "#/components/schemas/LocationIn"
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/LocationIn"
+              },
+              {
+                "type": "null"
+              }
+            ]
           },
           "name": {
             "title": "Name",
@@ -31,8 +68,7 @@
           }
         },
         "required": [
-          "name",
-          "location"
+          "name"
         ],
         "title": "AreaIn",
         "type": "object"
