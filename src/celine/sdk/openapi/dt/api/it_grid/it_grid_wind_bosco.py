@@ -115,7 +115,7 @@ def sync_detailed(
 ) -> Response[HTTPValidationError | ResponseItGridWindBosco]:
     """Wind Bosco
 
-     GeoJSON FeatureCollection of vegetated route wind risk segments.
+     GeoJSON FeatureCollection of overhead segments in vegetated zones, coloured by wind risk.
 
     Args:
         network_id (str):
@@ -158,7 +158,7 @@ def sync(
 ) -> HTTPValidationError | ResponseItGridWindBosco | None:
     """Wind Bosco
 
-     GeoJSON FeatureCollection of vegetated route wind risk segments.
+     GeoJSON FeatureCollection of overhead segments in vegetated zones, coloured by wind risk.
 
     Args:
         network_id (str):
@@ -196,7 +196,7 @@ async def asyncio_detailed(
 ) -> Response[HTTPValidationError | ResponseItGridWindBosco]:
     """Wind Bosco
 
-     GeoJSON FeatureCollection of vegetated route wind risk segments.
+     GeoJSON FeatureCollection of overhead segments in vegetated zones, coloured by wind risk.
 
     Args:
         network_id (str):
@@ -237,7 +237,7 @@ async def asyncio(
 ) -> HTTPValidationError | ResponseItGridWindBosco | None:
     """Wind Bosco
 
-     GeoJSON FeatureCollection of vegetated route wind risk segments.
+     GeoJSON FeatureCollection of overhead segments in vegetated zones, coloured by wind risk.
 
     Args:
         network_id (str):

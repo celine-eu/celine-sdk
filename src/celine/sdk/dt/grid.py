@@ -24,6 +24,8 @@ from celine.sdk.openapi.dt.models.it_grid_heat_trend_response_200_item import It
 from celine.sdk.openapi.dt.models.it_grid_wind_alert_distribution_response_200_item import ItGridWindAlertDistributionResponse200Item
 from celine.sdk.openapi.dt.models.it_grid_heat_alert_distribution_response_200_item import ItGridHeatAlertDistributionResponse200Item
 from celine.sdk.openapi.dt.models.summary_response_schema import SummaryResponseSchema
+from celine.sdk.openapi.dt.models.response_it_grid_it_grid_substations_map import ResponseItGridItGridSubstationsMap
+from celine.sdk.openapi.dt.models.response_it_grid_it_grid_filters import ResponseItGridItGridFilters
 
 from celine.sdk.openapi.dt.api.it_grid import (
     it_grid_wind_map as _wind_map,
@@ -35,6 +37,8 @@ from celine.sdk.openapi.dt.api.it_grid import (
     it_grid_heat_trend as _heat_trend,
     it_grid_get_summary as _summary,
     it_grid_get_info as _info,
+    it_grid_it_grid_substations_map as _substations_map,
+    it_grid_it_grid_filters as _filters,
 )
 
 if TYPE_CHECKING:
@@ -209,6 +213,37 @@ class GridClient:
         if isinstance(data, HTTPValidationError):
             raise DTApiError("Validation error from DT", 422)
         return [item.to_dict() for item in data]
+
+    # ------------------------------------------------------------------
+    # Substations (CIM: Substation — secondary substations)
+    # ------------------------------------------------------------------
+
+    async def substations_map(self, network_id: str) -> dict[str, Any]:
+        """GeoJSON FeatureCollection of all secondary substations."""
+        client = await self._dt._get_client()
+        result = await _substations_map.asyncio_detailed(network_id=network_id, client=client)
+        data = unwrap(result)
+        if isinstance(data, HTTPValidationError):
+            raise DTApiError("Validation error from DT", 422)
+        return data.to_dict()
+
+    # ------------------------------------------------------------------
+    # Filter metadata
+    # ------------------------------------------------------------------
+
+    async def filters(self, network_id: str) -> dict[str, list[str]]:
+        """Distinct topology values for UI filter autocomplete.
+
+        Returns parent_substations, lines, operational_units, municipalities.
+        Sourced from grid_network_topology (monthly cadence) — always complete
+        regardless of weather data availability.
+        """
+        client = await self._dt._get_client()
+        result = await _filters.asyncio_detailed(network_id=network_id, client=client)
+        data = unwrap(result)
+        if isinstance(data, HTTPValidationError):
+            raise DTApiError("Validation error from DT", 422)
+        return data.to_dict()
 
     # ------------------------------------------------------------------
     # Summary / info

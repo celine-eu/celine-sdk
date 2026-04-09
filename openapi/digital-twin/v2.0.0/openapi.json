@@ -1639,6 +1639,57 @@
         "summary": "List Domains"
       }
     },
+    "/grid/{network_id}/filters": {
+      "get": {
+        "description": "Distinct topology values for UI filter autocomplete.\n\nReturns one object with four arrays \u2014 a single DB round-trip for all\nfilter dimensions. Values come from silver_grid_ac_line_segment (via\ngrid_network_topology), so filter options are always complete regardless\nof weather data availability.",
+        "operationId": "it_grid__it_grid_filters",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "network_id",
+            "required": true,
+            "schema": {
+              "title": "Network Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": {
+                    "items": {
+                      "type": "string"
+                    },
+                    "type": "array"
+                  },
+                  "title": "Response It Grid  It Grid Filters",
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Get Filters",
+        "tags": [
+          "it-grid",
+          "it-grid"
+        ]
+      }
+    },
     "/grid/{network_id}/heat/alert-distribution": {
       "get": {
         "description": "COUNT of line-segment events per risk_level for heat (underground cables).",
@@ -2214,6 +2265,52 @@
         ]
       }
     },
+    "/grid/{network_id}/substations/map": {
+      "get": {
+        "description": "GeoJSON FeatureCollection of all secondary substations.",
+        "operationId": "it_grid__it_grid_substations_map",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "network_id",
+            "required": true,
+            "schema": {
+              "title": "Network Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "title": "Response It Grid  It Grid Substations Map",
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Substations Map",
+        "tags": [
+          "it-grid",
+          "it-grid"
+        ]
+      }
+    },
     "/grid/{network_id}/summary": {
       "get": {
         "operationId": "it_grid__get_summary",
@@ -2624,7 +2721,7 @@
     },
     "/grid/{network_id}/wind/bosco": {
       "get": {
-        "description": "GeoJSON FeatureCollection of vegetated route wind risk segments.",
+        "description": "GeoJSON FeatureCollection of overhead segments in vegetated zones, coloured by wind risk.",
         "operationId": "it_grid__wind_bosco",
         "parameters": [
           {

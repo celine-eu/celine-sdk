@@ -21,6 +21,8 @@ from .response_health_health_get import ResponseHealthHealthGet
 from .response_it_energy_community_get_info import ResponseItEnergyCommunityGetInfo
 from .response_it_grid_get_info import ResponseItGridGetInfo
 from .response_it_grid_heat_map import ResponseItGridHeatMap
+from .response_it_grid_it_grid_filters import ResponseItGridItGridFilters
+from .response_it_grid_it_grid_substations_map import ResponseItGridItGridSubstationsMap
 from .response_it_grid_wind_bosco import ResponseItGridWindBosco
 from .response_it_grid_wind_map import ResponseItGridWindMap
 from .response_it_participant_get_info import ResponseItParticipantGetInfo
@@ -74,6 +76,8 @@ __all__ = (
     "ResponseItEnergyCommunityGetInfo",
     "ResponseItGridGetInfo",
     "ResponseItGridHeatMap",
+    "ResponseItGridItGridFilters",
+    "ResponseItGridItGridSubstationsMap",
     "ResponseItGridWindBosco",
     "ResponseItGridWindMap",
     "ResponseItParticipantGetInfo",
