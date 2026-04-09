@@ -81,6 +81,38 @@ def get_expected_audiences(oidc: OidcSettings) -> list[str] | str | None:
 
 
 @dataclass
+class Organization:
+    """Organization membership parsed from the JWT 'organization' claim.
+
+    KC 26 oidc-organization-membership-mapper produces::
+
+        "organization": {
+            "example_rec": {},
+            "some_dso": {"roles": ["operator"]}
+        }
+
+    The alias is the key; roles are org-level roles assigned to the member.
+    Custom org attributes (e.g. type) are not included by the built-in mapper —
+    encode the org type via a dedicated org role (e.g. "rec", "dso") if you need
+    it in the token.
+    """
+
+    alias: str
+    roles: list[str] = field(default_factory=list)
+
+    def has_role(self, role: str) -> bool:
+        return role in self.roles
+
+    @classmethod
+    def _from_claim(cls, alias: str, data: Any) -> "Organization":
+        roles: list[str] = []
+        if isinstance(data, dict):
+            raw = data.get("roles", [])
+            roles = raw if isinstance(raw, list) else [raw]
+        return cls(alias=alias, roles=roles)
+
+
+@dataclass
 class JwtUser:
     """Structured user from JWT token with common claims."""
 
@@ -98,6 +130,9 @@ class JwtUser:
     aud: Optional[str | list[str]] = None  # Audience
     exp: Optional[int] = None  # Expiration time
     iat: Optional[int] = None  # Issued at
+
+    # Organization memberships (from KC 'organization' claim)
+    organizations: list[Organization] = field(default_factory=list)
 
     # All claims as dict for custom/service-specific claims
     claims: dict[str, Any] = field(default_factory=dict)
@@ -181,6 +216,13 @@ class JwtUser:
         if not sub:
             raise ValueError("JWT missing required 'sub' claim")
 
+        # Parse organization memberships
+        org_claim = payload.get("organization", {})
+        organizations: list[Organization] = []
+        if isinstance(org_claim, dict):
+            for alias, data in org_claim.items():
+                organizations.append(Organization._from_claim(alias, data))
+
         return cls(
             sub=sub,
             email=payload.get("email"),
@@ -193,6 +235,7 @@ class JwtUser:
             aud=payload.get("aud"),
             exp=payload.get("exp"),
             iat=payload.get("iat"),
+            organizations=organizations,
             claims=payload,
             token=token,
         )
@@ -206,6 +249,22 @@ class JwtUser:
     def is_valid(self, leeway: int = 30) -> bool:
         """Check if token is still valid (not expired with leeway)."""
         return not self.is_expired(-leeway)
+
+    @property
+    def organization_aliases(self) -> list[str]:
+        """Return the list of organization aliases the user belongs to."""
+        return [o.alias for o in self.organizations]
+
+    def get_organization(self, alias: str) -> Organization | None:
+        """Return the Organization for the given alias, or None."""
+        for o in self.organizations:
+            if o.alias == alias:
+                return o
+        return None
+
+    def is_member_of(self, alias: str) -> bool:
+        """Return True if the user belongs to the given organization alias."""
+        return any(o.alias == alias for o in self.organizations)
 
     def get_claim(self, key: str, default: Any = None) -> Any:
         """Get a custom claim value."""

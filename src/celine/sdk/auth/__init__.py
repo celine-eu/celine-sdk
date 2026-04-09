@@ -3,7 +3,7 @@ from celine.sdk.auth.provider import TokenProvider
 from celine.sdk.auth.oidc_discovery import OidcDiscoveryClient, OidcConfiguration
 from celine.sdk.auth.oidc import OidcClientCredentialsProvider
 
-from celine.sdk.auth.jwt import JwtUser, is_service_account
+from celine.sdk.auth.jwt import JwtUser, Organization, is_service_account
 
 __all__ = [
     "AccessToken",
@@ -12,5 +12,6 @@ __all__ = [
     "OidcConfiguration",
     "OidcClientCredentialsProvider",
     "JwtUser",
+    "Organization",
     "is_service_account",
 ]
