@@ -6,7 +6,6 @@ Initialize once, pass tokens per-call - no client recreation overhead.
 
 from __future__ import annotations
 
-import json
 from typing import Any, Optional
 
 import httpx
@@ -15,7 +14,7 @@ from celine.sdk.auth import TokenProvider
 from celine.sdk.openapi.rec_registry import AuthenticatedClient, Client
 from celine.sdk.openapi.rec_registry.api.admin import (
     admin_export_admin_export_get,
-    admin_import_admin_import_post,
+    admin_import_yaml_admin_import_yaml_post,
     get_asset_admin_communities_community_key_assets_asset_key_get,
     get_asset_by_sensor_id_admin_communities_community_key_assets_by_sensor_id_sensor_id_get,
     get_community_admin_communities_community_key_get,
@@ -46,11 +45,11 @@ from celine.sdk.openapi.rec_registry.api.me import (
 )
 from celine.sdk.openapi.rec_registry.models import (
     HTTPValidationError,
+    MultiImportReport,
     UserAssetsResponse,
     UserCommunityDetail,
     UserMeResponse,
     UserMemberDetail,
-    ImportRequest,
     UserDeliveryPointsResponse,
     UserAssetDetail,
     SensorIdsBatchRequest,
@@ -73,7 +72,6 @@ from celine.sdk.openapi.rec_registry.schemas import (
     UserCommunityDetailSchema,
     UserMeResponseSchema,
     UserMemberDetailSchema,
-    ImportRequestSchema,
     UserDeliveryPointsResponseSchema,
     UserAssetDetailSchema,
 )
@@ -306,28 +304,54 @@ class RecRegistryAdminClient:
         )
 
     # Export/Import operations
-    async def export_community(
-        self, community_key: str, *, token: Optional[str] = None
+    async def export_communities(
+        self,
+        community_keys: list[str] | None = None,
+        *,
+        token: Optional[str] = None,
     ) -> str:
-        """Export community data as YAML."""
+        """Export one or more communities as YAML.
+
+        Pass community_keys to export specific communities.
+        Omit (or pass None) to export all communities.
+        Multiple communities are returned as a multidocument YAML string.
+        """
         client = await self._get_client(token)
         res = await admin_export_admin_export_get.asyncio_detailed(
             client=client,
-            community=community_key,
+            community=community_keys if community_keys is not None else UNSET,
         )
         if isinstance(res.parsed, HTTPValidationError):
             raise Exception(res.parsed)
         return str(res.parsed)
 
-    async def import_community(
-        self, yaml_data: str, *, token: Optional[str] = None
-    ) -> Any:
-        """Import community data from YAML."""
+    async def export_community(
+        self, community_key: str, *, token: Optional[str] = None
+    ) -> str:
+        """Export a single community as YAML."""
+        return await self.export_communities([community_key], token=token)
+
+    async def import_yaml(
+        self,
+        yaml_content: str,
+        *,
+        dry_run: bool = False,
+        token: Optional[str] = None,
+    ) -> MultiImportReport:
+        """Import one or more communities from a YAML string.
+
+        Accepts single or multidocument YAML (documents separated by ---).
+        Returns a report for each imported bundle.
+        """
         client = await self._get_client(token)
-        return await admin_import_admin_import_post.asyncio_detailed(
+        res = await admin_import_yaml_admin_import_yaml_post.asyncio_detailed(
             client=client,
-            body=ImportRequest(bundle=json.loads(yaml_data)),
+            body=yaml_content,
+            dry_run=dry_run,
         )
+        if isinstance(res.parsed, HTTPValidationError):
+            raise Exception(res.parsed)
+        return res.parsed
 
     # List operations
     async def list_communities(

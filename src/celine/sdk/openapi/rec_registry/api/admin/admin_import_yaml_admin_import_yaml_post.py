@@ -6,31 +6,27 @@ import httpx
 from ... import errors
 from ...client import AuthenticatedClient, Client
 from ...models.http_validation_error import HTTPValidationError
+from ...models.multi_import_report import MultiImportReport
 from ...types import UNSET, Response, Unset
 
 
 def _get_kwargs(
     *,
-    community: list[str] | None | Unset = UNSET,
+    body: str,
+    dry_run: bool | Unset = False,
 ) -> dict[str, Any]:
     params: dict[str, Any] = {}
 
-    json_community: list[str] | None | Unset
-    if isinstance(community, Unset):
-        json_community = UNSET
-    elif isinstance(community, list):
-        json_community = community
-
-    else:
-        json_community = community
-    params["community"] = json_community
+    params["dry_run"] = dry_run
 
     params = {k: v for k, v in params.items() if v is not UNSET and v is not None}
 
     _kwargs: dict[str, Any] = {
-        "method": "get",
-        "url": "/admin/export",
+        "method": "post",
+        "url": "/admin/import/yaml",
         "params": params,
+        "content": body.encode("utf-8"),
+        "headers": {"Content-Type": "application/yaml"},
     }
 
     return _kwargs
@@ -38,9 +34,10 @@ def _get_kwargs(
 
 def _parse_response(
     *, client: AuthenticatedClient | Client, response: httpx.Response
-) -> HTTPValidationError | str | None:
+) -> HTTPValidationError | MultiImportReport | None:
     if response.status_code == 200:
-        response_200 = response.text
+        response_200 = MultiImportReport.from_dict(response.json())
+
         return response_200
 
     if response.status_code == 422:
@@ -56,7 +53,7 @@ def _parse_response(
 
 def _build_response(
     *, client: AuthenticatedClient | Client, response: httpx.Response
-) -> Response[HTTPValidationError | str]:
+) -> Response[HTTPValidationError | MultiImportReport]:
     return Response(
         status_code=HTTPStatus(response.status_code),
         content=response.content,
@@ -68,29 +65,33 @@ def _build_response(
 def sync_detailed(
     *,
     client: AuthenticatedClient | Client,
-    community: list[str] | None | Unset = UNSET,
-) -> Response[HTTPValidationError | str]:
-    """Admin Export
+    body: str,
+    dry_run: bool | Unset = False,
+) -> Response[HTTPValidationError | MultiImportReport]:
+    """Admin Import Yaml
 
-     Export one or more communities to YAML format.
+     Idempotent replacement import of one or more REC registry bundles from YAML.
 
-    Pass `community` once per key to export specific communities.
-    Omit `community` entirely to export all communities.
-    Returns a multidocument YAML string (documents separated by `---`).
+    Accepts a multidocument YAML body (documents separated by `---`).
+    Each document must be a valid registry bundle.
+
+    Returns a report for each imported bundle.
 
     Args:
-        community (list[str] | None | Unset): Community key(s) to export; omit to export all
+        body (str): Multidocument YAML content.
+        dry_run (bool | Unset): Validate without making changes Default: False.
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Response[HTTPValidationError | str]
+        Response[HTTPValidationError | MultiImportReport]
     """
 
     kwargs = _get_kwargs(
-        community=community,
+        body=body,
+        dry_run=dry_run,
     )
 
     response = client.get_httpx_client().request(
@@ -103,59 +104,67 @@ def sync_detailed(
 def sync(
     *,
     client: AuthenticatedClient | Client,
-    community: list[str] | None | Unset = UNSET,
-) -> HTTPValidationError | str | None:
-    """Admin Export
+    body: str,
+    dry_run: bool | Unset = False,
+) -> HTTPValidationError | MultiImportReport | None:
+    """Admin Import Yaml
 
-     Export one or more communities to YAML format.
+     Idempotent replacement import of one or more REC registry bundles from YAML.
 
-    Pass `community` once per key to export specific communities.
-    Omit `community` entirely to export all communities.
-    Returns a multidocument YAML string (documents separated by `---`).
+    Accepts a multidocument YAML body (documents separated by `---`).
+    Each document must be a valid registry bundle.
+
+    Returns a report for each imported bundle.
 
     Args:
-        community (list[str] | None | Unset): Community key(s) to export; omit to export all
+        body (str): Multidocument YAML content.
+        dry_run (bool | Unset): Validate without making changes Default: False.
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        HTTPValidationError | str
+        HTTPValidationError | MultiImportReport
     """
 
     return sync_detailed(
         client=client,
-        community=community,
+        body=body,
+        dry_run=dry_run,
     ).parsed
 
 
 async def asyncio_detailed(
     *,
     client: AuthenticatedClient | Client,
-    community: list[str] | None | Unset = UNSET,
-) -> Response[HTTPValidationError | str]:
-    """Admin Export
+    body: str,
+    dry_run: bool | Unset = False,
+) -> Response[HTTPValidationError | MultiImportReport]:
+    """Admin Import Yaml
 
-     Export one or more communities to YAML format.
+     Idempotent replacement import of one or more REC registry bundles from YAML.
 
-    Pass `community` once per key to export specific communities.
-    Omit `community` entirely to export all communities.
-    Returns a multidocument YAML string (documents separated by `---`).
+    Accepts a multidocument YAML body (documents separated by `---`).
+    Each document must be a valid registry bundle.
+
+    Returns a report for each imported bundle.
 
     Args:
-        community (list[str] | None | Unset): Community key(s) to export; omit to export all
+        body (str): Multidocument YAML content.
+        dry_run (bool | Unset): Validate without making changes Default: False.
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Response[HTTPValidationError | str]
+        Response[HTTPValidationError | MultiImportReport]
     """
 
     kwargs = _get_kwargs(
-        community=community,
+        body=body,
+        dry_run=dry_run,
     )
 
     response = await client.get_async_httpx_client().request(**kwargs)
@@ -166,30 +175,34 @@ async def asyncio_detailed(
 async def asyncio(
     *,
     client: AuthenticatedClient | Client,
-    community: list[str] | None | Unset = UNSET,
-) -> HTTPValidationError | str | None:
-    """Admin Export
+    body: str,
+    dry_run: bool | Unset = False,
+) -> HTTPValidationError | MultiImportReport | None:
+    """Admin Import Yaml
 
-     Export one or more communities to YAML format.
+     Idempotent replacement import of one or more REC registry bundles from YAML.
 
-    Pass `community` once per key to export specific communities.
-    Omit `community` entirely to export all communities.
-    Returns a multidocument YAML string (documents separated by `---`).
+    Accepts a multidocument YAML body (documents separated by `---`).
+    Each document must be a valid registry bundle.
+
+    Returns a report for each imported bundle.
 
     Args:
-        community (list[str] | None | Unset): Community key(s) to export; omit to export all
+        body (str): Multidocument YAML content.
+        dry_run (bool | Unset): Validate without making changes Default: False.
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        HTTPValidationError | str
+        HTTPValidationError | MultiImportReport
     """
 
     return (
         await asyncio_detailed(
             client=client,
-            community=community,
+            body=body,
+            dry_run=dry_run,
         )
     ).parsed

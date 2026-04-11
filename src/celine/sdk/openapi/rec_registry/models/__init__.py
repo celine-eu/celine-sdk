@@ -67,6 +67,9 @@ from .meter import Meter
 from .meter_asset_in import MeterAssetIn
 from .meter_list_item import MeterListItem
 from .meter_list_item_device import MeterListItemDevice
+from .multi_import_report import MultiImportReport
+from .operator_in import OperatorIn
+from .operators import Operators
 from .paginated_response_asset_list_item import PaginatedResponseAssetListItem
 from .paginated_response_community_list_item import PaginatedResponseCommunityListItem
 from .paginated_response_delivery_point_with_owner import PaginatedResponseDeliveryPointWithOwner
@@ -179,6 +182,9 @@ __all__ = (
     "MeterAssetIn",
     "MeterListItem",
     "MeterListItemDevice",
+    "MultiImportReport",
+    "OperatorIn",
+    "Operators",
     "PaginatedResponseAssetListItem",
     "PaginatedResponseCommunityListItem",
     "PaginatedResponseDeliveryPointWithOwner",

@@ -13,6 +13,7 @@ if TYPE_CHECKING:
     from ..models.contact_in import ContactIn
     from ..models.legal_info_in import LegalInfoIn
     from ..models.links_in import LinksIn
+    from ..models.operators import Operators
     from ..models.settings_in import SettingsIn
     from ..models.topology_node_in import TopologyNodeIn
 
@@ -32,6 +33,7 @@ class CommunityIn:
         description (None | str | Unset):
         legal (LegalInfoIn | None | Unset):
         links (LinksIn | None | Unset):
+        operators (Operators | Unset):
         settings (None | SettingsIn | Unset):
         topology (list[TopologyNodeIn] | Unset):
     """
@@ -43,6 +45,7 @@ class CommunityIn:
     description: None | str | Unset = UNSET
     legal: LegalInfoIn | None | Unset = UNSET
     links: LinksIn | None | Unset = UNSET
+    operators: Operators | Unset = UNSET
     settings: None | SettingsIn | Unset = UNSET
     topology: list[TopologyNodeIn] | Unset = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
@@ -91,6 +94,10 @@ class CommunityIn:
         else:
             links = self.links
 
+        operators: dict[str, Any] | Unset = UNSET
+        if not isinstance(self.operators, Unset):
+            operators = self.operators.to_dict()
+
         settings: dict[str, Any] | None | Unset
         if isinstance(self.settings, Unset):
             settings = UNSET
@@ -124,6 +131,8 @@ class CommunityIn:
             field_dict["legal"] = legal
         if links is not UNSET:
             field_dict["links"] = links
+        if operators is not UNSET:
+            field_dict["operators"] = operators
         if settings is not UNSET:
             field_dict["settings"] = settings
         if topology is not UNSET:
@@ -137,6 +146,7 @@ class CommunityIn:
         from ..models.contact_in import ContactIn
         from ..models.legal_info_in import LegalInfoIn
         from ..models.links_in import LinksIn
+        from ..models.operators import Operators
         from ..models.settings_in import SettingsIn
         from ..models.topology_node_in import TopologyNodeIn
 
@@ -212,6 +222,13 @@ class CommunityIn:
 
         links = _parse_links(d.pop("links", UNSET))
 
+        _operators = d.pop("operators", UNSET)
+        operators: Operators | Unset
+        if isinstance(_operators, Unset):
+            operators = UNSET
+        else:
+            operators = Operators.from_dict(_operators)
+
         def _parse_settings(data: object) -> None | SettingsIn | Unset:
             if data is None:
                 return data
@@ -246,6 +263,7 @@ class CommunityIn:
             description=description,
             legal=legal,
             links=links,
+            operators=operators,
             settings=settings,
             topology=topology,
         )

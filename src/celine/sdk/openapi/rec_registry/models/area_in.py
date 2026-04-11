@@ -24,11 +24,13 @@ class AreaIn:
         name (str):
         geometry (AreaInGeometryType0 | None | Unset):
         location (LocationIn | None | Unset):
+        topology (list[str] | Unset):
     """
 
     name: str
     geometry: AreaInGeometryType0 | None | Unset = UNSET
     location: LocationIn | None | Unset = UNSET
+    topology: list[str] | Unset = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -53,6 +55,10 @@ class AreaIn:
         else:
             location = self.location
 
+        topology: list[str] | Unset = UNSET
+        if not isinstance(self.topology, Unset):
+            topology = self.topology
+
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update(
@@ -64,6 +70,8 @@ class AreaIn:
             field_dict["geometry"] = geometry
         if location is not UNSET:
             field_dict["location"] = location
+        if topology is not UNSET:
+            field_dict["topology"] = topology
 
         return field_dict
 
@@ -109,10 +117,13 @@ class AreaIn:
 
         location = _parse_location(d.pop("location", UNSET))
 
+        topology = cast(list[str], d.pop("topology", UNSET))
+
         area_in = cls(
             name=name,
             geometry=geometry,
             location=location,
+            topology=topology,
         )
 
         area_in.additional_properties = d

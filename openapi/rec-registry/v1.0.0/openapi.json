@@ -65,6 +65,13 @@
           "name": {
             "title": "Name",
             "type": "string"
+          },
+          "topology": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Topology",
+            "type": "array"
           }
         },
         "required": [
@@ -493,6 +500,13 @@
           "name": {
             "title": "Name",
             "type": "string"
+          },
+          "operators": {
+            "additionalProperties": {
+              "$ref": "#/components/schemas/OperatorIn"
+            },
+            "title": "Operators",
+            "type": "object"
           },
           "settings": {
             "anyOf": [
@@ -1776,6 +1790,17 @@
             "title": "Status",
             "type": "string"
           },
+          "type": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Type"
+          },
           "user_id": {
             "title": "User Id",
             "type": "string"
@@ -2097,6 +2122,65 @@
           "owner_user_id"
         ],
         "title": "MeterListItem",
+        "type": "object"
+      },
+      "MultiImportReport": {
+        "description": "Report for a bulk import of multiple bundles.",
+        "properties": {
+          "dry_run": {
+            "default": false,
+            "title": "Dry Run",
+            "type": "boolean"
+          },
+          "reports": {
+            "items": {
+              "$ref": "#/components/schemas/ImportReport"
+            },
+            "title": "Reports",
+            "type": "array"
+          }
+        },
+        "required": [
+          "reports"
+        ],
+        "title": "MultiImportReport",
+        "type": "object"
+      },
+      "OperatorIn": {
+        "additionalProperties": true,
+        "description": "Grid operator (DSO) active in this community.",
+        "properties": {
+          "contact": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Contact"
+          },
+          "country": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Country"
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          }
+        },
+        "required": [
+          "name"
+        ],
+        "title": "OperatorIn",
         "type": "object"
       },
       "PVAssetIn": {
@@ -2618,7 +2702,7 @@
             ],
             "title": "Name"
           },
-          "operator": {
+          "operator_id": {
             "anyOf": [
               {
                 "type": "string"
@@ -2627,7 +2711,7 @@
                 "type": "null"
               }
             ],
-            "title": "Operator"
+            "title": "Operator Id"
           },
           "parent": {
             "anyOf": [
@@ -4090,18 +4174,28 @@
     },
     "/admin/export": {
       "get": {
-        "description": "Export a community to v0.4 YAML format.\n\nReturns the complete registry bundle as YAML text.",
+        "description": "Export one or more communities to YAML format.\n\nPass `community` once per key to export specific communities.\nOmit `community` entirely to export all communities.\nReturns a multidocument YAML string (documents separated by `---`).",
         "operationId": "admin_export_admin_export_get",
         "parameters": [
           {
-            "description": "Community key to export",
+            "description": "Community key(s) to export; omit to export all",
             "in": "query",
             "name": "community",
-            "required": true,
+            "required": false,
             "schema": {
-              "description": "Community key to export",
-              "title": "Community",
-              "type": "string"
+              "anyOf": [
+                {
+                  "items": {
+                    "type": "string"
+                  },
+                  "type": "array"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Community key(s) to export; omit to export all",
+              "title": "Community"
             }
           }
         ],
@@ -4170,6 +4264,52 @@
           }
         },
         "summary": "Admin Import",
+        "tags": [
+          "admin"
+        ]
+      }
+    },
+    "/admin/import/yaml": {
+      "post": {
+        "description": "Idempotent replacement import of one or more REC registry bundles from YAML.\n\nAccepts a multidocument YAML body (documents separated by `---`).\nEach document must be a valid registry bundle.\n\nReturns a report for each imported bundle.",
+        "operationId": "admin_import_yaml_admin_import_yaml_post",
+        "parameters": [
+          {
+            "description": "Validate without making changes",
+            "in": "query",
+            "name": "dry_run",
+            "required": false,
+            "schema": {
+              "default": false,
+              "description": "Validate without making changes",
+              "title": "Dry Run",
+              "type": "boolean"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MultiImportReport"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Admin Import Yaml",
         "tags": [
           "admin"
         ]
