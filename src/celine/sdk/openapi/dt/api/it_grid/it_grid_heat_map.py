@@ -18,6 +18,7 @@ def _get_kwargs(
     operational_unit: list[str] | None | Unset = UNSET,
     line_name: list[str] | None | Unset = UNSET,
     substation_name: list[str] | None | Unset = UNSET,
+    risk_level: list[str] | None | Unset = UNSET,
 ) -> dict[str, Any]:
     params: dict[str, Any] = {}
 
@@ -60,6 +61,16 @@ def _get_kwargs(
     else:
         json_substation_name = substation_name
     params["substation_name"] = json_substation_name
+
+    json_risk_level: list[str] | None | Unset
+    if isinstance(risk_level, Unset):
+        json_risk_level = UNSET
+    elif isinstance(risk_level, list):
+        json_risk_level = risk_level
+
+    else:
+        json_risk_level = risk_level
+    params["risk_level"] = json_risk_level
 
     params = {k: v for k, v in params.items() if v is not UNSET and v is not None}
 
@@ -112,6 +123,7 @@ def sync_detailed(
     operational_unit: list[str] | None | Unset = UNSET,
     line_name: list[str] | None | Unset = UNSET,
     substation_name: list[str] | None | Unset = UNSET,
+    risk_level: list[str] | None | Unset = UNSET,
 ) -> Response[HTTPValidationError | ResponseItGridHeatMap]:
     """Heat Map
 
@@ -123,6 +135,7 @@ def sync_detailed(
         operational_unit (list[str] | None | Unset):
         line_name (list[str] | None | Unset):
         substation_name (list[str] | None | Unset):
+        risk_level (list[str] | None | Unset):
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
@@ -138,6 +151,7 @@ def sync_detailed(
         operational_unit=operational_unit,
         line_name=line_name,
         substation_name=substation_name,
+        risk_level=risk_level,
     )
 
     response = client.get_httpx_client().request(
@@ -155,6 +169,7 @@ def sync(
     operational_unit: list[str] | None | Unset = UNSET,
     line_name: list[str] | None | Unset = UNSET,
     substation_name: list[str] | None | Unset = UNSET,
+    risk_level: list[str] | None | Unset = UNSET,
 ) -> HTTPValidationError | ResponseItGridHeatMap | None:
     """Heat Map
 
@@ -166,6 +181,7 @@ def sync(
         operational_unit (list[str] | None | Unset):
         line_name (list[str] | None | Unset):
         substation_name (list[str] | None | Unset):
+        risk_level (list[str] | None | Unset):
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
@@ -182,6 +198,7 @@ def sync(
         operational_unit=operational_unit,
         line_name=line_name,
         substation_name=substation_name,
+        risk_level=risk_level,
     ).parsed
 
 
@@ -193,6 +210,7 @@ async def asyncio_detailed(
     operational_unit: list[str] | None | Unset = UNSET,
     line_name: list[str] | None | Unset = UNSET,
     substation_name: list[str] | None | Unset = UNSET,
+    risk_level: list[str] | None | Unset = UNSET,
 ) -> Response[HTTPValidationError | ResponseItGridHeatMap]:
     """Heat Map
 
@@ -204,6 +222,7 @@ async def asyncio_detailed(
         operational_unit (list[str] | None | Unset):
         line_name (list[str] | None | Unset):
         substation_name (list[str] | None | Unset):
+        risk_level (list[str] | None | Unset):
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
@@ -219,6 +238,7 @@ async def asyncio_detailed(
         operational_unit=operational_unit,
         line_name=line_name,
         substation_name=substation_name,
+        risk_level=risk_level,
     )
 
     response = await client.get_async_httpx_client().request(**kwargs)
@@ -234,6 +254,7 @@ async def asyncio(
     operational_unit: list[str] | None | Unset = UNSET,
     line_name: list[str] | None | Unset = UNSET,
     substation_name: list[str] | None | Unset = UNSET,
+    risk_level: list[str] | None | Unset = UNSET,
 ) -> HTTPValidationError | ResponseItGridHeatMap | None:
     """Heat Map
 
@@ -245,6 +266,7 @@ async def asyncio(
         operational_unit (list[str] | None | Unset):
         line_name (list[str] | None | Unset):
         substation_name (list[str] | None | Unset):
+        risk_level (list[str] | None | Unset):
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
@@ -262,5 +284,6 @@ async def asyncio(
             operational_unit=operational_unit,
             line_name=line_name,
             substation_name=substation_name,
+            risk_level=risk_level,
         )
     ).parsed

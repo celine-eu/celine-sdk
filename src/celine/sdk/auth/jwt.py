@@ -84,32 +84,57 @@ def get_expected_audiences(oidc: OidcSettings) -> list[str] | str | None:
 class Organization:
     """Organization membership parsed from the JWT 'organization' claim.
 
-    KC 26 oidc-organization-membership-mapper produces::
+    KC 26 ``oidc-organization-membership-mapper`` with ``org.add.attributes=true``
+    and ``org.include.member.roles=true`` produces::
 
         "organization": {
-            "example_rec": {},
-            "some_dso": {"roles": ["operator"]}
+            "set": {
+                "attributes": {"type": ["dso"]},
+                "roles": ["member"]
+            }
         }
 
-    The alias is the key; roles are org-level roles assigned to the member.
-    Custom org attributes (e.g. type) are not included by the built-in mapper —
-    encode the org type via a dedicated org role (e.g. "rec", "dso") if you need
-    it in the token.
+    ``alias`` is the KC organization alias (used directly as the DT network ID).
+    ``attributes`` contains org-level attributes, e.g. ``{"type": ["dso"]}``.
+    ``roles`` contains member roles (built-in ``"member"`` in KC 26).
     """
 
     alias: str
-    roles: list[str] = field(default_factory=list)
+    type: Optional[str] = None
+    attributes: dict[str, list[str]] = field(default_factory=dict)
 
-    def has_role(self, role: str) -> bool:
-        return role in self.roles
+    def is_type(self, type: str) -> bool:
+        return type == self.type
+
+    def get_attribute(self, name: str) -> list[str]:
+        """Return the values for an org attribute, or an empty list."""
+        return self.attributes.get(name, [])
+
+    def has_attribute(self, name: str, value: str) -> bool:
+        """Return True if the org attribute ``name`` contains ``value``."""
+        return value in self.get_attribute(name)
 
     @classmethod
     def _from_claim(cls, alias: str, data: Any) -> "Organization":
-        roles: list[str] = []
+        # organization: {'example-dso': {'id': '179d8382-58fe-4092-8bfe-ecc607a4b804', 'type': ['dso']}}
+        attributes: dict[str, list[str]] = {}
+
+        org_type: str | None = None
         if isinstance(data, dict):
-            raw = data.get("roles", [])
-            roles = raw if isinstance(raw, list) else [raw]
-        return cls(alias=alias, roles=roles)
+
+            org_type = data.get("type", None)
+            org_type = (
+                org_type[0]
+                if isinstance(org_type, list) and len(org_type) > 0
+                else None
+            )
+
+            raw_attrs = data.get("attributes", {})
+            if isinstance(raw_attrs, dict):
+                attributes = {
+                    k: v if isinstance(v, list) else [v] for k, v in raw_attrs.items()
+                }
+        return cls(alias=alias, type=org_type, attributes=attributes)
 
 
 @dataclass

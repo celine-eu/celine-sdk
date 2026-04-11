@@ -165,6 +165,7 @@ class GridClient:
         operational_unit: list[str] | None = None,
         line_name: list[str] | None = None,
         substation_name: list[str] | None = None,
+        risk_level: list[str] | None = None,
     ) -> dict[str, Any]:
         """GeoJSON FeatureCollection of underground MT cables coloured by heat risk."""
         client = await self._dt._get_client()
@@ -175,6 +176,7 @@ class GridClient:
             operational_unit=_opt(operational_unit),
             line_name=_opt(line_name),
             substation_name=_opt(substation_name),
+            risk_level=_opt(risk_level),
         )
         data = unwrap(result)
         if isinstance(data, HTTPValidationError):
