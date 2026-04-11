@@ -2,6 +2,45 @@
 
 <!-- version list -->
 
+## v1.7.0 (2026-04-11)
+
+### Chores
+
+- Add grid poc
+  ([`da6f84e`](https://github.com/celine-eu/celine-sdk/commit/da6f84efe3001aba1fd78363d64ca76223af5d75))
+
+- **deps**: Bump pydantic-settings from 2.12.0 to 2.13.0
+  ([`c4b52a0`](https://github.com/celine-eu/celine-sdk/commit/c4b52a04e3dea71bf1f35b0bebc63bf08e251392))
+
+- **deps**: Bump the runtime-dependencies group across 1 directory with 3 updates
+  ([`f757340`](https://github.com/celine-eu/celine-sdk/commit/f757340268becf7ee2febdb7d6fbe7bd3752e163))
+
+- **deps-dev**: Bump openapi-python-client
+  ([`a53752e`](https://github.com/celine-eu/celine-sdk/commit/a53752e920fb5ae60f040db6b9da6de06ab4a516))
+
+### Continuous Integration
+
+- Bump the actions group across 1 directory with 2 updates
+  ([`8906f6a`](https://github.com/celine-eu/celine-sdk/commit/8906f6a2ca2733220a64e41a1f8772249b312081))
+
+### Features
+
+- Add grid poc
+  ([`d507062`](https://github.com/celine-eu/celine-sdk/commit/d5070622b67db380b403d0117260c6d074a256e7))
+
+- Add openapi client updates
+  ([`e26b1bf`](https://github.com/celine-eu/celine-sdk/commit/e26b1bf3f070eb3bdf00087db37609da65ab9b71))
+
+- Add organization support
+  ([`396747f`](https://github.com/celine-eu/celine-sdk/commit/396747f9976562a35138fdfca3073cacd561816d))
+
+- Refactor to new rec registry import/export API
+  ([`a35e648`](https://github.com/celine-eu/celine-sdk/commit/a35e648c1f4ef4f6f7296a4767c6e216e6ec2227))
+
+- Update openapi
+  ([`3e48644`](https://github.com/celine-eu/celine-sdk/commit/3e486445cf04207b368852520d08d9a2030cd23e))
+
+
 ## v1.6.0 (2026-04-05)
 
 ### Features
