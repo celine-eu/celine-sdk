@@ -2,6 +2,27 @@
 
 <!-- version list -->
 
+## v1.8.0 (2026-04-12)
+
+### Chores
+
+- **deps**: Bump attrs from 25.4.0 to 26.1.0
+  ([`1921282`](https://github.com/celine-eu/celine-sdk/commit/1921282e0a1099c6492eb922eb60d7e8bf595e64))
+
+- **deps**: Bump pyjwt from 2.11.0 to 2.12.1
+  ([`c923ae8`](https://github.com/celine-eu/celine-sdk/commit/c923ae80f0a798bf8c2e4ae2c306cbe022288d31))
+
+### Continuous Integration
+
+- Bump hynek/build-and-inspect-python-package in the actions group
+  ([`721f155`](https://github.com/celine-eu/celine-sdk/commit/721f155558c9864a74b1872b81cd19229e7c5dd3))
+
+### Features
+
+- Add flex api export
+  ([`0c3a541`](https://github.com/celine-eu/celine-sdk/commit/0c3a5416666a96fe61e803cd68c044f0ac4a2afb))
+
+
 ## v1.7.0 (2026-04-11)
 
 ### Chores
