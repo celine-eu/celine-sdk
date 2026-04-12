@@ -3,8 +3,27 @@
     "schemas": {
       "AreaSchema": {
         "properties": {
+          "geometry": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Geometry"
+          },
           "location": {
-            "$ref": "#/components/schemas/LocationSchema"
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/LocationSchema"
+              },
+              {
+                "type": "null"
+              }
+            ]
           },
           "name": {
             "title": "Name",
@@ -12,7 +31,6 @@
           }
         },
         "required": [
-          "location",
           "name"
         ],
         "title": "AreaSchema",

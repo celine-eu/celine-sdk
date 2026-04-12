@@ -12,7 +12,6 @@ from ...types import UNSET, Response, Unset
 
 def _get_kwargs(
     *,
-    body: str,
     dry_run: bool | Unset = False,
 ) -> dict[str, Any]:
     params: dict[str, Any] = {}
@@ -25,8 +24,6 @@ def _get_kwargs(
         "method": "post",
         "url": "/admin/import/yaml",
         "params": params,
-        "content": body.encode("utf-8"),
-        "headers": {"Content-Type": "application/yaml"},
     }
 
     return _kwargs
@@ -65,7 +62,6 @@ def _build_response(
 def sync_detailed(
     *,
     client: AuthenticatedClient | Client,
-    body: str,
     dry_run: bool | Unset = False,
 ) -> Response[HTTPValidationError | MultiImportReport]:
     """Admin Import Yaml
@@ -78,7 +74,6 @@ def sync_detailed(
     Returns a report for each imported bundle.
 
     Args:
-        body (str): Multidocument YAML content.
         dry_run (bool | Unset): Validate without making changes Default: False.
 
     Raises:
@@ -90,7 +85,6 @@ def sync_detailed(
     """
 
     kwargs = _get_kwargs(
-        body=body,
         dry_run=dry_run,
     )
 
@@ -104,7 +98,6 @@ def sync_detailed(
 def sync(
     *,
     client: AuthenticatedClient | Client,
-    body: str,
     dry_run: bool | Unset = False,
 ) -> HTTPValidationError | MultiImportReport | None:
     """Admin Import Yaml
@@ -117,7 +110,6 @@ def sync(
     Returns a report for each imported bundle.
 
     Args:
-        body (str): Multidocument YAML content.
         dry_run (bool | Unset): Validate without making changes Default: False.
 
     Raises:
@@ -130,7 +122,6 @@ def sync(
 
     return sync_detailed(
         client=client,
-        body=body,
         dry_run=dry_run,
     ).parsed
 
@@ -138,7 +129,6 @@ def sync(
 async def asyncio_detailed(
     *,
     client: AuthenticatedClient | Client,
-    body: str,
     dry_run: bool | Unset = False,
 ) -> Response[HTTPValidationError | MultiImportReport]:
     """Admin Import Yaml
@@ -151,7 +141,6 @@ async def asyncio_detailed(
     Returns a report for each imported bundle.
 
     Args:
-        body (str): Multidocument YAML content.
         dry_run (bool | Unset): Validate without making changes Default: False.
 
     Raises:
@@ -163,7 +152,6 @@ async def asyncio_detailed(
     """
 
     kwargs = _get_kwargs(
-        body=body,
         dry_run=dry_run,
     )
 
@@ -175,7 +163,6 @@ async def asyncio_detailed(
 async def asyncio(
     *,
     client: AuthenticatedClient | Client,
-    body: str,
     dry_run: bool | Unset = False,
 ) -> HTTPValidationError | MultiImportReport | None:
     """Admin Import Yaml
@@ -188,7 +175,6 @@ async def asyncio(
     Returns a report for each imported bundle.
 
     Args:
-        body (str): Multidocument YAML content.
         dry_run (bool | Unset): Validate without making changes Default: False.
 
     Raises:
@@ -202,7 +188,6 @@ async def asyncio(
     return (
         await asyncio_detailed(
             client=client,
-            body=body,
             dry_run=dry_run,
         )
     ).parsed

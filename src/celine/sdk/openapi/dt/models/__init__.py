@@ -1,6 +1,7 @@
 """Contains all the data models used in inputs/outputs"""
 
 from .area_schema import AreaSchema
+from .area_schema_geometry_type_0 import AreaSchemaGeometryType0
 from .delivery_point_schema import DeliveryPointSchema
 from .descriptor_spec_schema import DescriptorSpecSchema
 from .descriptor_spec_schema_payload_schema_type_0 import DescriptorSpecSchemaPayloadSchemaType0
@@ -56,6 +57,7 @@ from .values_request_schema import ValuesRequestSchema
 
 __all__ = (
     "AreaSchema",
+    "AreaSchemaGeometryType0",
     "DeliveryPointSchema",
     "DescriptorSpecSchema",
     "DescriptorSpecSchemaPayloadSchemaType0",

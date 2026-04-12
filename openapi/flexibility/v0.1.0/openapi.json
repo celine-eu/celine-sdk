@@ -575,6 +575,61 @@
         ]
       }
     },
+    "/api/commitments/export": {
+      "get": {
+        "description": "Bulk export all commitments for pipeline mirroring.\n\nService only. Requires flexibility.commitments.export scope.\nReturns all statuses (committed, settled, rejected, cancelled).\ncreated_after filters by committed_at (ISO datetime, UTC).",
+        "operationId": "export_commitments_api_commitments_export_get",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "created_after",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "format": "date-time",
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Created After"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/CommitmentOut"
+                  },
+                  "title": "Response Export Commitments Api Commitments Export Get",
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Export Commitments",
+        "tags": [
+          "commitments"
+        ]
+      }
+    },
     "/api/commitments/pending": {
       "get": {
         "description": "Return commitments whose window has opened but not yet closed.\n\nCalled by DT on each pipeline tick (meters-flow, every 5 min).\nMarks returned rows as reminded_at = now so they are not re-sent on the\nnext tick within the same window.",

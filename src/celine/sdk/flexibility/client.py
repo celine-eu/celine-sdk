@@ -25,6 +25,7 @@ Example — service account:
 
 from __future__ import annotations
 
+from datetime import datetime
 from typing import Optional
 from uuid import UUID
 
@@ -34,6 +35,7 @@ from celine.sdk.auth import TokenProvider
 from celine.sdk.openapi.flexibility import AuthenticatedClient
 from celine.sdk.openapi.flexibility.api.commitments import (
     cancel_commitment_api_commitments_commitment_id_delete,
+    export_commitments_api_commitments_export_get,  # generated after openapi regen
     get_pending_api_commitments_pending_get,
     list_commitments_api_commitments_get,
     settle_commitment_api_commitments_commitment_id_settle_patch,
@@ -232,6 +234,30 @@ class FlexibilityAdminClient:
             verify_ssl=self._verify_ssl,
             raise_on_unexpected_status=True,
         )
+
+    async def export_commitments(
+        self,
+        *,
+        created_after: Optional[datetime] = None,
+        token: Optional[str] = None,
+    ) -> list[CommitmentOutSchema]:
+        """Bulk export all commitments for pipeline mirroring.
+
+        Requires flexibility.commitments.export scope on the service account.
+        Returns all statuses across all users, ordered by committed_at asc.
+
+        Args:
+            created_after: Only return commitments created at or after this datetime.
+                           Pass now() - 90 days for the standard mirror window.
+        """
+        client = await self._get_client(token)
+        res = await export_commitments_api_commitments_export_get.asyncio_detailed(
+            client=client,
+            created_after=created_after if created_after is not None else UNSET,
+        )
+        if not res.parsed:
+            return []
+        return [CommitmentOutSchema.model_validate(item.to_dict()) for item in res.parsed]
 
     async def get_pending_commitments(
         self, *, token: Optional[str] = None
