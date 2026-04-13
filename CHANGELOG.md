@@ -2,6 +2,14 @@
 
 <!-- version list -->
 
+## v1.9.0 (2026-04-13)
+
+### Features
+
+- Add notification control
+  ([`6c6e43b`](https://github.com/celine-eu/celine-sdk/commit/6c6e43b14d5c0ea5e5f6affd4959475823319247))
+
+
 ## v1.8.0 (2026-04-12)
 
 ### Chores
