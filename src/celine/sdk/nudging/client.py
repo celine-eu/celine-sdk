@@ -6,7 +6,7 @@ Initialize once, pass tokens per-call - no client recreation overhead.
 
 from __future__ import annotations
 
-from typing import Optional
+from typing import Any, Optional
 
 import httpx
 
@@ -211,13 +211,38 @@ class NudgingClient:
     async def update_preferences(
         self,
         max_per_day: int,
+        channel_email: bool | None = None,
+        email: str | None = None,
+        enabled_notification_kinds: list[str] | None = None,
         *,
         token: Optional[str] = None,
     ) -> UserPreferenceOutSchema:
         client = self._get_client(token).get_async_httpx_client()
-        res = await client.put("/preferences/me", json={"max_per_day": max_per_day})
+        payload: dict[str, Any] = {"max_per_day": max_per_day}
+        if channel_email is not None:
+            payload["channel_email"] = channel_email
+        if email is not None:
+            payload["email"] = email
+        if enabled_notification_kinds is not None:
+            payload["enabled_notification_kinds"] = enabled_notification_kinds
+        res = await client.put("/preferences/me", json=payload)
         res.raise_for_status()
         return UserPreferenceOutSchema.model_validate(res.json())
+
+    async def get_preference_catalog(
+        self,
+        *,
+        lang: str | None = None,
+        token: Optional[str] = None,
+    ) -> list[dict[str, Any]]:
+        client = self._get_client(token).get_async_httpx_client()
+        params = {"lang": lang} if lang else None
+        res = await client.get("/preferences/catalog", params=params)
+        res.raise_for_status()
+        payload = res.json()
+        if not isinstance(payload, list):
+            raise ValueError("Unexpected preference catalog payload")
+        return payload
 
 
 class NudgingAdminClient:
