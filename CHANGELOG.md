@@ -2,6 +2,19 @@
 
 <!-- version list -->
 
+## v1.10.0 (2026-04-16)
+
+### Chores
+
+- Add AGENTS.md
+  ([`36e7df4`](https://github.com/celine-eu/celine-sdk/commit/36e7df441b14272c1b68b9b12778ee7230c022fa))
+
+### Features
+
+- Update flexibility api
+  ([`bdea704`](https://github.com/celine-eu/celine-sdk/commit/bdea704252c994df00bbb03dfdcd702db0e9d355))
+
+
 ## v1.9.0 (2026-04-13)
 
 ### Features
