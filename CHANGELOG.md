@@ -2,6 +2,14 @@
 
 <!-- version list -->
 
+## v1.11.0 (2026-04-22)
+
+### Features
+
+- Improve grid wrapper, use value fetchers vs custom routes
+  ([`fc8efe6`](https://github.com/celine-eu/celine-sdk/commit/fc8efe6af7fb57d993534e4515e0753260b1b192))
+
+
 ## v1.10.0 (2026-04-16)
 
 ### Chores
