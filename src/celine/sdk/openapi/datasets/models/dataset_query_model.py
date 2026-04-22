@@ -17,11 +17,13 @@ class DatasetQueryModel:
     Attributes:
         limit (int | Unset):  Default: 100.
         offset (int | Unset):  Default: 0.
+        skip_count (bool | Unset):  Default: False.
         sql (None | str | Unset):
     """
 
     limit: int | Unset = 100
     offset: int | Unset = 0
+    skip_count: bool | Unset = False
     sql: None | str | Unset = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
@@ -29,6 +31,8 @@ class DatasetQueryModel:
         limit = self.limit
 
         offset = self.offset
+
+        skip_count = self.skip_count
 
         sql: None | str | Unset
         if isinstance(self.sql, Unset):
@@ -43,6 +47,8 @@ class DatasetQueryModel:
             field_dict["limit"] = limit
         if offset is not UNSET:
             field_dict["offset"] = offset
+        if skip_count is not UNSET:
+            field_dict["skip_count"] = skip_count
         if sql is not UNSET:
             field_dict["sql"] = sql
 
@@ -54,6 +60,8 @@ class DatasetQueryModel:
         limit = d.pop("limit", UNSET)
 
         offset = d.pop("offset", UNSET)
+
+        skip_count = d.pop("skip_count", UNSET)
 
         def _parse_sql(data: object) -> None | str | Unset:
             if data is None:
@@ -67,6 +75,7 @@ class DatasetQueryModel:
         dataset_query_model = cls(
             limit=limit,
             offset=offset,
+            skip_count=skip_count,
             sql=sql,
         )
 

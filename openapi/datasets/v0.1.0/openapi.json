@@ -347,6 +347,11 @@
             "title": "Offset",
             "type": "integer"
           },
+          "skip_count": {
+            "default": false,
+            "title": "Skip Count",
+            "type": "boolean"
+          },
           "sql": {
             "anyOf": [
               {

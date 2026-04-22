@@ -1657,57 +1657,6 @@
         "summary": "List Domains"
       }
     },
-    "/grid/{network_id}/filters": {
-      "get": {
-        "description": "Distinct topology values for UI filter autocomplete.\n\nReturns one object with four arrays \u2014 a single DB round-trip for all\nfilter dimensions. Values come from silver_grid_ac_line_segment (via\ngrid_network_topology), so filter options are always complete regardless\nof weather data availability.",
-        "operationId": "it_grid__it_grid_filters",
-        "parameters": [
-          {
-            "in": "path",
-            "name": "network_id",
-            "required": true,
-            "schema": {
-              "title": "Network Id",
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "additionalProperties": {
-                    "items": {
-                      "type": "string"
-                    },
-                    "type": "array"
-                  },
-                  "title": "Response It Grid  It Grid Filters",
-                  "type": "object"
-                }
-              }
-            },
-            "description": "Successful Response"
-          },
-          "422": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
-                }
-              }
-            },
-            "description": "Validation Error"
-          }
-        },
-        "summary": "Get Filters",
-        "tags": [
-          "it-grid",
-          "it-grid"
-        ]
-      }
-    },
     "/grid/{network_id}/heat/alert-distribution": {
       "get": {
         "description": "COUNT of line-segment events per risk_level for heat (underground cables).",
