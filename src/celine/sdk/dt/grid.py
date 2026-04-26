@@ -338,6 +338,21 @@ class GridClient:
             payload["risk_vector"] = risk_vector
         return await self.fetch_values(network_id, "risks", payload, limit=10000)
 
+    async def risks_now(
+        self,
+        network_id: str,
+        *,
+        risk_vector: list[str] | None = None,
+    ) -> FetchResultSchema:
+        """Nowcasting risk rows — current observations, no date filter.
+
+        Same schema as risks() but sourced from the nowcasting table.
+        """
+        payload: dict[str, Any] = {}
+        if risk_vector:
+            payload["risk_vector"] = risk_vector
+        return await self.fetch_values(network_id, "risks_now", payload, limit=10000)
+
     async def trendline(
         self,
         network_id: str,
