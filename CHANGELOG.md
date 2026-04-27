@@ -2,6 +2,14 @@
 
 <!-- version list -->
 
+## v1.12.0 (2026-04-27)
+
+### Features
+
+- Add nowcasting api client call
+  ([`2244911`](https://github.com/celine-eu/celine-sdk/commit/22449112c76050b0ac7eac46049b94f422e0fada))
+
+
 ## v1.11.0 (2026-04-22)
 
 ### Features
