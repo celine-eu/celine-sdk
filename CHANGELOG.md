@@ -2,6 +2,14 @@
 
 <!-- version list -->
 
+## v1.12.1 (2026-04-27)
+
+### Bug Fixes
+
+- Add grid list indext
+  ([`42dd758`](https://github.com/celine-eu/celine-sdk/commit/42dd758b907788d9aa67fdf11164fc3a10cb8498))
+
+
 ## v1.12.0 (2026-04-27)
 
 ### Features
