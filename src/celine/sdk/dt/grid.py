@@ -306,19 +306,30 @@ class GridClient:
             raise DTApiError("Validation error", 500)
         return data
 
+    async def tile_index(self, network_id: str) -> FetchResultSchema:
+        """Tile catalog for progressive shape loading.
+
+        Returns one row per 5 km tile with bbox polygon and segment count.
+        """
+        return await self.fetch_values(network_id, "tile_index", limit=500)
+
     async def shapes(
         self,
         network_id: str,
         *,
         asset_type: list[str] | None = None,
+        tile_ids: list[str] | None = None,
     ) -> FetchResultSchema:
         """Static CIM asset topology — geometry only, no risk properties.
 
         Load once per session; topology changes on monthly cadence only.
+        Pass tile_ids for progressive loading (e.g. ["tile_0_3", "tile_1_3"]).
         """
         payload: dict[str, Any] = {}
         if asset_type:
             payload["asset_type"] = asset_type
+        if tile_ids:
+            payload["tile_ids"] = tile_ids
         return await self.fetch_values(network_id, "shapes", payload, limit=10000)
 
     async def risks(
