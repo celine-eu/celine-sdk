@@ -32,14 +32,42 @@ provider = StaticTokenProvider(token="eyJ...")
 
 ### JWT Parsing
 
-The `jwt` module parses tokens without re-verifying signature (for extracting claims from already-validated tokens):
+The `jwt` module provides `JwtUser.from_token()` for verified JWT decoding and helpers for working with token claims.
+
+### Groups & Subject Type Detection
+
+CELINE uses two group models depending on how the user was provisioned:
+
+| Source | JWT claim | Example |
+|---|---|---|
+| **Realm-level** (platform admins) | `groups` | `["/admins"]` |
+| **Org-level** (REC participants) | `organization.<alias>.groups` | `{"example_rec": {"groups": ["/viewers"]}}` |
+
+Realm-level groups grant cross-org capabilities (e.g., `admins` can manage all RECs). Org-level groups are scoped to a specific organization and are the default for REC participants imported via `celine-policies keycloak sync-users`.
+
+**Always use `extract_groups()`** to read groups from JWT claims. It merges both sources into a flat, deduplicated list with leading slashes stripped:
 
 ```python
-from celine.sdk.auth.jwt import parse_claims
+from celine.sdk.auth.jwt import extract_groups
 
-claims = parse_claims(token_string)
-# claims.sub, claims.groups, claims.scope, claims.exp
+groups = extract_groups(user.claims)
+# ["viewers"]  — works for both realm and org-level groups
 ```
+
+Do NOT use `claims.get("groups")` directly — it only returns realm-level groups and will miss org-level memberships.
+
+**Service vs. user detection** uses `is_service_account()`, which checks `preferred_username` (authoritative for Keycloak service accounts) and human indicators (email, groups, organization membership):
+
+```python
+from celine.sdk.auth.jwt import is_service_account
+
+if is_service_account(claims):
+    # client credentials token — check scopes
+else:
+    # user token — check groups via extract_groups()
+```
+
+OPA policies follow this pattern: services are authorized by **scopes**, users by **group membership**.
 
 ### OIDC Discovery
 

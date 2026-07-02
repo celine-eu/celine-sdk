@@ -13,3 +13,6 @@ services:
   flexibility:
     package: flexibility
     openapi: http://api.celine.localhost/flexibility/openapi.json
+  ai-assistant:
+    package: ai_assistant
+    openapi: http://api.celine.localhost/ai-assistant/openapi.json

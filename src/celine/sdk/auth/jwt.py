@@ -23,6 +23,39 @@ def _get_jwks_client(jwks_uri: str) -> PyJWKClient:
     return PyJWKClient(jwks_uri, cache_jwk_set=True, lifespan=3600)
 
 
+def extract_groups(claims: dict) -> list[str]:
+    """Extract user groups from both realm-level and org-level claims.
+
+    Realm groups come from the top-level ``groups`` claim.
+    Org groups come from ``organization.<alias>.groups``.
+    Returns a deduplicated flat list with leading slashes stripped.
+    """
+    raw: list[str] = []
+
+    realm = claims.get("groups")
+    if isinstance(realm, list):
+        raw.extend(realm)
+
+    orgs = claims.get("organization")
+    if isinstance(orgs, dict):
+        for org_data in orgs.values():
+            if isinstance(org_data, dict):
+                org_groups = org_data.get("groups")
+                if isinstance(org_groups, list):
+                    raw.extend(org_groups)
+
+    seen: set[str] = set()
+    result: list[str] = []
+    for g in raw:
+        if not isinstance(g, str):
+            continue
+        normalized = g.lstrip("/")
+        if normalized and normalized not in seen:
+            seen.add(normalized)
+            result.append(normalized)
+    return result
+
+
 def is_service_account(claims: dict) -> bool:
     """
     Detect a Keycloak client_credentials service account token.
@@ -30,25 +63,29 @@ def is_service_account(claims: dict) -> bool:
     Keycloak sets preferred_username to 'service-account-<client_id>'
     for all client credentials grants. This is the most reliable signal.
 
-    Fallback: presence of client_id / azp with no email is a secondary hint,
-    but preferred_username is authoritative for Keycloak.
+    User tokens are identified by: email, groups (realm or org-level),
+    or preferred_username that doesn't start with 'service-account-'.
     """
 
-    if claims.get("groups"):
-        return False
-
-    if claims.get("scope"):
-        return True
-
     preferred_username = claims.get("preferred_username", "")
+
+    # Most reliable signal for Keycloak service accounts
     if isinstance(preferred_username, str) and preferred_username.startswith(
         "service-account-"
     ):
         return True
 
-    # Fallback for non-Keycloak IdPs (Auth0 uses gty, others use client_id)
+    # Explicit grant type (Auth0, other IdPs)
     if claims.get("gty") == "client-credentials":
         return True
+
+    # Human indicators → not a service account
+    if claims.get("email"):
+        return False
+    if extract_groups(claims):
+        return False
+    if preferred_username and not preferred_username.startswith("service-account-"):
+        return False
 
     # Generic heuristic: has client_id/azp but no email (no human behind the token)
     if claims.get("client_id") and not claims.get("email"):
