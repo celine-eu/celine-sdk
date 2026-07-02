@@ -2,6 +2,33 @@
 
 <!-- version list -->
 
+## v1.13.0 (2026-07-02)
+
+### Chores
+
+- **deps**: Bump cachetools
+  ([`81233ae`](https://github.com/celine-eu/celine-sdk/commit/81233ae1ac6aa20d2b7ed50987dcf368fff824e7))
+
+- **deps**: Bump pydantic from 2.12.5 to 2.13.0
+  ([`89b61c1`](https://github.com/celine-eu/celine-sdk/commit/89b61c137ca7811013c89fa28c60ec53bcdf79f2))
+
+- **deps-dev**: Bump pytest
+  ([`7089e73`](https://github.com/celine-eu/celine-sdk/commit/7089e73742866bc88027fe15d3dab772262a9ddb))
+
+### Continuous Integration
+
+- Bump pypa/gh-action-pypi-publish
+  ([`a0c3f06`](https://github.com/celine-eu/celine-sdk/commit/a0c3f06794bcdd0227ddb27088367777e61ee146))
+
+### Features
+
+- Add ai_assistant wrapper
+  ([`8bbae59`](https://github.com/celine-eu/celine-sdk/commit/8bbae592635c0a615de481759a92378e6f4e4eda))
+
+- Add group extraction for realm/organization
+  ([`66d8755`](https://github.com/celine-eu/celine-sdk/commit/66d875586c0ca5f01b5225fb10a3b9bff4e204d5))
+
+
 ## v1.12.1 (2026-04-27)
 
 ### Bug Fixes
