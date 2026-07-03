@@ -2,6 +2,15 @@
 
 <!-- version list -->
 
+## v1.14.0 (2026-07-03)
+
+### Features
+
+- **flexibility**: Regenerate models for community-first suggestions (nullable impact/reward,
+  community_kwh)
+  ([`4db4940`](https://github.com/celine-eu/celine-sdk/commit/4db4940c3112549466c78b86f19102c34e41fd80))
+
+
 ## v1.13.0 (2026-07-02)
 
 ### Chores
