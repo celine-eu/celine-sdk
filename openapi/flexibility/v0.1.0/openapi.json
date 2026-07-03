@@ -252,7 +252,13 @@
             "title": "Clock Range",
             "type": "string"
           },
+          "community_kwh": {
+            "default": 0.0,
+            "title": "Community Kwh",
+            "type": "number"
+          },
           "confidence": {
+            "default": 0.75,
             "title": "Confidence",
             "type": "number"
           },
@@ -265,8 +271,15 @@
             "type": "string"
           },
           "impact_kwh_estimated": {
-            "title": "Impact Kwh Estimated",
-            "type": "number"
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Impact Kwh Estimated"
           },
           "period_end": {
             "title": "Period End",
@@ -277,8 +290,15 @@
             "type": "string"
           },
           "reward_points": {
-            "title": "Reward Points",
-            "type": "integer"
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Reward Points"
           },
           "suggestion_type": {
             "title": "Suggestion Type",
@@ -306,10 +326,7 @@
           "clock_range",
           "to_is_tomorrow",
           "to_period",
-          "to_time",
-          "impact_kwh_estimated",
-          "reward_points",
-          "confidence"
+          "to_time"
         ],
         "title": "SuggestionItem",
         "type": "object"
