@@ -46,7 +46,7 @@ from celine.sdk.openapi.nudging.schemas import (
     VapidPublicKeyResponseSchema,
 )
 from celine.sdk.openapi.nudging.types import UNSET, Unset
-from celine.sdk.utils.convert import to_client, to_schema
+from celine.sdk.utils.convert import to_schema
 
 __all__ = [
     "NudgingClient",
@@ -214,11 +214,14 @@ class NudgingClient:
         channel_email: bool | None = None,
         email: str | None = None,
         enabled_notification_kinds: list[str] | None = None,
+        lang: str | None = None,
         *,
         token: Optional[str] = None,
     ) -> UserPreferenceOutSchema:
         client = self._get_client(token).get_async_httpx_client()
         payload: dict[str, Any] = {"max_per_day": max_per_day}
+        if lang is not None:
+            payload["lang"] = lang
         if channel_email is not None:
             payload["channel_email"] = channel_email
         if email is not None:
