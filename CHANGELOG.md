@@ -2,6 +2,14 @@
 
 <!-- version list -->
 
+## v1.14.1 (2026-07-20)
+
+### Bug Fixes
+
+- Notification language, add info button
+  ([`14c1964`](https://github.com/celine-eu/celine-sdk/commit/14c1964bef9d02598ee604b3afe93c52b7d2d1b2))
+
+
 ## v1.14.0 (2026-07-03)
 
 ### Features
