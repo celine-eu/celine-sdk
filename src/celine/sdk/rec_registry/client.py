@@ -36,6 +36,24 @@ from celine.sdk.openapi.rec_registry.api.admin import (
     lookup_assets_by_sensor_ids,
     lookup_assets_by_user_ids,
 )
+from celine.sdk.openapi.rec_registry.api.admin import (
+    change_member_status_admin_communities_community_key_members_member_key_status_post as _change_member_status,
+)
+from celine.sdk.openapi.rec_registry.api.admin import (
+    create_member_admin_communities_community_key_members_post as _create_member,
+)
+from celine.sdk.openapi.rec_registry.api.admin import (
+    delete_member_admin_communities_community_key_members_member_key_delete as _delete_member,
+)
+from celine.sdk.openapi.rec_registry.api.admin import (
+    patch_member_admin_communities_community_key_members_member_key_patch as _patch_member,
+)
+from celine.sdk.openapi.rec_registry.api.admin import (
+    upsert_asset_admin_communities_community_key_members_member_key_assets_asset_key_put as _upsert_asset,
+)
+from celine.sdk.openapi.rec_registry.api.admin import (
+    upsert_delivery_point_admin_communities_community_key_members_member_key_delivery_points_point_id_put as _upsert_delivery_point,
+)
 from celine.sdk.openapi.rec_registry.api.me import (
     get_me_user_get,
     get_my_asset_user_assets_asset_key_get,
@@ -45,7 +63,14 @@ from celine.sdk.openapi.rec_registry.api.me import (
     get_my_member_user_member_get,
 )
 from celine.sdk.openapi.rec_registry.models import (
+    AssetUpsert,
+    DeletionReport,
+    DeliveryPointIn,
     HTTPValidationError,
+    MemberCreate,
+    MemberDetail,
+    MemberPatch,
+    MemberStatusChange,
     MultiImportReport,
     UserAssetsResponse,
     UserCommunityDetail,
@@ -617,6 +642,124 @@ class RecRegistryAdminClient:
             GlobalAssetLookupSchema.model_validate(item.to_dict())
             for item in res.parsed
         ]
+
+    # ── Writes ────────────────────────────────────────────────────────────
+    #
+    # These call the same endpoints as the CLI and the console. Responses are
+    # returned undecoded (`asyncio_detailed`) so a caller can act on the status
+    # — a 409 from `create_member` means "already there, switch to patch", which
+    # is a normal outcome for a service that retries, not an error.
+
+    async def create_member(
+        self,
+        community_key: str,
+        body: MemberCreate,
+        *,
+        token: Optional[str] = None,
+    ) -> Any:
+        """Create one member, with its delivery points and assets.
+
+        `409` when the key or `user_id` is already taken; `404` for an unknown
+        community. Requires `rec-registry.members.write`.
+        """
+        client = await self._get_client(token)
+        return await _create_member.asyncio_detailed(
+            community_key=community_key, client=client, body=body
+        )
+
+    async def patch_member(
+        self,
+        community_key: str,
+        member_key: str,
+        body: MemberPatch,
+        *,
+        token: Optional[str] = None,
+    ) -> Any:
+        """Partially update a member. Absent fields are left alone."""
+        client = await self._get_client(token)
+        return await _patch_member.asyncio_detailed(
+            community_key=community_key,
+            member_key=member_key,
+            client=client,
+            body=body,
+        )
+
+    async def change_member_status(
+        self,
+        community_key: str,
+        member_key: str,
+        body: MemberStatusChange,
+        *,
+        token: Optional[str] = None,
+    ) -> Any:
+        """Move a member through `pending → active → suspended → inactive`."""
+        client = await self._get_client(token)
+        return await _change_member_status.asyncio_detailed(
+            community_key=community_key,
+            member_key=member_key,
+            client=client,
+            body=body,
+        )
+
+    async def delete_member(
+        self,
+        community_key: str,
+        member_key: str,
+        *,
+        purge: bool = False,
+        token: Optional[str] = None,
+    ) -> Any:
+        """Deactivate a member, or erase one.
+
+        `purge=True` removes the member and its assets permanently and needs the
+        separate `rec-registry.members.purge` grant. The default deactivates,
+        which is reversible.
+        """
+        client = await self._get_client(token)
+        return await _delete_member.asyncio_detailed(
+            community_key=community_key,
+            member_key=member_key,
+            client=client,
+            purge=purge,
+        )
+
+    async def upsert_delivery_point(
+        self,
+        community_key: str,
+        member_key: str,
+        point_id: str,
+        body: DeliveryPointIn,
+        *,
+        token: Optional[str] = None,
+    ) -> Any:
+        """Add or replace one supply point, keeping the member's others."""
+        client = await self._get_client(token)
+        return await _upsert_delivery_point.asyncio_detailed(
+            community_key=community_key,
+            member_key=member_key,
+            point_id=point_id,
+            client=client,
+            body=body,
+        )
+
+    async def upsert_asset(
+        self,
+        community_key: str,
+        member_key: str,
+        asset_key: str,
+        body: AssetUpsert,
+        *,
+        token: Optional[str] = None,
+    ) -> Any:
+        """Create or replace one asset, keeping the member's others."""
+        client = await self._get_client(token)
+        return await _upsert_asset.asyncio_detailed(
+            community_key=community_key,
+            member_key=member_key,
+            asset_key=asset_key,
+            client=client,
+            body=body,
+        )
 
     async def lookup_assets_by_user_ids(
         self,
