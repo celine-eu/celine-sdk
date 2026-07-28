@@ -4,6 +4,8 @@ from .area import Area
 from .area_geometry_type_0 import AreaGeometryType0
 from .area_in import AreaIn
 from .area_in_geometry_type_0 import AreaInGeometryType0
+from .area_upsert import AreaUpsert
+from .area_upsert_geometry_type_0 import AreaUpsertGeometryType0
 from .areas import Areas
 from .asset_collection_in import AssetCollectionIn
 from .asset_detail import AssetDetail
@@ -14,6 +16,8 @@ from .asset_detail_relationships import AssetDetailRelationships
 from .asset_list_item import AssetListItem
 from .asset_ref import AssetRef
 from .asset_relationships_in import AssetRelationshipsIn
+from .asset_upsert import AssetUpsert
+from .asset_upsert_properties import AssetUpsertProperties
 from .community_detail import CommunityDetail
 from .community_detail_areas import CommunityDetailAreas
 from .community_detail_contact import CommunityDetailContact
@@ -24,9 +28,17 @@ from .community_detail_settings import CommunityDetailSettings
 from .community_in import CommunityIn
 from .community_list_item import CommunityListItem
 from .community_list_item_areas import CommunityListItemAreas
+from .community_patch import CommunityPatch
+from .community_patch_contact_type_0 import CommunityPatchContactType0
+from .community_patch_extra_type_0 import CommunityPatchExtraType0
+from .community_patch_legal_type_0 import CommunityPatchLegalType0
+from .community_patch_links_type_0 import CommunityPatchLinksType0
+from .community_patch_settings_type_0 import CommunityPatchSettingsType0
 from .community_ref import CommunityRef
 from .contact_in import ContactIn
+from .context import Context
 from .deleted import Deleted
+from .deletion_report import DeletionReport
 from .delivery_point import DeliveryPoint
 from .delivery_point_in import DeliveryPointIn
 from .delivery_point_lookup import DeliveryPointLookup
@@ -55,12 +67,16 @@ from .location_in import LocationIn
 from .lookup_by_delivery_point_response import LookupByDeliveryPointResponse
 from .lookup_by_sensor_id_response import LookupBySensorIdResponse
 from .lookup_by_user_id_response import LookupByUserIdResponse
+from .member_create import MemberCreate
 from .member_detail import MemberDetail
 from .member_detail_extra import MemberDetailExtra
 from .member_in import MemberIn
 from .member_in_community import MemberInCommunity
 from .member_list_item import MemberListItem
+from .member_patch import MemberPatch
+from .member_patch_extra_type_0 import MemberPatchExtraType0
 from .member_ref import MemberRef
+from .member_status_change import MemberStatusChange
 from .members import Members
 from .metadata_in import MetadataIn
 from .meter import Meter
@@ -105,6 +121,7 @@ from .user_community_detail_links import UserCommunityDetailLinks
 from .user_community_detail_settings import UserCommunityDetailSettings
 from .user_community_summary import UserCommunitySummary
 from .user_delivery_points_response import UserDeliveryPointsResponse
+from .user_ids_batch_request import UserIdsBatchRequest
 from .user_me_response import UserMeResponse
 from .user_member_detail import UserMemberDetail
 from .user_member_detail_extra import UserMemberDetailExtra
@@ -120,6 +137,8 @@ __all__ = (
     "AreaIn",
     "AreaInGeometryType0",
     "Areas",
+    "AreaUpsert",
+    "AreaUpsertGeometryType0",
     "AssetCollectionIn",
     "AssetDetail",
     "AssetDetailDevice",
@@ -129,6 +148,8 @@ __all__ = (
     "AssetListItem",
     "AssetRef",
     "AssetRelationshipsIn",
+    "AssetUpsert",
+    "AssetUpsertProperties",
     "CommunityDetail",
     "CommunityDetailAreas",
     "CommunityDetailContact",
@@ -139,9 +160,17 @@ __all__ = (
     "CommunityIn",
     "CommunityListItem",
     "CommunityListItemAreas",
+    "CommunityPatch",
+    "CommunityPatchContactType0",
+    "CommunityPatchExtraType0",
+    "CommunityPatchLegalType0",
+    "CommunityPatchLinksType0",
+    "CommunityPatchSettingsType0",
     "CommunityRef",
     "ContactIn",
+    "Context",
     "Deleted",
+    "DeletionReport",
     "DeliveryPoint",
     "DeliveryPointIn",
     "DeliveryPointLookup",
@@ -170,13 +199,17 @@ __all__ = (
     "LookupByDeliveryPointResponse",
     "LookupBySensorIdResponse",
     "LookupByUserIdResponse",
+    "MemberCreate",
     "MemberDetail",
     "MemberDetailExtra",
     "MemberIn",
     "MemberInCommunity",
     "MemberListItem",
+    "MemberPatch",
+    "MemberPatchExtraType0",
     "MemberRef",
     "Members",
+    "MemberStatusChange",
     "MetadataIn",
     "Meter",
     "MeterAssetIn",
@@ -220,6 +253,7 @@ __all__ = (
     "UserCommunityDetailSettings",
     "UserCommunitySummary",
     "UserDeliveryPointsResponse",
+    "UserIdsBatchRequest",
     "UserMemberDetail",
     "UserMemberDetailExtra",
     "UserMembership",

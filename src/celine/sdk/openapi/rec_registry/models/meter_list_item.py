@@ -24,10 +24,10 @@ class MeterListItem:
         name (str):
         owner_key (str):
         owner_user_id (str):
-        device (MeterListItemDevice | Unset):
+        sensor_id (None | str | Unset):
         meter_type (None | str | Unset):
         pod (None | str | Unset):
-        sensor_id (None | str | Unset):
+        device (MeterListItemDevice | Unset):
     """
 
     id: str
@@ -35,10 +35,10 @@ class MeterListItem:
     name: str
     owner_key: str
     owner_user_id: str
-    device: MeterListItemDevice | Unset = UNSET
+    sensor_id: None | str | Unset = UNSET
     meter_type: None | str | Unset = UNSET
     pod: None | str | Unset = UNSET
-    sensor_id: None | str | Unset = UNSET
+    device: MeterListItemDevice | Unset = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -52,9 +52,11 @@ class MeterListItem:
 
         owner_user_id = self.owner_user_id
 
-        device: dict[str, Any] | Unset = UNSET
-        if not isinstance(self.device, Unset):
-            device = self.device.to_dict()
+        sensor_id: None | str | Unset
+        if isinstance(self.sensor_id, Unset):
+            sensor_id = UNSET
+        else:
+            sensor_id = self.sensor_id
 
         meter_type: None | str | Unset
         if isinstance(self.meter_type, Unset):
@@ -68,11 +70,9 @@ class MeterListItem:
         else:
             pod = self.pod
 
-        sensor_id: None | str | Unset
-        if isinstance(self.sensor_id, Unset):
-            sensor_id = UNSET
-        else:
-            sensor_id = self.sensor_id
+        device: dict[str, Any] | Unset = UNSET
+        if not isinstance(self.device, Unset):
+            device = self.device.to_dict()
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
@@ -85,14 +85,14 @@ class MeterListItem:
                 "owner_user_id": owner_user_id,
             }
         )
-        if device is not UNSET:
-            field_dict["device"] = device
+        if sensor_id is not UNSET:
+            field_dict["sensor_id"] = sensor_id
         if meter_type is not UNSET:
             field_dict["meter_type"] = meter_type
         if pod is not UNSET:
             field_dict["pod"] = pod
-        if sensor_id is not UNSET:
-            field_dict["sensor_id"] = sensor_id
+        if device is not UNSET:
+            field_dict["device"] = device
 
         return field_dict
 
@@ -111,12 +111,14 @@ class MeterListItem:
 
         owner_user_id = d.pop("owner_user_id")
 
-        _device = d.pop("device", UNSET)
-        device: MeterListItemDevice | Unset
-        if isinstance(_device, Unset):
-            device = UNSET
-        else:
-            device = MeterListItemDevice.from_dict(_device)
+        def _parse_sensor_id(data: object) -> None | str | Unset:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            return cast(None | str | Unset, data)
+
+        sensor_id = _parse_sensor_id(d.pop("sensor_id", UNSET))
 
         def _parse_meter_type(data: object) -> None | str | Unset:
             if data is None:
@@ -136,14 +138,12 @@ class MeterListItem:
 
         pod = _parse_pod(d.pop("pod", UNSET))
 
-        def _parse_sensor_id(data: object) -> None | str | Unset:
-            if data is None:
-                return data
-            if isinstance(data, Unset):
-                return data
-            return cast(None | str | Unset, data)
-
-        sensor_id = _parse_sensor_id(d.pop("sensor_id", UNSET))
+        _device = d.pop("device", UNSET)
+        device: MeterListItemDevice | Unset
+        if isinstance(_device, Unset):
+            device = UNSET
+        else:
+            device = MeterListItemDevice.from_dict(_device)
 
         meter_list_item = cls(
             id=id,
@@ -151,10 +151,10 @@ class MeterListItem:
             name=name,
             owner_key=owner_key,
             owner_user_id=owner_user_id,
-            device=device,
+            sensor_id=sensor_id,
             meter_type=meter_type,
             pod=pod,
-            sensor_id=sensor_id,
+            device=device,
         )
 
         meter_list_item.additional_properties = d

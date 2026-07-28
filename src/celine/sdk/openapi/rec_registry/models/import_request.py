@@ -24,16 +24,20 @@ class ImportRequest:
 
             Matches v0.4 structure.
         dry_run (bool | Unset):  Default: False.
+        force (bool | Unset):  Default: False.
     """
 
     bundle: RegistryBundleIn
     dry_run: bool | Unset = False
+    force: bool | Unset = False
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
         bundle = self.bundle.to_dict()
 
         dry_run = self.dry_run
+
+        force = self.force
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
@@ -44,6 +48,8 @@ class ImportRequest:
         )
         if dry_run is not UNSET:
             field_dict["dry_run"] = dry_run
+        if force is not UNSET:
+            field_dict["force"] = force
 
         return field_dict
 
@@ -56,9 +62,12 @@ class ImportRequest:
 
         dry_run = d.pop("dry_run", UNSET)
 
+        force = d.pop("force", UNSET)
+
         import_request = cls(
             bundle=bundle,
             dry_run=dry_run,
+            force=force,
         )
 
         import_request.additional_properties = d

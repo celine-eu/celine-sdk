@@ -67,13 +67,19 @@ def sync_detailed(
 ) -> Response[HTTPValidationError | ImportReport]:
     """Admin Import
 
-     Idempotent replacement import of a REC registry bundle.
+     Replacement import of a REC registry bundle.
 
     - Deletes existing community (by community.id/key) with all related data
     - Creates new community with members and assets atomically
     - Returns counts of deleted and inserted entities
 
-    Use `dry_run=true` to validate without making changes.
+    **This is destructive.** Members now arrive at runtime through the member
+    API, so re-importing a stale export is the most likely way to lose them.
+    Overwriting an existing community therefore requires `force=true`, and
+    answers `409` without it, naming what would have been deleted.
+
+    Use `dry_run=true` to see the effect first — that is the intended way to
+    decide whether `force` is warranted.
 
     Args:
         body (ImportRequest): Import request payload.
@@ -104,13 +110,19 @@ def sync(
 ) -> HTTPValidationError | ImportReport | None:
     """Admin Import
 
-     Idempotent replacement import of a REC registry bundle.
+     Replacement import of a REC registry bundle.
 
     - Deletes existing community (by community.id/key) with all related data
     - Creates new community with members and assets atomically
     - Returns counts of deleted and inserted entities
 
-    Use `dry_run=true` to validate without making changes.
+    **This is destructive.** Members now arrive at runtime through the member
+    API, so re-importing a stale export is the most likely way to lose them.
+    Overwriting an existing community therefore requires `force=true`, and
+    answers `409` without it, naming what would have been deleted.
+
+    Use `dry_run=true` to see the effect first — that is the intended way to
+    decide whether `force` is warranted.
 
     Args:
         body (ImportRequest): Import request payload.
@@ -136,13 +148,19 @@ async def asyncio_detailed(
 ) -> Response[HTTPValidationError | ImportReport]:
     """Admin Import
 
-     Idempotent replacement import of a REC registry bundle.
+     Replacement import of a REC registry bundle.
 
     - Deletes existing community (by community.id/key) with all related data
     - Creates new community with members and assets atomically
     - Returns counts of deleted and inserted entities
 
-    Use `dry_run=true` to validate without making changes.
+    **This is destructive.** Members now arrive at runtime through the member
+    API, so re-importing a stale export is the most likely way to lose them.
+    Overwriting an existing community therefore requires `force=true`, and
+    answers `409` without it, naming what would have been deleted.
+
+    Use `dry_run=true` to see the effect first — that is the intended way to
+    decide whether `force` is warranted.
 
     Args:
         body (ImportRequest): Import request payload.
@@ -171,13 +189,19 @@ async def asyncio(
 ) -> HTTPValidationError | ImportReport | None:
     """Admin Import
 
-     Idempotent replacement import of a REC registry bundle.
+     Replacement import of a REC registry bundle.
 
     - Deletes existing community (by community.id/key) with all related data
     - Creates new community with members and assets atomically
     - Returns counts of deleted and inserted entities
 
-    Use `dry_run=true` to validate without making changes.
+    **This is destructive.** Members now arrive at runtime through the member
+    API, so re-importing a stale export is the most likely way to lose them.
+    Overwriting an existing community therefore requires `force=true`, and
+    answers `409` without it, naming what would have been deleted.
+
+    Use `dry_run=true` to see the effect first — that is the intended way to
+    decide whether `force` is warranted.
 
     Args:
         body (ImportRequest): Import request payload.

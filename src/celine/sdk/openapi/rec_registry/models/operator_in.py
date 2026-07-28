@@ -17,29 +17,29 @@ class OperatorIn:
 
     Attributes:
         name (str):
-        contact (None | str | Unset):
         country (None | str | Unset):
+        contact (None | str | Unset):
     """
 
     name: str
-    contact: None | str | Unset = UNSET
     country: None | str | Unset = UNSET
+    contact: None | str | Unset = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
         name = self.name
-
-        contact: None | str | Unset
-        if isinstance(self.contact, Unset):
-            contact = UNSET
-        else:
-            contact = self.contact
 
         country: None | str | Unset
         if isinstance(self.country, Unset):
             country = UNSET
         else:
             country = self.country
+
+        contact: None | str | Unset
+        if isinstance(self.contact, Unset):
+            contact = UNSET
+        else:
+            contact = self.contact
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
@@ -48,10 +48,10 @@ class OperatorIn:
                 "name": name,
             }
         )
-        if contact is not UNSET:
-            field_dict["contact"] = contact
         if country is not UNSET:
             field_dict["country"] = country
+        if contact is not UNSET:
+            field_dict["contact"] = contact
 
         return field_dict
 
@@ -59,15 +59,6 @@ class OperatorIn:
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
         d = dict(src_dict)
         name = d.pop("name")
-
-        def _parse_contact(data: object) -> None | str | Unset:
-            if data is None:
-                return data
-            if isinstance(data, Unset):
-                return data
-            return cast(None | str | Unset, data)
-
-        contact = _parse_contact(d.pop("contact", UNSET))
 
         def _parse_country(data: object) -> None | str | Unset:
             if data is None:
@@ -78,10 +69,19 @@ class OperatorIn:
 
         country = _parse_country(d.pop("country", UNSET))
 
+        def _parse_contact(data: object) -> None | str | Unset:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            return cast(None | str | Unset, data)
+
+        contact = _parse_contact(d.pop("contact", UNSET))
+
         operator_in = cls(
             name=name,
-            contact=contact,
             country=country,
+            contact=contact,
         )
 
         operator_in.additional_properties = d

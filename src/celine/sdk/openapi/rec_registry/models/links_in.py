@@ -16,23 +16,29 @@ class LinksIn:
     """Public URLs for the community.
 
     Attributes:
+        website (None | str | Unset):
         logo (None | str | Unset):
         privacy_policy (None | str | Unset):
-        regulations (None | str | Unset):
-        statute (None | str | Unset):
         terms (None | str | Unset):
-        website (None | str | Unset):
+        statute (None | str | Unset):
+        regulations (None | str | Unset):
     """
 
+    website: None | str | Unset = UNSET
     logo: None | str | Unset = UNSET
     privacy_policy: None | str | Unset = UNSET
-    regulations: None | str | Unset = UNSET
-    statute: None | str | Unset = UNSET
     terms: None | str | Unset = UNSET
-    website: None | str | Unset = UNSET
+    statute: None | str | Unset = UNSET
+    regulations: None | str | Unset = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
+        website: None | str | Unset
+        if isinstance(self.website, Unset):
+            website = UNSET
+        else:
+            website = self.website
+
         logo: None | str | Unset
         if isinstance(self.logo, Unset):
             logo = UNSET
@@ -45,11 +51,11 @@ class LinksIn:
         else:
             privacy_policy = self.privacy_policy
 
-        regulations: None | str | Unset
-        if isinstance(self.regulations, Unset):
-            regulations = UNSET
+        terms: None | str | Unset
+        if isinstance(self.terms, Unset):
+            terms = UNSET
         else:
-            regulations = self.regulations
+            terms = self.terms
 
         statute: None | str | Unset
         if isinstance(self.statute, Unset):
@@ -57,39 +63,42 @@ class LinksIn:
         else:
             statute = self.statute
 
-        terms: None | str | Unset
-        if isinstance(self.terms, Unset):
-            terms = UNSET
+        regulations: None | str | Unset
+        if isinstance(self.regulations, Unset):
+            regulations = UNSET
         else:
-            terms = self.terms
-
-        website: None | str | Unset
-        if isinstance(self.website, Unset):
-            website = UNSET
-        else:
-            website = self.website
+            regulations = self.regulations
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update({})
+        if website is not UNSET:
+            field_dict["website"] = website
         if logo is not UNSET:
             field_dict["logo"] = logo
         if privacy_policy is not UNSET:
             field_dict["privacy_policy"] = privacy_policy
-        if regulations is not UNSET:
-            field_dict["regulations"] = regulations
-        if statute is not UNSET:
-            field_dict["statute"] = statute
         if terms is not UNSET:
             field_dict["terms"] = terms
-        if website is not UNSET:
-            field_dict["website"] = website
+        if statute is not UNSET:
+            field_dict["statute"] = statute
+        if regulations is not UNSET:
+            field_dict["regulations"] = regulations
 
         return field_dict
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
         d = dict(src_dict)
+
+        def _parse_website(data: object) -> None | str | Unset:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            return cast(None | str | Unset, data)
+
+        website = _parse_website(d.pop("website", UNSET))
 
         def _parse_logo(data: object) -> None | str | Unset:
             if data is None:
@@ -109,14 +118,14 @@ class LinksIn:
 
         privacy_policy = _parse_privacy_policy(d.pop("privacy_policy", UNSET))
 
-        def _parse_regulations(data: object) -> None | str | Unset:
+        def _parse_terms(data: object) -> None | str | Unset:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
             return cast(None | str | Unset, data)
 
-        regulations = _parse_regulations(d.pop("regulations", UNSET))
+        terms = _parse_terms(d.pop("terms", UNSET))
 
         def _parse_statute(data: object) -> None | str | Unset:
             if data is None:
@@ -127,31 +136,22 @@ class LinksIn:
 
         statute = _parse_statute(d.pop("statute", UNSET))
 
-        def _parse_terms(data: object) -> None | str | Unset:
+        def _parse_regulations(data: object) -> None | str | Unset:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
             return cast(None | str | Unset, data)
 
-        terms = _parse_terms(d.pop("terms", UNSET))
-
-        def _parse_website(data: object) -> None | str | Unset:
-            if data is None:
-                return data
-            if isinstance(data, Unset):
-                return data
-            return cast(None | str | Unset, data)
-
-        website = _parse_website(d.pop("website", UNSET))
+        regulations = _parse_regulations(d.pop("regulations", UNSET))
 
         links_in = cls(
+            website=website,
             logo=logo,
             privacy_policy=privacy_policy,
-            regulations=regulations,
-            statute=statute,
             terms=terms,
-            website=website,
+            statute=statute,
+            regulations=regulations,
         )
 
         links_in.additional_properties = d

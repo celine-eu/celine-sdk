@@ -21,38 +21,48 @@ class EVChargerAssetIn:
     """EV charger asset.
 
     Attributes:
-        charger_type (str):
-        max_power (float):
         name (str):
-        bidirectional (bool | None | Unset):
+        max_power (float):
+        charger_type (str):
         connector_types (list[str] | Unset):
-        device (DeviceIn | None | Unset):
-        installation_date (None | str | Unset):
-        num_ports (int | None | Unset):
-        relationships (AssetRelationshipsIn | Unset): Relationships between assets.
         smart_charging (bool | None | Unset):
+        bidirectional (bool | None | Unset):
+        num_ports (int | None | Unset):
+        installation_date (None | str | Unset):
+        device (DeviceIn | None | Unset):
+        relationships (AssetRelationshipsIn | Unset): Relationships between assets.
     """
 
-    charger_type: str
-    max_power: float
     name: str
-    bidirectional: bool | None | Unset = UNSET
+    max_power: float
+    charger_type: str
     connector_types: list[str] | Unset = UNSET
-    device: DeviceIn | None | Unset = UNSET
-    installation_date: None | str | Unset = UNSET
-    num_ports: int | None | Unset = UNSET
-    relationships: AssetRelationshipsIn | Unset = UNSET
     smart_charging: bool | None | Unset = UNSET
+    bidirectional: bool | None | Unset = UNSET
+    num_ports: int | None | Unset = UNSET
+    installation_date: None | str | Unset = UNSET
+    device: DeviceIn | None | Unset = UNSET
+    relationships: AssetRelationshipsIn | Unset = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
         from ..models.device_in import DeviceIn
 
-        charger_type = self.charger_type
+        name = self.name
 
         max_power = self.max_power
 
-        name = self.name
+        charger_type = self.charger_type
+
+        connector_types: list[str] | Unset = UNSET
+        if not isinstance(self.connector_types, Unset):
+            connector_types = self.connector_types
+
+        smart_charging: bool | None | Unset
+        if isinstance(self.smart_charging, Unset):
+            smart_charging = UNSET
+        else:
+            smart_charging = self.smart_charging
 
         bidirectional: bool | None | Unset
         if isinstance(self.bidirectional, Unset):
@@ -60,9 +70,17 @@ class EVChargerAssetIn:
         else:
             bidirectional = self.bidirectional
 
-        connector_types: list[str] | Unset = UNSET
-        if not isinstance(self.connector_types, Unset):
-            connector_types = self.connector_types
+        num_ports: int | None | Unset
+        if isinstance(self.num_ports, Unset):
+            num_ports = UNSET
+        else:
+            num_ports = self.num_ports
+
+        installation_date: None | str | Unset
+        if isinstance(self.installation_date, Unset):
+            installation_date = UNSET
+        else:
+            installation_date = self.installation_date
 
         device: dict[str, Any] | None | Unset
         if isinstance(self.device, Unset):
@@ -72,51 +90,33 @@ class EVChargerAssetIn:
         else:
             device = self.device
 
-        installation_date: None | str | Unset
-        if isinstance(self.installation_date, Unset):
-            installation_date = UNSET
-        else:
-            installation_date = self.installation_date
-
-        num_ports: int | None | Unset
-        if isinstance(self.num_ports, Unset):
-            num_ports = UNSET
-        else:
-            num_ports = self.num_ports
-
         relationships: dict[str, Any] | Unset = UNSET
         if not isinstance(self.relationships, Unset):
             relationships = self.relationships.to_dict()
-
-        smart_charging: bool | None | Unset
-        if isinstance(self.smart_charging, Unset):
-            smart_charging = UNSET
-        else:
-            smart_charging = self.smart_charging
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update(
             {
-                "charger_type": charger_type,
-                "max_power": max_power,
                 "name": name,
+                "max_power": max_power,
+                "charger_type": charger_type,
             }
         )
-        if bidirectional is not UNSET:
-            field_dict["bidirectional"] = bidirectional
         if connector_types is not UNSET:
             field_dict["connector_types"] = connector_types
-        if device is not UNSET:
-            field_dict["device"] = device
-        if installation_date is not UNSET:
-            field_dict["installation_date"] = installation_date
-        if num_ports is not UNSET:
-            field_dict["num_ports"] = num_ports
-        if relationships is not UNSET:
-            field_dict["relationships"] = relationships
         if smart_charging is not UNSET:
             field_dict["smart_charging"] = smart_charging
+        if bidirectional is not UNSET:
+            field_dict["bidirectional"] = bidirectional
+        if num_ports is not UNSET:
+            field_dict["num_ports"] = num_ports
+        if installation_date is not UNSET:
+            field_dict["installation_date"] = installation_date
+        if device is not UNSET:
+            field_dict["device"] = device
+        if relationships is not UNSET:
+            field_dict["relationships"] = relationships
 
         return field_dict
 
@@ -126,11 +126,22 @@ class EVChargerAssetIn:
         from ..models.device_in import DeviceIn
 
         d = dict(src_dict)
-        charger_type = d.pop("charger_type")
+        name = d.pop("name")
 
         max_power = d.pop("max_power")
 
-        name = d.pop("name")
+        charger_type = d.pop("charger_type")
+
+        connector_types = cast(list[str], d.pop("connector_types", UNSET))
+
+        def _parse_smart_charging(data: object) -> bool | None | Unset:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            return cast(bool | None | Unset, data)
+
+        smart_charging = _parse_smart_charging(d.pop("smart_charging", UNSET))
 
         def _parse_bidirectional(data: object) -> bool | None | Unset:
             if data is None:
@@ -141,7 +152,23 @@ class EVChargerAssetIn:
 
         bidirectional = _parse_bidirectional(d.pop("bidirectional", UNSET))
 
-        connector_types = cast(list[str], d.pop("connector_types", UNSET))
+        def _parse_num_ports(data: object) -> int | None | Unset:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            return cast(int | None | Unset, data)
+
+        num_ports = _parse_num_ports(d.pop("num_ports", UNSET))
+
+        def _parse_installation_date(data: object) -> None | str | Unset:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            return cast(None | str | Unset, data)
+
+        installation_date = _parse_installation_date(d.pop("installation_date", UNSET))
 
         def _parse_device(data: object) -> DeviceIn | None | Unset:
             if data is None:
@@ -160,24 +187,6 @@ class EVChargerAssetIn:
 
         device = _parse_device(d.pop("device", UNSET))
 
-        def _parse_installation_date(data: object) -> None | str | Unset:
-            if data is None:
-                return data
-            if isinstance(data, Unset):
-                return data
-            return cast(None | str | Unset, data)
-
-        installation_date = _parse_installation_date(d.pop("installation_date", UNSET))
-
-        def _parse_num_ports(data: object) -> int | None | Unset:
-            if data is None:
-                return data
-            if isinstance(data, Unset):
-                return data
-            return cast(int | None | Unset, data)
-
-        num_ports = _parse_num_ports(d.pop("num_ports", UNSET))
-
         _relationships = d.pop("relationships", UNSET)
         relationships: AssetRelationshipsIn | Unset
         if isinstance(_relationships, Unset):
@@ -185,26 +194,17 @@ class EVChargerAssetIn:
         else:
             relationships = AssetRelationshipsIn.from_dict(_relationships)
 
-        def _parse_smart_charging(data: object) -> bool | None | Unset:
-            if data is None:
-                return data
-            if isinstance(data, Unset):
-                return data
-            return cast(bool | None | Unset, data)
-
-        smart_charging = _parse_smart_charging(d.pop("smart_charging", UNSET))
-
         ev_charger_asset_in = cls(
-            charger_type=charger_type,
-            max_power=max_power,
             name=name,
-            bidirectional=bidirectional,
+            max_power=max_power,
+            charger_type=charger_type,
             connector_types=connector_types,
-            device=device,
-            installation_date=installation_date,
-            num_ports=num_ports,
-            relationships=relationships,
             smart_charging=smart_charging,
+            bidirectional=bidirectional,
+            num_ports=num_ports,
+            installation_date=installation_date,
+            device=device,
+            relationships=relationships,
         )
 
         ev_charger_asset_in.additional_properties = d

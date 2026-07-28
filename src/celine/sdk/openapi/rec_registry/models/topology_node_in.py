@@ -22,18 +22,18 @@ class TopologyNodeIn:
     Attributes:
         id (str):
         type_ (str):
-        area (None | TopologyNodeInAreaType0 | Unset):
         name (None | str | Unset):
         operator_id (None | str | Unset):
         parent (None | str | Unset):
+        area (None | TopologyNodeInAreaType0 | Unset):
     """
 
     id: str
     type_: str
-    area: None | TopologyNodeInAreaType0 | Unset = UNSET
     name: None | str | Unset = UNSET
     operator_id: None | str | Unset = UNSET
     parent: None | str | Unset = UNSET
+    area: None | TopologyNodeInAreaType0 | Unset = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -42,14 +42,6 @@ class TopologyNodeIn:
         id = self.id
 
         type_ = self.type_
-
-        area: dict[str, Any] | None | Unset
-        if isinstance(self.area, Unset):
-            area = UNSET
-        elif isinstance(self.area, TopologyNodeInAreaType0):
-            area = self.area.to_dict()
-        else:
-            area = self.area
 
         name: None | str | Unset
         if isinstance(self.name, Unset):
@@ -69,6 +61,14 @@ class TopologyNodeIn:
         else:
             parent = self.parent
 
+        area: dict[str, Any] | None | Unset
+        if isinstance(self.area, Unset):
+            area = UNSET
+        elif isinstance(self.area, TopologyNodeInAreaType0):
+            area = self.area.to_dict()
+        else:
+            area = self.area
+
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update(
@@ -77,14 +77,14 @@ class TopologyNodeIn:
                 "type": type_,
             }
         )
-        if area is not UNSET:
-            field_dict["area"] = area
         if name is not UNSET:
             field_dict["name"] = name
         if operator_id is not UNSET:
             field_dict["operator_id"] = operator_id
         if parent is not UNSET:
             field_dict["parent"] = parent
+        if area is not UNSET:
+            field_dict["area"] = area
 
         return field_dict
 
@@ -96,23 +96,6 @@ class TopologyNodeIn:
         id = d.pop("id")
 
         type_ = d.pop("type")
-
-        def _parse_area(data: object) -> None | TopologyNodeInAreaType0 | Unset:
-            if data is None:
-                return data
-            if isinstance(data, Unset):
-                return data
-            try:
-                if not isinstance(data, dict):
-                    raise TypeError()
-                area_type_0 = TopologyNodeInAreaType0.from_dict(data)
-
-                return area_type_0
-            except (TypeError, ValueError, AttributeError, KeyError):
-                pass
-            return cast(None | TopologyNodeInAreaType0 | Unset, data)
-
-        area = _parse_area(d.pop("area", UNSET))
 
         def _parse_name(data: object) -> None | str | Unset:
             if data is None:
@@ -141,13 +124,30 @@ class TopologyNodeIn:
 
         parent = _parse_parent(d.pop("parent", UNSET))
 
+        def _parse_area(data: object) -> None | TopologyNodeInAreaType0 | Unset:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            try:
+                if not isinstance(data, dict):
+                    raise TypeError()
+                area_type_0 = TopologyNodeInAreaType0.from_dict(data)
+
+                return area_type_0
+            except (TypeError, ValueError, AttributeError, KeyError):
+                pass
+            return cast(None | TopologyNodeInAreaType0 | Unset, data)
+
+        area = _parse_area(d.pop("area", UNSET))
+
         topology_node_in = cls(
             id=id,
             type_=type_,
-            area=area,
             name=name,
             operator_id=operator_id,
             parent=parent,
+            area=area,
         )
 
         topology_node_in.additional_properties = d

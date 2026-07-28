@@ -21,42 +21,30 @@ T = TypeVar("T", bound="UserAsset")
 class UserAsset:
     """
     Attributes:
-        asset_type (str):
         key (str):
+        asset_type (str):
         name (str):
-        device (UserAssetDevice | Unset):
-        properties (UserAssetProperties | Unset):
-        relationships (UserAssetRelationships | Unset):
         sensor_id (None | str | Unset):
+        properties (UserAssetProperties | Unset):
+        device (UserAssetDevice | Unset):
+        relationships (UserAssetRelationships | Unset):
     """
 
-    asset_type: str
     key: str
+    asset_type: str
     name: str
-    device: UserAssetDevice | Unset = UNSET
-    properties: UserAssetProperties | Unset = UNSET
-    relationships: UserAssetRelationships | Unset = UNSET
     sensor_id: None | str | Unset = UNSET
+    properties: UserAssetProperties | Unset = UNSET
+    device: UserAssetDevice | Unset = UNSET
+    relationships: UserAssetRelationships | Unset = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
-        asset_type = self.asset_type
-
         key = self.key
 
+        asset_type = self.asset_type
+
         name = self.name
-
-        device: dict[str, Any] | Unset = UNSET
-        if not isinstance(self.device, Unset):
-            device = self.device.to_dict()
-
-        properties: dict[str, Any] | Unset = UNSET
-        if not isinstance(self.properties, Unset):
-            properties = self.properties.to_dict()
-
-        relationships: dict[str, Any] | Unset = UNSET
-        if not isinstance(self.relationships, Unset):
-            relationships = self.relationships.to_dict()
 
         sensor_id: None | str | Unset
         if isinstance(self.sensor_id, Unset):
@@ -64,23 +52,35 @@ class UserAsset:
         else:
             sensor_id = self.sensor_id
 
+        properties: dict[str, Any] | Unset = UNSET
+        if not isinstance(self.properties, Unset):
+            properties = self.properties.to_dict()
+
+        device: dict[str, Any] | Unset = UNSET
+        if not isinstance(self.device, Unset):
+            device = self.device.to_dict()
+
+        relationships: dict[str, Any] | Unset = UNSET
+        if not isinstance(self.relationships, Unset):
+            relationships = self.relationships.to_dict()
+
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update(
             {
-                "asset_type": asset_type,
                 "key": key,
+                "asset_type": asset_type,
                 "name": name,
             }
         )
-        if device is not UNSET:
-            field_dict["device"] = device
-        if properties is not UNSET:
-            field_dict["properties"] = properties
-        if relationships is not UNSET:
-            field_dict["relationships"] = relationships
         if sensor_id is not UNSET:
             field_dict["sensor_id"] = sensor_id
+        if properties is not UNSET:
+            field_dict["properties"] = properties
+        if device is not UNSET:
+            field_dict["device"] = device
+        if relationships is not UNSET:
+            field_dict["relationships"] = relationships
 
         return field_dict
 
@@ -91,32 +91,11 @@ class UserAsset:
         from ..models.user_asset_relationships import UserAssetRelationships
 
         d = dict(src_dict)
-        asset_type = d.pop("asset_type")
-
         key = d.pop("key")
 
+        asset_type = d.pop("asset_type")
+
         name = d.pop("name")
-
-        _device = d.pop("device", UNSET)
-        device: UserAssetDevice | Unset
-        if isinstance(_device, Unset):
-            device = UNSET
-        else:
-            device = UserAssetDevice.from_dict(_device)
-
-        _properties = d.pop("properties", UNSET)
-        properties: UserAssetProperties | Unset
-        if isinstance(_properties, Unset):
-            properties = UNSET
-        else:
-            properties = UserAssetProperties.from_dict(_properties)
-
-        _relationships = d.pop("relationships", UNSET)
-        relationships: UserAssetRelationships | Unset
-        if isinstance(_relationships, Unset):
-            relationships = UNSET
-        else:
-            relationships = UserAssetRelationships.from_dict(_relationships)
 
         def _parse_sensor_id(data: object) -> None | str | Unset:
             if data is None:
@@ -127,14 +106,35 @@ class UserAsset:
 
         sensor_id = _parse_sensor_id(d.pop("sensor_id", UNSET))
 
+        _properties = d.pop("properties", UNSET)
+        properties: UserAssetProperties | Unset
+        if isinstance(_properties, Unset):
+            properties = UNSET
+        else:
+            properties = UserAssetProperties.from_dict(_properties)
+
+        _device = d.pop("device", UNSET)
+        device: UserAssetDevice | Unset
+        if isinstance(_device, Unset):
+            device = UNSET
+        else:
+            device = UserAssetDevice.from_dict(_device)
+
+        _relationships = d.pop("relationships", UNSET)
+        relationships: UserAssetRelationships | Unset
+        if isinstance(_relationships, Unset):
+            relationships = UNSET
+        else:
+            relationships = UserAssetRelationships.from_dict(_relationships)
+
         user_asset = cls(
-            asset_type=asset_type,
             key=key,
+            asset_type=asset_type,
             name=name,
-            device=device,
-            properties=properties,
-            relationships=relationships,
             sensor_id=sensor_id,
+            properties=properties,
+            device=device,
+            relationships=relationships,
         )
 
         user_asset.additional_properties = d

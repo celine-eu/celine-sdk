@@ -16,32 +16,26 @@ class DeviceIn:
     """SAREF-inspired device specification.
 
     Attributes:
-        firmware_version (None | str | Unset):
-        mac_address (None | str | Unset):
+        type_ (None | str | Unset):
         model (None | str | Unset):
         serial_number (None | str | Unset):
-        type_ (None | str | Unset):
+        mac_address (None | str | Unset):
+        firmware_version (None | str | Unset):
     """
 
-    firmware_version: None | str | Unset = UNSET
-    mac_address: None | str | Unset = UNSET
+    type_: None | str | Unset = UNSET
     model: None | str | Unset = UNSET
     serial_number: None | str | Unset = UNSET
-    type_: None | str | Unset = UNSET
+    mac_address: None | str | Unset = UNSET
+    firmware_version: None | str | Unset = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
-        firmware_version: None | str | Unset
-        if isinstance(self.firmware_version, Unset):
-            firmware_version = UNSET
+        type_: None | str | Unset
+        if isinstance(self.type_, Unset):
+            type_ = UNSET
         else:
-            firmware_version = self.firmware_version
-
-        mac_address: None | str | Unset
-        if isinstance(self.mac_address, Unset):
-            mac_address = UNSET
-        else:
-            mac_address = self.mac_address
+            type_ = self.type_
 
         model: None | str | Unset
         if isinstance(self.model, Unset):
@@ -55,25 +49,31 @@ class DeviceIn:
         else:
             serial_number = self.serial_number
 
-        type_: None | str | Unset
-        if isinstance(self.type_, Unset):
-            type_ = UNSET
+        mac_address: None | str | Unset
+        if isinstance(self.mac_address, Unset):
+            mac_address = UNSET
         else:
-            type_ = self.type_
+            mac_address = self.mac_address
+
+        firmware_version: None | str | Unset
+        if isinstance(self.firmware_version, Unset):
+            firmware_version = UNSET
+        else:
+            firmware_version = self.firmware_version
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update({})
-        if firmware_version is not UNSET:
-            field_dict["firmware_version"] = firmware_version
-        if mac_address is not UNSET:
-            field_dict["mac_address"] = mac_address
+        if type_ is not UNSET:
+            field_dict["type"] = type_
         if model is not UNSET:
             field_dict["model"] = model
         if serial_number is not UNSET:
             field_dict["serial_number"] = serial_number
-        if type_ is not UNSET:
-            field_dict["type"] = type_
+        if mac_address is not UNSET:
+            field_dict["mac_address"] = mac_address
+        if firmware_version is not UNSET:
+            field_dict["firmware_version"] = firmware_version
 
         return field_dict
 
@@ -81,23 +81,14 @@ class DeviceIn:
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
         d = dict(src_dict)
 
-        def _parse_firmware_version(data: object) -> None | str | Unset:
+        def _parse_type_(data: object) -> None | str | Unset:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
             return cast(None | str | Unset, data)
 
-        firmware_version = _parse_firmware_version(d.pop("firmware_version", UNSET))
-
-        def _parse_mac_address(data: object) -> None | str | Unset:
-            if data is None:
-                return data
-            if isinstance(data, Unset):
-                return data
-            return cast(None | str | Unset, data)
-
-        mac_address = _parse_mac_address(d.pop("mac_address", UNSET))
+        type_ = _parse_type_(d.pop("type", UNSET))
 
         def _parse_model(data: object) -> None | str | Unset:
             if data is None:
@@ -117,21 +108,30 @@ class DeviceIn:
 
         serial_number = _parse_serial_number(d.pop("serial_number", UNSET))
 
-        def _parse_type_(data: object) -> None | str | Unset:
+        def _parse_mac_address(data: object) -> None | str | Unset:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
             return cast(None | str | Unset, data)
 
-        type_ = _parse_type_(d.pop("type", UNSET))
+        mac_address = _parse_mac_address(d.pop("mac_address", UNSET))
+
+        def _parse_firmware_version(data: object) -> None | str | Unset:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            return cast(None | str | Unset, data)
+
+        firmware_version = _parse_firmware_version(d.pop("firmware_version", UNSET))
 
         device_in = cls(
-            firmware_version=firmware_version,
-            mac_address=mac_address,
+            type_=type_,
             model=model,
             serial_number=serial_number,
-            type_=type_,
+            mac_address=mac_address,
+            firmware_version=firmware_version,
         )
 
         device_in.additional_properties = d

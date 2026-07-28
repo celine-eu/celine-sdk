@@ -33,7 +33,8 @@ from celine.sdk.openapi.rec_registry.api.admin import (
     lookup_community_by_sensor_id,
     lookup_community_by_user_id,
     lookup_member_by_user_id,
-    lookup_assets_by_sensor_ids
+    lookup_assets_by_sensor_ids,
+    lookup_assets_by_user_ids,
 )
 from celine.sdk.openapi.rec_registry.api.me import (
     get_me_user_get,
@@ -53,6 +54,7 @@ from celine.sdk.openapi.rec_registry.models import (
     UserDeliveryPointsResponse,
     UserAssetDetail,
     SensorIdsBatchRequest,
+    UserIdsBatchRequest,
 )
 
 from celine.sdk.openapi.rec_registry.models.global_asset_lookup import GlobalAssetLookup
@@ -608,6 +610,38 @@ class RecRegistryAdminClient:
         res = await lookup_assets_by_sensor_ids.asyncio_detailed(
             client=client,
             body=SensorIdsBatchRequest(sensor_ids=sensor_ids),
+        )
+        if not isinstance(res.parsed, list):
+            return []
+        return [
+            GlobalAssetLookupSchema.model_validate(item.to_dict())
+            for item in res.parsed
+        ]
+
+    async def lookup_assets_by_user_ids(
+        self,
+        user_ids: list[str],
+        *,
+        token: Optional[str] = None,
+    ) -> list[GlobalAssetLookupSchema]:
+        """Find assets owned by multiple members, across all communities.
+
+        The mirror of :meth:`lookup_assets_by_sensor_ids`: that starts from a
+        device and finds its owner, this starts from owners and finds their
+        devices.
+
+        Used where access is granted for a *set of people* rather than for the
+        caller — a dataspace query authorised by the subjects who consented. The
+        self-service route (``get_my_assets``) cannot answer that, because it
+        resolves the member from the caller's own token.
+
+        Requires ``rec-registry.lookup``. Returns an empty list for members that
+        do not exist or own nothing; the two are deliberately indistinguishable.
+        """
+        client = await self._get_client(token)
+        res = await lookup_assets_by_user_ids.asyncio_detailed(
+            client=client,
+            body=UserIdsBatchRequest(user_ids=user_ids),
         )
         if not isinstance(res.parsed, list):
             return []

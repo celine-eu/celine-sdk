@@ -16,23 +16,35 @@ class LegalInfoIn:
     """Legal and administrative details.
 
     Attributes:
+        name (None | str | Unset):
+        vat (None | str | Unset):
         fiscal_code (None | str | Unset):
         legal_form (None | str | Unset):
-        name (None | str | Unset):
-        registered_office (None | str | Unset):
         registration_number (None | str | Unset):
-        vat (None | str | Unset):
+        registered_office (None | str | Unset):
     """
 
+    name: None | str | Unset = UNSET
+    vat: None | str | Unset = UNSET
     fiscal_code: None | str | Unset = UNSET
     legal_form: None | str | Unset = UNSET
-    name: None | str | Unset = UNSET
-    registered_office: None | str | Unset = UNSET
     registration_number: None | str | Unset = UNSET
-    vat: None | str | Unset = UNSET
+    registered_office: None | str | Unset = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
+        name: None | str | Unset
+        if isinstance(self.name, Unset):
+            name = UNSET
+        else:
+            name = self.name
+
+        vat: None | str | Unset
+        if isinstance(self.vat, Unset):
+            vat = UNSET
+        else:
+            vat = self.vat
+
         fiscal_code: None | str | Unset
         if isinstance(self.fiscal_code, Unset):
             fiscal_code = UNSET
@@ -45,11 +57,11 @@ class LegalInfoIn:
         else:
             legal_form = self.legal_form
 
-        name: None | str | Unset
-        if isinstance(self.name, Unset):
-            name = UNSET
+        registration_number: None | str | Unset
+        if isinstance(self.registration_number, Unset):
+            registration_number = UNSET
         else:
-            name = self.name
+            registration_number = self.registration_number
 
         registered_office: None | str | Unset
         if isinstance(self.registered_office, Unset):
@@ -57,39 +69,45 @@ class LegalInfoIn:
         else:
             registered_office = self.registered_office
 
-        registration_number: None | str | Unset
-        if isinstance(self.registration_number, Unset):
-            registration_number = UNSET
-        else:
-            registration_number = self.registration_number
-
-        vat: None | str | Unset
-        if isinstance(self.vat, Unset):
-            vat = UNSET
-        else:
-            vat = self.vat
-
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update({})
+        if name is not UNSET:
+            field_dict["name"] = name
+        if vat is not UNSET:
+            field_dict["vat"] = vat
         if fiscal_code is not UNSET:
             field_dict["fiscal_code"] = fiscal_code
         if legal_form is not UNSET:
             field_dict["legal_form"] = legal_form
-        if name is not UNSET:
-            field_dict["name"] = name
-        if registered_office is not UNSET:
-            field_dict["registered_office"] = registered_office
         if registration_number is not UNSET:
             field_dict["registration_number"] = registration_number
-        if vat is not UNSET:
-            field_dict["vat"] = vat
+        if registered_office is not UNSET:
+            field_dict["registered_office"] = registered_office
 
         return field_dict
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
         d = dict(src_dict)
+
+        def _parse_name(data: object) -> None | str | Unset:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            return cast(None | str | Unset, data)
+
+        name = _parse_name(d.pop("name", UNSET))
+
+        def _parse_vat(data: object) -> None | str | Unset:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            return cast(None | str | Unset, data)
+
+        vat = _parse_vat(d.pop("vat", UNSET))
 
         def _parse_fiscal_code(data: object) -> None | str | Unset:
             if data is None:
@@ -109,14 +127,14 @@ class LegalInfoIn:
 
         legal_form = _parse_legal_form(d.pop("legal_form", UNSET))
 
-        def _parse_name(data: object) -> None | str | Unset:
+        def _parse_registration_number(data: object) -> None | str | Unset:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
             return cast(None | str | Unset, data)
 
-        name = _parse_name(d.pop("name", UNSET))
+        registration_number = _parse_registration_number(d.pop("registration_number", UNSET))
 
         def _parse_registered_office(data: object) -> None | str | Unset:
             if data is None:
@@ -127,31 +145,13 @@ class LegalInfoIn:
 
         registered_office = _parse_registered_office(d.pop("registered_office", UNSET))
 
-        def _parse_registration_number(data: object) -> None | str | Unset:
-            if data is None:
-                return data
-            if isinstance(data, Unset):
-                return data
-            return cast(None | str | Unset, data)
-
-        registration_number = _parse_registration_number(d.pop("registration_number", UNSET))
-
-        def _parse_vat(data: object) -> None | str | Unset:
-            if data is None:
-                return data
-            if isinstance(data, Unset):
-                return data
-            return cast(None | str | Unset, data)
-
-        vat = _parse_vat(d.pop("vat", UNSET))
-
         legal_info_in = cls(
+            name=name,
+            vat=vat,
             fiscal_code=fiscal_code,
             legal_form=legal_form,
-            name=name,
-            registered_office=registered_office,
             registration_number=registration_number,
-            vat=vat,
+            registered_office=registered_office,
         )
 
         legal_info_in.additional_properties = d

@@ -17,24 +17,24 @@ class DeliveryPointWithOwner:
     Attributes:
         id (str):
         key (str):
+        type_ (str):
         member_key (str):
         member_name (str):
-        type_ (str):
-        active (bool | Unset):  Default: True.
-        address (None | str | Unset):
         description (None | str | Unset):
+        address (None | str | Unset):
         tariff (None | str | Unset):
+        active (bool | Unset):  Default: True.
     """
 
     id: str
     key: str
+    type_: str
     member_key: str
     member_name: str
-    type_: str
-    active: bool | Unset = True
-    address: None | str | Unset = UNSET
     description: None | str | Unset = UNSET
+    address: None | str | Unset = UNSET
     tariff: None | str | Unset = UNSET
+    active: bool | Unset = True
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -42,19 +42,11 @@ class DeliveryPointWithOwner:
 
         key = self.key
 
+        type_ = self.type_
+
         member_key = self.member_key
 
         member_name = self.member_name
-
-        type_ = self.type_
-
-        active = self.active
-
-        address: None | str | Unset
-        if isinstance(self.address, Unset):
-            address = UNSET
-        else:
-            address = self.address
 
         description: None | str | Unset
         if isinstance(self.description, Unset):
@@ -62,11 +54,19 @@ class DeliveryPointWithOwner:
         else:
             description = self.description
 
+        address: None | str | Unset
+        if isinstance(self.address, Unset):
+            address = UNSET
+        else:
+            address = self.address
+
         tariff: None | str | Unset
         if isinstance(self.tariff, Unset):
             tariff = UNSET
         else:
             tariff = self.tariff
+
+        active = self.active
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
@@ -74,19 +74,19 @@ class DeliveryPointWithOwner:
             {
                 "id": id,
                 "key": key,
+                "type": type_,
                 "member_key": member_key,
                 "member_name": member_name,
-                "type": type_,
             }
         )
-        if active is not UNSET:
-            field_dict["active"] = active
-        if address is not UNSET:
-            field_dict["address"] = address
         if description is not UNSET:
             field_dict["description"] = description
+        if address is not UNSET:
+            field_dict["address"] = address
         if tariff is not UNSET:
             field_dict["tariff"] = tariff
+        if active is not UNSET:
+            field_dict["active"] = active
 
         return field_dict
 
@@ -97,22 +97,11 @@ class DeliveryPointWithOwner:
 
         key = d.pop("key")
 
+        type_ = d.pop("type")
+
         member_key = d.pop("member_key")
 
         member_name = d.pop("member_name")
-
-        type_ = d.pop("type")
-
-        active = d.pop("active", UNSET)
-
-        def _parse_address(data: object) -> None | str | Unset:
-            if data is None:
-                return data
-            if isinstance(data, Unset):
-                return data
-            return cast(None | str | Unset, data)
-
-        address = _parse_address(d.pop("address", UNSET))
 
         def _parse_description(data: object) -> None | str | Unset:
             if data is None:
@@ -123,6 +112,15 @@ class DeliveryPointWithOwner:
 
         description = _parse_description(d.pop("description", UNSET))
 
+        def _parse_address(data: object) -> None | str | Unset:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            return cast(None | str | Unset, data)
+
+        address = _parse_address(d.pop("address", UNSET))
+
         def _parse_tariff(data: object) -> None | str | Unset:
             if data is None:
                 return data
@@ -132,16 +130,18 @@ class DeliveryPointWithOwner:
 
         tariff = _parse_tariff(d.pop("tariff", UNSET))
 
+        active = d.pop("active", UNSET)
+
         delivery_point_with_owner = cls(
             id=id,
             key=key,
+            type_=type_,
             member_key=member_key,
             member_name=member_name,
-            type_=type_,
-            active=active,
-            address=address,
             description=description,
+            address=address,
             tariff=tariff,
+            active=active,
         )
 
         delivery_point_with_owner.additional_properties = d

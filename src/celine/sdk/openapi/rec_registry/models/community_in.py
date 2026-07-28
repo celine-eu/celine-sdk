@@ -28,25 +28,25 @@ class CommunityIn:
     Attributes:
         id (str):
         name (str):
-        areas (Areas | Unset):
-        contact (ContactIn | None | Unset):
         description (None | str | Unset):
         legal (LegalInfoIn | None | Unset):
         links (LinksIn | None | Unset):
-        operators (Operators | Unset):
+        contact (ContactIn | None | Unset):
         settings (None | SettingsIn | Unset):
+        operators (Operators | Unset):
+        areas (Areas | Unset):
         topology (list[TopologyNodeIn] | Unset):
     """
 
     id: str
     name: str
-    areas: Areas | Unset = UNSET
-    contact: ContactIn | None | Unset = UNSET
     description: None | str | Unset = UNSET
     legal: LegalInfoIn | None | Unset = UNSET
     links: LinksIn | None | Unset = UNSET
-    operators: Operators | Unset = UNSET
+    contact: ContactIn | None | Unset = UNSET
     settings: None | SettingsIn | Unset = UNSET
+    operators: Operators | Unset = UNSET
+    areas: Areas | Unset = UNSET
     topology: list[TopologyNodeIn] | Unset = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
@@ -59,18 +59,6 @@ class CommunityIn:
         id = self.id
 
         name = self.name
-
-        areas: dict[str, Any] | Unset = UNSET
-        if not isinstance(self.areas, Unset):
-            areas = self.areas.to_dict()
-
-        contact: dict[str, Any] | None | Unset
-        if isinstance(self.contact, Unset):
-            contact = UNSET
-        elif isinstance(self.contact, ContactIn):
-            contact = self.contact.to_dict()
-        else:
-            contact = self.contact
 
         description: None | str | Unset
         if isinstance(self.description, Unset):
@@ -94,9 +82,13 @@ class CommunityIn:
         else:
             links = self.links
 
-        operators: dict[str, Any] | Unset = UNSET
-        if not isinstance(self.operators, Unset):
-            operators = self.operators.to_dict()
+        contact: dict[str, Any] | None | Unset
+        if isinstance(self.contact, Unset):
+            contact = UNSET
+        elif isinstance(self.contact, ContactIn):
+            contact = self.contact.to_dict()
+        else:
+            contact = self.contact
 
         settings: dict[str, Any] | None | Unset
         if isinstance(self.settings, Unset):
@@ -105,6 +97,14 @@ class CommunityIn:
             settings = self.settings.to_dict()
         else:
             settings = self.settings
+
+        operators: dict[str, Any] | Unset = UNSET
+        if not isinstance(self.operators, Unset):
+            operators = self.operators.to_dict()
+
+        areas: dict[str, Any] | Unset = UNSET
+        if not isinstance(self.areas, Unset):
+            areas = self.areas.to_dict()
 
         topology: list[dict[str, Any]] | Unset = UNSET
         if not isinstance(self.topology, Unset):
@@ -121,20 +121,20 @@ class CommunityIn:
                 "name": name,
             }
         )
-        if areas is not UNSET:
-            field_dict["areas"] = areas
-        if contact is not UNSET:
-            field_dict["contact"] = contact
         if description is not UNSET:
             field_dict["description"] = description
         if legal is not UNSET:
             field_dict["legal"] = legal
         if links is not UNSET:
             field_dict["links"] = links
-        if operators is not UNSET:
-            field_dict["operators"] = operators
+        if contact is not UNSET:
+            field_dict["contact"] = contact
         if settings is not UNSET:
             field_dict["settings"] = settings
+        if operators is not UNSET:
+            field_dict["operators"] = operators
+        if areas is not UNSET:
+            field_dict["areas"] = areas
         if topology is not UNSET:
             field_dict["topology"] = topology
 
@@ -154,30 +154,6 @@ class CommunityIn:
         id = d.pop("id")
 
         name = d.pop("name")
-
-        _areas = d.pop("areas", UNSET)
-        areas: Areas | Unset
-        if isinstance(_areas, Unset):
-            areas = UNSET
-        else:
-            areas = Areas.from_dict(_areas)
-
-        def _parse_contact(data: object) -> ContactIn | None | Unset:
-            if data is None:
-                return data
-            if isinstance(data, Unset):
-                return data
-            try:
-                if not isinstance(data, dict):
-                    raise TypeError()
-                contact_type_0 = ContactIn.from_dict(data)
-
-                return contact_type_0
-            except (TypeError, ValueError, AttributeError, KeyError):
-                pass
-            return cast(ContactIn | None | Unset, data)
-
-        contact = _parse_contact(d.pop("contact", UNSET))
 
         def _parse_description(data: object) -> None | str | Unset:
             if data is None:
@@ -222,12 +198,22 @@ class CommunityIn:
 
         links = _parse_links(d.pop("links", UNSET))
 
-        _operators = d.pop("operators", UNSET)
-        operators: Operators | Unset
-        if isinstance(_operators, Unset):
-            operators = UNSET
-        else:
-            operators = Operators.from_dict(_operators)
+        def _parse_contact(data: object) -> ContactIn | None | Unset:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            try:
+                if not isinstance(data, dict):
+                    raise TypeError()
+                contact_type_0 = ContactIn.from_dict(data)
+
+                return contact_type_0
+            except (TypeError, ValueError, AttributeError, KeyError):
+                pass
+            return cast(ContactIn | None | Unset, data)
+
+        contact = _parse_contact(d.pop("contact", UNSET))
 
         def _parse_settings(data: object) -> None | SettingsIn | Unset:
             if data is None:
@@ -246,6 +232,20 @@ class CommunityIn:
 
         settings = _parse_settings(d.pop("settings", UNSET))
 
+        _operators = d.pop("operators", UNSET)
+        operators: Operators | Unset
+        if isinstance(_operators, Unset):
+            operators = UNSET
+        else:
+            operators = Operators.from_dict(_operators)
+
+        _areas = d.pop("areas", UNSET)
+        areas: Areas | Unset
+        if isinstance(_areas, Unset):
+            areas = UNSET
+        else:
+            areas = Areas.from_dict(_areas)
+
         _topology = d.pop("topology", UNSET)
         topology: list[TopologyNodeIn] | Unset = UNSET
         if _topology is not UNSET:
@@ -258,13 +258,13 @@ class CommunityIn:
         community_in = cls(
             id=id,
             name=name,
-            areas=areas,
-            contact=contact,
             description=description,
             legal=legal,
             links=links,
-            operators=operators,
+            contact=contact,
             settings=settings,
+            operators=operators,
+            areas=areas,
             topology=topology,
         )
 

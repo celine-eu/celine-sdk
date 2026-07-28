@@ -14,34 +14,34 @@ class MemberRef:
     """
     Attributes:
         key (str):
+        user_id (str):
         name (str):
         role (str):
-        user_id (str):
     """
 
     key: str
+    user_id: str
     name: str
     role: str
-    user_id: str
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
         key = self.key
 
+        user_id = self.user_id
+
         name = self.name
 
         role = self.role
-
-        user_id = self.user_id
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update(
             {
                 "key": key,
+                "user_id": user_id,
                 "name": name,
                 "role": role,
-                "user_id": user_id,
             }
         )
 
@@ -52,17 +52,17 @@ class MemberRef:
         d = dict(src_dict)
         key = d.pop("key")
 
+        user_id = d.pop("user_id")
+
         name = d.pop("name")
 
         role = d.pop("role")
 
-        user_id = d.pop("user_id")
-
         member_ref = cls(
             key=key,
+            user_id=user_id,
             name=name,
             role=role,
-            user_id=user_id,
         )
 
         member_ref.additional_properties = d

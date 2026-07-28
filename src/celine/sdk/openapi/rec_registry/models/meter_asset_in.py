@@ -21,48 +21,34 @@ class MeterAssetIn:
     """Meter asset.
 
     Attributes:
-        meter_type (str):
         name (str):
         sensor_id (str):
-        device (DeviceIn | None | Unset):
-        installation_date (None | str | Unset):
+        meter_type (str):
         pod (None | str | Unset):
         protocol (None | str | Unset):
+        installation_date (None | str | Unset):
+        device (DeviceIn | None | Unset):
         relationships (AssetRelationshipsIn | Unset): Relationships between assets.
     """
 
-    meter_type: str
     name: str
     sensor_id: str
-    device: DeviceIn | None | Unset = UNSET
-    installation_date: None | str | Unset = UNSET
+    meter_type: str
     pod: None | str | Unset = UNSET
     protocol: None | str | Unset = UNSET
+    installation_date: None | str | Unset = UNSET
+    device: DeviceIn | None | Unset = UNSET
     relationships: AssetRelationshipsIn | Unset = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
         from ..models.device_in import DeviceIn
 
-        meter_type = self.meter_type
-
         name = self.name
 
         sensor_id = self.sensor_id
 
-        device: dict[str, Any] | None | Unset
-        if isinstance(self.device, Unset):
-            device = UNSET
-        elif isinstance(self.device, DeviceIn):
-            device = self.device.to_dict()
-        else:
-            device = self.device
-
-        installation_date: None | str | Unset
-        if isinstance(self.installation_date, Unset):
-            installation_date = UNSET
-        else:
-            installation_date = self.installation_date
+        meter_type = self.meter_type
 
         pod: None | str | Unset
         if isinstance(self.pod, Unset):
@@ -76,6 +62,20 @@ class MeterAssetIn:
         else:
             protocol = self.protocol
 
+        installation_date: None | str | Unset
+        if isinstance(self.installation_date, Unset):
+            installation_date = UNSET
+        else:
+            installation_date = self.installation_date
+
+        device: dict[str, Any] | None | Unset
+        if isinstance(self.device, Unset):
+            device = UNSET
+        elif isinstance(self.device, DeviceIn):
+            device = self.device.to_dict()
+        else:
+            device = self.device
+
         relationships: dict[str, Any] | Unset = UNSET
         if not isinstance(self.relationships, Unset):
             relationships = self.relationships.to_dict()
@@ -84,19 +84,19 @@ class MeterAssetIn:
         field_dict.update(self.additional_properties)
         field_dict.update(
             {
-                "meter_type": meter_type,
                 "name": name,
                 "sensor_id": sensor_id,
+                "meter_type": meter_type,
             }
         )
-        if device is not UNSET:
-            field_dict["device"] = device
-        if installation_date is not UNSET:
-            field_dict["installation_date"] = installation_date
         if pod is not UNSET:
             field_dict["pod"] = pod
         if protocol is not UNSET:
             field_dict["protocol"] = protocol
+        if installation_date is not UNSET:
+            field_dict["installation_date"] = installation_date
+        if device is not UNSET:
+            field_dict["device"] = device
         if relationships is not UNSET:
             field_dict["relationships"] = relationships
 
@@ -108,37 +108,11 @@ class MeterAssetIn:
         from ..models.device_in import DeviceIn
 
         d = dict(src_dict)
-        meter_type = d.pop("meter_type")
-
         name = d.pop("name")
 
         sensor_id = d.pop("sensor_id")
 
-        def _parse_device(data: object) -> DeviceIn | None | Unset:
-            if data is None:
-                return data
-            if isinstance(data, Unset):
-                return data
-            try:
-                if not isinstance(data, dict):
-                    raise TypeError()
-                device_type_0 = DeviceIn.from_dict(data)
-
-                return device_type_0
-            except (TypeError, ValueError, AttributeError, KeyError):
-                pass
-            return cast(DeviceIn | None | Unset, data)
-
-        device = _parse_device(d.pop("device", UNSET))
-
-        def _parse_installation_date(data: object) -> None | str | Unset:
-            if data is None:
-                return data
-            if isinstance(data, Unset):
-                return data
-            return cast(None | str | Unset, data)
-
-        installation_date = _parse_installation_date(d.pop("installation_date", UNSET))
+        meter_type = d.pop("meter_type")
 
         def _parse_pod(data: object) -> None | str | Unset:
             if data is None:
@@ -158,6 +132,32 @@ class MeterAssetIn:
 
         protocol = _parse_protocol(d.pop("protocol", UNSET))
 
+        def _parse_installation_date(data: object) -> None | str | Unset:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            return cast(None | str | Unset, data)
+
+        installation_date = _parse_installation_date(d.pop("installation_date", UNSET))
+
+        def _parse_device(data: object) -> DeviceIn | None | Unset:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            try:
+                if not isinstance(data, dict):
+                    raise TypeError()
+                device_type_0 = DeviceIn.from_dict(data)
+
+                return device_type_0
+            except (TypeError, ValueError, AttributeError, KeyError):
+                pass
+            return cast(DeviceIn | None | Unset, data)
+
+        device = _parse_device(d.pop("device", UNSET))
+
         _relationships = d.pop("relationships", UNSET)
         relationships: AssetRelationshipsIn | Unset
         if isinstance(_relationships, Unset):
@@ -166,13 +166,13 @@ class MeterAssetIn:
             relationships = AssetRelationshipsIn.from_dict(_relationships)
 
         meter_asset_in = cls(
-            meter_type=meter_type,
             name=name,
             sensor_id=sensor_id,
-            device=device,
-            installation_date=installation_date,
+            meter_type=meter_type,
             pod=pod,
             protocol=protocol,
+            installation_date=installation_date,
+            device=device,
             relationships=relationships,
         )
 

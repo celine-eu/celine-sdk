@@ -28,12 +28,12 @@ class UserCommunityDetail:
         name (str):
         your_area (str):
         your_role (str):
-        areas (UserCommunityDetailAreas | Unset):
-        contact (UserCommunityDetailContact | Unset):
         description (None | str | Unset):
         legal (UserCommunityDetailLegal | Unset):
         links (UserCommunityDetailLinks | Unset):
+        contact (UserCommunityDetailContact | Unset):
         settings (UserCommunityDetailSettings | Unset):
+        areas (UserCommunityDetailAreas | Unset):
         topology (list[TopologyNode] | Unset):
     """
 
@@ -41,12 +41,12 @@ class UserCommunityDetail:
     name: str
     your_area: str
     your_role: str
-    areas: UserCommunityDetailAreas | Unset = UNSET
-    contact: UserCommunityDetailContact | Unset = UNSET
     description: None | str | Unset = UNSET
     legal: UserCommunityDetailLegal | Unset = UNSET
     links: UserCommunityDetailLinks | Unset = UNSET
+    contact: UserCommunityDetailContact | Unset = UNSET
     settings: UserCommunityDetailSettings | Unset = UNSET
+    areas: UserCommunityDetailAreas | Unset = UNSET
     topology: list[TopologyNode] | Unset = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
@@ -58,14 +58,6 @@ class UserCommunityDetail:
         your_area = self.your_area
 
         your_role = self.your_role
-
-        areas: dict[str, Any] | Unset = UNSET
-        if not isinstance(self.areas, Unset):
-            areas = self.areas.to_dict()
-
-        contact: dict[str, Any] | Unset = UNSET
-        if not isinstance(self.contact, Unset):
-            contact = self.contact.to_dict()
 
         description: None | str | Unset
         if isinstance(self.description, Unset):
@@ -81,9 +73,17 @@ class UserCommunityDetail:
         if not isinstance(self.links, Unset):
             links = self.links.to_dict()
 
+        contact: dict[str, Any] | Unset = UNSET
+        if not isinstance(self.contact, Unset):
+            contact = self.contact.to_dict()
+
         settings: dict[str, Any] | Unset = UNSET
         if not isinstance(self.settings, Unset):
             settings = self.settings.to_dict()
+
+        areas: dict[str, Any] | Unset = UNSET
+        if not isinstance(self.areas, Unset):
+            areas = self.areas.to_dict()
 
         topology: list[dict[str, Any]] | Unset = UNSET
         if not isinstance(self.topology, Unset):
@@ -102,18 +102,18 @@ class UserCommunityDetail:
                 "your_role": your_role,
             }
         )
-        if areas is not UNSET:
-            field_dict["areas"] = areas
-        if contact is not UNSET:
-            field_dict["contact"] = contact
         if description is not UNSET:
             field_dict["description"] = description
         if legal is not UNSET:
             field_dict["legal"] = legal
         if links is not UNSET:
             field_dict["links"] = links
+        if contact is not UNSET:
+            field_dict["contact"] = contact
         if settings is not UNSET:
             field_dict["settings"] = settings
+        if areas is not UNSET:
+            field_dict["areas"] = areas
         if topology is not UNSET:
             field_dict["topology"] = topology
 
@@ -136,20 +136,6 @@ class UserCommunityDetail:
         your_area = d.pop("your_area")
 
         your_role = d.pop("your_role")
-
-        _areas = d.pop("areas", UNSET)
-        areas: UserCommunityDetailAreas | Unset
-        if isinstance(_areas, Unset):
-            areas = UNSET
-        else:
-            areas = UserCommunityDetailAreas.from_dict(_areas)
-
-        _contact = d.pop("contact", UNSET)
-        contact: UserCommunityDetailContact | Unset
-        if isinstance(_contact, Unset):
-            contact = UNSET
-        else:
-            contact = UserCommunityDetailContact.from_dict(_contact)
 
         def _parse_description(data: object) -> None | str | Unset:
             if data is None:
@@ -174,12 +160,26 @@ class UserCommunityDetail:
         else:
             links = UserCommunityDetailLinks.from_dict(_links)
 
+        _contact = d.pop("contact", UNSET)
+        contact: UserCommunityDetailContact | Unset
+        if isinstance(_contact, Unset):
+            contact = UNSET
+        else:
+            contact = UserCommunityDetailContact.from_dict(_contact)
+
         _settings = d.pop("settings", UNSET)
         settings: UserCommunityDetailSettings | Unset
         if isinstance(_settings, Unset):
             settings = UNSET
         else:
             settings = UserCommunityDetailSettings.from_dict(_settings)
+
+        _areas = d.pop("areas", UNSET)
+        areas: UserCommunityDetailAreas | Unset
+        if isinstance(_areas, Unset):
+            areas = UNSET
+        else:
+            areas = UserCommunityDetailAreas.from_dict(_areas)
 
         _topology = d.pop("topology", UNSET)
         topology: list[TopologyNode] | Unset = UNSET
@@ -195,12 +195,12 @@ class UserCommunityDetail:
             name=name,
             your_area=your_area,
             your_role=your_role,
-            areas=areas,
-            contact=contact,
             description=description,
             legal=legal,
             links=links,
+            contact=contact,
             settings=settings,
+            areas=areas,
             topology=topology,
         )
 

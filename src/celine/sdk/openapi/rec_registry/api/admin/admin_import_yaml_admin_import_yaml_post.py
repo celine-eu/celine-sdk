@@ -13,10 +13,13 @@ from ...types import UNSET, Response, Unset
 def _get_kwargs(
     *,
     dry_run: bool | Unset = False,
+    force: bool | Unset = False,
 ) -> dict[str, Any]:
     params: dict[str, Any] = {}
 
     params["dry_run"] = dry_run
+
+    params["force"] = force
 
     params = {k: v for k, v in params.items() if v is not UNSET and v is not None}
 
@@ -63,18 +66,24 @@ def sync_detailed(
     *,
     client: AuthenticatedClient | Client,
     dry_run: bool | Unset = False,
+    force: bool | Unset = False,
 ) -> Response[HTTPValidationError | MultiImportReport]:
     """Admin Import Yaml
 
-     Idempotent replacement import of one or more REC registry bundles from YAML.
+     Replacement import of one or more REC registry bundles from YAML.
 
     Accepts a multidocument YAML body (documents separated by `---`).
     Each document must be a valid registry bundle.
+
+    **Destructive**: see `POST /admin/import`. `force=true` is required to
+    overwrite an existing community.
 
     Returns a report for each imported bundle.
 
     Args:
         dry_run (bool | Unset): Validate without making changes Default: False.
+        force (bool | Unset): Overwrite communities that already exist. Without it an existing
+            community answers 409 rather than being deleted and recreated. Default: False.
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
@@ -86,6 +95,7 @@ def sync_detailed(
 
     kwargs = _get_kwargs(
         dry_run=dry_run,
+        force=force,
     )
 
     response = client.get_httpx_client().request(
@@ -99,18 +109,24 @@ def sync(
     *,
     client: AuthenticatedClient | Client,
     dry_run: bool | Unset = False,
+    force: bool | Unset = False,
 ) -> HTTPValidationError | MultiImportReport | None:
     """Admin Import Yaml
 
-     Idempotent replacement import of one or more REC registry bundles from YAML.
+     Replacement import of one or more REC registry bundles from YAML.
 
     Accepts a multidocument YAML body (documents separated by `---`).
     Each document must be a valid registry bundle.
+
+    **Destructive**: see `POST /admin/import`. `force=true` is required to
+    overwrite an existing community.
 
     Returns a report for each imported bundle.
 
     Args:
         dry_run (bool | Unset): Validate without making changes Default: False.
+        force (bool | Unset): Overwrite communities that already exist. Without it an existing
+            community answers 409 rather than being deleted and recreated. Default: False.
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
@@ -123,6 +139,7 @@ def sync(
     return sync_detailed(
         client=client,
         dry_run=dry_run,
+        force=force,
     ).parsed
 
 
@@ -130,18 +147,24 @@ async def asyncio_detailed(
     *,
     client: AuthenticatedClient | Client,
     dry_run: bool | Unset = False,
+    force: bool | Unset = False,
 ) -> Response[HTTPValidationError | MultiImportReport]:
     """Admin Import Yaml
 
-     Idempotent replacement import of one or more REC registry bundles from YAML.
+     Replacement import of one or more REC registry bundles from YAML.
 
     Accepts a multidocument YAML body (documents separated by `---`).
     Each document must be a valid registry bundle.
+
+    **Destructive**: see `POST /admin/import`. `force=true` is required to
+    overwrite an existing community.
 
     Returns a report for each imported bundle.
 
     Args:
         dry_run (bool | Unset): Validate without making changes Default: False.
+        force (bool | Unset): Overwrite communities that already exist. Without it an existing
+            community answers 409 rather than being deleted and recreated. Default: False.
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
@@ -153,6 +176,7 @@ async def asyncio_detailed(
 
     kwargs = _get_kwargs(
         dry_run=dry_run,
+        force=force,
     )
 
     response = await client.get_async_httpx_client().request(**kwargs)
@@ -164,18 +188,24 @@ async def asyncio(
     *,
     client: AuthenticatedClient | Client,
     dry_run: bool | Unset = False,
+    force: bool | Unset = False,
 ) -> HTTPValidationError | MultiImportReport | None:
     """Admin Import Yaml
 
-     Idempotent replacement import of one or more REC registry bundles from YAML.
+     Replacement import of one or more REC registry bundles from YAML.
 
     Accepts a multidocument YAML body (documents separated by `---`).
     Each document must be a valid registry bundle.
+
+    **Destructive**: see `POST /admin/import`. `force=true` is required to
+    overwrite an existing community.
 
     Returns a report for each imported bundle.
 
     Args:
         dry_run (bool | Unset): Validate without making changes Default: False.
+        force (bool | Unset): Overwrite communities that already exist. Without it an existing
+            community answers 409 rather than being deleted and recreated. Default: False.
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
@@ -189,5 +219,6 @@ async def asyncio(
         await asyncio_detailed(
             client=client,
             dry_run=dry_run,
+            force=force,
         )
     ).parsed
