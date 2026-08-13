@@ -2,6 +2,20 @@
 
 <!-- version list -->
 
+## v1.15.0 (2026-08-13)
+
+### Features
+
+- Add rec-registry lookup by ids
+  ([`ce4641b`](https://github.com/celine-eu/celine-sdk/commit/ce4641b88d3a8c6720a01b6a5013b35f06744978))
+
+- Expose rec registry api
+  ([`14670a1`](https://github.com/celine-eu/celine-sdk/commit/14670a18a9c658b37f4981fe3c8b72d082f30aa4))
+
+- Review python version boundaries
+  ([`d0dbf8a`](https://github.com/celine-eu/celine-sdk/commit/d0dbf8a433f2449f98259592ce571285e5a1f186))
+
+
 ## v1.14.1 (2026-07-20)
 
 ### Bug Fixes
