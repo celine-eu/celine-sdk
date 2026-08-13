@@ -3,7 +3,23 @@ name = "celine-sdk"
 version = "1.14.1"
 description = "CELINE SDK"
 readme = "README.md"
-requires-python = ">=3.12"
+requires-python = ">=3.10"
+
+# The supported range, proven rather than assumed: `test.yml` builds its matrix
+# from these classifiers, so a version listed here is a version CI runs.
+#
+# The floor was `>=3.12` and nothing required it. Every dependency below already
+# supported 3.10 — the strictest are `cachetools` and `pydantic-settings` at
+# 3.10, and `celine-regorus`, the one that looked most likely to constrain,
+# permits 3.8. The only real blocker was a single `typing.Self` import in
+# `utils/convert.py`. That unexamined floor propagated to `celine-utils`,
+# `celine-policies` and `dataset-api`, none of which needed it either.
+classifiers = [
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+]
 
 dependencies = [
     "aiomqtt>=2.5.0",
@@ -17,20 +33,34 @@ dependencies = [
     "pyjwt>=2.11.0",
     "python-dateutil>=2.9.0.post0",
     "pyyaml>=6.0.3",
+    # `typing.Self` is 3.11+; see `utils/convert.py`. Marked so it is not
+    # installed where the stdlib already provides it.
+    "typing-extensions>=4.5.0; python_version < '3.11'",
 ]
 
 [tool.check-wheel-contents]
 ignore = ["W002"]
 
 [dependency-groups]
-dev = [
-    "datamodel-code-generator[http,ruff]>=0.53.0",
-    "debugpy>=1.8.20",
-    "dumpster-cli>=1.4.0",
-    "openapi-python-client>=0.28.1",
+# Split so a *tool* cannot dictate the published floor.
+#
+# `test` is what the CI matrix installs, and everything in it must work on every
+# supported version. `dev` holds code generators and release tooling that only
+# ever run on a maintainer's machine — several require >=3.11, and while they
+# sat in one undifferentiated group they made `uv lock` unsolvable at 3.10 and
+# so kept `requires-python` artificially high. Markers rather than removal: the
+# tools stay available wherever they can run.
+test = [
     "pytest>=9.0.2",
     "pytest-asyncio>=1.3.0",
-    "python-semantic-release>=10.5.3",
+]
+dev = [
+    { include-group = "test" },
+    "debugpy>=1.8.20",
+    "datamodel-code-generator[http,ruff]>=0.53.0; python_version >= '3.11'",
+    "dumpster-cli>=1.4.0; python_version >= '3.11'",
+    "openapi-python-client>=0.28.1; python_version >= '3.11'",
+    "python-semantic-release>=10.5.3; python_version >= '3.11'",
     "typer>=0.21.1",
 ]
 

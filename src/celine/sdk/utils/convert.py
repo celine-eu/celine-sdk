@@ -1,10 +1,21 @@
 from __future__ import annotations
 
+import sys
 from functools import lru_cache
 from importlib import import_module
 from types import ModuleType
-from typing import Any, Mapping, Protocol, Self, TypeGuard, TypeVar, cast, overload
+from typing import Any, Mapping, Protocol, TypeGuard, TypeVar, cast, overload
 from pydantic import BaseModel
+
+if sys.version_info >= (3, 11):
+    from typing import Self
+else:  # pragma: no cover - covered by the 3.10 leg of the test matrix
+    # `Self` reached `typing` in 3.11. This single import was the *entire*
+    # reason this package declared `requires-python >= 3.12`: on 3.10 it raises
+    # at module load, and `convert` is imported transitively by most of the SDK,
+    # so 2 of 553 submodules failed and took the floor with them. Every
+    # dependency this package declares already supports 3.10.
+    from typing_extensions import Self
 
 
 class SupportsToDict(Protocol):

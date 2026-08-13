@@ -1,0 +1,104 @@
+### Test celine-sdk across every Python version it claims to support.
+#
+# The matrix is not written here — it is read from the `Programming Language ::
+# Python :: 3.x` classifiers in `pyproject.toml`, via the
+# `supported_python_classifiers_json_array` output of
+# `build-and-inspect-python-package`. So the classifiers are the single
+# declaration of the supported range, and this workflow is what makes them true
+# rather than aspirational. Adding a version means adding a classifier; there is
+# no second list to forget.
+#
+# Why it exists: this package declared `requires-python = ">=3.12"` while every
+# dependency it has supported 3.10, because nothing ever checked. Its floor then
+# propagated to `celine-utils`, `celine-policies` and `dataset-api`. A matrix
+# that runs is the only thing that keeps a floor honest.
+
+name: Test celine-sdk
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "src/**"
+      - "tests/**"
+      - "pyproject.toml"
+      - "uv.lock"
+      - ".github/workflows/test.yaml"
+  pull_request:
+    paths:
+      - "src/**"
+      - "tests/**"
+      - "pyproject.toml"
+      - "uv.lock"
+      - ".github/workflows/test.yaml"
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.head_ref || github.run_id }}
+  cancel-in-progress: true
+
+env:
+  FORCE_COLOR: 1
+
+permissions:
+  contents: read
+
+jobs:
+  build-package:
+    name: Build & verify package
+    runs-on: ubuntu-latest
+    outputs:
+      supported-python-versions: ${{ steps.baipp.outputs.supported_python_classifiers_json_array }}
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: hynek/build-and-inspect-python-package@fe0a0fb1925ca263d076ca4f2c13e93a6e92a33e # v2.17.0
+        id: baipp
+
+  pytest:
+    name: Test on ${{ matrix.python-version }}
+    needs: [build-package]
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ${{ fromJson(needs.build-package.outputs.supported-python-versions) }}
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          persist-credentials: false
+      - uses: astral-sh/setup-uv@v7
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      # `--no-dev --group test`: the runtime dependencies plus pytest, and none
+      # of the maintainer tooling. That tooling is what pinned this package to
+      # 3.12 in the first place, so CI must not install it.
+      - name: Install
+        run: uv sync --python ${{ matrix.python-version }} --no-dev --group test
+
+      # Importing every submodule is the check that actually failed here: a
+      # version-gated import in one module took two of 553 with it, and no test
+      # touched either. A suite that imports only what it tests cannot see that.
+      - name: Import every submodule
+        run: |
+          uv run --python ${{ matrix.python-version }} python - <<'EOF'
+          import importlib, pkgutil, sys
+          import celine.sdk as pkg
+          failed = []
+          names = [m.name for m in pkgutil.walk_packages(pkg.__path__, "celine.sdk.")]
+          for name in names:
+              try:
+                  importlib.import_module(name)
+              except Exception as exc:
+                  failed.append(f"{name}: {type(exc).__name__}: {exc}")
+          print(f"imported {len(names) - len(failed)}/{len(names)} submodules")
+          for f in failed:
+              print("::error::" + f)
+          sys.exit(1 if failed else 0)
+          EOF
+
+      - name: Run the suite
+        run: uv run --python ${{ matrix.python-version }} pytest -q
