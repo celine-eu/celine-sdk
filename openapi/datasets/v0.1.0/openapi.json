@@ -4,6 +4,50 @@
       "BackendConfig": {
         "description": "Backend configuration block for dataset storage.",
         "properties": {
+          "base_url": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Base Url"
+          },
+          "entity_type": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Entity Type"
+          },
+          "fiware_service": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Fiware Service"
+          },
+          "fiware_service_path": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Fiware Service Path"
+          },
           "format": {
             "anyOf": [
               {
@@ -192,6 +236,11 @@
             "title": "Dataset Id",
             "type": "string"
           },
+          "dataspace_expose": {
+            "default": false,
+            "title": "Dataspace Expose",
+            "type": "boolean"
+          },
           "description": {
             "anyOf": [
               {
@@ -253,6 +302,18 @@
                 "type": "null"
               }
             ]
+          },
+          "ontology_mapping": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Ontology Mapping"
           },
           "ontology_path": {
             "anyOf": [
@@ -661,6 +722,13 @@
       },
       "ValidationError": {
         "properties": {
+          "ctx": {
+            "title": "Context",
+            "type": "object"
+          },
+          "input": {
+            "title": "Input"
+          },
           "loc": {
             "items": {
               "anyOf": [
@@ -810,7 +878,7 @@
     },
     "/catalogue/{dataset_id}": {
       "get": {
-        "description": "Return a single dcat:Dataset JSON-LD document.\n\nOnly exposed, non-secret entries are accessible here.",
+        "description": "Return a single dcat:Dataset JSON-LD document.\n\nOnly exposed, non-secret entries are accessible here.\n\nOne path, two representations: a browser gets the HTML page rendered by\n`routes/views.py`, everyone else gets the document. The route is declared\nhere and only here \u2014 a second declaration of the same path in another router\nwould be dead code decided by include order, not by what the client asked\nfor.",
         "operationId": "get_catalogue_entry_catalogue__dataset_id__get",
         "parameters": [
           {
@@ -890,6 +958,47 @@
         ]
       }
     },
+    "/catalogue/{dataset_id}/vocabulary": {
+      "get": {
+        "description": "The JSON-LD context for this dataset, derived from its mapping spec.\n\nUnauthenticated, like `/catalogue`. A consumer decides whether it *can* read\na dataset before it negotiates access, so gating the vocabulary would gate\ndiscovery \u2014 and the vocabulary describes the shape of the data, not the data.\n\n404 means the dataset is not exposed **or** declares no mapping. That is not\nthe same as \"this dataset has no semantic model\", and a consumer should not\nread it as such; the catalogue entry's `dct:conformsTo` is where a declared\nmodel is stated.",
+        "operationId": "dataset_vocabulary_catalogue__dataset_id__vocabulary_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "dataset_id",
+            "required": true,
+            "schema": {
+              "title": "Dataset Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Dataset Vocabulary",
+        "tags": [
+          "catalogue"
+        ]
+      }
+    },
     "/health": {
       "get": {
         "operationId": "healthcheck_health_get",
@@ -913,6 +1022,22 @@
         "parameters": [
           {
             "in": "header",
+            "name": "authorization",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          },
+          {
+            "in": "header",
             "name": "edc-contract-agreement-id",
             "required": false,
             "schema": {
@@ -925,6 +1050,38 @@
                 }
               ],
               "title": "Edc-Contract-Agreement-Id"
+            }
+          },
+          {
+            "in": "header",
+            "name": "edc-transfer-process-id",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Edc-Transfer-Process-Id"
+            }
+          },
+          {
+            "in": "header",
+            "name": "edc-purpose",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Edc-Purpose"
             }
           },
           {

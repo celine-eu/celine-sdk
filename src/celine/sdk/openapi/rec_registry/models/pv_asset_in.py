@@ -22,25 +22,25 @@ class PVAssetIn:
 
     Attributes:
         name (str):
-        rated_power (float | None | Unset):
-        panel_type (None | str | Unset):
+        device (DeviceIn | None | Unset):
+        installation_date (None | str | Unset):
         inverter_power (float | None | Unset):
         orientation (float | None | Unset):
-        tilt_angle (float | None | Unset):
-        installation_date (None | str | Unset):
-        device (DeviceIn | None | Unset):
+        panel_type (None | str | Unset):
+        rated_power (float | None | Unset):
         relationships (AssetRelationshipsIn | Unset): Relationships between assets.
+        tilt_angle (float | None | Unset):
     """
 
     name: str
-    rated_power: float | None | Unset = UNSET
-    panel_type: None | str | Unset = UNSET
+    device: DeviceIn | None | Unset = UNSET
+    installation_date: None | str | Unset = UNSET
     inverter_power: float | None | Unset = UNSET
     orientation: float | None | Unset = UNSET
-    tilt_angle: float | None | Unset = UNSET
-    installation_date: None | str | Unset = UNSET
-    device: DeviceIn | None | Unset = UNSET
+    panel_type: None | str | Unset = UNSET
+    rated_power: float | None | Unset = UNSET
     relationships: AssetRelationshipsIn | Unset = UNSET
+    tilt_angle: float | None | Unset = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -48,17 +48,19 @@ class PVAssetIn:
 
         name = self.name
 
-        rated_power: float | None | Unset
-        if isinstance(self.rated_power, Unset):
-            rated_power = UNSET
+        device: dict[str, Any] | None | Unset
+        if isinstance(self.device, Unset):
+            device = UNSET
+        elif isinstance(self.device, DeviceIn):
+            device = self.device.to_dict()
         else:
-            rated_power = self.rated_power
+            device = self.device
 
-        panel_type: None | str | Unset
-        if isinstance(self.panel_type, Unset):
-            panel_type = UNSET
+        installation_date: None | str | Unset
+        if isinstance(self.installation_date, Unset):
+            installation_date = UNSET
         else:
-            panel_type = self.panel_type
+            installation_date = self.installation_date
 
         inverter_power: float | None | Unset
         if isinstance(self.inverter_power, Unset):
@@ -72,29 +74,27 @@ class PVAssetIn:
         else:
             orientation = self.orientation
 
+        panel_type: None | str | Unset
+        if isinstance(self.panel_type, Unset):
+            panel_type = UNSET
+        else:
+            panel_type = self.panel_type
+
+        rated_power: float | None | Unset
+        if isinstance(self.rated_power, Unset):
+            rated_power = UNSET
+        else:
+            rated_power = self.rated_power
+
+        relationships: dict[str, Any] | Unset = UNSET
+        if not isinstance(self.relationships, Unset):
+            relationships = self.relationships.to_dict()
+
         tilt_angle: float | None | Unset
         if isinstance(self.tilt_angle, Unset):
             tilt_angle = UNSET
         else:
             tilt_angle = self.tilt_angle
-
-        installation_date: None | str | Unset
-        if isinstance(self.installation_date, Unset):
-            installation_date = UNSET
-        else:
-            installation_date = self.installation_date
-
-        device: dict[str, Any] | None | Unset
-        if isinstance(self.device, Unset):
-            device = UNSET
-        elif isinstance(self.device, DeviceIn):
-            device = self.device.to_dict()
-        else:
-            device = self.device
-
-        relationships: dict[str, Any] | Unset = UNSET
-        if not isinstance(self.relationships, Unset):
-            relationships = self.relationships.to_dict()
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
@@ -103,22 +103,22 @@ class PVAssetIn:
                 "name": name,
             }
         )
-        if rated_power is not UNSET:
-            field_dict["rated_power"] = rated_power
-        if panel_type is not UNSET:
-            field_dict["panel_type"] = panel_type
+        if device is not UNSET:
+            field_dict["device"] = device
+        if installation_date is not UNSET:
+            field_dict["installation_date"] = installation_date
         if inverter_power is not UNSET:
             field_dict["inverter_power"] = inverter_power
         if orientation is not UNSET:
             field_dict["orientation"] = orientation
-        if tilt_angle is not UNSET:
-            field_dict["tilt_angle"] = tilt_angle
-        if installation_date is not UNSET:
-            field_dict["installation_date"] = installation_date
-        if device is not UNSET:
-            field_dict["device"] = device
+        if panel_type is not UNSET:
+            field_dict["panel_type"] = panel_type
+        if rated_power is not UNSET:
+            field_dict["rated_power"] = rated_power
         if relationships is not UNSET:
             field_dict["relationships"] = relationships
+        if tilt_angle is not UNSET:
+            field_dict["tilt_angle"] = tilt_angle
 
         return field_dict
 
@@ -130,23 +130,31 @@ class PVAssetIn:
         d = dict(src_dict)
         name = d.pop("name")
 
-        def _parse_rated_power(data: object) -> float | None | Unset:
+        def _parse_device(data: object) -> DeviceIn | None | Unset:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(float | None | Unset, data)
+            try:
+                if not isinstance(data, dict):
+                    raise TypeError()
+                device_type_0 = DeviceIn.from_dict(data)
 
-        rated_power = _parse_rated_power(d.pop("rated_power", UNSET))
+                return device_type_0
+            except (TypeError, ValueError, AttributeError, KeyError):
+                pass
+            return cast(DeviceIn | None | Unset, data)
 
-        def _parse_panel_type(data: object) -> None | str | Unset:
+        device = _parse_device(d.pop("device", UNSET))
+
+        def _parse_installation_date(data: object) -> None | str | Unset:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
             return cast(None | str | Unset, data)
 
-        panel_type = _parse_panel_type(d.pop("panel_type", UNSET))
+        installation_date = _parse_installation_date(d.pop("installation_date", UNSET))
 
         def _parse_inverter_power(data: object) -> float | None | Unset:
             if data is None:
@@ -166,6 +174,31 @@ class PVAssetIn:
 
         orientation = _parse_orientation(d.pop("orientation", UNSET))
 
+        def _parse_panel_type(data: object) -> None | str | Unset:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            return cast(None | str | Unset, data)
+
+        panel_type = _parse_panel_type(d.pop("panel_type", UNSET))
+
+        def _parse_rated_power(data: object) -> float | None | Unset:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            return cast(float | None | Unset, data)
+
+        rated_power = _parse_rated_power(d.pop("rated_power", UNSET))
+
+        _relationships = d.pop("relationships", UNSET)
+        relationships: AssetRelationshipsIn | Unset
+        if isinstance(_relationships, Unset):
+            relationships = UNSET
+        else:
+            relationships = AssetRelationshipsIn.from_dict(_relationships)
+
         def _parse_tilt_angle(data: object) -> float | None | Unset:
             if data is None:
                 return data
@@ -175,49 +208,16 @@ class PVAssetIn:
 
         tilt_angle = _parse_tilt_angle(d.pop("tilt_angle", UNSET))
 
-        def _parse_installation_date(data: object) -> None | str | Unset:
-            if data is None:
-                return data
-            if isinstance(data, Unset):
-                return data
-            return cast(None | str | Unset, data)
-
-        installation_date = _parse_installation_date(d.pop("installation_date", UNSET))
-
-        def _parse_device(data: object) -> DeviceIn | None | Unset:
-            if data is None:
-                return data
-            if isinstance(data, Unset):
-                return data
-            try:
-                if not isinstance(data, dict):
-                    raise TypeError()
-                device_type_0 = DeviceIn.from_dict(data)
-
-                return device_type_0
-            except (TypeError, ValueError, AttributeError, KeyError):
-                pass
-            return cast(DeviceIn | None | Unset, data)
-
-        device = _parse_device(d.pop("device", UNSET))
-
-        _relationships = d.pop("relationships", UNSET)
-        relationships: AssetRelationshipsIn | Unset
-        if isinstance(_relationships, Unset):
-            relationships = UNSET
-        else:
-            relationships = AssetRelationshipsIn.from_dict(_relationships)
-
         pv_asset_in = cls(
             name=name,
-            rated_power=rated_power,
-            panel_type=panel_type,
+            device=device,
+            installation_date=installation_date,
             inverter_power=inverter_power,
             orientation=orientation,
-            tilt_angle=tilt_angle,
-            installation_date=installation_date,
-            device=device,
+            panel_type=panel_type,
+            rated_power=rated_power,
             relationships=relationships,
+            tilt_angle=tilt_angle,
         )
 
         pv_asset_in.additional_properties = d

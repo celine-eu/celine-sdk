@@ -18,6 +18,17 @@ tasks:
       - git push --tags
 
   gen:
+    desc: "Fetch the live specs, regenerate the clients, then report who the change reaches"
     cmds:
       - uv run celine-sdk spec fetch
       - uv run celine-sdk generate
+      # Regeneration is the one change this repository ships that it cannot test:
+      # the clients are consumed elsewhere and nothing here compiles against them.
+      # This names the repositories affected, and fails if a name that vanished is
+      # still imported by one of them. See .agents/playbooks/regenerating-clients.md.
+      - task: impact
+
+  impact:
+    desc: "Report which repositories a change here reaches (SINCE=<ref>, default HEAD)"
+    cmds:
+      - uv run python scripts/consumer_impact.py --since {{.SINCE | default "HEAD"}}

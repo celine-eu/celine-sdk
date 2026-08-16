@@ -25,7 +25,7 @@ class SuggestionItem:
         to_period (str):
         to_time (str):
         community_kwh (float | Unset):  Default: 0.0.
-        confidence (float | Unset):  Default: 0.75.
+        confidence (float | None | Unset):
         impact_kwh_estimated (float | None | Unset):
         reward_points (int | None | Unset):
     """
@@ -40,7 +40,7 @@ class SuggestionItem:
     to_period: str
     to_time: str
     community_kwh: float | Unset = 0.0
-    confidence: float | Unset = 0.75
+    confidence: float | None | Unset = UNSET
     impact_kwh_estimated: float | None | Unset = UNSET
     reward_points: int | None | Unset = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
@@ -66,7 +66,11 @@ class SuggestionItem:
 
         community_kwh = self.community_kwh
 
-        confidence = self.confidence
+        confidence: float | None | Unset
+        if isinstance(self.confidence, Unset):
+            confidence = UNSET
+        else:
+            confidence = self.confidence
 
         impact_kwh_estimated: float | None | Unset
         if isinstance(self.impact_kwh_estimated, Unset):
@@ -129,7 +133,14 @@ class SuggestionItem:
 
         community_kwh = d.pop("community_kwh", UNSET)
 
-        confidence = d.pop("confidence", UNSET)
+        def _parse_confidence(data: object) -> float | None | Unset:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            return cast(float | None | Unset, data)
+
+        confidence = _parse_confidence(d.pop("confidence", UNSET))
 
         def _parse_impact_kwh_estimated(data: object) -> float | None | Unset:
             if data is None:

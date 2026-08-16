@@ -20,29 +20,29 @@ class LookupByDeliveryPointResponse:
     """
     Attributes:
         community (CommunityRef):
-        member (MemberRef):
         delivery_point (DeliveryPoint):
+        member (MemberRef):
     """
 
     community: CommunityRef
-    member: MemberRef
     delivery_point: DeliveryPoint
+    member: MemberRef
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
         community = self.community.to_dict()
 
-        member = self.member.to_dict()
-
         delivery_point = self.delivery_point.to_dict()
+
+        member = self.member.to_dict()
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update(
             {
                 "community": community,
-                "member": member,
                 "delivery_point": delivery_point,
+                "member": member,
             }
         )
 
@@ -57,14 +57,14 @@ class LookupByDeliveryPointResponse:
         d = dict(src_dict)
         community = CommunityRef.from_dict(d.pop("community"))
 
-        member = MemberRef.from_dict(d.pop("member"))
-
         delivery_point = DeliveryPoint.from_dict(d.pop("delivery_point"))
+
+        member = MemberRef.from_dict(d.pop("member"))
 
         lookup_by_delivery_point_response = cls(
             community=community,
-            member=member,
             delivery_point=delivery_point,
+            member=member,
         )
 
         lookup_by_delivery_point_response.additional_properties = d

@@ -17,15 +17,15 @@ class MetadataIn:
 
     Attributes:
         created (None | str | Unset):
+        description (None | str | Unset):
         updated (None | str | Unset):
         updated_by (None | str | Unset):
-        description (None | str | Unset):
     """
 
     created: None | str | Unset = UNSET
+    description: None | str | Unset = UNSET
     updated: None | str | Unset = UNSET
     updated_by: None | str | Unset = UNSET
-    description: None | str | Unset = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -34,6 +34,12 @@ class MetadataIn:
             created = UNSET
         else:
             created = self.created
+
+        description: None | str | Unset
+        if isinstance(self.description, Unset):
+            description = UNSET
+        else:
+            description = self.description
 
         updated: None | str | Unset
         if isinstance(self.updated, Unset):
@@ -47,23 +53,17 @@ class MetadataIn:
         else:
             updated_by = self.updated_by
 
-        description: None | str | Unset
-        if isinstance(self.description, Unset):
-            description = UNSET
-        else:
-            description = self.description
-
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update({})
         if created is not UNSET:
             field_dict["created"] = created
+        if description is not UNSET:
+            field_dict["description"] = description
         if updated is not UNSET:
             field_dict["updated"] = updated
         if updated_by is not UNSET:
             field_dict["updated_by"] = updated_by
-        if description is not UNSET:
-            field_dict["description"] = description
 
         return field_dict
 
@@ -79,6 +79,15 @@ class MetadataIn:
             return cast(None | str | Unset, data)
 
         created = _parse_created(d.pop("created", UNSET))
+
+        def _parse_description(data: object) -> None | str | Unset:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            return cast(None | str | Unset, data)
+
+        description = _parse_description(d.pop("description", UNSET))
 
         def _parse_updated(data: object) -> None | str | Unset:
             if data is None:
@@ -98,20 +107,11 @@ class MetadataIn:
 
         updated_by = _parse_updated_by(d.pop("updated_by", UNSET))
 
-        def _parse_description(data: object) -> None | str | Unset:
-            if data is None:
-                return data
-            if isinstance(data, Unset):
-                return data
-            return cast(None | str | Unset, data)
-
-        description = _parse_description(d.pop("description", UNSET))
-
         metadata_in = cls(
             created=created,
+            description=description,
             updated=updated,
             updated_by=updated_by,
-            description=description,
         )
 
         metadata_in.additional_properties = d

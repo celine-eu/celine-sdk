@@ -1,12 +1,27 @@
 """AI Assistant API wrapper.
 
-Manually-authored client using httpx.AsyncClient directly, since the
-generated OpenAPI client is not yet available (the service must be running
-for ``task gen`` to fetch its OpenAPI spec).
+Delegates to the generated client in ``celine.sdk.openapi.ai_assistant``, which
+is what keeps the routes honest: a path this service renames disappears from the
+generated package, and this module then fails to import rather than returning
+404s at runtime.
 
-Once ``src/celine/sdk/openapi/ai_assistant/`` is generated, this wrapper
-can be updated to delegate to the generated AuthenticatedClient — the
-public surface stays the same.
+**Two methods deliberately do not delegate**, and both would be broken by doing
+so:
+
+- ``chat_stream`` consumes a server-sent event stream. The generated client
+  reads a whole response before returning; there is no streaming entry point.
+- ``get_attachment_raw`` downloads a file. The generated operation calls
+  ``response.json()`` on the body, which is wrong for bytes.
+
+They use ``httpx`` directly, against the same base URL and bearer token.
+
+The wrapper existed as hand-written httpx throughout because the generated
+package did not exist: ``services.yaml`` pointed at ``/ai-assistant`` while the
+platform routes this service at ``/assistant``, so every ``task gen`` fetched an
+empty body and skipped it. Fixed 2026-08-15.
+
+A failing request raises ``celine.sdk.openapi.ai_assistant.errors.UnexpectedStatus``
+on the delegated methods, and ``httpx.HTTPStatusError`` on the two above.
 
 Example — per-request usage (FastAPI):
     client = AssistantClient(base_url="http://ai-assistant:8000")
@@ -23,18 +38,64 @@ Example — streaming chat:
 from __future__ import annotations
 
 import json
+from io import BytesIO
 from pathlib import Path
 from typing import Any, AsyncGenerator, Optional
 
 import httpx
 
+from celine.sdk.openapi.ai_assistant import AuthenticatedClient
+from celine.sdk.openapi.ai_assistant.api.default import (
+    conversation_messages_conversations_conversation_id_messages_get as _conversation_messages,
+    delete_attachment_attachments_attachment_id_delete as _delete_attachment,
+    delete_conversation_conversations_conversation_id_delete as _delete_conversation,
+    get_user_user_get as _get_user,
+    health_health_get as _health,
+    list_attachments_attachments_get as _list_attachments,
+    list_conversations_conversations_get as _list_conversations,
+    upload_user_upload_post as _upload,
+)
+from celine.sdk.openapi.ai_assistant.errors import UnexpectedStatus
+from celine.sdk.openapi.ai_assistant.models import BodyUploadUserUploadPost
+from celine.sdk.openapi.ai_assistant.types import File, Response
+
 __all__ = ["AssistantClient"]
+
+
+def _checked(response: Response[Any]) -> Response[Any]:
+    """Raise on failure, and tolerate any success the spec did not enumerate.
+
+    The generated client's own `raise_on_unexpected_status` treats *any*
+    undeclared status as an error, including a successful one: these routes
+    declare `200` and `422`, so a service answering `204 No Content` to a delete
+    — which is the conventional answer — would raise. The previous hand-written
+    wrapper used `raise_for_status()` and accepted it.
+
+    So the check is on failure, not on undeclared-ness. A `422` raises here too
+    rather than returning a parsed `HTTPValidationError` where callers expect a
+    dictionary.
+    """
+    if response.status_code >= 400:
+        raise UnexpectedStatus(response.status_code, response.content)
+    return response
+
+
+def _as_dict(parsed: Any) -> Any:
+    """Return generated models as plain dictionaries.
+
+    The routes that carry a response model (`/user`, `/health`) would otherwise
+    change this wrapper's return type from `dict` to a generated class, which is
+    a surface change for every caller.
+    """
+    to_dict = getattr(parsed, "to_dict", None)
+    return to_dict() if callable(to_dict) else parsed
 
 
 class AssistantClient:
     """User-scoped AI Assistant API client.
 
-    Uses ``httpx.AsyncClient`` directly (no generated code dependency).
+    Designed for per-request token usage: initialise once, pass the caller's
+    token on each call.
 
     Args:
         base_url: Base URL of the AI Assistant API.
@@ -62,8 +123,17 @@ class AssistantClient:
             raise ValueError("No token provided and no default_token set")
         return actual
 
-    def _build_client(self, token: Optional[str]) -> httpx.AsyncClient:
-        """Return a fresh ``httpx.AsyncClient`` with auth headers."""
+    def _client(self, token: Optional[str]) -> AuthenticatedClient:
+        """A generated client bound to this call's token."""
+        return AuthenticatedClient(
+            base_url=self._base_url,
+            token=self._resolve_token(token),
+            timeout=self._timeout,
+            verify_ssl=self._verify_ssl,
+        )
+
+    def _raw_client(self, token: Optional[str]) -> httpx.AsyncClient:
+        """A plain httpx client, for the streaming and binary paths only."""
         return httpx.AsyncClient(
             base_url=self._base_url,
             timeout=self._timeout,
@@ -81,6 +151,8 @@ class AssistantClient:
     ) -> AsyncGenerator[dict[str, Any], None]:
         """Stream a chat completion as parsed SSE events.
 
+        Not delegated: the generated client has no streaming entry point.
+
         Args:
             payload: JSON body for ``POST /chat`` (model-defined schema).
             token: Bearer token override.
@@ -90,7 +162,7 @@ class AssistantClient:
             SSE frame.  If the ``data`` line is not valid JSON the raw
             string is returned as-is in the ``data`` key.
         """
-        async with self._build_client(token) as client:
+        async with self._raw_client(token) as client:
             async with client.stream("POST", "/chat", json=payload) as response:
                 response.raise_for_status()
                 event_type: Optional[str] = None
@@ -131,15 +203,17 @@ class AssistantClient:
             Parsed JSON response from the server.
         """
         path = Path(file_path)
-        upload_name = filename or path.name
-        async with self._build_client(token) as client:
-            with path.open("rb") as fh:
-                response = await client.post(
-                    "/upload",
-                    files={"file": (upload_name, fh, content_type)},
-                )
-            response.raise_for_status()
-            return response.json()
+        body = BodyUploadUserUploadPost(
+            file=File(
+                payload=BytesIO(path.read_bytes()),
+                file_name=filename or path.name,
+                mime_type=content_type,
+            )
+        )
+        response = _checked(
+            await _upload.asyncio_detailed(client=self._client(token), body=body)
+        )
+        return _as_dict(response.parsed)
 
     # ── Conversations ───────────────────────────────────────────────────
 
@@ -147,10 +221,8 @@ class AssistantClient:
         self, *, token: Optional[str] = None
     ) -> list[dict[str, Any]]:
         """List conversations for the authenticated user."""
-        async with self._build_client(token) as client:
-            response = await client.get("/conversations")
-            response.raise_for_status()
-            return response.json()
+        response = _checked(await _list_conversations.asyncio_detailed(client=self._client(token)))
+        return _as_dict(response.parsed)
 
     async def get_conversation_messages(
         self,
@@ -159,10 +231,12 @@ class AssistantClient:
         token: Optional[str] = None,
     ) -> list[dict[str, Any]]:
         """Retrieve messages for a conversation."""
-        async with self._build_client(token) as client:
-            response = await client.get(f"/conversations/{conversation_id}/messages")
-            response.raise_for_status()
-            return response.json()
+        response = _checked(
+            await _conversation_messages.asyncio_detailed(
+                conversation_id, client=self._client(token)
+            )
+        )
+        return _as_dict(response.parsed)
 
     async def delete_conversation(
         self,
@@ -171,9 +245,11 @@ class AssistantClient:
         token: Optional[str] = None,
     ) -> None:
         """Delete a conversation."""
-        async with self._build_client(token) as client:
-            response = await client.delete(f"/conversations/{conversation_id}")
-            response.raise_for_status()
+        _checked(
+            await _delete_conversation.asyncio_detailed(
+                conversation_id, client=self._client(token)
+            )
+        )
 
     # ── Attachments ─────────────────────────────────────────────────────
 
@@ -181,10 +257,8 @@ class AssistantClient:
         self, *, token: Optional[str] = None
     ) -> list[dict[str, Any]]:
         """List attachments for the authenticated user."""
-        async with self._build_client(token) as client:
-            response = await client.get("/attachments")
-            response.raise_for_status()
-            return response.json()
+        response = _checked(await _list_attachments.asyncio_detailed(client=self._client(token)))
+        return _as_dict(response.parsed)
 
     async def get_attachment_raw(
         self,
@@ -194,10 +268,13 @@ class AssistantClient:
     ) -> bytes:
         """Download the raw file content of an attachment.
 
+        Not delegated: the generated operation parses the body as JSON, which
+        would corrupt or reject a file.
+
         Returns:
             Raw bytes of the attachment file.
         """
-        async with self._build_client(token) as client:
+        async with self._raw_client(token) as client:
             response = await client.get(f"/attachments/{attachment_id}/raw")
             response.raise_for_status()
             return response.content
@@ -209,24 +286,20 @@ class AssistantClient:
         token: Optional[str] = None,
     ) -> None:
         """Delete an attachment."""
-        async with self._build_client(token) as client:
-            response = await client.delete(f"/attachments/{attachment_id}")
-            response.raise_for_status()
+        _checked(
+            await _delete_attachment.asyncio_detailed(
+                attachment_id, client=self._client(token)
+            )
+        )
 
     # ── User / Health ───────────────────────────────────────────────────
 
-    async def get_user(
-        self, *, token: Optional[str] = None
-    ) -> dict[str, Any]:
+    async def get_user(self, *, token: Optional[str] = None) -> dict[str, Any]:
         """Get authenticated user info."""
-        async with self._build_client(token) as client:
-            response = await client.get("/user")
-            response.raise_for_status()
-            return response.json()
+        response = _checked(await _get_user.asyncio_detailed(client=self._client(token)))
+        return _as_dict(response.parsed)
 
     async def health(self, *, token: Optional[str] = None) -> dict[str, Any]:
         """Check service health."""
-        async with self._build_client(token) as client:
-            response = await client.get("/health")
-            response.raise_for_status()
-            return response.json()
+        response = _checked(await _health.asyncio_detailed(client=self._client(token)))
+        return _as_dict(response.parsed)

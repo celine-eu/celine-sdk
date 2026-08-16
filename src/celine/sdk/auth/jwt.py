@@ -11,7 +11,22 @@ import time
 import jwt
 from jwt import PyJWKClient
 
+# Re-exported, not redefined. This module used to carry a second, byte-identical
+# `AccessToken` of its own, which meant `celine.sdk.auth.AccessToken` and
+# `celine.sdk.auth.jwt.AccessToken` were unrelated types to `isinstance` — a
+# failure that reads as impossible. The name still resolves here, and now
+# resolves to the one class every provider actually returns.
+from celine.sdk.auth.models import AccessToken
 from celine.sdk.settings.models import OidcSettings
+
+__all__ = [
+    "AccessToken",
+    "JwtUser",
+    "Organization",
+    "extract_groups",
+    "get_expected_audiences",
+    "is_service_account",
+]
 
 
 logger = logging.getLogger(__name__)
@@ -373,21 +388,3 @@ class JwtUser:
             "display_name": self.display_name,
             **self.claims,
         }
-
-
-@dataclass
-class AccessToken:
-    """Access token with expiration tracking."""
-
-    access_token: str
-    expires_at: float
-    refresh_token: str | None = None
-    token_type: str = "Bearer"
-
-    def is_valid(self, leeway: int = 30) -> bool:
-        """Check if token is still valid."""
-        return time.time() < (self.expires_at - leeway)
-
-    def to_header(self) -> str:
-        """Get Authorization header value."""
-        return f"{self.token_type} {self.access_token}"

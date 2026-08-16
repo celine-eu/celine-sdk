@@ -21,41 +21,41 @@ T = TypeVar("T", bound="UserMembership")
 class UserMembership:
     """
     Attributes:
-        member (UserMemberSummary):
         community (UserCommunitySummary):
-        delivery_points_count (int | Unset):  Default: 0.
+        member (UserMemberSummary):
         assets_count (UserMembershipAssetsCount | Unset):
+        delivery_points_count (int | Unset):  Default: 0.
     """
 
-    member: UserMemberSummary
     community: UserCommunitySummary
-    delivery_points_count: int | Unset = 0
+    member: UserMemberSummary
     assets_count: UserMembershipAssetsCount | Unset = UNSET
+    delivery_points_count: int | Unset = 0
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
-        member = self.member.to_dict()
-
         community = self.community.to_dict()
 
-        delivery_points_count = self.delivery_points_count
+        member = self.member.to_dict()
 
         assets_count: dict[str, Any] | Unset = UNSET
         if not isinstance(self.assets_count, Unset):
             assets_count = self.assets_count.to_dict()
 
+        delivery_points_count = self.delivery_points_count
+
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update(
             {
-                "member": member,
                 "community": community,
+                "member": member,
             }
         )
-        if delivery_points_count is not UNSET:
-            field_dict["delivery_points_count"] = delivery_points_count
         if assets_count is not UNSET:
             field_dict["assets_count"] = assets_count
+        if delivery_points_count is not UNSET:
+            field_dict["delivery_points_count"] = delivery_points_count
 
         return field_dict
 
@@ -66,11 +66,9 @@ class UserMembership:
         from ..models.user_membership_assets_count import UserMembershipAssetsCount
 
         d = dict(src_dict)
-        member = UserMemberSummary.from_dict(d.pop("member"))
-
         community = UserCommunitySummary.from_dict(d.pop("community"))
 
-        delivery_points_count = d.pop("delivery_points_count", UNSET)
+        member = UserMemberSummary.from_dict(d.pop("member"))
 
         _assets_count = d.pop("assets_count", UNSET)
         assets_count: UserMembershipAssetsCount | Unset
@@ -79,11 +77,13 @@ class UserMembership:
         else:
             assets_count = UserMembershipAssetsCount.from_dict(_assets_count)
 
+        delivery_points_count = d.pop("delivery_points_count", UNSET)
+
         user_membership = cls(
-            member=member,
             community=community,
-            delivery_points_count=delivery_points_count,
+            member=member,
             assets_count=assets_count,
+            delivery_points_count=delivery_points_count,
         )
 
         user_membership.additional_properties = d

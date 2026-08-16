@@ -23,25 +23,23 @@ class DigitalTwinEvent:
     """
     Attributes:
         event_type (str):
-        user_id (str):
         community_id (None | str | Unset):
         facts (Facts | Unset): Enriched facts computed by Digital Twin
         payload (Payload | Unset):
         timestamp (datetime.datetime | Unset):
+        user_id (None | str | Unset):
     """
 
     event_type: str
-    user_id: str
     community_id: None | str | Unset = UNSET
     facts: Facts | Unset = UNSET
     payload: Payload | Unset = UNSET
     timestamp: datetime.datetime | Unset = UNSET
+    user_id: None | str | Unset = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
         event_type = self.event_type
-
-        user_id = self.user_id
 
         community_id: None | str | Unset
         if isinstance(self.community_id, Unset):
@@ -61,12 +59,17 @@ class DigitalTwinEvent:
         if not isinstance(self.timestamp, Unset):
             timestamp = self.timestamp.isoformat()
 
+        user_id: None | str | Unset
+        if isinstance(self.user_id, Unset):
+            user_id = UNSET
+        else:
+            user_id = self.user_id
+
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update(
             {
                 "event_type": event_type,
-                "user_id": user_id,
             }
         )
         if community_id is not UNSET:
@@ -77,6 +80,8 @@ class DigitalTwinEvent:
             field_dict["payload"] = payload
         if timestamp is not UNSET:
             field_dict["timestamp"] = timestamp
+        if user_id is not UNSET:
+            field_dict["user_id"] = user_id
 
         return field_dict
 
@@ -87,8 +92,6 @@ class DigitalTwinEvent:
 
         d = dict(src_dict)
         event_type = d.pop("event_type")
-
-        user_id = d.pop("user_id")
 
         def _parse_community_id(data: object) -> None | str | Unset:
             if data is None:
@@ -120,13 +123,22 @@ class DigitalTwinEvent:
         else:
             timestamp = isoparse(_timestamp)
 
+        def _parse_user_id(data: object) -> None | str | Unset:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            return cast(None | str | Unset, data)
+
+        user_id = _parse_user_id(d.pop("user_id", UNSET))
+
         digital_twin_event = cls(
             event_type=event_type,
-            user_id=user_id,
             community_id=community_id,
             facts=facts,
             payload=payload,
             timestamp=timestamp,
+            user_id=user_id,
         )
 
         digital_twin_event.additional_properties = d

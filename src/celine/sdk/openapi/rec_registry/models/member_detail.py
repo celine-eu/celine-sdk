@@ -20,46 +20,52 @@ T = TypeVar("T", bound="MemberDetail")
 class MemberDetail:
     """
     Attributes:
+        area (str):
         id (str):
         key (str):
-        user_id (str):
         name (str):
         role (str):
-        area (str):
         status (str):
+        user_id (str):
+        created_at (None | str | Unset):
         delivery_points (list[DeliveryPoint] | Unset):
         extra (MemberDetailExtra | Unset):
-        created_at (None | str | Unset):
         updated_at (None | str | Unset):
     """
 
+    area: str
     id: str
     key: str
-    user_id: str
     name: str
     role: str
-    area: str
     status: str
+    user_id: str
+    created_at: None | str | Unset = UNSET
     delivery_points: list[DeliveryPoint] | Unset = UNSET
     extra: MemberDetailExtra | Unset = UNSET
-    created_at: None | str | Unset = UNSET
     updated_at: None | str | Unset = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
+        area = self.area
+
         id = self.id
 
         key = self.key
-
-        user_id = self.user_id
 
         name = self.name
 
         role = self.role
 
-        area = self.area
-
         status = self.status
+
+        user_id = self.user_id
+
+        created_at: None | str | Unset
+        if isinstance(self.created_at, Unset):
+            created_at = UNSET
+        else:
+            created_at = self.created_at
 
         delivery_points: list[dict[str, Any]] | Unset = UNSET
         if not isinstance(self.delivery_points, Unset):
@@ -72,12 +78,6 @@ class MemberDetail:
         if not isinstance(self.extra, Unset):
             extra = self.extra.to_dict()
 
-        created_at: None | str | Unset
-        if isinstance(self.created_at, Unset):
-            created_at = UNSET
-        else:
-            created_at = self.created_at
-
         updated_at: None | str | Unset
         if isinstance(self.updated_at, Unset):
             updated_at = UNSET
@@ -88,21 +88,21 @@ class MemberDetail:
         field_dict.update(self.additional_properties)
         field_dict.update(
             {
+                "area": area,
                 "id": id,
                 "key": key,
-                "user_id": user_id,
                 "name": name,
                 "role": role,
-                "area": area,
                 "status": status,
+                "user_id": user_id,
             }
         )
+        if created_at is not UNSET:
+            field_dict["created_at"] = created_at
         if delivery_points is not UNSET:
             field_dict["delivery_points"] = delivery_points
         if extra is not UNSET:
             field_dict["extra"] = extra
-        if created_at is not UNSET:
-            field_dict["created_at"] = created_at
         if updated_at is not UNSET:
             field_dict["updated_at"] = updated_at
 
@@ -114,19 +114,28 @@ class MemberDetail:
         from ..models.member_detail_extra import MemberDetailExtra
 
         d = dict(src_dict)
+        area = d.pop("area")
+
         id = d.pop("id")
 
         key = d.pop("key")
-
-        user_id = d.pop("user_id")
 
         name = d.pop("name")
 
         role = d.pop("role")
 
-        area = d.pop("area")
-
         status = d.pop("status")
+
+        user_id = d.pop("user_id")
+
+        def _parse_created_at(data: object) -> None | str | Unset:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            return cast(None | str | Unset, data)
+
+        created_at = _parse_created_at(d.pop("created_at", UNSET))
 
         _delivery_points = d.pop("delivery_points", UNSET)
         delivery_points: list[DeliveryPoint] | Unset = UNSET
@@ -144,15 +153,6 @@ class MemberDetail:
         else:
             extra = MemberDetailExtra.from_dict(_extra)
 
-        def _parse_created_at(data: object) -> None | str | Unset:
-            if data is None:
-                return data
-            if isinstance(data, Unset):
-                return data
-            return cast(None | str | Unset, data)
-
-        created_at = _parse_created_at(d.pop("created_at", UNSET))
-
         def _parse_updated_at(data: object) -> None | str | Unset:
             if data is None:
                 return data
@@ -163,16 +163,16 @@ class MemberDetail:
         updated_at = _parse_updated_at(d.pop("updated_at", UNSET))
 
         member_detail = cls(
+            area=area,
             id=id,
             key=key,
-            user_id=user_id,
             name=name,
             role=role,
-            area=area,
             status=status,
+            user_id=user_id,
+            created_at=created_at,
             delivery_points=delivery_points,
             extra=extra,
-            created_at=created_at,
             updated_at=updated_at,
         )
 

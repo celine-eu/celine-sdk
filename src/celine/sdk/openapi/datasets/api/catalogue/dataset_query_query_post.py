@@ -14,12 +14,24 @@ from ...types import UNSET, Response, Unset
 def _get_kwargs(
     *,
     body: DatasetQueryModel,
+    authorization: None | str | Unset = UNSET,
     edc_contract_agreement_id: None | str | Unset = UNSET,
+    edc_transfer_process_id: None | str | Unset = UNSET,
+    edc_purpose: None | str | Unset = UNSET,
     edc_bpn: None | str | Unset = UNSET,
 ) -> dict[str, Any]:
     headers: dict[str, Any] = {}
+    if not isinstance(authorization, Unset):
+        headers["authorization"] = authorization
+
     if not isinstance(edc_contract_agreement_id, Unset):
         headers["edc-contract-agreement-id"] = edc_contract_agreement_id
+
+    if not isinstance(edc_transfer_process_id, Unset):
+        headers["edc-transfer-process-id"] = edc_transfer_process_id
+
+    if not isinstance(edc_purpose, Unset):
+        headers["edc-purpose"] = edc_purpose
 
     if not isinstance(edc_bpn, Unset):
         headers["edc-bpn"] = edc_bpn
@@ -71,7 +83,10 @@ def sync_detailed(
     *,
     client: AuthenticatedClient,
     body: DatasetQueryModel,
+    authorization: None | str | Unset = UNSET,
     edc_contract_agreement_id: None | str | Unset = UNSET,
+    edc_transfer_process_id: None | str | Unset = UNSET,
+    edc_purpose: None | str | Unset = UNSET,
     edc_bpn: None | str | Unset = UNSET,
 ) -> Response[DatasetQueryResult | HTTPValidationError]:
     """Dataset Query
@@ -79,7 +94,10 @@ def sync_detailed(
      Query available datasets
 
     Args:
+        authorization (None | str | Unset):
         edc_contract_agreement_id (None | str | Unset):
+        edc_transfer_process_id (None | str | Unset):
+        edc_purpose (None | str | Unset):
         edc_bpn (None | str | Unset):
         body (DatasetQueryModel):
 
@@ -93,7 +111,10 @@ def sync_detailed(
 
     kwargs = _get_kwargs(
         body=body,
+        authorization=authorization,
         edc_contract_agreement_id=edc_contract_agreement_id,
+        edc_transfer_process_id=edc_transfer_process_id,
+        edc_purpose=edc_purpose,
         edc_bpn=edc_bpn,
     )
 
@@ -108,7 +129,10 @@ def sync(
     *,
     client: AuthenticatedClient,
     body: DatasetQueryModel,
+    authorization: None | str | Unset = UNSET,
     edc_contract_agreement_id: None | str | Unset = UNSET,
+    edc_transfer_process_id: None | str | Unset = UNSET,
+    edc_purpose: None | str | Unset = UNSET,
     edc_bpn: None | str | Unset = UNSET,
 ) -> DatasetQueryResult | HTTPValidationError | None:
     """Dataset Query
@@ -116,7 +140,10 @@ def sync(
      Query available datasets
 
     Args:
+        authorization (None | str | Unset):
         edc_contract_agreement_id (None | str | Unset):
+        edc_transfer_process_id (None | str | Unset):
+        edc_purpose (None | str | Unset):
         edc_bpn (None | str | Unset):
         body (DatasetQueryModel):
 
@@ -131,7 +158,10 @@ def sync(
     return sync_detailed(
         client=client,
         body=body,
+        authorization=authorization,
         edc_contract_agreement_id=edc_contract_agreement_id,
+        edc_transfer_process_id=edc_transfer_process_id,
+        edc_purpose=edc_purpose,
         edc_bpn=edc_bpn,
     ).parsed
 
@@ -140,7 +170,10 @@ async def asyncio_detailed(
     *,
     client: AuthenticatedClient,
     body: DatasetQueryModel,
+    authorization: None | str | Unset = UNSET,
     edc_contract_agreement_id: None | str | Unset = UNSET,
+    edc_transfer_process_id: None | str | Unset = UNSET,
+    edc_purpose: None | str | Unset = UNSET,
     edc_bpn: None | str | Unset = UNSET,
 ) -> Response[DatasetQueryResult | HTTPValidationError]:
     """Dataset Query
@@ -148,7 +181,10 @@ async def asyncio_detailed(
      Query available datasets
 
     Args:
+        authorization (None | str | Unset):
         edc_contract_agreement_id (None | str | Unset):
+        edc_transfer_process_id (None | str | Unset):
+        edc_purpose (None | str | Unset):
         edc_bpn (None | str | Unset):
         body (DatasetQueryModel):
 
@@ -162,7 +198,10 @@ async def asyncio_detailed(
 
     kwargs = _get_kwargs(
         body=body,
+        authorization=authorization,
         edc_contract_agreement_id=edc_contract_agreement_id,
+        edc_transfer_process_id=edc_transfer_process_id,
+        edc_purpose=edc_purpose,
         edc_bpn=edc_bpn,
     )
 
@@ -175,7 +214,10 @@ async def asyncio(
     *,
     client: AuthenticatedClient,
     body: DatasetQueryModel,
+    authorization: None | str | Unset = UNSET,
     edc_contract_agreement_id: None | str | Unset = UNSET,
+    edc_transfer_process_id: None | str | Unset = UNSET,
+    edc_purpose: None | str | Unset = UNSET,
     edc_bpn: None | str | Unset = UNSET,
 ) -> DatasetQueryResult | HTTPValidationError | None:
     """Dataset Query
@@ -183,7 +225,10 @@ async def asyncio(
      Query available datasets
 
     Args:
+        authorization (None | str | Unset):
         edc_contract_agreement_id (None | str | Unset):
+        edc_transfer_process_id (None | str | Unset):
+        edc_purpose (None | str | Unset):
         edc_bpn (None | str | Unset):
         body (DatasetQueryModel):
 
@@ -199,7 +244,10 @@ async def asyncio(
         await asyncio_detailed(
             client=client,
             body=body,
+            authorization=authorization,
             edc_contract_agreement_id=edc_contract_agreement_id,
+            edc_transfer_process_id=edc_transfer_process_id,
+            edc_purpose=edc_purpose,
             edc_bpn=edc_bpn,
         )
     ).parsed

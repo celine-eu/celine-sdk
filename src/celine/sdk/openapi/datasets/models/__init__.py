@@ -5,7 +5,9 @@ from .catalogue_import_model import CatalogueImportModel
 from .catalogue_import_response import CatalogueImportResponse
 from .catalogue_search_request import CatalogueSearchRequest
 from .contact_point import ContactPoint
+from .context import Context
 from .dataset_entry_model import DatasetEntryModel
+from .dataset_entry_model_ontology_mapping_type_0 import DatasetEntryModelOntologyMappingType0
 from .dataset_query_model import DatasetQueryModel
 from .dataset_query_result import DatasetQueryResult
 from .dataset_query_result_items_item import DatasetQueryResultItemsItem
@@ -22,7 +24,9 @@ __all__ = (
     "CatalogueImportResponse",
     "CatalogueSearchRequest",
     "ContactPoint",
+    "Context",
     "DatasetEntryModel",
+    "DatasetEntryModelOntologyMappingType0",
     "DatasetQueryModel",
     "DatasetQueryResult",
     "DatasetQueryResultItemsItem",

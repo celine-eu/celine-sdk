@@ -19,48 +19,48 @@ T = TypeVar("T", bound="GlobalMemberLookup")
 class GlobalMemberLookup:
     """
     Attributes:
-        id (str):
-        key (str):
-        user_id (str):
-        name (str):
-        role (str):
         area (str):
-        status (str):
         community_key (str):
         community_name (str):
+        id (str):
+        key (str):
+        name (str):
+        role (str):
+        status (str):
+        user_id (str):
         delivery_points (list[DeliveryPoint] | Unset):
     """
 
-    id: str
-    key: str
-    user_id: str
-    name: str
-    role: str
     area: str
-    status: str
     community_key: str
     community_name: str
+    id: str
+    key: str
+    name: str
+    role: str
+    status: str
+    user_id: str
     delivery_points: list[DeliveryPoint] | Unset = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
+        area = self.area
+
+        community_key = self.community_key
+
+        community_name = self.community_name
+
         id = self.id
 
         key = self.key
-
-        user_id = self.user_id
 
         name = self.name
 
         role = self.role
 
-        area = self.area
-
         status = self.status
 
-        community_key = self.community_key
-
-        community_name = self.community_name
+        user_id = self.user_id
 
         delivery_points: list[dict[str, Any]] | Unset = UNSET
         if not isinstance(self.delivery_points, Unset):
@@ -73,15 +73,15 @@ class GlobalMemberLookup:
         field_dict.update(self.additional_properties)
         field_dict.update(
             {
-                "id": id,
-                "key": key,
-                "user_id": user_id,
-                "name": name,
-                "role": role,
                 "area": area,
-                "status": status,
                 "community_key": community_key,
                 "community_name": community_name,
+                "id": id,
+                "key": key,
+                "name": name,
+                "role": role,
+                "status": status,
+                "user_id": user_id,
             }
         )
         if delivery_points is not UNSET:
@@ -94,23 +94,23 @@ class GlobalMemberLookup:
         from ..models.delivery_point import DeliveryPoint
 
         d = dict(src_dict)
+        area = d.pop("area")
+
+        community_key = d.pop("community_key")
+
+        community_name = d.pop("community_name")
+
         id = d.pop("id")
 
         key = d.pop("key")
-
-        user_id = d.pop("user_id")
 
         name = d.pop("name")
 
         role = d.pop("role")
 
-        area = d.pop("area")
-
         status = d.pop("status")
 
-        community_key = d.pop("community_key")
-
-        community_name = d.pop("community_name")
+        user_id = d.pop("user_id")
 
         _delivery_points = d.pop("delivery_points", UNSET)
         delivery_points: list[DeliveryPoint] | Unset = UNSET
@@ -122,15 +122,15 @@ class GlobalMemberLookup:
                 delivery_points.append(delivery_points_item)
 
         global_member_lookup = cls(
-            id=id,
-            key=key,
-            user_id=user_id,
-            name=name,
-            role=role,
             area=area,
-            status=status,
             community_key=community_key,
             community_name=community_name,
+            id=id,
+            key=key,
+            name=name,
+            role=role,
+            status=status,
+            user_id=user_id,
             delivery_points=delivery_points,
         )
 

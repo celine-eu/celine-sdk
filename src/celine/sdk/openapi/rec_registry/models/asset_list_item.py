@@ -15,32 +15,32 @@ T = TypeVar("T", bound="AssetListItem")
 class AssetListItem:
     """
     Attributes:
+        asset_type (str):
         id (str):
         key (str):
-        asset_type (str):
         name (str):
         owner_key (str):
         owner_user_id (str):
-        sensor_id (None | str | Unset):
         device_type (None | str | Unset):
+        sensor_id (None | str | Unset):
     """
 
+    asset_type: str
     id: str
     key: str
-    asset_type: str
     name: str
     owner_key: str
     owner_user_id: str
-    sensor_id: None | str | Unset = UNSET
     device_type: None | str | Unset = UNSET
+    sensor_id: None | str | Unset = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
+        asset_type = self.asset_type
+
         id = self.id
 
         key = self.key
-
-        asset_type = self.asset_type
 
         name = self.name
 
@@ -48,60 +48,51 @@ class AssetListItem:
 
         owner_user_id = self.owner_user_id
 
-        sensor_id: None | str | Unset
-        if isinstance(self.sensor_id, Unset):
-            sensor_id = UNSET
-        else:
-            sensor_id = self.sensor_id
-
         device_type: None | str | Unset
         if isinstance(self.device_type, Unset):
             device_type = UNSET
         else:
             device_type = self.device_type
 
+        sensor_id: None | str | Unset
+        if isinstance(self.sensor_id, Unset):
+            sensor_id = UNSET
+        else:
+            sensor_id = self.sensor_id
+
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update(
             {
+                "asset_type": asset_type,
                 "id": id,
                 "key": key,
-                "asset_type": asset_type,
                 "name": name,
                 "owner_key": owner_key,
                 "owner_user_id": owner_user_id,
             }
         )
-        if sensor_id is not UNSET:
-            field_dict["sensor_id"] = sensor_id
         if device_type is not UNSET:
             field_dict["device_type"] = device_type
+        if sensor_id is not UNSET:
+            field_dict["sensor_id"] = sensor_id
 
         return field_dict
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
         d = dict(src_dict)
+        asset_type = d.pop("asset_type")
+
         id = d.pop("id")
 
         key = d.pop("key")
-
-        asset_type = d.pop("asset_type")
 
         name = d.pop("name")
 
         owner_key = d.pop("owner_key")
 
         owner_user_id = d.pop("owner_user_id")
-
-        def _parse_sensor_id(data: object) -> None | str | Unset:
-            if data is None:
-                return data
-            if isinstance(data, Unset):
-                return data
-            return cast(None | str | Unset, data)
-
-        sensor_id = _parse_sensor_id(d.pop("sensor_id", UNSET))
 
         def _parse_device_type(data: object) -> None | str | Unset:
             if data is None:
@@ -112,15 +103,24 @@ class AssetListItem:
 
         device_type = _parse_device_type(d.pop("device_type", UNSET))
 
+        def _parse_sensor_id(data: object) -> None | str | Unset:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            return cast(None | str | Unset, data)
+
+        sensor_id = _parse_sensor_id(d.pop("sensor_id", UNSET))
+
         asset_list_item = cls(
+            asset_type=asset_type,
             id=id,
             key=key,
-            asset_type=asset_type,
             name=name,
             owner_key=owner_key,
             owner_user_id=owner_user_id,
-            sensor_id=sensor_id,
             device_type=device_type,
+            sensor_id=sensor_id,
         )
 
         asset_list_item.additional_properties = d

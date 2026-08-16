@@ -23,20 +23,20 @@ class AssetUpsert:
     charger cannot be stored with a heat pump's fields.
 
         Attributes:
-            key (str):
             asset_type (str):
+            key (str):
             properties (AssetUpsertProperties | Unset):
     """
 
-    key: str
     asset_type: str
+    key: str
     properties: AssetUpsertProperties | Unset = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
-        key = self.key
-
         asset_type = self.asset_type
+
+        key = self.key
 
         properties: dict[str, Any] | Unset = UNSET
         if not isinstance(self.properties, Unset):
@@ -46,8 +46,8 @@ class AssetUpsert:
         field_dict.update(self.additional_properties)
         field_dict.update(
             {
-                "key": key,
                 "asset_type": asset_type,
+                "key": key,
             }
         )
         if properties is not UNSET:
@@ -60,9 +60,9 @@ class AssetUpsert:
         from ..models.asset_upsert_properties import AssetUpsertProperties
 
         d = dict(src_dict)
-        key = d.pop("key")
-
         asset_type = d.pop("asset_type")
+
+        key = d.pop("key")
 
         _properties = d.pop("properties", UNSET)
         properties: AssetUpsertProperties | Unset
@@ -72,8 +72,8 @@ class AssetUpsert:
             properties = AssetUpsertProperties.from_dict(_properties)
 
         asset_upsert = cls(
-            key=key,
             asset_type=asset_type,
+            key=key,
             properties=properties,
         )
 

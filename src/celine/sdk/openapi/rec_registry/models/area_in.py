@@ -22,15 +22,15 @@ class AreaIn:
 
     Attributes:
         name (str):
-        topology (list[str] | Unset):
-        location (LocationIn | None | Unset):
         geometry (AreaInGeometryType0 | None | Unset):
+        location (LocationIn | None | Unset):
+        topology (list[str] | Unset):
     """
 
     name: str
-    topology: list[str] | Unset = UNSET
-    location: LocationIn | None | Unset = UNSET
     geometry: AreaInGeometryType0 | None | Unset = UNSET
+    location: LocationIn | None | Unset = UNSET
+    topology: list[str] | Unset = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -38,18 +38,6 @@ class AreaIn:
         from ..models.location_in import LocationIn
 
         name = self.name
-
-        topology: list[str] | Unset = UNSET
-        if not isinstance(self.topology, Unset):
-            topology = self.topology
-
-        location: dict[str, Any] | None | Unset
-        if isinstance(self.location, Unset):
-            location = UNSET
-        elif isinstance(self.location, LocationIn):
-            location = self.location.to_dict()
-        else:
-            location = self.location
 
         geometry: dict[str, Any] | None | Unset
         if isinstance(self.geometry, Unset):
@@ -59,6 +47,18 @@ class AreaIn:
         else:
             geometry = self.geometry
 
+        location: dict[str, Any] | None | Unset
+        if isinstance(self.location, Unset):
+            location = UNSET
+        elif isinstance(self.location, LocationIn):
+            location = self.location.to_dict()
+        else:
+            location = self.location
+
+        topology: list[str] | Unset = UNSET
+        if not isinstance(self.topology, Unset):
+            topology = self.topology
+
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update(
@@ -66,12 +66,12 @@ class AreaIn:
                 "name": name,
             }
         )
-        if topology is not UNSET:
-            field_dict["topology"] = topology
-        if location is not UNSET:
-            field_dict["location"] = location
         if geometry is not UNSET:
             field_dict["geometry"] = geometry
+        if location is not UNSET:
+            field_dict["location"] = location
+        if topology is not UNSET:
+            field_dict["topology"] = topology
 
         return field_dict
 
@@ -82,25 +82,6 @@ class AreaIn:
 
         d = dict(src_dict)
         name = d.pop("name")
-
-        topology = cast(list[str], d.pop("topology", UNSET))
-
-        def _parse_location(data: object) -> LocationIn | None | Unset:
-            if data is None:
-                return data
-            if isinstance(data, Unset):
-                return data
-            try:
-                if not isinstance(data, dict):
-                    raise TypeError()
-                location_type_0 = LocationIn.from_dict(data)
-
-                return location_type_0
-            except (TypeError, ValueError, AttributeError, KeyError):
-                pass
-            return cast(LocationIn | None | Unset, data)
-
-        location = _parse_location(d.pop("location", UNSET))
 
         def _parse_geometry(data: object) -> AreaInGeometryType0 | None | Unset:
             if data is None:
@@ -119,11 +100,30 @@ class AreaIn:
 
         geometry = _parse_geometry(d.pop("geometry", UNSET))
 
+        def _parse_location(data: object) -> LocationIn | None | Unset:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            try:
+                if not isinstance(data, dict):
+                    raise TypeError()
+                location_type_0 = LocationIn.from_dict(data)
+
+                return location_type_0
+            except (TypeError, ValueError, AttributeError, KeyError):
+                pass
+            return cast(LocationIn | None | Unset, data)
+
+        location = _parse_location(d.pop("location", UNSET))
+
+        topology = cast(list[str], d.pop("topology", UNSET))
+
         area_in = cls(
             name=name,
-            topology=topology,
-            location=location,
             geometry=geometry,
+            location=location,
+            topology=topology,
         )
 
         area_in.additional_properties = d

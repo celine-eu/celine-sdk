@@ -15,6 +15,30 @@ gen_app = typer.Typer(
 )
 
 
+MISSING_GENERATOR = (
+    "%s is not on PATH, so clients cannot be generated.\n"
+    "\n"
+    "It is declared in this project: pyproject.toml, the 'dev' dependency group, "
+    "marked python_version >= '3.11'. Missing means the environment is wrong, not "
+    "that something needs installing by hand — either the group was never synced, "
+    "or this interpreter is 3.10, where the generators do not install at all.\n"
+    "\n"
+    "    uv sync    # in a checkout of celine-sdk"
+)
+
+
+def _run_generator(cmd: list[str]) -> subprocess.CompletedProcess[str]:
+    """Run a generator, turning its absence into an answerable error.
+
+    Without this the command dies on `FileNotFoundError: openapi-python-client`,
+    which says nothing about why a tool this project declares is not there.
+    """
+    try:
+        return subprocess.run(cmd, capture_output=True, text=True)
+    except FileNotFoundError:
+        raise RuntimeError(MISSING_GENERATOR % cmd[0]) from None
+
+
 def _write_config(path: Path, package_name: str) -> None:
     path.write_text(
         "\n".join(
@@ -43,7 +67,7 @@ def _generate_openapi_client(spec_path: Path, out_dir: Path, package_name: str) 
         str(cfg),
     ]
 
-    proc = subprocess.run(cmd, capture_output=True, text=True)
+    proc = _run_generator(cmd)
 
     if proc.stdout:
         typer.echo(proc.stdout)
@@ -77,7 +101,7 @@ def _generate_openapi_schemas(spec_path: Path, schemas_path: Path) -> None:
         "ruff-check",
     ]
 
-    proc = subprocess.run(cmd, capture_output=True, text=True)
+    proc = _run_generator(cmd)
 
     if proc.stdout:
         typer.echo(proc.stdout)

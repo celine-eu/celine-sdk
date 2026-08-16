@@ -13,28 +13,28 @@ T = TypeVar("T", bound="UserMemberSummary")
 class UserMemberSummary:
     """
     Attributes:
+        area (str):
         key (str):
         name (str):
         role (str):
-        area (str):
         status (str):
     """
 
+    area: str
     key: str
     name: str
     role: str
-    area: str
     status: str
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
+        area = self.area
+
         key = self.key
 
         name = self.name
 
         role = self.role
-
-        area = self.area
 
         status = self.status
 
@@ -42,10 +42,10 @@ class UserMemberSummary:
         field_dict.update(self.additional_properties)
         field_dict.update(
             {
+                "area": area,
                 "key": key,
                 "name": name,
                 "role": role,
-                "area": area,
                 "status": status,
             }
         )
@@ -55,21 +55,21 @@ class UserMemberSummary:
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
         d = dict(src_dict)
+        area = d.pop("area")
+
         key = d.pop("key")
 
         name = d.pop("name")
 
         role = d.pop("role")
 
-        area = d.pop("area")
-
         status = d.pop("status")
 
         user_member_summary = cls(
+            area=area,
             key=key,
             name=name,
             role=role,
-            area=area,
             status=status,
         )
 

@@ -15,18 +15,18 @@ class MemberInCommunity:
     Attributes:
         id (str):
         key (str):
-        user_id (str):
         name (str):
         role (str):
         status (str):
+        user_id (str):
     """
 
     id: str
     key: str
-    user_id: str
     name: str
     role: str
     status: str
+    user_id: str
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -34,13 +34,13 @@ class MemberInCommunity:
 
         key = self.key
 
-        user_id = self.user_id
-
         name = self.name
 
         role = self.role
 
         status = self.status
+
+        user_id = self.user_id
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
@@ -48,10 +48,10 @@ class MemberInCommunity:
             {
                 "id": id,
                 "key": key,
-                "user_id": user_id,
                 "name": name,
                 "role": role,
                 "status": status,
+                "user_id": user_id,
             }
         )
 
@@ -64,21 +64,21 @@ class MemberInCommunity:
 
         key = d.pop("key")
 
-        user_id = d.pop("user_id")
-
         name = d.pop("name")
 
         role = d.pop("role")
 
         status = d.pop("status")
 
+        user_id = d.pop("user_id")
+
         member_in_community = cls(
             id=id,
             key=key,
-            user_id=user_id,
             name=name,
             role=role,
             status=status,
+            user_id=user_id,
         )
 
         member_in_community.additional_properties = d

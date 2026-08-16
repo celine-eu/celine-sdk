@@ -22,14 +22,14 @@ class AreaUpsert:
 
     Attributes:
         name (str):
-        location (Location | None | Unset):
         geometry (AreaUpsertGeometryType0 | None | Unset):
+        location (Location | None | Unset):
         topology (list[str] | Unset):
     """
 
     name: str
-    location: Location | None | Unset = UNSET
     geometry: AreaUpsertGeometryType0 | None | Unset = UNSET
+    location: Location | None | Unset = UNSET
     topology: list[str] | Unset = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
@@ -39,14 +39,6 @@ class AreaUpsert:
 
         name = self.name
 
-        location: dict[str, Any] | None | Unset
-        if isinstance(self.location, Unset):
-            location = UNSET
-        elif isinstance(self.location, Location):
-            location = self.location.to_dict()
-        else:
-            location = self.location
-
         geometry: dict[str, Any] | None | Unset
         if isinstance(self.geometry, Unset):
             geometry = UNSET
@@ -54,6 +46,14 @@ class AreaUpsert:
             geometry = self.geometry.to_dict()
         else:
             geometry = self.geometry
+
+        location: dict[str, Any] | None | Unset
+        if isinstance(self.location, Unset):
+            location = UNSET
+        elif isinstance(self.location, Location):
+            location = self.location.to_dict()
+        else:
+            location = self.location
 
         topology: list[str] | Unset = UNSET
         if not isinstance(self.topology, Unset):
@@ -66,10 +66,10 @@ class AreaUpsert:
                 "name": name,
             }
         )
-        if location is not UNSET:
-            field_dict["location"] = location
         if geometry is not UNSET:
             field_dict["geometry"] = geometry
+        if location is not UNSET:
+            field_dict["location"] = location
         if topology is not UNSET:
             field_dict["topology"] = topology
 
@@ -82,23 +82,6 @@ class AreaUpsert:
 
         d = dict(src_dict)
         name = d.pop("name")
-
-        def _parse_location(data: object) -> Location | None | Unset:
-            if data is None:
-                return data
-            if isinstance(data, Unset):
-                return data
-            try:
-                if not isinstance(data, dict):
-                    raise TypeError()
-                location_type_0 = Location.from_dict(data)
-
-                return location_type_0
-            except (TypeError, ValueError, AttributeError, KeyError):
-                pass
-            return cast(Location | None | Unset, data)
-
-        location = _parse_location(d.pop("location", UNSET))
 
         def _parse_geometry(data: object) -> AreaUpsertGeometryType0 | None | Unset:
             if data is None:
@@ -117,12 +100,29 @@ class AreaUpsert:
 
         geometry = _parse_geometry(d.pop("geometry", UNSET))
 
+        def _parse_location(data: object) -> Location | None | Unset:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            try:
+                if not isinstance(data, dict):
+                    raise TypeError()
+                location_type_0 = Location.from_dict(data)
+
+                return location_type_0
+            except (TypeError, ValueError, AttributeError, KeyError):
+                pass
+            return cast(Location | None | Unset, data)
+
+        location = _parse_location(d.pop("location", UNSET))
+
         topology = cast(list[str], d.pop("topology", UNSET))
 
         area_upsert = cls(
             name=name,
-            location=location,
             geometry=geometry,
+            location=location,
             topology=topology,
         )
 

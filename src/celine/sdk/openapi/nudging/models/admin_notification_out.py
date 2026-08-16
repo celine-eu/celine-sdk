@@ -28,6 +28,8 @@ class AdminNotificationOut:
         title (str):
         type_ (str):
         user_id (str):
+        click_action (None | str | Unset):
+        clicked_at (datetime.datetime | None | Unset):
         deleted_at (datetime.datetime | None | Unset):
         nudge_log_id (None | str | Unset):
         read_at (datetime.datetime | None | Unset):
@@ -43,6 +45,8 @@ class AdminNotificationOut:
     title: str
     type_: str
     user_id: str
+    click_action: None | str | Unset = UNSET
+    clicked_at: datetime.datetime | None | Unset = UNSET
     deleted_at: datetime.datetime | None | Unset = UNSET
     nudge_log_id: None | str | Unset = UNSET
     read_at: datetime.datetime | None | Unset = UNSET
@@ -68,6 +72,20 @@ class AdminNotificationOut:
         type_ = self.type_
 
         user_id = self.user_id
+
+        click_action: None | str | Unset
+        if isinstance(self.click_action, Unset):
+            click_action = UNSET
+        else:
+            click_action = self.click_action
+
+        clicked_at: None | str | Unset
+        if isinstance(self.clicked_at, Unset):
+            clicked_at = UNSET
+        elif isinstance(self.clicked_at, datetime.datetime):
+            clicked_at = self.clicked_at.isoformat()
+        else:
+            clicked_at = self.clicked_at
 
         deleted_at: None | str | Unset
         if isinstance(self.deleted_at, Unset):
@@ -107,6 +125,10 @@ class AdminNotificationOut:
                 "user_id": user_id,
             }
         )
+        if click_action is not UNSET:
+            field_dict["click_action"] = click_action
+        if clicked_at is not UNSET:
+            field_dict["clicked_at"] = clicked_at
         if deleted_at is not UNSET:
             field_dict["deleted_at"] = deleted_at
         if nudge_log_id is not UNSET:
@@ -138,6 +160,32 @@ class AdminNotificationOut:
         type_ = d.pop("type")
 
         user_id = d.pop("user_id")
+
+        def _parse_click_action(data: object) -> None | str | Unset:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            return cast(None | str | Unset, data)
+
+        click_action = _parse_click_action(d.pop("click_action", UNSET))
+
+        def _parse_clicked_at(data: object) -> datetime.datetime | None | Unset:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            try:
+                if not isinstance(data, str):
+                    raise TypeError()
+                clicked_at_type_0 = isoparse(data)
+
+                return clicked_at_type_0
+            except (TypeError, ValueError, AttributeError, KeyError):
+                pass
+            return cast(datetime.datetime | None | Unset, data)
+
+        clicked_at = _parse_clicked_at(d.pop("clicked_at", UNSET))
 
         def _parse_deleted_at(data: object) -> datetime.datetime | None | Unset:
             if data is None:
@@ -193,6 +241,8 @@ class AdminNotificationOut:
             title=title,
             type_=type_,
             user_id=user_id,
+            click_action=click_action,
+            clicked_at=clicked_at,
             deleted_at=deleted_at,
             nudge_log_id=nudge_log_id,
             read_at=read_at,

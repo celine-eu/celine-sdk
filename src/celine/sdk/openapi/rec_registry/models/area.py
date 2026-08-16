@@ -21,13 +21,13 @@ class Area:
     """
     Attributes:
         name (str):
-        location (Location | None | Unset):
         geometry (AreaGeometryType0 | None | Unset):
+        location (Location | None | Unset):
     """
 
     name: str
-    location: Location | None | Unset = UNSET
     geometry: AreaGeometryType0 | None | Unset = UNSET
+    location: Location | None | Unset = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -35,14 +35,6 @@ class Area:
         from ..models.location import Location
 
         name = self.name
-
-        location: dict[str, Any] | None | Unset
-        if isinstance(self.location, Unset):
-            location = UNSET
-        elif isinstance(self.location, Location):
-            location = self.location.to_dict()
-        else:
-            location = self.location
 
         geometry: dict[str, Any] | None | Unset
         if isinstance(self.geometry, Unset):
@@ -52,6 +44,14 @@ class Area:
         else:
             geometry = self.geometry
 
+        location: dict[str, Any] | None | Unset
+        if isinstance(self.location, Unset):
+            location = UNSET
+        elif isinstance(self.location, Location):
+            location = self.location.to_dict()
+        else:
+            location = self.location
+
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update(
@@ -59,10 +59,10 @@ class Area:
                 "name": name,
             }
         )
-        if location is not UNSET:
-            field_dict["location"] = location
         if geometry is not UNSET:
             field_dict["geometry"] = geometry
+        if location is not UNSET:
+            field_dict["location"] = location
 
         return field_dict
 
@@ -73,23 +73,6 @@ class Area:
 
         d = dict(src_dict)
         name = d.pop("name")
-
-        def _parse_location(data: object) -> Location | None | Unset:
-            if data is None:
-                return data
-            if isinstance(data, Unset):
-                return data
-            try:
-                if not isinstance(data, dict):
-                    raise TypeError()
-                location_type_0 = Location.from_dict(data)
-
-                return location_type_0
-            except (TypeError, ValueError, AttributeError, KeyError):
-                pass
-            return cast(Location | None | Unset, data)
-
-        location = _parse_location(d.pop("location", UNSET))
 
         def _parse_geometry(data: object) -> AreaGeometryType0 | None | Unset:
             if data is None:
@@ -108,10 +91,27 @@ class Area:
 
         geometry = _parse_geometry(d.pop("geometry", UNSET))
 
+        def _parse_location(data: object) -> Location | None | Unset:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            try:
+                if not isinstance(data, dict):
+                    raise TypeError()
+                location_type_0 = Location.from_dict(data)
+
+                return location_type_0
+            except (TypeError, ValueError, AttributeError, KeyError):
+                pass
+            return cast(Location | None | Unset, data)
+
+        location = _parse_location(d.pop("location", UNSET))
+
         area = cls(
             name=name,
-            location=location,
             geometry=geometry,
+            location=location,
         )
 
         area.additional_properties = d

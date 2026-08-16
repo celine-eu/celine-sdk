@@ -17,18 +17,18 @@ class DeliveryPoint:
     Attributes:
         id (str):
         type_ (str):
-        description (None | str | Unset):
-        address (None | str | Unset):
-        tariff (None | str | Unset):
         active (bool | Unset):  Default: True.
+        address (None | str | Unset):
+        description (None | str | Unset):
+        tariff (None | str | Unset):
     """
 
     id: str
     type_: str
-    description: None | str | Unset = UNSET
-    address: None | str | Unset = UNSET
-    tariff: None | str | Unset = UNSET
     active: bool | Unset = True
+    address: None | str | Unset = UNSET
+    description: None | str | Unset = UNSET
+    tariff: None | str | Unset = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -36,11 +36,7 @@ class DeliveryPoint:
 
         type_ = self.type_
 
-        description: None | str | Unset
-        if isinstance(self.description, Unset):
-            description = UNSET
-        else:
-            description = self.description
+        active = self.active
 
         address: None | str | Unset
         if isinstance(self.address, Unset):
@@ -48,13 +44,17 @@ class DeliveryPoint:
         else:
             address = self.address
 
+        description: None | str | Unset
+        if isinstance(self.description, Unset):
+            description = UNSET
+        else:
+            description = self.description
+
         tariff: None | str | Unset
         if isinstance(self.tariff, Unset):
             tariff = UNSET
         else:
             tariff = self.tariff
-
-        active = self.active
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
@@ -64,14 +64,14 @@ class DeliveryPoint:
                 "type": type_,
             }
         )
-        if description is not UNSET:
-            field_dict["description"] = description
-        if address is not UNSET:
-            field_dict["address"] = address
-        if tariff is not UNSET:
-            field_dict["tariff"] = tariff
         if active is not UNSET:
             field_dict["active"] = active
+        if address is not UNSET:
+            field_dict["address"] = address
+        if description is not UNSET:
+            field_dict["description"] = description
+        if tariff is not UNSET:
+            field_dict["tariff"] = tariff
 
         return field_dict
 
@@ -82,14 +82,7 @@ class DeliveryPoint:
 
         type_ = d.pop("type")
 
-        def _parse_description(data: object) -> None | str | Unset:
-            if data is None:
-                return data
-            if isinstance(data, Unset):
-                return data
-            return cast(None | str | Unset, data)
-
-        description = _parse_description(d.pop("description", UNSET))
+        active = d.pop("active", UNSET)
 
         def _parse_address(data: object) -> None | str | Unset:
             if data is None:
@@ -100,6 +93,15 @@ class DeliveryPoint:
 
         address = _parse_address(d.pop("address", UNSET))
 
+        def _parse_description(data: object) -> None | str | Unset:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            return cast(None | str | Unset, data)
+
+        description = _parse_description(d.pop("description", UNSET))
+
         def _parse_tariff(data: object) -> None | str | Unset:
             if data is None:
                 return data
@@ -109,15 +111,13 @@ class DeliveryPoint:
 
         tariff = _parse_tariff(d.pop("tariff", UNSET))
 
-        active = d.pop("active", UNSET)
-
         delivery_point = cls(
             id=id,
             type_=type_,
-            description=description,
-            address=address,
-            tariff=tariff,
             active=active,
+            address=address,
+            description=description,
+            tariff=tariff,
         )
 
         delivery_point.additional_properties = d

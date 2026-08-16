@@ -16,19 +16,25 @@ class ContactIn:
     """Contact information.
 
     Attributes:
+        address (None | str | Unset):
         email (None | str | Unset):
         pec (None | str | Unset):
         phone (None | str | Unset):
-        address (None | str | Unset):
     """
 
+    address: None | str | Unset = UNSET
     email: None | str | Unset = UNSET
     pec: None | str | Unset = UNSET
     phone: None | str | Unset = UNSET
-    address: None | str | Unset = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
+        address: None | str | Unset
+        if isinstance(self.address, Unset):
+            address = UNSET
+        else:
+            address = self.address
+
         email: None | str | Unset
         if isinstance(self.email, Unset):
             email = UNSET
@@ -47,29 +53,32 @@ class ContactIn:
         else:
             phone = self.phone
 
-        address: None | str | Unset
-        if isinstance(self.address, Unset):
-            address = UNSET
-        else:
-            address = self.address
-
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update({})
+        if address is not UNSET:
+            field_dict["address"] = address
         if email is not UNSET:
             field_dict["email"] = email
         if pec is not UNSET:
             field_dict["pec"] = pec
         if phone is not UNSET:
             field_dict["phone"] = phone
-        if address is not UNSET:
-            field_dict["address"] = address
 
         return field_dict
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
         d = dict(src_dict)
+
+        def _parse_address(data: object) -> None | str | Unset:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            return cast(None | str | Unset, data)
+
+        address = _parse_address(d.pop("address", UNSET))
 
         def _parse_email(data: object) -> None | str | Unset:
             if data is None:
@@ -98,20 +107,11 @@ class ContactIn:
 
         phone = _parse_phone(d.pop("phone", UNSET))
 
-        def _parse_address(data: object) -> None | str | Unset:
-            if data is None:
-                return data
-            if isinstance(data, Unset):
-                return data
-            return cast(None | str | Unset, data)
-
-        address = _parse_address(d.pop("address", UNSET))
-
         contact_in = cls(
+            address=address,
             email=email,
             pec=pec,
             phone=phone,
-            address=address,
         )
 
         contact_in.additional_properties = d

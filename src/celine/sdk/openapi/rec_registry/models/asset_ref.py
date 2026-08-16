@@ -15,26 +15,26 @@ T = TypeVar("T", bound="AssetRef")
 class AssetRef:
     """
     Attributes:
+        asset_type (str):
         id (str):
         key (str):
-        asset_type (str):
         name (str):
         sensor_id (None | str | Unset):
     """
 
+    asset_type: str
     id: str
     key: str
-    asset_type: str
     name: str
     sensor_id: None | str | Unset = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
+        asset_type = self.asset_type
+
         id = self.id
 
         key = self.key
-
-        asset_type = self.asset_type
 
         name = self.name
 
@@ -48,9 +48,9 @@ class AssetRef:
         field_dict.update(self.additional_properties)
         field_dict.update(
             {
+                "asset_type": asset_type,
                 "id": id,
                 "key": key,
-                "asset_type": asset_type,
                 "name": name,
             }
         )
@@ -62,11 +62,11 @@ class AssetRef:
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
         d = dict(src_dict)
+        asset_type = d.pop("asset_type")
+
         id = d.pop("id")
 
         key = d.pop("key")
-
-        asset_type = d.pop("asset_type")
 
         name = d.pop("name")
 
@@ -80,9 +80,9 @@ class AssetRef:
         sensor_id = _parse_sensor_id(d.pop("sensor_id", UNSET))
 
         asset_ref = cls(
+            asset_type=asset_type,
             id=id,
             key=key,
-            asset_type=asset_type,
             name=name,
             sensor_id=sensor_id,
         )

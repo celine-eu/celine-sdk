@@ -22,15 +22,15 @@ class CommunityListItem:
         id (str):
         key (str):
         name (str):
-        description (None | str | Unset):
         areas (CommunityListItemAreas | Unset):
+        description (None | str | Unset):
     """
 
     id: str
     key: str
     name: str
-    description: None | str | Unset = UNSET
     areas: CommunityListItemAreas | Unset = UNSET
+    description: None | str | Unset = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -40,15 +40,15 @@ class CommunityListItem:
 
         name = self.name
 
+        areas: dict[str, Any] | Unset = UNSET
+        if not isinstance(self.areas, Unset):
+            areas = self.areas.to_dict()
+
         description: None | str | Unset
         if isinstance(self.description, Unset):
             description = UNSET
         else:
             description = self.description
-
-        areas: dict[str, Any] | Unset = UNSET
-        if not isinstance(self.areas, Unset):
-            areas = self.areas.to_dict()
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
@@ -59,10 +59,10 @@ class CommunityListItem:
                 "name": name,
             }
         )
-        if description is not UNSET:
-            field_dict["description"] = description
         if areas is not UNSET:
             field_dict["areas"] = areas
+        if description is not UNSET:
+            field_dict["description"] = description
 
         return field_dict
 
@@ -77,6 +77,13 @@ class CommunityListItem:
 
         name = d.pop("name")
 
+        _areas = d.pop("areas", UNSET)
+        areas: CommunityListItemAreas | Unset
+        if isinstance(_areas, Unset):
+            areas = UNSET
+        else:
+            areas = CommunityListItemAreas.from_dict(_areas)
+
         def _parse_description(data: object) -> None | str | Unset:
             if data is None:
                 return data
@@ -86,19 +93,12 @@ class CommunityListItem:
 
         description = _parse_description(d.pop("description", UNSET))
 
-        _areas = d.pop("areas", UNSET)
-        areas: CommunityListItemAreas | Unset
-        if isinstance(_areas, Unset):
-            areas = UNSET
-        else:
-            areas = CommunityListItemAreas.from_dict(_areas)
-
         community_list_item = cls(
             id=id,
             key=key,
             name=name,
-            description=description,
             areas=areas,
+            description=description,
         )
 
         community_list_item.additional_properties = d

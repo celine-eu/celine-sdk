@@ -17,11 +17,13 @@ class SendTestResponse:
     Attributes:
         status (str):
         failed (int | None | Unset):
+        notification_id (None | str | Unset):
         sent (int | None | Unset):
     """
 
     status: str
     failed: int | None | Unset = UNSET
+    notification_id: None | str | Unset = UNSET
     sent: int | None | Unset = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
@@ -33,6 +35,12 @@ class SendTestResponse:
             failed = UNSET
         else:
             failed = self.failed
+
+        notification_id: None | str | Unset
+        if isinstance(self.notification_id, Unset):
+            notification_id = UNSET
+        else:
+            notification_id = self.notification_id
 
         sent: int | None | Unset
         if isinstance(self.sent, Unset):
@@ -49,6 +57,8 @@ class SendTestResponse:
         )
         if failed is not UNSET:
             field_dict["failed"] = failed
+        if notification_id is not UNSET:
+            field_dict["notification_id"] = notification_id
         if sent is not UNSET:
             field_dict["sent"] = sent
 
@@ -68,6 +78,15 @@ class SendTestResponse:
 
         failed = _parse_failed(d.pop("failed", UNSET))
 
+        def _parse_notification_id(data: object) -> None | str | Unset:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            return cast(None | str | Unset, data)
+
+        notification_id = _parse_notification_id(d.pop("notification_id", UNSET))
+
         def _parse_sent(data: object) -> int | None | Unset:
             if data is None:
                 return data
@@ -80,6 +99,7 @@ class SendTestResponse:
         send_test_response = cls(
             status=status,
             failed=failed,
+            notification_id=notification_id,
             sent=sent,
         )
 

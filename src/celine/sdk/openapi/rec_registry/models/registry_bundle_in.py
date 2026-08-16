@@ -25,17 +25,17 @@ class RegistryBundleIn:
 
         Attributes:
             community (CommunityIn): Community definition.
-            version (str | Unset):  Default: '1.0'.
-            schema_version (str | Unset):  Default: '1.0'.
-            metadata (MetadataIn | None | Unset):
             members (Members | Unset):
+            metadata (MetadataIn | None | Unset):
+            schema_version (str | Unset):  Default: '1.0'.
+            version (str | Unset):  Default: '1.0'.
     """
 
     community: CommunityIn
-    version: str | Unset = "1.0"
-    schema_version: str | Unset = "1.0"
-    metadata: MetadataIn | None | Unset = UNSET
     members: Members | Unset = UNSET
+    metadata: MetadataIn | None | Unset = UNSET
+    schema_version: str | Unset = "1.0"
+    version: str | Unset = "1.0"
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -43,9 +43,9 @@ class RegistryBundleIn:
 
         community = self.community.to_dict()
 
-        version = self.version
-
-        schema_version = self.schema_version
+        members: dict[str, Any] | Unset = UNSET
+        if not isinstance(self.members, Unset):
+            members = self.members.to_dict()
 
         metadata: dict[str, Any] | None | Unset
         if isinstance(self.metadata, Unset):
@@ -55,9 +55,9 @@ class RegistryBundleIn:
         else:
             metadata = self.metadata
 
-        members: dict[str, Any] | Unset = UNSET
-        if not isinstance(self.members, Unset):
-            members = self.members.to_dict()
+        schema_version = self.schema_version
+
+        version = self.version
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
@@ -66,14 +66,14 @@ class RegistryBundleIn:
                 "community": community,
             }
         )
-        if version is not UNSET:
-            field_dict["version"] = version
-        if schema_version is not UNSET:
-            field_dict["schema_version"] = schema_version
-        if metadata is not UNSET:
-            field_dict["metadata"] = metadata
         if members is not UNSET:
             field_dict["members"] = members
+        if metadata is not UNSET:
+            field_dict["metadata"] = metadata
+        if schema_version is not UNSET:
+            field_dict["schema_version"] = schema_version
+        if version is not UNSET:
+            field_dict["version"] = version
 
         return field_dict
 
@@ -86,9 +86,12 @@ class RegistryBundleIn:
         d = dict(src_dict)
         community = CommunityIn.from_dict(d.pop("community"))
 
-        version = d.pop("version", UNSET)
-
-        schema_version = d.pop("schema_version", UNSET)
+        _members = d.pop("members", UNSET)
+        members: Members | Unset
+        if isinstance(_members, Unset):
+            members = UNSET
+        else:
+            members = Members.from_dict(_members)
 
         def _parse_metadata(data: object) -> MetadataIn | None | Unset:
             if data is None:
@@ -107,19 +110,16 @@ class RegistryBundleIn:
 
         metadata = _parse_metadata(d.pop("metadata", UNSET))
 
-        _members = d.pop("members", UNSET)
-        members: Members | Unset
-        if isinstance(_members, Unset):
-            members = UNSET
-        else:
-            members = Members.from_dict(_members)
+        schema_version = d.pop("schema_version", UNSET)
+
+        version = d.pop("version", UNSET)
 
         registry_bundle_in = cls(
             community=community,
-            version=version,
-            schema_version=schema_version,
-            metadata=metadata,
             members=members,
+            metadata=metadata,
+            schema_version=schema_version,
+            version=version,
         )
 
         registry_bundle_in.additional_properties = d

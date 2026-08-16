@@ -10,6 +10,7 @@ from ..types import UNSET, Unset
 
 if TYPE_CHECKING:
     from ..models.backend_config import BackendConfig
+    from ..models.dataset_entry_model_ontology_mapping_type_0 import DatasetEntryModelOntologyMappingType0
     from ..models.lineage import Lineage
     from ..models.tags import Tags
 
@@ -26,12 +27,14 @@ class DatasetEntryModel:
         title (str):
         access_level (None | str | Unset):
         backend_config (BackendConfig | Unset): Backend configuration block for dataset storage.
+        dataspace_expose (bool | Unset):  Default: False.
         description (None | str | Unset):
         expose (bool | Unset):  Default: False.
         landing_page (None | str | Unset):
         language_uris (list[str] | None | Unset):
         license_uri (None | str | Unset):
         lineage (Lineage | None | Unset):
+        ontology_mapping (DatasetEntryModelOntologyMappingType0 | None | Unset):
         ontology_path (None | str | Unset):
         publisher_uri (None | str | Unset):
         rights_holder_uri (None | str | Unset):
@@ -45,12 +48,14 @@ class DatasetEntryModel:
     title: str
     access_level: None | str | Unset = UNSET
     backend_config: BackendConfig | Unset = UNSET
+    dataspace_expose: bool | Unset = False
     description: None | str | Unset = UNSET
     expose: bool | Unset = False
     landing_page: None | str | Unset = UNSET
     language_uris: list[str] | None | Unset = UNSET
     license_uri: None | str | Unset = UNSET
     lineage: Lineage | None | Unset = UNSET
+    ontology_mapping: DatasetEntryModelOntologyMappingType0 | None | Unset = UNSET
     ontology_path: None | str | Unset = UNSET
     publisher_uri: None | str | Unset = UNSET
     rights_holder_uri: None | str | Unset = UNSET
@@ -60,6 +65,7 @@ class DatasetEntryModel:
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
+        from ..models.dataset_entry_model_ontology_mapping_type_0 import DatasetEntryModelOntologyMappingType0
         from ..models.lineage import Lineage
         from ..models.tags import Tags
 
@@ -78,6 +84,8 @@ class DatasetEntryModel:
         backend_config: dict[str, Any] | Unset = UNSET
         if not isinstance(self.backend_config, Unset):
             backend_config = self.backend_config.to_dict()
+
+        dataspace_expose = self.dataspace_expose
 
         description: None | str | Unset
         if isinstance(self.description, Unset):
@@ -115,6 +123,14 @@ class DatasetEntryModel:
             lineage = self.lineage.to_dict()
         else:
             lineage = self.lineage
+
+        ontology_mapping: dict[str, Any] | None | Unset
+        if isinstance(self.ontology_mapping, Unset):
+            ontology_mapping = UNSET
+        elif isinstance(self.ontology_mapping, DatasetEntryModelOntologyMappingType0):
+            ontology_mapping = self.ontology_mapping.to_dict()
+        else:
+            ontology_mapping = self.ontology_mapping
 
         ontology_path: None | str | Unset
         if isinstance(self.ontology_path, Unset):
@@ -170,6 +186,8 @@ class DatasetEntryModel:
             field_dict["access_level"] = access_level
         if backend_config is not UNSET:
             field_dict["backend_config"] = backend_config
+        if dataspace_expose is not UNSET:
+            field_dict["dataspace_expose"] = dataspace_expose
         if description is not UNSET:
             field_dict["description"] = description
         if expose is not UNSET:
@@ -182,6 +200,8 @@ class DatasetEntryModel:
             field_dict["license_uri"] = license_uri
         if lineage is not UNSET:
             field_dict["lineage"] = lineage
+        if ontology_mapping is not UNSET:
+            field_dict["ontology_mapping"] = ontology_mapping
         if ontology_path is not UNSET:
             field_dict["ontology_path"] = ontology_path
         if publisher_uri is not UNSET:
@@ -200,6 +220,7 @@ class DatasetEntryModel:
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
         from ..models.backend_config import BackendConfig
+        from ..models.dataset_entry_model_ontology_mapping_type_0 import DatasetEntryModelOntologyMappingType0
         from ..models.lineage import Lineage
         from ..models.tags import Tags
 
@@ -225,6 +246,8 @@ class DatasetEntryModel:
             backend_config = UNSET
         else:
             backend_config = BackendConfig.from_dict(_backend_config)
+
+        dataspace_expose = d.pop("dataspace_expose", UNSET)
 
         def _parse_description(data: object) -> None | str | Unset:
             if data is None:
@@ -288,6 +311,23 @@ class DatasetEntryModel:
             return cast(Lineage | None | Unset, data)
 
         lineage = _parse_lineage(d.pop("lineage", UNSET))
+
+        def _parse_ontology_mapping(data: object) -> DatasetEntryModelOntologyMappingType0 | None | Unset:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            try:
+                if not isinstance(data, dict):
+                    raise TypeError()
+                ontology_mapping_type_0 = DatasetEntryModelOntologyMappingType0.from_dict(data)
+
+                return ontology_mapping_type_0
+            except (TypeError, ValueError, AttributeError, KeyError):
+                pass
+            return cast(DatasetEntryModelOntologyMappingType0 | None | Unset, data)
+
+        ontology_mapping = _parse_ontology_mapping(d.pop("ontology_mapping", UNSET))
 
         def _parse_ontology_path(data: object) -> None | str | Unset:
             if data is None:
@@ -365,12 +405,14 @@ class DatasetEntryModel:
             title=title,
             access_level=access_level,
             backend_config=backend_config,
+            dataspace_expose=dataspace_expose,
             description=description,
             expose=expose,
             landing_page=landing_page,
             language_uris=language_uris,
             license_uri=license_uri,
             lineage=lineage,
+            ontology_mapping=ontology_mapping,
             ontology_path=ontology_path,
             publisher_uri=publisher_uri,
             rights_holder_uri=rights_holder_uri,

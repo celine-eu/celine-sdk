@@ -22,15 +22,15 @@ class DeletionReport:
             community_key (str):
             member_key (str):
             purged (bool):
-            status (None | str | Unset):
             assets_removed (int | Unset):  Default: 0.
+            status (None | str | Unset):
     """
 
     community_key: str
     member_key: str
     purged: bool
-    status: None | str | Unset = UNSET
     assets_removed: int | Unset = 0
+    status: None | str | Unset = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -40,13 +40,13 @@ class DeletionReport:
 
         purged = self.purged
 
+        assets_removed = self.assets_removed
+
         status: None | str | Unset
         if isinstance(self.status, Unset):
             status = UNSET
         else:
             status = self.status
-
-        assets_removed = self.assets_removed
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
@@ -57,10 +57,10 @@ class DeletionReport:
                 "purged": purged,
             }
         )
-        if status is not UNSET:
-            field_dict["status"] = status
         if assets_removed is not UNSET:
             field_dict["assets_removed"] = assets_removed
+        if status is not UNSET:
+            field_dict["status"] = status
 
         return field_dict
 
@@ -73,6 +73,8 @@ class DeletionReport:
 
         purged = d.pop("purged")
 
+        assets_removed = d.pop("assets_removed", UNSET)
+
         def _parse_status(data: object) -> None | str | Unset:
             if data is None:
                 return data
@@ -82,14 +84,12 @@ class DeletionReport:
 
         status = _parse_status(d.pop("status", UNSET))
 
-        assets_removed = d.pop("assets_removed", UNSET)
-
         deletion_report = cls(
             community_key=community_key,
             member_key=member_key,
             purged=purged,
-            status=status,
             assets_removed=assets_removed,
+            status=status,
         )
 
         deletion_report.additional_properties = d

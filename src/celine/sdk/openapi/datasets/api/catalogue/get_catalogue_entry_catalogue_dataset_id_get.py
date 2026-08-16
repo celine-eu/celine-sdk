@@ -63,6 +63,12 @@ def sync_detailed(
 
     Only exposed, non-secret entries are accessible here.
 
+    One path, two representations: a browser gets the HTML page rendered by
+    `routes/views.py`, everyone else gets the document. The route is declared
+    here and only here — a second declaration of the same path in another router
+    would be dead code decided by include order, not by what the client asked
+    for.
+
     Args:
         dataset_id (str):
 
@@ -96,6 +102,12 @@ def sync(
 
     Only exposed, non-secret entries are accessible here.
 
+    One path, two representations: a browser gets the HTML page rendered by
+    `routes/views.py`, everyone else gets the document. The route is declared
+    here and only here — a second declaration of the same path in another router
+    would be dead code decided by include order, not by what the client asked
+    for.
+
     Args:
         dataset_id (str):
 
@@ -123,6 +135,12 @@ async def asyncio_detailed(
      Return a single dcat:Dataset JSON-LD document.
 
     Only exposed, non-secret entries are accessible here.
+
+    One path, two representations: a browser gets the HTML page rendered by
+    `routes/views.py`, everyone else gets the document. The route is declared
+    here and only here — a second declaration of the same path in another router
+    would be dead code decided by include order, not by what the client asked
+    for.
 
     Args:
         dataset_id (str):
@@ -154,6 +172,12 @@ async def asyncio(
      Return a single dcat:Dataset JSON-LD document.
 
     Only exposed, non-secret entries are accessible here.
+
+    One path, two representations: a browser gets the HTML page rendered by
+    `routes/views.py`, everyone else gets the document. The route is declared
+    here and only here — a second declaration of the same path in another router
+    would be dead code decided by include order, not by what the client asked
+    for.
 
     Args:
         dataset_id (str):

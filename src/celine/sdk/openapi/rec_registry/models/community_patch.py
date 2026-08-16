@@ -28,22 +28,22 @@ class CommunityPatch:
     has none".
 
         Attributes:
-            name (None | str | Unset):
+            contact (CommunityPatchContactType0 | None | Unset):
             description (None | str | Unset):
+            extra (CommunityPatchExtraType0 | None | Unset):
             legal (CommunityPatchLegalType0 | None | Unset):
             links (CommunityPatchLinksType0 | None | Unset):
-            contact (CommunityPatchContactType0 | None | Unset):
+            name (None | str | Unset):
             settings (CommunityPatchSettingsType0 | None | Unset):
-            extra (CommunityPatchExtraType0 | None | Unset):
     """
 
-    name: None | str | Unset = UNSET
+    contact: CommunityPatchContactType0 | None | Unset = UNSET
     description: None | str | Unset = UNSET
+    extra: CommunityPatchExtraType0 | None | Unset = UNSET
     legal: CommunityPatchLegalType0 | None | Unset = UNSET
     links: CommunityPatchLinksType0 | None | Unset = UNSET
-    contact: CommunityPatchContactType0 | None | Unset = UNSET
+    name: None | str | Unset = UNSET
     settings: CommunityPatchSettingsType0 | None | Unset = UNSET
-    extra: CommunityPatchExtraType0 | None | Unset = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -53,17 +53,27 @@ class CommunityPatch:
         from ..models.community_patch_links_type_0 import CommunityPatchLinksType0
         from ..models.community_patch_settings_type_0 import CommunityPatchSettingsType0
 
-        name: None | str | Unset
-        if isinstance(self.name, Unset):
-            name = UNSET
+        contact: dict[str, Any] | None | Unset
+        if isinstance(self.contact, Unset):
+            contact = UNSET
+        elif isinstance(self.contact, CommunityPatchContactType0):
+            contact = self.contact.to_dict()
         else:
-            name = self.name
+            contact = self.contact
 
         description: None | str | Unset
         if isinstance(self.description, Unset):
             description = UNSET
         else:
             description = self.description
+
+        extra: dict[str, Any] | None | Unset
+        if isinstance(self.extra, Unset):
+            extra = UNSET
+        elif isinstance(self.extra, CommunityPatchExtraType0):
+            extra = self.extra.to_dict()
+        else:
+            extra = self.extra
 
         legal: dict[str, Any] | None | Unset
         if isinstance(self.legal, Unset):
@@ -81,13 +91,11 @@ class CommunityPatch:
         else:
             links = self.links
 
-        contact: dict[str, Any] | None | Unset
-        if isinstance(self.contact, Unset):
-            contact = UNSET
-        elif isinstance(self.contact, CommunityPatchContactType0):
-            contact = self.contact.to_dict()
+        name: None | str | Unset
+        if isinstance(self.name, Unset):
+            name = UNSET
         else:
-            contact = self.contact
+            name = self.name
 
         settings: dict[str, Any] | None | Unset
         if isinstance(self.settings, Unset):
@@ -97,31 +105,23 @@ class CommunityPatch:
         else:
             settings = self.settings
 
-        extra: dict[str, Any] | None | Unset
-        if isinstance(self.extra, Unset):
-            extra = UNSET
-        elif isinstance(self.extra, CommunityPatchExtraType0):
-            extra = self.extra.to_dict()
-        else:
-            extra = self.extra
-
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update({})
-        if name is not UNSET:
-            field_dict["name"] = name
+        if contact is not UNSET:
+            field_dict["contact"] = contact
         if description is not UNSET:
             field_dict["description"] = description
+        if extra is not UNSET:
+            field_dict["extra"] = extra
         if legal is not UNSET:
             field_dict["legal"] = legal
         if links is not UNSET:
             field_dict["links"] = links
-        if contact is not UNSET:
-            field_dict["contact"] = contact
+        if name is not UNSET:
+            field_dict["name"] = name
         if settings is not UNSET:
             field_dict["settings"] = settings
-        if extra is not UNSET:
-            field_dict["extra"] = extra
 
         return field_dict
 
@@ -135,14 +135,22 @@ class CommunityPatch:
 
         d = dict(src_dict)
 
-        def _parse_name(data: object) -> None | str | Unset:
+        def _parse_contact(data: object) -> CommunityPatchContactType0 | None | Unset:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(None | str | Unset, data)
+            try:
+                if not isinstance(data, dict):
+                    raise TypeError()
+                contact_type_0 = CommunityPatchContactType0.from_dict(data)
 
-        name = _parse_name(d.pop("name", UNSET))
+                return contact_type_0
+            except (TypeError, ValueError, AttributeError, KeyError):
+                pass
+            return cast(CommunityPatchContactType0 | None | Unset, data)
+
+        contact = _parse_contact(d.pop("contact", UNSET))
 
         def _parse_description(data: object) -> None | str | Unset:
             if data is None:
@@ -152,6 +160,23 @@ class CommunityPatch:
             return cast(None | str | Unset, data)
 
         description = _parse_description(d.pop("description", UNSET))
+
+        def _parse_extra(data: object) -> CommunityPatchExtraType0 | None | Unset:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            try:
+                if not isinstance(data, dict):
+                    raise TypeError()
+                extra_type_0 = CommunityPatchExtraType0.from_dict(data)
+
+                return extra_type_0
+            except (TypeError, ValueError, AttributeError, KeyError):
+                pass
+            return cast(CommunityPatchExtraType0 | None | Unset, data)
+
+        extra = _parse_extra(d.pop("extra", UNSET))
 
         def _parse_legal(data: object) -> CommunityPatchLegalType0 | None | Unset:
             if data is None:
@@ -187,22 +212,14 @@ class CommunityPatch:
 
         links = _parse_links(d.pop("links", UNSET))
 
-        def _parse_contact(data: object) -> CommunityPatchContactType0 | None | Unset:
+        def _parse_name(data: object) -> None | str | Unset:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            try:
-                if not isinstance(data, dict):
-                    raise TypeError()
-                contact_type_0 = CommunityPatchContactType0.from_dict(data)
+            return cast(None | str | Unset, data)
 
-                return contact_type_0
-            except (TypeError, ValueError, AttributeError, KeyError):
-                pass
-            return cast(CommunityPatchContactType0 | None | Unset, data)
-
-        contact = _parse_contact(d.pop("contact", UNSET))
+        name = _parse_name(d.pop("name", UNSET))
 
         def _parse_settings(data: object) -> CommunityPatchSettingsType0 | None | Unset:
             if data is None:
@@ -221,31 +238,14 @@ class CommunityPatch:
 
         settings = _parse_settings(d.pop("settings", UNSET))
 
-        def _parse_extra(data: object) -> CommunityPatchExtraType0 | None | Unset:
-            if data is None:
-                return data
-            if isinstance(data, Unset):
-                return data
-            try:
-                if not isinstance(data, dict):
-                    raise TypeError()
-                extra_type_0 = CommunityPatchExtraType0.from_dict(data)
-
-                return extra_type_0
-            except (TypeError, ValueError, AttributeError, KeyError):
-                pass
-            return cast(CommunityPatchExtraType0 | None | Unset, data)
-
-        extra = _parse_extra(d.pop("extra", UNSET))
-
         community_patch = cls(
-            name=name,
+            contact=contact,
             description=description,
+            extra=extra,
             legal=legal,
             links=links,
-            contact=contact,
+            name=name,
             settings=settings,
-            extra=extra,
         )
 
         community_patch.additional_properties = d

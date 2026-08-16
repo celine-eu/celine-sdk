@@ -18,11 +18,15 @@ class UserPreferenceOut:
         max_per_day (int):
         channel_email (bool | Unset):  Default: False.
         email (None | str | Unset):
+        enabled_notification_kinds (list[str] | Unset):
+        lang (str | Unset):  Default: 'en'.
     """
 
     max_per_day: int
     channel_email: bool | Unset = False
     email: None | str | Unset = UNSET
+    enabled_notification_kinds: list[str] | Unset = UNSET
+    lang: str | Unset = "en"
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -36,6 +40,12 @@ class UserPreferenceOut:
         else:
             email = self.email
 
+        enabled_notification_kinds: list[str] | Unset = UNSET
+        if not isinstance(self.enabled_notification_kinds, Unset):
+            enabled_notification_kinds = self.enabled_notification_kinds
+
+        lang = self.lang
+
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update(
@@ -47,6 +57,10 @@ class UserPreferenceOut:
             field_dict["channel_email"] = channel_email
         if email is not UNSET:
             field_dict["email"] = email
+        if enabled_notification_kinds is not UNSET:
+            field_dict["enabled_notification_kinds"] = enabled_notification_kinds
+        if lang is not UNSET:
+            field_dict["lang"] = lang
 
         return field_dict
 
@@ -66,10 +80,16 @@ class UserPreferenceOut:
 
         email = _parse_email(d.pop("email", UNSET))
 
+        enabled_notification_kinds = cast(list[str], d.pop("enabled_notification_kinds", UNSET))
+
+        lang = d.pop("lang", UNSET)
+
         user_preference_out = cls(
             max_per_day=max_per_day,
             channel_email=channel_email,
             email=email,
+            enabled_notification_kinds=enabled_notification_kinds,
+            lang=lang,
         )
 
         user_preference_out.additional_properties = d

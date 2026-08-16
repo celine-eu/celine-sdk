@@ -21,40 +21,44 @@ T = TypeVar("T", bound="GlobalAssetLookup")
 class GlobalAssetLookup:
     """
     Attributes:
+        asset_type (str):
+        community_key (str):
+        community_name (str):
         id (str):
         key (str):
-        asset_type (str):
         name (str):
         owner_key (str):
         owner_user_id (str):
-        community_key (str):
-        community_name (str):
-        sensor_id (None | str | Unset):
-        properties (GlobalAssetLookupProperties | Unset):
         device (GlobalAssetLookupDevice | Unset):
+        properties (GlobalAssetLookupProperties | Unset):
         relationships (GlobalAssetLookupRelationships | Unset):
+        sensor_id (None | str | Unset):
     """
 
+    asset_type: str
+    community_key: str
+    community_name: str
     id: str
     key: str
-    asset_type: str
     name: str
     owner_key: str
     owner_user_id: str
-    community_key: str
-    community_name: str
-    sensor_id: None | str | Unset = UNSET
-    properties: GlobalAssetLookupProperties | Unset = UNSET
     device: GlobalAssetLookupDevice | Unset = UNSET
+    properties: GlobalAssetLookupProperties | Unset = UNSET
     relationships: GlobalAssetLookupRelationships | Unset = UNSET
+    sensor_id: None | str | Unset = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
+        asset_type = self.asset_type
+
+        community_key = self.community_key
+
+        community_name = self.community_name
+
         id = self.id
 
         key = self.key
-
-        asset_type = self.asset_type
 
         name = self.name
 
@@ -62,9 +66,17 @@ class GlobalAssetLookup:
 
         owner_user_id = self.owner_user_id
 
-        community_key = self.community_key
+        device: dict[str, Any] | Unset = UNSET
+        if not isinstance(self.device, Unset):
+            device = self.device.to_dict()
 
-        community_name = self.community_name
+        properties: dict[str, Any] | Unset = UNSET
+        if not isinstance(self.properties, Unset):
+            properties = self.properties.to_dict()
+
+        relationships: dict[str, Any] | Unset = UNSET
+        if not isinstance(self.relationships, Unset):
+            relationships = self.relationships.to_dict()
 
         sensor_id: None | str | Unset
         if isinstance(self.sensor_id, Unset):
@@ -72,40 +84,28 @@ class GlobalAssetLookup:
         else:
             sensor_id = self.sensor_id
 
-        properties: dict[str, Any] | Unset = UNSET
-        if not isinstance(self.properties, Unset):
-            properties = self.properties.to_dict()
-
-        device: dict[str, Any] | Unset = UNSET
-        if not isinstance(self.device, Unset):
-            device = self.device.to_dict()
-
-        relationships: dict[str, Any] | Unset = UNSET
-        if not isinstance(self.relationships, Unset):
-            relationships = self.relationships.to_dict()
-
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update(
             {
+                "asset_type": asset_type,
+                "community_key": community_key,
+                "community_name": community_name,
                 "id": id,
                 "key": key,
-                "asset_type": asset_type,
                 "name": name,
                 "owner_key": owner_key,
                 "owner_user_id": owner_user_id,
-                "community_key": community_key,
-                "community_name": community_name,
             }
         )
-        if sensor_id is not UNSET:
-            field_dict["sensor_id"] = sensor_id
-        if properties is not UNSET:
-            field_dict["properties"] = properties
         if device is not UNSET:
             field_dict["device"] = device
+        if properties is not UNSET:
+            field_dict["properties"] = properties
         if relationships is not UNSET:
             field_dict["relationships"] = relationships
+        if sensor_id is not UNSET:
+            field_dict["sensor_id"] = sensor_id
 
         return field_dict
 
@@ -116,11 +116,15 @@ class GlobalAssetLookup:
         from ..models.global_asset_lookup_relationships import GlobalAssetLookupRelationships
 
         d = dict(src_dict)
+        asset_type = d.pop("asset_type")
+
+        community_key = d.pop("community_key")
+
+        community_name = d.pop("community_name")
+
         id = d.pop("id")
 
         key = d.pop("key")
-
-        asset_type = d.pop("asset_type")
 
         name = d.pop("name")
 
@@ -128,9 +132,26 @@ class GlobalAssetLookup:
 
         owner_user_id = d.pop("owner_user_id")
 
-        community_key = d.pop("community_key")
+        _device = d.pop("device", UNSET)
+        device: GlobalAssetLookupDevice | Unset
+        if isinstance(_device, Unset):
+            device = UNSET
+        else:
+            device = GlobalAssetLookupDevice.from_dict(_device)
 
-        community_name = d.pop("community_name")
+        _properties = d.pop("properties", UNSET)
+        properties: GlobalAssetLookupProperties | Unset
+        if isinstance(_properties, Unset):
+            properties = UNSET
+        else:
+            properties = GlobalAssetLookupProperties.from_dict(_properties)
+
+        _relationships = d.pop("relationships", UNSET)
+        relationships: GlobalAssetLookupRelationships | Unset
+        if isinstance(_relationships, Unset):
+            relationships = UNSET
+        else:
+            relationships = GlobalAssetLookupRelationships.from_dict(_relationships)
 
         def _parse_sensor_id(data: object) -> None | str | Unset:
             if data is None:
@@ -141,40 +162,19 @@ class GlobalAssetLookup:
 
         sensor_id = _parse_sensor_id(d.pop("sensor_id", UNSET))
 
-        _properties = d.pop("properties", UNSET)
-        properties: GlobalAssetLookupProperties | Unset
-        if isinstance(_properties, Unset):
-            properties = UNSET
-        else:
-            properties = GlobalAssetLookupProperties.from_dict(_properties)
-
-        _device = d.pop("device", UNSET)
-        device: GlobalAssetLookupDevice | Unset
-        if isinstance(_device, Unset):
-            device = UNSET
-        else:
-            device = GlobalAssetLookupDevice.from_dict(_device)
-
-        _relationships = d.pop("relationships", UNSET)
-        relationships: GlobalAssetLookupRelationships | Unset
-        if isinstance(_relationships, Unset):
-            relationships = UNSET
-        else:
-            relationships = GlobalAssetLookupRelationships.from_dict(_relationships)
-
         global_asset_lookup = cls(
+            asset_type=asset_type,
+            community_key=community_key,
+            community_name=community_name,
             id=id,
             key=key,
-            asset_type=asset_type,
             name=name,
             owner_key=owner_key,
             owner_user_id=owner_user_id,
-            community_key=community_key,
-            community_name=community_name,
-            sensor_id=sensor_id,
-            properties=properties,
             device=device,
+            properties=properties,
             relationships=relationships,
+            sensor_id=sensor_id,
         )
 
         global_asset_lookup.additional_properties = d

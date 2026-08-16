@@ -258,9 +258,15 @@
             "type": "number"
           },
           "confidence": {
-            "default": 0.75,
-            "title": "Confidence",
-            "type": "number"
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Confidence"
           },
           "from_period": {
             "title": "From Period",

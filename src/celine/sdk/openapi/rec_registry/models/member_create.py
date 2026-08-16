@@ -23,44 +23,42 @@ class MemberCreate:
     something that reads as foreign in an exported bundle.
 
         Attributes:
-            user_id (str):
+            area (str):
             name (str):
             role (str):
-            area (str):
             status (str):
-            type_ (None | str | Unset):
-            delivery_points (list[DeliveryPointIn] | Unset):
+            user_id (str):
             assets (AssetCollectionIn | Unset): Collection of assets organized by type.
+            delivery_points (list[DeliveryPointIn] | Unset):
             key (None | str | Unset):
+            type_ (None | str | Unset):
     """
 
-    user_id: str
+    area: str
     name: str
     role: str
-    area: str
     status: str
-    type_: None | str | Unset = UNSET
-    delivery_points: list[DeliveryPointIn] | Unset = UNSET
+    user_id: str
     assets: AssetCollectionIn | Unset = UNSET
+    delivery_points: list[DeliveryPointIn] | Unset = UNSET
     key: None | str | Unset = UNSET
+    type_: None | str | Unset = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
-        user_id = self.user_id
+        area = self.area
 
         name = self.name
 
         role = self.role
 
-        area = self.area
-
         status = self.status
 
-        type_: None | str | Unset
-        if isinstance(self.type_, Unset):
-            type_ = UNSET
-        else:
-            type_ = self.type_
+        user_id = self.user_id
+
+        assets: dict[str, Any] | Unset = UNSET
+        if not isinstance(self.assets, Unset):
+            assets = self.assets.to_dict()
 
         delivery_points: list[dict[str, Any]] | Unset = UNSET
         if not isinstance(self.delivery_points, Unset):
@@ -69,35 +67,37 @@ class MemberCreate:
                 delivery_points_item = delivery_points_item_data.to_dict()
                 delivery_points.append(delivery_points_item)
 
-        assets: dict[str, Any] | Unset = UNSET
-        if not isinstance(self.assets, Unset):
-            assets = self.assets.to_dict()
-
         key: None | str | Unset
         if isinstance(self.key, Unset):
             key = UNSET
         else:
             key = self.key
 
+        type_: None | str | Unset
+        if isinstance(self.type_, Unset):
+            type_ = UNSET
+        else:
+            type_ = self.type_
+
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update(
             {
-                "user_id": user_id,
+                "area": area,
                 "name": name,
                 "role": role,
-                "area": area,
                 "status": status,
+                "user_id": user_id,
             }
         )
-        if type_ is not UNSET:
-            field_dict["type"] = type_
-        if delivery_points is not UNSET:
-            field_dict["delivery_points"] = delivery_points
         if assets is not UNSET:
             field_dict["assets"] = assets
+        if delivery_points is not UNSET:
+            field_dict["delivery_points"] = delivery_points
         if key is not UNSET:
             field_dict["key"] = key
+        if type_ is not UNSET:
+            field_dict["type"] = type_
 
         return field_dict
 
@@ -107,24 +107,22 @@ class MemberCreate:
         from ..models.delivery_point_in import DeliveryPointIn
 
         d = dict(src_dict)
-        user_id = d.pop("user_id")
+        area = d.pop("area")
 
         name = d.pop("name")
 
         role = d.pop("role")
 
-        area = d.pop("area")
-
         status = d.pop("status")
 
-        def _parse_type_(data: object) -> None | str | Unset:
-            if data is None:
-                return data
-            if isinstance(data, Unset):
-                return data
-            return cast(None | str | Unset, data)
+        user_id = d.pop("user_id")
 
-        type_ = _parse_type_(d.pop("type", UNSET))
+        _assets = d.pop("assets", UNSET)
+        assets: AssetCollectionIn | Unset
+        if isinstance(_assets, Unset):
+            assets = UNSET
+        else:
+            assets = AssetCollectionIn.from_dict(_assets)
 
         _delivery_points = d.pop("delivery_points", UNSET)
         delivery_points: list[DeliveryPointIn] | Unset = UNSET
@@ -135,13 +133,6 @@ class MemberCreate:
 
                 delivery_points.append(delivery_points_item)
 
-        _assets = d.pop("assets", UNSET)
-        assets: AssetCollectionIn | Unset
-        if isinstance(_assets, Unset):
-            assets = UNSET
-        else:
-            assets = AssetCollectionIn.from_dict(_assets)
-
         def _parse_key(data: object) -> None | str | Unset:
             if data is None:
                 return data
@@ -151,16 +142,25 @@ class MemberCreate:
 
         key = _parse_key(d.pop("key", UNSET))
 
+        def _parse_type_(data: object) -> None | str | Unset:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            return cast(None | str | Unset, data)
+
+        type_ = _parse_type_(d.pop("type", UNSET))
+
         member_create = cls(
-            user_id=user_id,
+            area=area,
             name=name,
             role=role,
-            area=area,
             status=status,
-            type_=type_,
-            delivery_points=delivery_points,
+            user_id=user_id,
             assets=assets,
+            delivery_points=delivery_points,
             key=key,
+            type_=type_,
         )
 
         member_create.additional_properties = d

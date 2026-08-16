@@ -15,4 +15,8 @@ services:
     openapi: http://api.celine.localhost/flexibility/openapi.json
   ai-assistant:
     package: ai_assistant
-    openapi: http://api.celine.localhost/ai-assistant/openapi.json
+    # The platform routes this service at /assistant, not /ai-assistant. The
+    # wrong path returned an empty 200 rather than a 404 — Caddy has no handler
+    # for it and falls through — so the fetch failed on "spec must be an object"
+    # and this service silently never had a spec or a generated client.
+    openapi: http://api.celine.localhost/assistant/openapi.json

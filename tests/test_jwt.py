@@ -11,13 +11,16 @@ from celine.sdk.auth.jwt import extract_groups, is_service_account
 
 
 class TestExtractGroups:
+    # @verifies REQ-0030
     def test_empty_claims(self):
         assert extract_groups({}) == []
 
+    # @verifies REQ-0030
     def test_realm_groups_only(self):
         claims = {"groups": ["/admins", "/viewers"]}
         assert extract_groups(claims) == ["admins", "viewers"]
 
+    # @verifies REQ-0030
     def test_org_groups_only(self):
         claims = {
             "organization": {
@@ -29,6 +32,7 @@ class TestExtractGroups:
         }
         assert extract_groups(claims) == ["viewers"]
 
+    # @verifies REQ-0030
     def test_multiple_orgs(self):
         claims = {
             "organization": {
@@ -40,6 +44,7 @@ class TestExtractGroups:
         assert "viewers" in result
         assert "managers" in result
 
+    # @verifies REQ-0030
     def test_realm_and_org_merged(self):
         claims = {
             "groups": ["/admins"],
@@ -50,6 +55,7 @@ class TestExtractGroups:
         result = extract_groups(claims)
         assert result == ["admins", "viewers"]
 
+    # @verifies REQ-0030
     def test_deduplication(self):
         claims = {
             "groups": ["/viewers"],
@@ -60,19 +66,23 @@ class TestExtractGroups:
         result = extract_groups(claims)
         assert result == ["viewers"]
 
+    # @verifies REQ-0030
     def test_slash_stripping(self):
         claims = {"groups": ["/admins", "viewers", "///editors"]}
         result = extract_groups(claims)
         assert result == ["admins", "viewers", "editors"]
 
+    # @verifies REQ-0030
     def test_non_list_groups_ignored(self):
         claims = {"groups": "not-a-list"}
         assert extract_groups(claims) == []
 
+    # @verifies REQ-0030
     def test_non_string_entries_skipped(self):
         claims = {"groups": ["/viewers", 42, None, "/admins"]}
         assert extract_groups(claims) == ["viewers", "admins"]
 
+    # @verifies REQ-0030
     def test_org_without_groups_key(self):
         claims = {
             "organization": {
@@ -81,10 +91,12 @@ class TestExtractGroups:
         }
         assert extract_groups(claims) == []
 
+    # @verifies REQ-0030
     def test_org_non_dict_data_ignored(self):
         claims = {"organization": {"rec_a": "not-a-dict"}}
         assert extract_groups(claims) == []
 
+    # @verifies REQ-0030
     def test_real_token_structure(self):
         """Token structure from a Keycloak oauth2-proxy user."""
         claims = {
@@ -108,18 +120,22 @@ class TestExtractGroups:
 
 
 class TestIsServiceAccount:
+    # @verifies REQ-0031
     def test_service_account_by_username(self):
         claims = {"preferred_username": "service-account-svc-digital-twin"}
         assert is_service_account(claims) is True
 
+    # @verifies REQ-0031
     def test_service_account_by_gty(self):
         claims = {"gty": "client-credentials"}
         assert is_service_account(claims) is True
 
+    # @verifies REQ-0031
     def test_service_account_by_client_id_no_email(self):
         claims = {"client_id": "svc-digital-twin"}
         assert is_service_account(claims) is True
 
+    # @verifies REQ-0031
     def test_user_with_email(self):
         claims = {
             "email": "user@example.com",
@@ -128,6 +144,7 @@ class TestIsServiceAccount:
         }
         assert is_service_account(claims) is False
 
+    # @verifies REQ-0031
     def test_user_with_realm_groups(self):
         claims = {
             "groups": ["/viewers"],
@@ -135,6 +152,7 @@ class TestIsServiceAccount:
         }
         assert is_service_account(claims) is False
 
+    # @verifies REQ-0031
     def test_user_with_org_groups_no_realm_groups(self):
         """User with org-level groups but no realm-level groups."""
         claims = {
@@ -150,10 +168,12 @@ class TestIsServiceAccount:
         }
         assert is_service_account(claims) is False
 
+    # @verifies REQ-0031
     def test_user_with_human_username(self):
         claims = {"preferred_username": "john.doe"}
         assert is_service_account(claims) is False
 
+    # @verifies REQ-0031
     def test_real_user_token(self):
         """Full token from Keycloak oauth2-proxy — must be classified as user."""
         claims = {
@@ -175,6 +195,7 @@ class TestIsServiceAccount:
         }
         assert is_service_account(claims) is False
 
+    # @verifies REQ-0031
     def test_real_service_token(self):
         """Service account token from client credentials grant."""
         claims = {
@@ -186,5 +207,6 @@ class TestIsServiceAccount:
         }
         assert is_service_account(claims) is True
 
+    # @verifies REQ-0031
     def test_empty_claims(self):
         assert is_service_account({}) is False

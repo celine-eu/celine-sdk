@@ -16,25 +16,19 @@ class SettingsIn:
     """Operational settings.
 
     Attributes:
-        timezone (None | str | Unset):
         currency (None | str | Unset):
         energy_unit (None | str | Unset):
         power_unit (None | str | Unset):
+        timezone (None | str | Unset):
     """
 
-    timezone: None | str | Unset = UNSET
     currency: None | str | Unset = UNSET
     energy_unit: None | str | Unset = UNSET
     power_unit: None | str | Unset = UNSET
+    timezone: None | str | Unset = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
-        timezone: None | str | Unset
-        if isinstance(self.timezone, Unset):
-            timezone = UNSET
-        else:
-            timezone = self.timezone
-
         currency: None | str | Unset
         if isinstance(self.currency, Unset):
             currency = UNSET
@@ -53,32 +47,29 @@ class SettingsIn:
         else:
             power_unit = self.power_unit
 
+        timezone: None | str | Unset
+        if isinstance(self.timezone, Unset):
+            timezone = UNSET
+        else:
+            timezone = self.timezone
+
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update({})
-        if timezone is not UNSET:
-            field_dict["timezone"] = timezone
         if currency is not UNSET:
             field_dict["currency"] = currency
         if energy_unit is not UNSET:
             field_dict["energy_unit"] = energy_unit
         if power_unit is not UNSET:
             field_dict["power_unit"] = power_unit
+        if timezone is not UNSET:
+            field_dict["timezone"] = timezone
 
         return field_dict
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
         d = dict(src_dict)
-
-        def _parse_timezone(data: object) -> None | str | Unset:
-            if data is None:
-                return data
-            if isinstance(data, Unset):
-                return data
-            return cast(None | str | Unset, data)
-
-        timezone = _parse_timezone(d.pop("timezone", UNSET))
 
         def _parse_currency(data: object) -> None | str | Unset:
             if data is None:
@@ -107,11 +98,20 @@ class SettingsIn:
 
         power_unit = _parse_power_unit(d.pop("power_unit", UNSET))
 
+        def _parse_timezone(data: object) -> None | str | Unset:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            return cast(None | str | Unset, data)
+
+        timezone = _parse_timezone(d.pop("timezone", UNSET))
+
         settings_in = cls(
-            timezone=timezone,
             currency=currency,
             energy_unit=energy_unit,
             power_unit=power_unit,
+            timezone=timezone,
         )
 
         settings_in.additional_properties = d

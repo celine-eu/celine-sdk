@@ -8,6 +8,29 @@
             "title": "Body",
             "type": "string"
           },
+          "click_action": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Click Action"
+          },
+          "clicked_at": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Clicked At"
+          },
           "created_at": {
             "format": "date-time",
             "title": "Created At",
@@ -189,13 +212,19 @@
             "type": "string"
           },
           "user_id": {
-            "title": "User Id",
-            "type": "string"
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "User Id"
           }
         },
         "required": [
-          "event_type",
-          "user_id"
+          "event_type"
         ],
         "title": "DigitalTwinEvent",
         "type": "object"
@@ -373,12 +402,100 @@
         "title": "IngestOkResponse",
         "type": "object"
       },
+      "NotificationClickTrackIn": {
+        "properties": {
+          "action": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Notification action identifier; empty means default notification body click",
+            "title": "Action"
+          },
+          "token": {
+            "title": "Token",
+            "type": "string"
+          }
+        },
+        "required": [
+          "token"
+        ],
+        "title": "NotificationClickTrackIn",
+        "type": "object"
+      },
+      "NotificationKindPreferenceOut": {
+        "properties": {
+          "cadence": {
+            "title": "Cadence",
+            "type": "string"
+          },
+          "description": {
+            "title": "Description",
+            "type": "string"
+          },
+          "editable": {
+            "default": true,
+            "title": "Editable",
+            "type": "boolean"
+          },
+          "enabled": {
+            "title": "Enabled",
+            "type": "boolean"
+          },
+          "kind": {
+            "title": "Kind",
+            "type": "string"
+          },
+          "label": {
+            "title": "Label",
+            "type": "string"
+          }
+        },
+        "required": [
+          "kind",
+          "label",
+          "description",
+          "cadence",
+          "enabled"
+        ],
+        "title": "NotificationKindPreferenceOut",
+        "type": "object"
+      },
       "NotificationOut": {
         "description": "User-facing notification. Fields are proper columns, not buried JSON.",
         "properties": {
           "body": {
             "title": "Body",
             "type": "string"
+          },
+          "click_action": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Action identifier reported by the notification click event",
+            "title": "Click Action"
+          },
+          "clicked_at": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Null if the push was never clicked",
+            "title": "Clicked At"
           },
           "created_at": {
             "format": "date-time",
@@ -499,6 +616,131 @@
           "deliveries"
         ],
         "title": "NudgeCreatedItem",
+        "type": "object"
+      },
+      "ScheduledEventCreateRequest": {
+        "properties": {
+          "community_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Community Id"
+          },
+          "event_type": {
+            "title": "Event Type",
+            "type": "string"
+          },
+          "external_key": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "External Key"
+          },
+          "facts": {
+            "additionalProperties": true,
+            "title": "Facts",
+            "type": "object"
+          },
+          "trigger_at": {
+            "format": "date-time",
+            "title": "Trigger At",
+            "type": "string"
+          },
+          "user_id": {
+            "title": "User Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "event_type",
+          "user_id",
+          "trigger_at"
+        ],
+        "title": "ScheduledEventCreateRequest",
+        "type": "object"
+      },
+      "ScheduledEventOut": {
+        "properties": {
+          "community_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Community Id"
+          },
+          "created_at": {
+            "format": "date-time",
+            "title": "Created At",
+            "type": "string"
+          },
+          "dispatched_at": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Dispatched At"
+          },
+          "event_type": {
+            "title": "Event Type",
+            "type": "string"
+          },
+          "external_key": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "External Key"
+          },
+          "id": {
+            "title": "Id",
+            "type": "string"
+          },
+          "status": {
+            "title": "Status",
+            "type": "string"
+          },
+          "trigger_at": {
+            "format": "date-time",
+            "title": "Trigger At",
+            "type": "string"
+          },
+          "user_id": {
+            "title": "User Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "event_type",
+          "user_id",
+          "trigger_at",
+          "status",
+          "created_at"
+        ],
+        "title": "ScheduledEventOut",
         "type": "object"
       },
       "SeedApplyRequest": {
@@ -640,6 +882,17 @@
             ],
             "title": "Failed"
           },
+          "notification_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Notification Id"
+          },
           "sent": {
             "anyOf": [
               {
@@ -747,6 +1000,18 @@
             ],
             "title": "Email"
           },
+          "enabled_notification_kinds": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Enabled Notification Kinds",
+            "type": "array"
+          },
+          "lang": {
+            "default": "en",
+            "title": "Lang",
+            "type": "string"
+          },
           "max_per_day": {
             "maximum": 10.0,
             "minimum": 1.0,
@@ -783,6 +1048,31 @@
               }
             ],
             "title": "Email"
+          },
+          "enabled_notification_kinds": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Enabled Notification Kinds"
+          },
+          "lang": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Lang"
           },
           "max_per_day": {
             "maximum": 10.0,
@@ -1119,6 +1409,48 @@
         ]
       }
     },
+    "/admin/scheduled-events": {
+      "post": {
+        "operationId": "create_scheduled_event_admin_scheduled_events_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ScheduledEventCreateRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ScheduledEventOut"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Schedule a future nudging event",
+        "tags": [
+          "admin",
+          "admin"
+        ]
+      }
+    },
     "/admin/seed/apply": {
       "post": {
         "description": "Upserts rules, templates and preferences from the provided payload. Idempotent \u2014 safe to call multiple times or at application startup.",
@@ -1300,6 +1632,48 @@
         ]
       }
     },
+    "/notifications/track-click": {
+      "post": {
+        "description": "Public endpoint used by a service worker to record that a push notification was clicked. The request must carry a valid signed tracking token from the push payload.",
+        "operationId": "track_click_notifications_track_click_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/NotificationClickTrackIn"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StatusResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Track notification click",
+        "tags": [
+          "notifications"
+        ]
+      }
+    },
     "/notifications/{notification_id}": {
       "delete": {
         "description": "Soft-deletes. Idempotent \u2013 returns 204 even if already deleted.",
@@ -1383,6 +1757,59 @@
         "summary": "Mark notification as read",
         "tags": [
           "notifications"
+        ]
+      }
+    },
+    "/preferences/catalog": {
+      "get": {
+        "operationId": "get_my_notification_catalog_preferences_catalog_get",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "lang",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Lang"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/NotificationKindPreferenceOut"
+                  },
+                  "title": "Response Get My Notification Catalog Preferences Catalog Get",
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Get My Notification Catalog",
+        "tags": [
+          "preferences"
         ]
       }
     },

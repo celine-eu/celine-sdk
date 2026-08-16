@@ -19,30 +19,30 @@ T = TypeVar("T", bound="LookupBySensorIdResponse")
 class LookupBySensorIdResponse:
     """
     Attributes:
+        asset (AssetRef):
         community (CommunityRef):
         member (MemberInCommunity):
-        asset (AssetRef):
     """
 
+    asset: AssetRef
     community: CommunityRef
     member: MemberInCommunity
-    asset: AssetRef
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
+        asset = self.asset.to_dict()
+
         community = self.community.to_dict()
 
         member = self.member.to_dict()
-
-        asset = self.asset.to_dict()
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update(
             {
+                "asset": asset,
                 "community": community,
                 "member": member,
-                "asset": asset,
             }
         )
 
@@ -55,16 +55,16 @@ class LookupBySensorIdResponse:
         from ..models.member_in_community import MemberInCommunity
 
         d = dict(src_dict)
+        asset = AssetRef.from_dict(d.pop("asset"))
+
         community = CommunityRef.from_dict(d.pop("community"))
 
         member = MemberInCommunity.from_dict(d.pop("member"))
 
-        asset = AssetRef.from_dict(d.pop("asset"))
-
         lookup_by_sensor_id_response = cls(
+            asset=asset,
             community=community,
             member=member,
-            asset=asset,
         )
 
         lookup_by_sensor_id_response.additional_properties = d
