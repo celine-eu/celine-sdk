@@ -4,7 +4,7 @@ The `celine-sdk` CLI and the conversion helpers around the generated clients. Th
 machinery that turns a running service's OpenAPI document into a typed Python client
 committed in `src/celine/sdk/openapi/`.
 
-The procedure for running it is `.agents/playbooks/regenerating-clients.md`; what it must do
+The procedure for running it is the companion's playbook for regenerating the clients; what it must do
 is here.
 
 ---

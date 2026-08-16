@@ -9,7 +9,7 @@ documentation disagreeing with the code, the code won and `docs/` was corrected 
 disagreements are listed at the end of this file.
 
 Twelve repositories import `celine.sdk.auth` and ten import `celine.sdk.settings`
-(`.agents/knowledge/what-this-repository-depends-on.md`). A requirement here is therefore
+(the companion's knowledge). A requirement here is therefore
 a promise to those repositories, and changing one is a platform change, not a local one.
 
 | Document | Covers |
@@ -24,7 +24,7 @@ a promise to those repositories, and changing one is a platform change, not a lo
 
 `REQ-` followed by four digits, the harness default. A test declares what it covers with
 `@verifies REQ-####` in its docstring, and the mapping between the two is generated —
-never written by hand. `.agents/playbooks/testing.md` states how.
+never written by hand. the companion's testing playbook states how.
 
 Numbers are allocated in blocks per document so a new requirement can be appended without
 renumbering: configuration `0001–0019`, identity `0020–0049`, policy evaluation
@@ -39,7 +39,7 @@ renumbering: configuration `0001–0019`, identity `0020–0049`, policy evaluat
 - **The service APIs themselves.** Those belong to the services. This SDK requires only
   that a spec is fetched, versioned and turned into a client.
 - **Compatibility with the repositories that import this one.** Nothing in this repository
-  can answer it; see the plan `.agents/plans/test-coverage-for-the-shared-surface.md`.
+  can answer it.
 
 ## Where the documentation disagreed with the code
 
