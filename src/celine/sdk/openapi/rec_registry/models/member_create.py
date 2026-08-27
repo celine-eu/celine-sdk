@@ -30,6 +30,7 @@ class MemberCreate:
             user_id (str):
             assets (AssetCollectionIn | Unset): Collection of assets organized by type.
             delivery_points (list[DeliveryPointIn] | Unset):
+            did (None | str | Unset):
             key (None | str | Unset):
             type_ (None | str | Unset):
     """
@@ -41,6 +42,7 @@ class MemberCreate:
     user_id: str
     assets: AssetCollectionIn | Unset = UNSET
     delivery_points: list[DeliveryPointIn] | Unset = UNSET
+    did: None | str | Unset = UNSET
     key: None | str | Unset = UNSET
     type_: None | str | Unset = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
@@ -66,6 +68,12 @@ class MemberCreate:
             for delivery_points_item_data in self.delivery_points:
                 delivery_points_item = delivery_points_item_data.to_dict()
                 delivery_points.append(delivery_points_item)
+
+        did: None | str | Unset
+        if isinstance(self.did, Unset):
+            did = UNSET
+        else:
+            did = self.did
 
         key: None | str | Unset
         if isinstance(self.key, Unset):
@@ -94,6 +102,8 @@ class MemberCreate:
             field_dict["assets"] = assets
         if delivery_points is not UNSET:
             field_dict["delivery_points"] = delivery_points
+        if did is not UNSET:
+            field_dict["did"] = did
         if key is not UNSET:
             field_dict["key"] = key
         if type_ is not UNSET:
@@ -133,6 +143,15 @@ class MemberCreate:
 
                 delivery_points.append(delivery_points_item)
 
+        def _parse_did(data: object) -> None | str | Unset:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            return cast(None | str | Unset, data)
+
+        did = _parse_did(d.pop("did", UNSET))
+
         def _parse_key(data: object) -> None | str | Unset:
             if data is None:
                 return data
@@ -159,6 +178,7 @@ class MemberCreate:
             user_id=user_id,
             assets=assets,
             delivery_points=delivery_points,
+            did=did,
             key=key,
             type_=type_,
         )

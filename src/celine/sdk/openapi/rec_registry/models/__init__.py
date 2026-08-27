@@ -45,6 +45,7 @@ from .delivery_point_lookup import DeliveryPointLookup
 from .delivery_point_with_owner import DeliveryPointWithOwner
 from .delivery_points_response import DeliveryPointsResponse
 from .device_in import DeviceIn
+from .dids_batch_request import DidsBatchRequest
 from .ev_charger import EvCharger
 from .ev_charger_asset_in import EVChargerAssetIn
 from .global_asset_lookup import GlobalAssetLookup
@@ -177,6 +178,7 @@ __all__ = (
     "DeliveryPointsResponse",
     "DeliveryPointWithOwner",
     "DeviceIn",
+    "DidsBatchRequest",
     "EvCharger",
     "EVChargerAssetIn",
     "GlobalAssetLookup",

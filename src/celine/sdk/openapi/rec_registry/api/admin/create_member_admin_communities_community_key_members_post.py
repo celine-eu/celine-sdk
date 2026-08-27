@@ -79,6 +79,9 @@ def sync_detailed(
     caller asked to create, and silently updating somebody else's row is how a
     retry with a changed payload rewrites the wrong person.
 
+    A concurrent create answers `409` too — the unique index refuses it, and the
+    service translates that back into the same conflict.
+
     Args:
         community_key (str):
         body (MemberCreate): Create one member. `key` is minted from the community's own numbering
@@ -120,6 +123,9 @@ def sync(
     caller asked to create, and silently updating somebody else's row is how a
     retry with a changed payload rewrites the wrong person.
 
+    A concurrent create answers `409` too — the unique index refuses it, and the
+    service translates that back into the same conflict.
+
     Args:
         community_key (str):
         body (MemberCreate): Create one member. `key` is minted from the community's own numbering
@@ -155,6 +161,9 @@ async def asyncio_detailed(
     existing key so a caller can switch to `PATCH`. It does not overwrite: the
     caller asked to create, and silently updating somebody else's row is how a
     retry with a changed payload rewrites the wrong person.
+
+    A concurrent create answers `409` too — the unique index refuses it, and the
+    service translates that back into the same conflict.
 
     Args:
         community_key (str):
@@ -194,6 +203,9 @@ async def asyncio(
     existing key so a caller can switch to `PATCH`. It does not overwrite: the
     caller asked to create, and silently updating somebody else's row is how a
     retry with a changed payload rewrites the wrong person.
+
+    A concurrent create answers `409` too — the unique index refuses it, and the
+    service translates that back into the same conflict.
 
     Args:
         community_key (str):

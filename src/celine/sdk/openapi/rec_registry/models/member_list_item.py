@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from collections.abc import Mapping
-from typing import Any, TypeVar
+from typing import Any, TypeVar, cast
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
@@ -23,6 +23,7 @@ class MemberListItem:
         status (str):
         user_id (str):
         delivery_points_count (int | Unset):  Default: 0.
+        did (None | str | Unset):
     """
 
     area: str
@@ -33,6 +34,7 @@ class MemberListItem:
     status: str
     user_id: str
     delivery_points_count: int | Unset = 0
+    did: None | str | Unset = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -52,6 +54,12 @@ class MemberListItem:
 
         delivery_points_count = self.delivery_points_count
 
+        did: None | str | Unset
+        if isinstance(self.did, Unset):
+            did = UNSET
+        else:
+            did = self.did
+
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update(
@@ -67,6 +75,8 @@ class MemberListItem:
         )
         if delivery_points_count is not UNSET:
             field_dict["delivery_points_count"] = delivery_points_count
+        if did is not UNSET:
+            field_dict["did"] = did
 
         return field_dict
 
@@ -89,6 +99,15 @@ class MemberListItem:
 
         delivery_points_count = d.pop("delivery_points_count", UNSET)
 
+        def _parse_did(data: object) -> None | str | Unset:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            return cast(None | str | Unset, data)
+
+        did = _parse_did(d.pop("did", UNSET))
+
         member_list_item = cls(
             area=area,
             id=id,
@@ -98,6 +117,7 @@ class MemberListItem:
             status=status,
             user_id=user_id,
             delivery_points_count=delivery_points_count,
+            did=did,
         )
 
         member_list_item.additional_properties = d

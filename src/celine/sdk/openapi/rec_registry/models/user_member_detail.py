@@ -27,6 +27,7 @@ class UserMemberDetail:
         status (str):
         created_at (None | str | Unset):
         delivery_points (list[DeliveryPoint] | Unset):
+        did (None | str | Unset):
         extra (UserMemberDetailExtra | Unset):
         updated_at (None | str | Unset):
     """
@@ -38,6 +39,7 @@ class UserMemberDetail:
     status: str
     created_at: None | str | Unset = UNSET
     delivery_points: list[DeliveryPoint] | Unset = UNSET
+    did: None | str | Unset = UNSET
     extra: UserMemberDetailExtra | Unset = UNSET
     updated_at: None | str | Unset = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
@@ -66,6 +68,12 @@ class UserMemberDetail:
                 delivery_points_item = delivery_points_item_data.to_dict()
                 delivery_points.append(delivery_points_item)
 
+        did: None | str | Unset
+        if isinstance(self.did, Unset):
+            did = UNSET
+        else:
+            did = self.did
+
         extra: dict[str, Any] | Unset = UNSET
         if not isinstance(self.extra, Unset):
             extra = self.extra.to_dict()
@@ -91,6 +99,8 @@ class UserMemberDetail:
             field_dict["created_at"] = created_at
         if delivery_points is not UNSET:
             field_dict["delivery_points"] = delivery_points
+        if did is not UNSET:
+            field_dict["did"] = did
         if extra is not UNSET:
             field_dict["extra"] = extra
         if updated_at is not UNSET:
@@ -132,6 +142,15 @@ class UserMemberDetail:
 
                 delivery_points.append(delivery_points_item)
 
+        def _parse_did(data: object) -> None | str | Unset:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            return cast(None | str | Unset, data)
+
+        did = _parse_did(d.pop("did", UNSET))
+
         _extra = d.pop("extra", UNSET)
         extra: UserMemberDetailExtra | Unset
         if isinstance(_extra, Unset):
@@ -156,6 +175,7 @@ class UserMemberDetail:
             status=status,
             created_at=created_at,
             delivery_points=delivery_points,
+            did=did,
             extra=extra,
             updated_at=updated_at,
         )

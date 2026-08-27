@@ -6,33 +6,37 @@ from typing import Any, TypeVar, cast
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
 
-T = TypeVar("T", bound="SensorIdsBatchRequest")
+T = TypeVar("T", bound="DidsBatchRequest")
 
 
 @_attrs_define
-class SensorIdsBatchRequest:
-    """Sensors to resolve owners for.
+class DidsBatchRequest:
+    """Members to resolve by their dataspace DID.
 
-    Bounded for the same reason as its sibling below, and by the same number.
-    Sensor ids are less guessable than usernames, which makes this the weaker
-    enumeration path — but not the weaker *bulk extraction* one: a caller
-    holding a list of them resolves every owner and community in one request.
+    Bounded by the same constant as its two siblings, for the same reason: a
+    caller naming ten thousand DIDs in one request has a dump of the registry
+    rather than a lookup.
+
+    A DID is the identifier a consent record is written in, so the set the
+    caller holds is the set of people who consented — and this endpoint turns
+    that into the supply points they hold. Which makes the bound the same
+    security decision it is on the other two.
 
         Attributes:
-            sensor_ids (list[str]):
+            dids (list[str]):
     """
 
-    sensor_ids: list[str]
+    dids: list[str]
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
-        sensor_ids = self.sensor_ids
+        dids = self.dids
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update(
             {
-                "sensor_ids": sensor_ids,
+                "dids": dids,
             }
         )
 
@@ -41,14 +45,14 @@ class SensorIdsBatchRequest:
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
         d = dict(src_dict)
-        sensor_ids = cast(list[str], d.pop("sensor_ids"))
+        dids = cast(list[str], d.pop("dids"))
 
-        sensor_ids_batch_request = cls(
-            sensor_ids=sensor_ids,
+        dids_batch_request = cls(
+            dids=dids,
         )
 
-        sensor_ids_batch_request.additional_properties = d
-        return sensor_ids_batch_request
+        dids_batch_request.additional_properties = d
+        return dids_batch_request
 
     @property
     def additional_keys(self) -> list[str]:

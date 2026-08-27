@@ -74,8 +74,24 @@ def sync_detailed(
 
      Find assets by multiple sensor_ids across all communities.
 
+    The mirror of ``assets-by-user-ids``: this one starts from a device and
+    finds its owner, that one starts from owners and finds their devices.
+
+    **Bounded**, at the same 500 as its sibling. Both are reachable by anything
+    holding ``rec-registry.lookup``, and a caller that can name ten thousand
+    sensors in one request has a dump of the registry rather than a lookup.
+
+    **A sensor id that matches nothing contributes no row** rather than failing
+    the request: the caller asked about a set, and one absent member of it does
+    not make the rest unanswerable.
+
     Args:
-        body (SensorIdsBatchRequest):
+        body (SensorIdsBatchRequest): Sensors to resolve owners for.
+
+            Bounded for the same reason as its sibling below, and by the same number.
+            Sensor ids are less guessable than usernames, which makes this the weaker
+            enumeration path — but not the weaker *bulk extraction* one: a caller
+            holding a list of them resolves every owner and community in one request.
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
@@ -105,8 +121,24 @@ def sync(
 
      Find assets by multiple sensor_ids across all communities.
 
+    The mirror of ``assets-by-user-ids``: this one starts from a device and
+    finds its owner, that one starts from owners and finds their devices.
+
+    **Bounded**, at the same 500 as its sibling. Both are reachable by anything
+    holding ``rec-registry.lookup``, and a caller that can name ten thousand
+    sensors in one request has a dump of the registry rather than a lookup.
+
+    **A sensor id that matches nothing contributes no row** rather than failing
+    the request: the caller asked about a set, and one absent member of it does
+    not make the rest unanswerable.
+
     Args:
-        body (SensorIdsBatchRequest):
+        body (SensorIdsBatchRequest): Sensors to resolve owners for.
+
+            Bounded for the same reason as its sibling below, and by the same number.
+            Sensor ids are less guessable than usernames, which makes this the weaker
+            enumeration path — but not the weaker *bulk extraction* one: a caller
+            holding a list of them resolves every owner and community in one request.
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
@@ -131,8 +163,24 @@ async def asyncio_detailed(
 
      Find assets by multiple sensor_ids across all communities.
 
+    The mirror of ``assets-by-user-ids``: this one starts from a device and
+    finds its owner, that one starts from owners and finds their devices.
+
+    **Bounded**, at the same 500 as its sibling. Both are reachable by anything
+    holding ``rec-registry.lookup``, and a caller that can name ten thousand
+    sensors in one request has a dump of the registry rather than a lookup.
+
+    **A sensor id that matches nothing contributes no row** rather than failing
+    the request: the caller asked about a set, and one absent member of it does
+    not make the rest unanswerable.
+
     Args:
-        body (SensorIdsBatchRequest):
+        body (SensorIdsBatchRequest): Sensors to resolve owners for.
+
+            Bounded for the same reason as its sibling below, and by the same number.
+            Sensor ids are less guessable than usernames, which makes this the weaker
+            enumeration path — but not the weaker *bulk extraction* one: a caller
+            holding a list of them resolves every owner and community in one request.
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
@@ -160,8 +208,24 @@ async def asyncio(
 
      Find assets by multiple sensor_ids across all communities.
 
+    The mirror of ``assets-by-user-ids``: this one starts from a device and
+    finds its owner, that one starts from owners and finds their devices.
+
+    **Bounded**, at the same 500 as its sibling. Both are reachable by anything
+    holding ``rec-registry.lookup``, and a caller that can name ten thousand
+    sensors in one request has a dump of the registry rather than a lookup.
+
+    **A sensor id that matches nothing contributes no row** rather than failing
+    the request: the caller asked about a set, and one absent member of it does
+    not make the rest unanswerable.
+
     Args:
-        body (SensorIdsBatchRequest):
+        body (SensorIdsBatchRequest): Sensors to resolve owners for.
+
+            Bounded for the same reason as its sibling below, and by the same number.
+            Sensor ids are less guessable than usernames, which makes this the weaker
+            enumeration path — but not the weaker *bulk extraction* one: a caller
+            holding a list of them resolves every owner and community in one request.
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.

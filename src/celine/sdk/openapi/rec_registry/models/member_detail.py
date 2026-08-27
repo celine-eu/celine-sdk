@@ -29,6 +29,7 @@ class MemberDetail:
         user_id (str):
         created_at (None | str | Unset):
         delivery_points (list[DeliveryPoint] | Unset):
+        did (None | str | Unset):
         extra (MemberDetailExtra | Unset):
         updated_at (None | str | Unset):
     """
@@ -42,6 +43,7 @@ class MemberDetail:
     user_id: str
     created_at: None | str | Unset = UNSET
     delivery_points: list[DeliveryPoint] | Unset = UNSET
+    did: None | str | Unset = UNSET
     extra: MemberDetailExtra | Unset = UNSET
     updated_at: None | str | Unset = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
@@ -74,6 +76,12 @@ class MemberDetail:
                 delivery_points_item = delivery_points_item_data.to_dict()
                 delivery_points.append(delivery_points_item)
 
+        did: None | str | Unset
+        if isinstance(self.did, Unset):
+            did = UNSET
+        else:
+            did = self.did
+
         extra: dict[str, Any] | Unset = UNSET
         if not isinstance(self.extra, Unset):
             extra = self.extra.to_dict()
@@ -101,6 +109,8 @@ class MemberDetail:
             field_dict["created_at"] = created_at
         if delivery_points is not UNSET:
             field_dict["delivery_points"] = delivery_points
+        if did is not UNSET:
+            field_dict["did"] = did
         if extra is not UNSET:
             field_dict["extra"] = extra
         if updated_at is not UNSET:
@@ -146,6 +156,15 @@ class MemberDetail:
 
                 delivery_points.append(delivery_points_item)
 
+        def _parse_did(data: object) -> None | str | Unset:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            return cast(None | str | Unset, data)
+
+        did = _parse_did(d.pop("did", UNSET))
+
         _extra = d.pop("extra", UNSET)
         extra: MemberDetailExtra | Unset
         if isinstance(_extra, Unset):
@@ -172,6 +191,7 @@ class MemberDetail:
             user_id=user_id,
             created_at=created_at,
             delivery_points=delivery_points,
+            did=did,
             extra=extra,
             updated_at=updated_at,
         )

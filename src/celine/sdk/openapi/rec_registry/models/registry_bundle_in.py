@@ -21,20 +21,20 @@ T = TypeVar("T", bound="RegistryBundleIn")
 class RegistryBundleIn:
     """Complete registry bundle for import.
 
-    Matches v0.4 structure.
+    Matches `schemas/community/v0.6/community.schema.json`.
 
         Attributes:
             community (CommunityIn): Community definition.
             members (Members | Unset):
             metadata (MetadataIn | None | Unset):
-            schema_version (str | Unset):  Default: '1.0'.
+            schema_version (str | Unset):  Default: '0.6'.
             version (str | Unset):  Default: '1.0'.
     """
 
     community: CommunityIn
     members: Members | Unset = UNSET
     metadata: MetadataIn | None | Unset = UNSET
-    schema_version: str | Unset = "1.0"
+    schema_version: str | Unset = "0.6"
     version: str | Unset = "1.0"
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 

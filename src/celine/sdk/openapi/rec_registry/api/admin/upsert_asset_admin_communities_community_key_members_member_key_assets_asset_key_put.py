@@ -78,6 +78,15 @@ def sync_detailed(
 
      Create or replace one asset, leaving the member's other assets alone.
 
+    Answers `409` when the key already belongs to another member of the
+    community — asset keys are unique per community, not per member, so a key
+    that looks free to this member may not be.
+
+    A concurrent upsert of the same key by the same member is **not** a
+    conflict: the service applies it to the row the other writer created and
+    answers `200`, because a create-or-replace is idempotent and a race means
+    only that the two arrived in an order neither cared about.
+
     Args:
         community_key (str):
         member_key (str):
@@ -121,6 +130,15 @@ def sync(
 
      Create or replace one asset, leaving the member's other assets alone.
 
+    Answers `409` when the key already belongs to another member of the
+    community — asset keys are unique per community, not per member, so a key
+    that looks free to this member may not be.
+
+    A concurrent upsert of the same key by the same member is **not** a
+    conflict: the service applies it to the row the other writer created and
+    answers `200`, because a create-or-replace is idempotent and a race means
+    only that the two arrived in an order neither cared about.
+
     Args:
         community_key (str):
         member_key (str):
@@ -158,6 +176,15 @@ async def asyncio_detailed(
     """Upsert Asset
 
      Create or replace one asset, leaving the member's other assets alone.
+
+    Answers `409` when the key already belongs to another member of the
+    community — asset keys are unique per community, not per member, so a key
+    that looks free to this member may not be.
+
+    A concurrent upsert of the same key by the same member is **not** a
+    conflict: the service applies it to the row the other writer created and
+    answers `200`, because a create-or-replace is idempotent and a race means
+    only that the two arrived in an order neither cared about.
 
     Args:
         community_key (str):
@@ -199,6 +226,15 @@ async def asyncio(
     """Upsert Asset
 
      Create or replace one asset, leaving the member's other assets alone.
+
+    Answers `409` when the key already belongs to another member of the
+    community — asset keys are unique per community, not per member, so a key
+    that looks free to this member may not be.
+
+    A concurrent upsert of the same key by the same member is **not** a
+    conflict: the service applies it to the row the other writer created and
+    answers `200`, because a create-or-replace is idempotent and a race means
+    only that the two arrived in an order neither cared about.
 
     Args:
         community_key (str):

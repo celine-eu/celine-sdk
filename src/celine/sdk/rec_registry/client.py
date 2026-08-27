@@ -50,6 +50,9 @@ from celine.sdk.openapi.rec_registry.api.admin import (
     lookup_assets_by_user_ids as _lookup_assets_by_user_ids,
 )
 from celine.sdk.openapi.rec_registry.api.admin import (
+    lookup_members_by_dids as _lookup_members_by_dids,
+)
+from celine.sdk.openapi.rec_registry.api.admin import (
     patch_member_admin_communities_community_key_members_member_key_patch as _patch_member,
 )
 from celine.sdk.openapi.rec_registry.api.admin import (
@@ -84,6 +87,7 @@ from celine.sdk.openapi.rec_registry.models import (
     UserAssetDetail,
     SensorIdsBatchRequest,
     UserIdsBatchRequest,
+    DidsBatchRequest,
 )
 
 from celine.sdk.openapi.rec_registry.models.global_asset_lookup import GlobalAssetLookup
@@ -117,11 +121,11 @@ __all__ = [
     "MAX_BATCH_LOOKUP_IDS",
 ]
 
-#: The largest batch either asset-lookup route accepts.
+#: The largest batch any of the three batch-lookup routes accepts.
 #:
-#: Mirrored from `rec-registry`, where REQ-0043 and REQ-0045 bound both batch
-#: lookups at one shared constant of the same name — 501 ids is a `422`, 500 is
-#: accepted. It is mirrored rather than read from the specification because
+#: Mirrored from `rec-registry`, where REQ-0043, REQ-0045 and REQ-0061 bound all
+#: three batch lookups at one shared constant of the same name — 501 ids is a
+#: `422`, 500 is accepted. It is mirrored rather than read from the specification because
 #: there is nothing there to read: the generated request models are plain
 #: `attrs` classes and validate nothing. The last time this number was written
 #: twice the two copies disagreed for months (rec-registry#37), which is why it
@@ -645,28 +649,35 @@ class RecRegistryAdminClient:
         )
         return to_schema(res.parsed, GlobalMemberLookupSchema)
 
-    async def _batch_asset_lookup(
+    async def _batch_lookup(
         self,
         ids: list[str],
         *,
         route: str,
         request: Callable[[list[str]], Any],
         call: Callable[..., Awaitable[Any]],
+        schema: type,
         token: Optional[str],
-    ) -> list[GlobalAssetLookupSchema]:
-        """Run one batch asset lookup, in requests of at most the route's bound.
+    ) -> list[Any]:
+        """Run one batch lookup, in requests of at most the route's bound.
 
         Chunking is invisible to the caller: the bound is a property of the
         route rather than something the caller did wrong. Rows arrive in
         request order, and an empty input sends nothing.
 
-        Anything that is not a `200` raises. On these two routes an empty list
-        is a *meaningful* answer — "none of these ids matched", and,
-        deliberately, "that member owns nothing" — so returning `[]` for a
+        Anything that is not a `200` raises. On all three of these routes an
+        empty list is a *meaningful* answer — "none of these ids matched", and,
+        deliberately, "that member holds nothing" — so returning `[]` for a
         refusal makes a denial indistinguishable from a result, in the
         direction that loses data quietly.
+
+        `schema` is a parameter rather than a fixed `GlobalAssetLookupSchema`
+        because the DID batch answers **members**, not assets: onboarding writes
+        a participant's supply point onto the member and registers no asset
+        until a meter is physically installed, so an asset-shaped answer would
+        be empty for exactly the population a consent-gated export covers.
         """
-        found: list[GlobalAssetLookupSchema] = []
+        found: list[Any] = []
         for start in range(0, len(ids), MAX_BATCH_LOOKUP_IDS):
             chunk = ids[start : start + MAX_BATCH_LOOKUP_IDS]
             client = await self._get_client(token)
@@ -678,10 +689,7 @@ class RecRegistryAdminClient:
                     status_code=res.status_code,
                     body=res.content,
                 )
-            found.extend(
-                GlobalAssetLookupSchema.model_validate(item.to_dict())
-                for item in res.parsed
-            )
+            found.extend(schema.model_validate(item.to_dict()) for item in res.parsed)
         return found
 
     async def lookup_assets_by_sensor_ids(
@@ -698,11 +706,12 @@ class RecRegistryAdminClient:
         requests as it takes; a refused request raises `RecRegistryApiError`
         rather than answering an empty list.
         """
-        return await self._batch_asset_lookup(
+        return await self._batch_lookup(
             sensor_ids,
             route="assets-by-sensor-ids",
             request=lambda chunk: SensorIdsBatchRequest(sensor_ids=chunk),
             call=_lookup_assets_by_sensor_ids.asyncio_detailed,
+            schema=GlobalAssetLookupSchema,
             token=token,
         )
 
@@ -861,10 +870,54 @@ class RecRegistryAdminClient:
         More than `MAX_BATCH_LOOKUP_IDS` ids are split across as many requests
         as it takes, and the rows are concatenated in request order.
         """
-        return await self._batch_asset_lookup(
+        return await self._batch_lookup(
             user_ids,
             route="assets-by-user-ids",
             request=lambda chunk: UserIdsBatchRequest(user_ids=chunk),
             call=_lookup_assets_by_user_ids.asyncio_detailed,
+            schema=GlobalAssetLookupSchema,
+            token=token,
+        )
+
+    async def lookup_members_by_dids(
+        self,
+        dids: list[str],
+        *,
+        token: Optional[str] = None,
+    ) -> list[GlobalMemberLookupSchema]:
+        """Find the members holding a set of dataspace DIDs, across communities.
+
+        The join between the connector's answer to *who consented* — stated in
+        DIDs — and the registry's answer to *what they hold*. Resolving a DID
+        through the identity registry to a Keycloak user id does not close that
+        gap: `Member.user_id` holds a Keycloak *username*, so the identifier
+        that hop returns matches no row.
+
+        **Answers members, not assets**, and the difference matters in the
+        common case. Onboarding writes a participant's declared supply point
+        onto `Member.delivery_points` and registers no asset, because a meter's
+        `sensor_id` is assigned at physical installation — so every row carries
+        `delivery_points`, and an asset-shaped answer would be empty for every
+        participant whose meter is not yet commissioned. A commissioned meter
+        stays reachable through :meth:`lookup_assets_by_user_ids` and the
+        `user_id` in the same row.
+
+        Every row carries its `did`, which is what lets the caller attribute it
+        back to the DID it asked about.
+
+        Requires ``rec-registry.lookup``. A DID belonging to nobody and a member
+        holding no supply points are deliberately indistinguishable — both
+        contribute no row, and neither is a `404`. A *refused* request is not a
+        third member of that set: it raises `RecRegistryApiError`.
+
+        More than `MAX_BATCH_LOOKUP_IDS` dids are split across as many requests
+        as it takes, and the rows are concatenated in request order.
+        """
+        return await self._batch_lookup(
+            dids,
+            route="members-by-dids",
+            request=lambda chunk: DidsBatchRequest(dids=chunk),
+            call=_lookup_members_by_dids.asyncio_detailed,
+            schema=GlobalMemberLookupSchema,
             token=token,
         )

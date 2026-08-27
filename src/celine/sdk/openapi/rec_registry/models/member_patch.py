@@ -25,6 +25,7 @@ class MemberPatch:
 
         Attributes:
             area (None | str | Unset):
+            did (None | str | Unset):
             extra (MemberPatchExtraType0 | None | Unset):
             name (None | str | Unset):
             role (None | str | Unset):
@@ -34,6 +35,7 @@ class MemberPatch:
     """
 
     area: None | str | Unset = UNSET
+    did: None | str | Unset = UNSET
     extra: MemberPatchExtraType0 | None | Unset = UNSET
     name: None | str | Unset = UNSET
     role: None | str | Unset = UNSET
@@ -50,6 +52,12 @@ class MemberPatch:
             area = UNSET
         else:
             area = self.area
+
+        did: None | str | Unset
+        if isinstance(self.did, Unset):
+            did = UNSET
+        else:
+            did = self.did
 
         extra: dict[str, Any] | None | Unset
         if isinstance(self.extra, Unset):
@@ -94,6 +102,8 @@ class MemberPatch:
         field_dict.update({})
         if area is not UNSET:
             field_dict["area"] = area
+        if did is not UNSET:
+            field_dict["did"] = did
         if extra is not UNSET:
             field_dict["extra"] = extra
         if name is not UNSET:
@@ -123,6 +133,15 @@ class MemberPatch:
             return cast(None | str | Unset, data)
 
         area = _parse_area(d.pop("area", UNSET))
+
+        def _parse_did(data: object) -> None | str | Unset:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            return cast(None | str | Unset, data)
+
+        did = _parse_did(d.pop("did", UNSET))
 
         def _parse_extra(data: object) -> MemberPatchExtraType0 | None | Unset:
             if data is None:
@@ -188,6 +207,7 @@ class MemberPatch:
 
         member_patch = cls(
             area=area,
+            did=did,
             extra=extra,
             name=name,
             role=role,

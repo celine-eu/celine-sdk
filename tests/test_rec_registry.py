@@ -41,6 +41,22 @@ def _asset(key: str, *, sensor_id: str | None = None, owner: str = "u-1") -> dic
     }
 
 
+def _member(key: str, *, did: str, pods: tuple[str, ...] = ()) -> dict:
+    return {
+        "area": "north",
+        "community_key": "cer-1",
+        "community_name": "CER One",
+        "delivery_points": [{"id": p, "type": "pod"} for p in pods],
+        "did": did,
+        "id": f"id-{key}",
+        "key": key,
+        "name": f"Member {key}",
+        "role": "consumer",
+        "status": "active",
+        "user_id": f"u-{key}",
+    }
+
+
 def _rows(*payloads):
     """Answer each request with the next payload, `200`."""
     remaining = list(payloads)
@@ -161,6 +177,88 @@ class TestTheBoundIsChunked:
         seen = mock_http(_rows())
         assert await _client().lookup_assets_by_user_ids([]) == []
         assert await _client().lookup_assets_by_sensor_ids([]) == []
+        assert seen == []
+
+
+class TestTheDidBatch:
+    """The third batch route, and the first that answers members.
+
+    It shares the helper with the two asset lookups, so what is tested here is
+    what sharing must not have broken — the bound, the refusal rule and the
+    empty batch — plus the one thing that is genuinely different: the shape of
+    the answer.
+    """
+
+    # @verifies REQ-0124
+    async def test_it_resolves_dids_to_members(self, mock_http):
+        seen = mock_http(_rows([_member("m-1", did="did:web:x:alice")]))
+
+        members = await _client().lookup_members_by_dids(["did:web:x:alice"])
+
+        assert seen[0].url.path == "/admin/lookup/members-by-dids"
+        assert json.loads(seen[0].content)["dids"] == ["did:web:x:alice"]
+        assert [m.key for m in members] == ["m-1"]
+
+    # @verifies REQ-0124
+    async def test_every_row_carries_the_did_it_answers(self, mock_http):
+        """Without it the caller cannot attribute a row back to the DID it asked
+        about, which is the entire purpose of a batch form."""
+        mock_http(_rows([_member("m-1", did="did:web:x:alice")]))
+
+        members = await _client().lookup_members_by_dids(["did:web:x:alice"])
+
+        assert [m.did for m in members] == ["did:web:x:alice"]
+
+    # @verifies REQ-0124
+    async def test_the_supply_point_arrives_without_any_asset(self, mock_http):
+        """The reason this route is member-shaped. A participant registered but
+        not yet metered has a declared POD and no asset at all, so an
+        asset-shaped answer would be empty for exactly the population a
+        consent-gated export is authorised over."""
+        mock_http(_rows([_member("m-1", did="did:web:x:alice", pods=("IT-DP-1",))]))
+
+        members = await _client().lookup_members_by_dids(["did:web:x:alice"])
+
+        assert [dp.id for dp in members[0].delivery_points] == ["IT-DP-1"]
+
+    # @verifies REQ-0124
+    # @verifies REQ-0120
+    async def test_a_refusal_raises_rather_than_answering_an_empty_list(
+        self, mock_http
+    ):
+        """The hazard the helper is shared for: on this route too, an empty list
+        is a real answer the service gives on purpose."""
+        mock_http(_status(422, VALIDATION_ERROR))
+
+        with pytest.raises(RecRegistryApiError) as excinfo:
+            await _client().lookup_members_by_dids(["did:web:x:alice"])
+
+        assert excinfo.value.status_code == 422
+        assert "members-by-dids" in str(excinfo.value)
+
+    # @verifies REQ-0124
+    # @verifies REQ-0121
+    async def test_a_batch_over_the_bound_is_split_and_concatenated_in_order(
+        self, mock_http
+    ):
+        seen = mock_http(
+            _rows([_member("a", did="did:a")], [_member("b", did="did:b")])
+        )
+        dids = [f"did:web:x:{n}" for n in range(MAX_BATCH_LOOKUP_IDS + 1)]
+
+        members = await _client().lookup_members_by_dids(dids)
+
+        sent = [json.loads(r.content)["dids"] for r in seen]
+        assert [len(chunk) for chunk in sent] == [MAX_BATCH_LOOKUP_IDS, 1]
+        assert [d for chunk in sent for d in chunk] == dids
+        assert [m.key for m in members] == ["a", "b"]
+
+    # @verifies REQ-0124
+    # @verifies REQ-0122
+    async def test_an_empty_batch_asks_nothing(self, mock_http):
+        seen = mock_http(_rows())
+
+        assert await _client().lookup_members_by_dids([]) == []
         assert seen == []
 
 

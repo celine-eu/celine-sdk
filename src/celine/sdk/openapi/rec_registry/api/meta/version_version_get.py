@@ -42,7 +42,13 @@ def sync_detailed(
 ) -> Response[Any]:
     """Version
 
-     API version info.
+     What is deployed here.
+
+    Both fields are derived — `api_version` from the installed distribution and
+    `schema_version` from the one constant every other reader of it uses. They
+    were literals typed into this file, which is how the route came to answer
+    `1.0.0` while the package was on 1.5.0, and `0.4` while nothing anywhere
+    else said `0.4`.
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
@@ -67,7 +73,13 @@ async def asyncio_detailed(
 ) -> Response[Any]:
     """Version
 
-     API version info.
+     What is deployed here.
+
+    Both fields are derived — `api_version` from the installed distribution and
+    `schema_version` from the one constant every other reader of it uses. They
+    were literals typed into this file, which is how the route came to answer
+    `1.0.0` while the package was on 1.5.0, and `0.4` while nothing anywhere
+    else said `0.4`.
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.

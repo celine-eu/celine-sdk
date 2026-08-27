@@ -49,6 +49,14 @@ def sync_detailed(
 
     Note: Does not include user_id in response (user already knows it).
 
+    It **does** include `did`, and the two omissions are not the same kind. The
+    caller knows the username they authenticated with, so returning it would put
+    an identity into one more response body for nothing. They do not know the
+    dataspace DID — an onboarding service minted it on their behalf, one step
+    after registration — and it is the identifier their consent records are
+    written in. Withholding it means a participant cannot see, in the one place
+    that is theirs, which dataspace identity is acting for them.
+
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
@@ -76,6 +84,14 @@ def sync(
 
     Note: Does not include user_id in response (user already knows it).
 
+    It **does** include `did`, and the two omissions are not the same kind. The
+    caller knows the username they authenticated with, so returning it would put
+    an identity into one more response body for nothing. They do not know the
+    dataspace DID — an onboarding service minted it on their behalf, one step
+    after registration — and it is the identifier their consent records are
+    written in. Withholding it means a participant cannot see, in the one place
+    that is theirs, which dataspace identity is acting for them.
+
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
@@ -98,6 +114,14 @@ async def asyncio_detailed(
      Get current user's full member details.
 
     Note: Does not include user_id in response (user already knows it).
+
+    It **does** include `did`, and the two omissions are not the same kind. The
+    caller knows the username they authenticated with, so returning it would put
+    an identity into one more response body for nothing. They do not know the
+    dataspace DID — an onboarding service minted it on their behalf, one step
+    after registration — and it is the identifier their consent records are
+    written in. Withholding it means a participant cannot see, in the one place
+    that is theirs, which dataspace identity is acting for them.
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
@@ -123,6 +147,14 @@ async def asyncio(
      Get current user's full member details.
 
     Note: Does not include user_id in response (user already knows it).
+
+    It **does** include `did`, and the two omissions are not the same kind. The
+    caller knows the username they authenticated with, so returning it would put
+    an identity into one more response body for nothing. They do not know the
+    dataspace DID — an onboarding service minted it on their behalf, one step
+    after registration — and it is the identifier their consent records are
+    written in. Withholding it means a participant cannot see, in the one place
+    that is theirs, which dataspace identity is acting for them.
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.

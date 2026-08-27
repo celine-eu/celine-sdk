@@ -77,6 +77,27 @@ def sync_detailed(
 
      Partially update a member. Absent fields are left alone.
 
+    Reassigning a `user_id` that belongs to somebody else is `409`, whether the
+    clash was already committed or arrives concurrently.
+
+    **This is also how a member's dataspace DID is written**, because the DID is
+    minted a step after the member is registered — there is no separate route
+    for it, since a dedicated write would have to be added to
+    `TestNoWriteReducesASibling` to earn nothing `PATCH` does not already do.
+    Its clash check differs from the `user_id` one beside it in two ways, and
+    both matter:
+
+    * **It is registry-wide.** `ix_member_did` is global, so the check cannot be
+      scoped to the community in the path.
+    * **It names the holder only inside the addressed community.** Saying which
+      member of *another* community holds a DID would answer a question the
+      caller did not ask about people they were not addressing — the same
+      enumeration reasoning as REQ-0045.
+
+    Re-sending a member the DID it already holds is a no-op success: onboarding
+    writes it from a retriable step, so the same write arriving twice must not
+    be a conflict.
+
     Args:
         community_key (str):
         member_key (str):
@@ -118,6 +139,27 @@ def sync(
 
      Partially update a member. Absent fields are left alone.
 
+    Reassigning a `user_id` that belongs to somebody else is `409`, whether the
+    clash was already committed or arrives concurrently.
+
+    **This is also how a member's dataspace DID is written**, because the DID is
+    minted a step after the member is registered — there is no separate route
+    for it, since a dedicated write would have to be added to
+    `TestNoWriteReducesASibling` to earn nothing `PATCH` does not already do.
+    Its clash check differs from the `user_id` one beside it in two ways, and
+    both matter:
+
+    * **It is registry-wide.** `ix_member_did` is global, so the check cannot be
+      scoped to the community in the path.
+    * **It names the holder only inside the addressed community.** Saying which
+      member of *another* community holds a DID would answer a question the
+      caller did not ask about people they were not addressing — the same
+      enumeration reasoning as REQ-0045.
+
+    Re-sending a member the DID it already holds is a no-op success: onboarding
+    writes it from a retriable step, so the same write arriving twice must not
+    be a conflict.
+
     Args:
         community_key (str):
         member_key (str):
@@ -153,6 +195,27 @@ async def asyncio_detailed(
     """Patch Member
 
      Partially update a member. Absent fields are left alone.
+
+    Reassigning a `user_id` that belongs to somebody else is `409`, whether the
+    clash was already committed or arrives concurrently.
+
+    **This is also how a member's dataspace DID is written**, because the DID is
+    minted a step after the member is registered — there is no separate route
+    for it, since a dedicated write would have to be added to
+    `TestNoWriteReducesASibling` to earn nothing `PATCH` does not already do.
+    Its clash check differs from the `user_id` one beside it in two ways, and
+    both matter:
+
+    * **It is registry-wide.** `ix_member_did` is global, so the check cannot be
+      scoped to the community in the path.
+    * **It names the holder only inside the addressed community.** Saying which
+      member of *another* community holds a DID would answer a question the
+      caller did not ask about people they were not addressing — the same
+      enumeration reasoning as REQ-0045.
+
+    Re-sending a member the DID it already holds is a no-op success: onboarding
+    writes it from a retriable step, so the same write arriving twice must not
+    be a conflict.
 
     Args:
         community_key (str):
@@ -192,6 +255,27 @@ async def asyncio(
     """Patch Member
 
      Partially update a member. Absent fields are left alone.
+
+    Reassigning a `user_id` that belongs to somebody else is `409`, whether the
+    clash was already committed or arrives concurrently.
+
+    **This is also how a member's dataspace DID is written**, because the DID is
+    minted a step after the member is registered — there is no separate route
+    for it, since a dedicated write would have to be added to
+    `TestNoWriteReducesASibling` to earn nothing `PATCH` does not already do.
+    Its clash check differs from the `user_id` one beside it in two ways, and
+    both matter:
+
+    * **It is registry-wide.** `ix_member_did` is global, so the check cannot be
+      scoped to the community in the path.
+    * **It names the holder only inside the addressed community.** Saying which
+      member of *another* community holds a DID would answer a question the
+      caller did not ask about people they were not addressing — the same
+      enumeration reasoning as REQ-0045.
+
+    Re-sending a member the DID it already holds is a no-op success: onboarding
+    writes it from a retriable step, so the same write arriving twice must not
+    be a conflict.
 
     Args:
         community_key (str):
