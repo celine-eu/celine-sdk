@@ -51,9 +51,16 @@ Quick Start:
             yaml_data = await admin.export_community("community-key")
 """
 
-from celine.sdk.rec_registry.client import RecRegistryAdminClient, RecRegistryUserClient
+from celine.sdk.rec_registry.client import (
+    MAX_BATCH_LOOKUP_IDS,
+    RecRegistryAdminClient,
+    RecRegistryUserClient,
+)
+from celine.sdk.rec_registry.errors import RecRegistryApiError
 
 __all__ = [
     "RecRegistryUserClient",
     "RecRegistryAdminClient",
+    "RecRegistryApiError",
+    "MAX_BATCH_LOOKUP_IDS",
 ]

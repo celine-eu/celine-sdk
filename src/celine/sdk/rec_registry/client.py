@@ -6,7 +6,7 @@ Initialize once, pass tokens per-call - no client recreation overhead.
 
 from __future__ import annotations
 
-from typing import Any, Optional
+from typing import Any, Awaitable, Callable, Optional
 
 import httpx
 
@@ -33,8 +33,6 @@ from celine.sdk.openapi.rec_registry.api.admin import (
     lookup_community_by_sensor_id,
     lookup_community_by_user_id,
     lookup_member_by_user_id,
-    lookup_assets_by_sensor_ids,
-    lookup_assets_by_user_ids,
 )
 from celine.sdk.openapi.rec_registry.api.admin import (
     change_member_status_admin_communities_community_key_members_member_key_status_post as _change_member_status,
@@ -44,6 +42,12 @@ from celine.sdk.openapi.rec_registry.api.admin import (
 )
 from celine.sdk.openapi.rec_registry.api.admin import (
     delete_member_admin_communities_community_key_members_member_key_delete as _delete_member,
+)
+from celine.sdk.openapi.rec_registry.api.admin import (
+    lookup_assets_by_sensor_ids as _lookup_assets_by_sensor_ids,
+)
+from celine.sdk.openapi.rec_registry.api.admin import (
+    lookup_assets_by_user_ids as _lookup_assets_by_user_ids,
 )
 from celine.sdk.openapi.rec_registry.api.admin import (
     patch_member_admin_communities_community_key_members_member_key_patch as _patch_member,
@@ -84,6 +88,7 @@ from celine.sdk.openapi.rec_registry.models import (
 
 from celine.sdk.openapi.rec_registry.models.global_asset_lookup import GlobalAssetLookup
 from celine.sdk.openapi.rec_registry.models.global_member_lookup import GlobalMemberLookup
+from celine.sdk.rec_registry.errors import RecRegistryApiError
 from celine.sdk.utils.convert import to_schema
 
 from celine.sdk.openapi.rec_registry.schemas import (
@@ -108,7 +113,20 @@ from celine.sdk.openapi.rec_registry.types import UNSET
 __all__ = [
     "RecRegistryUserClient",
     "RecRegistryAdminClient",
+    "RecRegistryApiError",
+    "MAX_BATCH_LOOKUP_IDS",
 ]
+
+#: The largest batch either asset-lookup route accepts.
+#:
+#: Mirrored from `rec-registry`, where REQ-0043 and REQ-0045 bound both batch
+#: lookups at one shared constant of the same name — 501 ids is a `422`, 500 is
+#: accepted. It is mirrored rather than read from the specification because
+#: there is nothing there to read: the generated request models are plain
+#: `attrs` classes and validate nothing. The last time this number was written
+#: twice the two copies disagreed for months (rec-registry#37), which is why it
+#: is named here rather than typed into the two call sites.
+MAX_BATCH_LOOKUP_IDS = 500
 
 
 class RecRegistryUserClient:
@@ -626,22 +644,79 @@ class RecRegistryAdminClient:
             user_id=user_id,
         )
         return to_schema(res.parsed, GlobalMemberLookupSchema)
-    
+
+    async def _batch_asset_lookup(
+        self,
+        ids: list[str],
+        *,
+        route: str,
+        request: Callable[[list[str]], Any],
+        call: Callable[..., Awaitable[Any]],
+        token: Optional[str],
+    ) -> list[GlobalAssetLookupSchema]:
+        """Run one batch asset lookup, in requests of at most the route's bound.
+
+        Chunking is invisible to the caller: the bound is a property of the
+        route rather than something the caller did wrong. Rows arrive in
+        request order, and an empty input sends nothing.
+
+        Anything that is not a `200` raises. On these two routes an empty list
+        is a *meaningful* answer — "none of these ids matched", and,
+        deliberately, "that member owns nothing" — so returning `[]` for a
+        refusal makes a denial indistinguishable from a result, in the
+        direction that loses data quietly.
+        """
+        found: list[GlobalAssetLookupSchema] = []
+        for start in range(0, len(ids), MAX_BATCH_LOOKUP_IDS):
+            chunk = ids[start : start + MAX_BATCH_LOOKUP_IDS]
+            client = await self._get_client(token)
+            res = await call(client=client, body=request(chunk))
+            if not isinstance(res.parsed, list):
+                raise RecRegistryApiError(
+                    f"{route} refused a batch of {len(chunk)} ids "
+                    f"(status={res.status_code})",
+                    status_code=res.status_code,
+                    body=res.content,
+                )
+            found.extend(
+                GlobalAssetLookupSchema.model_validate(item.to_dict())
+                for item in res.parsed
+            )
+        return found
+
+    async def lookup_assets_by_sensor_ids(
+        self, sensor_ids: list[str], *, token: Optional[str] = None
+    ) -> list[GlobalAssetLookupSchema]:
+        """Find the assets behind a set of sensor ids, across all communities.
+
+        The mirror of :meth:`lookup_assets_by_user_ids`: this one starts from a
+        device and finds its owner, that one starts from owners and finds their
+        devices.
+
+        A sensor id matching nothing contributes no row rather than failing the
+        request. More than `MAX_BATCH_LOOKUP_IDS` ids are split across as many
+        requests as it takes; a refused request raises `RecRegistryApiError`
+        rather than answering an empty list.
+        """
+        return await self._batch_asset_lookup(
+            sensor_ids,
+            route="assets-by-sensor-ids",
+            request=lambda chunk: SensorIdsBatchRequest(sensor_ids=chunk),
+            call=_lookup_assets_by_sensor_ids.asyncio_detailed,
+            token=token,
+        )
+
     async def lookup_asset_by_sensor_ids(
         self, sensor_ids: list[str], *, token: Optional[str] = None
     ) -> list[GlobalAssetLookupSchema]:
-        """Find assets by multiple sensor IDs."""
-        client = await self._get_client(token)
-        res = await lookup_assets_by_sensor_ids.asyncio_detailed(
-            client=client,
-            body=SensorIdsBatchRequest(sensor_ids=sensor_ids),
-        )
-        if not isinstance(res.parsed, list):
-            return []
-        return [
-            GlobalAssetLookupSchema.model_validate(item.to_dict())
-            for item in res.parsed
-        ]
+        """Deprecated alias for :meth:`lookup_assets_by_sensor_ids`.
+
+        The singular `asset` did not match its mirror and left the
+        cross-reference between the two unresolvable. Kept because
+        `digital-twin` calls this name: dropping it would have failed there at
+        runtime rather than at build time.
+        """
+        return await self.lookup_assets_by_sensor_ids(sensor_ids, token=token)
 
     # ── Writes ────────────────────────────────────────────────────────────
     #
@@ -769,9 +844,9 @@ class RecRegistryAdminClient:
     ) -> list[GlobalAssetLookupSchema]:
         """Find assets owned by multiple members, across all communities.
 
-        The mirror of :meth:`lookup_assets_by_sensor_ids`: that starts from a
-        device and finds its owner, this starts from owners and finds their
-        devices.
+        The mirror of :meth:`lookup_assets_by_sensor_ids`: that one starts from
+        a device and finds its owner, this one starts from owners and finds
+        their devices.
 
         Used where access is granted for a *set of people* rather than for the
         caller — a dataspace query authorised by the subjects who consented. The
@@ -780,15 +855,16 @@ class RecRegistryAdminClient:
 
         Requires ``rec-registry.lookup``. Returns an empty list for members that
         do not exist or own nothing; the two are deliberately indistinguishable.
+        A *refused* request is not a third member of that set — it raises
+        `RecRegistryApiError`.
+
+        More than `MAX_BATCH_LOOKUP_IDS` ids are split across as many requests
+        as it takes, and the rows are concatenated in request order.
         """
-        client = await self._get_client(token)
-        res = await lookup_assets_by_user_ids.asyncio_detailed(
-            client=client,
-            body=UserIdsBatchRequest(user_ids=user_ids),
+        return await self._batch_asset_lookup(
+            user_ids,
+            route="assets-by-user-ids",
+            request=lambda chunk: UserIdsBatchRequest(user_ids=chunk),
+            call=_lookup_assets_by_user_ids.asyncio_detailed,
+            token=token,
         )
-        if not isinstance(res.parsed, list):
-            return []
-        return [
-            GlobalAssetLookupSchema.model_validate(item.to_dict())
-            for item in res.parsed
-        ]
