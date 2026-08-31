@@ -2,6 +2,30 @@
 
 <!-- version list -->
 
+## v1.16.0 (2026-08-31)
+
+### Bug Fixes
+
+- Add limit and error handling to rec registry, closes #41
+  ([`604075f`](https://github.com/celine-eu/celine-sdk/commit/604075f3e07104a27e1b82580339d95788d17481))
+
+### Chores
+
+- Update workflows
+  ([`4f4a39d`](https://github.com/celine-eu/celine-sdk/commit/4f4a39dce04d7723034e55c7e4b3a1ba9b6f02fe))
+
+- Update workfow image version
+  ([`f09a232`](https://github.com/celine-eu/celine-sdk/commit/f09a232e4a6f52f3dd1d1d9e3fb21fad267c63c9))
+
+### Features
+
+- Regenerate api, update harness
+  ([`351f638`](https://github.com/celine-eu/celine-sdk/commit/351f638fbc7aef57c43302b199ed4dd3c3bf823c))
+
+- Update rec regisrty v0.6
+  ([`67c539e`](https://github.com/celine-eu/celine-sdk/commit/67c539e07debd8cf4ffe9388723a66cb73cb776e))
+
+
 ## v1.15.0 (2026-08-13)
 
 ### Features
