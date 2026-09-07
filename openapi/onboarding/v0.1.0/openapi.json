@@ -1,0 +1,4789 @@
+{
+  "components": {
+    "schemas": {
+      "AdminMe": {
+        "properties": {
+          "email": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Email"
+          },
+          "locale": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Locale"
+          },
+          "name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Name"
+          },
+          "organizations": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Organizations",
+            "type": "array"
+          },
+          "preferred_username": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Preferred Username"
+          },
+          "realm_groups": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Realm Groups",
+            "type": "array"
+          },
+          "recs": {
+            "items": {
+              "$ref": "#/components/schemas/RecAccess"
+            },
+            "title": "Recs",
+            "type": "array"
+          },
+          "sub": {
+            "title": "Sub",
+            "type": "string"
+          },
+          "subject_type": {
+            "title": "Subject Type",
+            "type": "string"
+          }
+        },
+        "required": [
+          "sub",
+          "email",
+          "name",
+          "preferred_username",
+          "locale",
+          "subject_type",
+          "organizations",
+          "realm_groups",
+          "recs"
+        ],
+        "title": "AdminMe",
+        "type": "object"
+      },
+      "AuditLogRead": {
+        "properties": {
+          "action": {
+            "title": "Action",
+            "type": "string"
+          },
+          "actor_client_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Actor Client Id"
+          },
+          "actor_email": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Actor Email"
+          },
+          "actor_sub": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Actor Sub"
+          },
+          "actor_type": {
+            "title": "Actor Type",
+            "type": "string"
+          },
+          "created_at": {
+            "format": "date-time",
+            "title": "Created At",
+            "type": "string"
+          },
+          "detail": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Detail"
+          },
+          "entity_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Entity Id"
+          },
+          "entity_type": {
+            "title": "Entity Type",
+            "type": "string"
+          },
+          "id": {
+            "format": "uuid",
+            "title": "Id",
+            "type": "string"
+          },
+          "ip_address": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Ip Address"
+          },
+          "rec_slug": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Rec Slug"
+          }
+        },
+        "required": [
+          "id",
+          "action",
+          "entity_type",
+          "entity_id",
+          "rec_slug",
+          "ip_address",
+          "detail",
+          "actor_type",
+          "actor_sub",
+          "actor_email",
+          "actor_client_id",
+          "created_at"
+        ],
+        "title": "AuditLogRead",
+        "type": "object"
+      },
+      "Body_extract_from_id_upload_api__rec_slug__extract_id_post": {
+        "properties": {
+          "files": {
+            "items": {
+              "contentMediaType": "application/octet-stream",
+              "type": "string"
+            },
+            "title": "Files",
+            "type": "array"
+          }
+        },
+        "required": [
+          "files"
+        ],
+        "title": "Body_extract_from_id_upload_api__rec_slug__extract_id_post",
+        "type": "object"
+      },
+      "Body_extract_from_upload_api__rec_slug__extract_post": {
+        "properties": {
+          "files": {
+            "items": {
+              "contentMediaType": "application/octet-stream",
+              "type": "string"
+            },
+            "title": "Files",
+            "type": "array"
+          }
+        },
+        "required": [
+          "files"
+        ],
+        "title": "Body_extract_from_upload_api__rec_slug__extract_post",
+        "type": "object"
+      },
+      "Body_upload_document_api__rec_slug__submissions__submission_id__documents_post": {
+        "properties": {
+          "file": {
+            "contentMediaType": "application/octet-stream",
+            "title": "File",
+            "type": "string"
+          }
+        },
+        "required": [
+          "file"
+        ],
+        "title": "Body_upload_document_api__rec_slug__submissions__submission_id__documents_post",
+        "type": "object"
+      },
+      "ConsentCreate": {
+        "properties": {
+          "gdpr_consent": {
+            "title": "Gdpr Consent",
+            "type": "boolean"
+          },
+          "gdpr_consent_version": {
+            "maxLength": 20,
+            "title": "Gdpr Consent Version",
+            "type": "string"
+          },
+          "policy_consent": {
+            "title": "Policy Consent",
+            "type": "boolean"
+          },
+          "policy_consent_version": {
+            "maxLength": 20,
+            "title": "Policy Consent Version",
+            "type": "string"
+          },
+          "statute_consent": {
+            "title": "Statute Consent",
+            "type": "boolean"
+          },
+          "statute_consent_version": {
+            "maxLength": 20,
+            "title": "Statute Consent Version",
+            "type": "string"
+          }
+        },
+        "required": [
+          "gdpr_consent",
+          "gdpr_consent_version",
+          "policy_consent",
+          "policy_consent_version",
+          "statute_consent",
+          "statute_consent_version"
+        ],
+        "title": "ConsentCreate",
+        "type": "object"
+      },
+      "CsvExportRequest": {
+        "properties": {
+          "agreement_ref": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Agreement Ref"
+          },
+          "purpose": {
+            "default": [],
+            "items": {
+              "type": "string"
+            },
+            "title": "Purpose",
+            "type": "array"
+          },
+          "recipient_ref": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Who the data is being disclosed to. Naming one records a DataDisclosed provenance event; omit it for an internal dump.",
+            "title": "Recipient Ref"
+          }
+        },
+        "title": "CsvExportRequest",
+        "type": "object"
+      },
+      "DataSharingDecisionRequest": {
+        "description": "Grant or withdraw one offer.",
+        "properties": {
+          "enabled": {
+            "title": "Enabled",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "enabled"
+        ],
+        "title": "DataSharingDecisionRequest",
+        "type": "object"
+      },
+      "DataSharingHistoryResponse": {
+        "description": "The member's own record of what happened with their data.",
+        "properties": {
+          "events": {
+            "items": {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            "title": "Events",
+            "type": "array"
+          },
+          "has_identity": {
+            "title": "Has Identity",
+            "type": "boolean"
+          },
+          "state": {
+            "$ref": "#/components/schemas/SharingState"
+          }
+        },
+        "required": [
+          "has_identity",
+          "state"
+        ],
+        "title": "DataSharingHistoryResponse",
+        "type": "object"
+      },
+      "DataSharingStatusResponse": {
+        "description": "Every offer this member's community publishes, with their decision on it.\n\n``has_identity`` and ``offers`` are the shape `../celine-webapp` already\nserves to its frontend, kept so a relocation costs the UI nothing. ``state``\nis additive and says *why* `has_identity` is false \u2014 \"your community is not\nin a dataspace\" and \"you have no credential yet\" need different sentences and\nused to get the same one.\n\n**No credential is ever in here.** Not the `vc_jws`, which authenticates as\nthe member, and not in any field added later.",
+        "properties": {
+          "has_identity": {
+            "title": "Has Identity",
+            "type": "boolean"
+          },
+          "offers": {
+            "items": {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            "title": "Offers",
+            "type": "array"
+          },
+          "state": {
+            "$ref": "#/components/schemas/SharingState"
+          }
+        },
+        "required": [
+          "has_identity",
+          "state"
+        ],
+        "title": "DataSharingStatusResponse",
+        "type": "object"
+      },
+      "DocumentRead": {
+        "properties": {
+          "created_at": {
+            "format": "date-time",
+            "title": "Created At",
+            "type": "string"
+          },
+          "doc_type": {
+            "$ref": "#/components/schemas/DocumentType"
+          },
+          "id": {
+            "format": "uuid",
+            "title": "Id",
+            "type": "string"
+          },
+          "mime_type": {
+            "title": "Mime Type",
+            "type": "string"
+          },
+          "original_filename": {
+            "title": "Original Filename",
+            "type": "string"
+          },
+          "size_bytes": {
+            "title": "Size Bytes",
+            "type": "integer"
+          },
+          "submission_id": {
+            "format": "uuid",
+            "title": "Submission Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "submission_id",
+          "doc_type",
+          "original_filename",
+          "mime_type",
+          "size_bytes",
+          "created_at"
+        ],
+        "title": "DocumentRead",
+        "type": "object"
+      },
+      "DocumentType": {
+        "enum": [
+          "utility_bill",
+          "gdpr_form",
+          "policy_doc",
+          "statute_doc",
+          "id_card",
+          "other"
+        ],
+        "title": "DocumentType",
+        "type": "string"
+      },
+      "EligibilityRequest": {
+        "properties": {
+          "address": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Address"
+          },
+          "lat": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Lat"
+          },
+          "lng": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Lng"
+          }
+        },
+        "title": "EligibilityRequest",
+        "type": "object"
+      },
+      "EligibilityResponse": {
+        "properties": {
+          "country_code": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Country Code"
+          },
+          "eligible": {
+            "title": "Eligible",
+            "type": "boolean"
+          },
+          "lat": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Lat"
+          },
+          "lng": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Lng"
+          },
+          "matched_rule": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Matched Rule"
+          },
+          "matched_value": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Matched Value"
+          },
+          "municipality": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Municipality"
+          },
+          "postal_code": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Postal Code"
+          },
+          "reason": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Reason"
+          },
+          "state": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "State"
+          }
+        },
+        "required": [
+          "eligible"
+        ],
+        "title": "EligibilityResponse",
+        "type": "object"
+      },
+      "EnablementRead": {
+        "properties": {
+          "state": {
+            "title": "State",
+            "type": "string"
+          },
+          "steps": {
+            "items": {
+              "$ref": "#/components/schemas/StepRead"
+            },
+            "title": "Steps",
+            "type": "array"
+          },
+          "submission_id": {
+            "format": "uuid",
+            "title": "Submission Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "submission_id",
+          "state",
+          "steps"
+        ],
+        "title": "EnablementRead",
+        "type": "object"
+      },
+      "ExtractionConfirm": {
+        "properties": {
+          "extracted_data": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Extracted Data"
+          }
+        },
+        "title": "ExtractionConfirm",
+        "type": "object"
+      },
+      "ExtractionRead": {
+        "properties": {
+          "confirmed_at": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Confirmed At"
+          },
+          "confirmed_by_user": {
+            "title": "Confirmed By User",
+            "type": "boolean"
+          },
+          "created_at": {
+            "format": "date-time",
+            "title": "Created At",
+            "type": "string"
+          },
+          "document_id": {
+            "format": "uuid",
+            "title": "Document Id",
+            "type": "string"
+          },
+          "extracted_data": {
+            "additionalProperties": true,
+            "title": "Extracted Data",
+            "type": "object"
+          },
+          "id": {
+            "format": "uuid",
+            "title": "Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "document_id",
+          "extracted_data",
+          "confirmed_by_user",
+          "confirmed_at",
+          "created_at"
+        ],
+        "title": "ExtractionRead",
+        "type": "object"
+      },
+      "FindByAddressRequest": {
+        "properties": {
+          "address": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Address"
+          },
+          "lat": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Lat"
+          },
+          "lng": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Lng"
+          }
+        },
+        "title": "FindByAddressRequest",
+        "type": "object"
+      },
+      "HTTPValidationError": {
+        "properties": {
+          "detail": {
+            "items": {
+              "$ref": "#/components/schemas/ValidationError"
+            },
+            "title": "Detail",
+            "type": "array"
+          }
+        },
+        "title": "HTTPValidationError",
+        "type": "object"
+      },
+      "PhoneConfirmRequest": {
+        "properties": {
+          "code": {
+            "maxLength": 10,
+            "minLength": 4,
+            "title": "Code",
+            "type": "string"
+          },
+          "phone": {
+            "anyOf": [
+              {
+                "maxLength": 30,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Phone"
+          }
+        },
+        "required": [
+          "code"
+        ],
+        "title": "PhoneConfirmRequest",
+        "type": "object"
+      },
+      "PhoneVerifyRequest": {
+        "description": "Request an OTP. `phone` defaults to the number already on the submission.",
+        "properties": {
+          "phone": {
+            "anyOf": [
+              {
+                "maxLength": 30,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Phone"
+          }
+        },
+        "title": "PhoneVerifyRequest",
+        "type": "object"
+      },
+      "PhoneVerifyStatus": {
+        "properties": {
+          "phone_verified": {
+            "title": "Phone Verified",
+            "type": "boolean"
+          },
+          "phone_verified_at": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Phone Verified At"
+          },
+          "sent": {
+            "default": false,
+            "title": "Sent",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "phone_verified"
+        ],
+        "title": "PhoneVerifyStatus",
+        "type": "object"
+      },
+      "PodListRequest": {
+        "properties": {
+          "agreement_ref": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Agreement Ref"
+          },
+          "offer_id": {
+            "description": "Consent is purpose-scoped: somebody who agreed to a different offer has not agreed to this handover.",
+            "title": "Offer Id",
+            "type": "string"
+          },
+          "purpose": {
+            "default": [],
+            "items": {
+              "type": "string"
+            },
+            "title": "Purpose",
+            "type": "array"
+          },
+          "recipient_ref": {
+            "title": "Recipient Ref",
+            "type": "string"
+          }
+        },
+        "required": [
+          "offer_id",
+          "recipient_ref"
+        ],
+        "title": "PodListRequest",
+        "type": "object"
+      },
+      "RecAccess": {
+        "properties": {
+          "capabilities": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Capabilities",
+            "type": "array"
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          },
+          "organization": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Organization"
+          },
+          "slug": {
+            "title": "Slug",
+            "type": "string"
+          }
+        },
+        "required": [
+          "slug",
+          "name",
+          "organization",
+          "capabilities"
+        ],
+        "title": "RecAccess",
+        "type": "object"
+      },
+      "RecStats": {
+        "properties": {
+          "by_status": {
+            "additionalProperties": {
+              "type": "integer"
+            },
+            "title": "By Status",
+            "type": "object"
+          },
+          "rec_slug": {
+            "title": "Rec Slug",
+            "type": "string"
+          },
+          "submissions_with_failed_steps": {
+            "title": "Submissions With Failed Steps",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "rec_slug",
+          "by_status",
+          "submissions_with_failed_steps"
+        ],
+        "title": "RecStats",
+        "type": "object"
+      },
+      "RetryRequest": {
+        "properties": {
+          "step": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "One step to re-run. Omit to re-run every step that is not already succeeded or skipped.",
+            "title": "Step"
+          }
+        },
+        "title": "RetryRequest",
+        "type": "object"
+      },
+      "SharingState": {
+        "description": "Why a member can or cannot decide anything, in one word.\n\nThe states exist because collapsing them is what made the feature useless:\na preregistered member reached the sharing screen and was told they had no\ndataspace identity, which was true and unactionable. Each of these has a\ndifferent thing to say and a different thing to do next.",
+        "enum": [
+          "ok",
+          "no_dataspace",
+          "no_identity",
+          "identity_conflict",
+          "ambiguous_community"
+        ],
+        "title": "SharingState",
+        "type": "string"
+      },
+      "StepRead": {
+        "properties": {
+          "attempts": {
+            "title": "Attempts",
+            "type": "integer"
+          },
+          "completed_at": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Completed At"
+          },
+          "detail": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Detail"
+          },
+          "external_ref": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "External Ref"
+          },
+          "fail_closed": {
+            "title": "Fail Closed",
+            "type": "boolean"
+          },
+          "label": {
+            "title": "Label",
+            "type": "string"
+          },
+          "last_error": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Last Error"
+          },
+          "started_at": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Started At"
+          },
+          "status": {
+            "title": "Status",
+            "type": "string"
+          },
+          "step": {
+            "title": "Step",
+            "type": "string"
+          }
+        },
+        "required": [
+          "step",
+          "label",
+          "fail_closed",
+          "status",
+          "external_ref",
+          "attempts",
+          "last_error",
+          "detail",
+          "started_at",
+          "completed_at"
+        ],
+        "title": "StepRead",
+        "type": "object"
+      },
+      "SubmissionAdminRead": {
+        "properties": {
+          "consent_ip": {
+            "title": "Consent Ip",
+            "type": "string"
+          },
+          "created_at": {
+            "format": "date-time",
+            "title": "Created At",
+            "type": "string"
+          },
+          "data_sharing_consent": {
+            "title": "Data Sharing Consent",
+            "type": "boolean"
+          },
+          "data_sharing_consent_at": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Data Sharing Consent At"
+          },
+          "data_sharing_consent_locale": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Data Sharing Consent Locale"
+          },
+          "data_sharing_consent_offer_ids": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Data Sharing Consent Offer Ids"
+          },
+          "data_sharing_consent_text_sha256": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Data Sharing Consent Text Sha256"
+          },
+          "data_sharing_consent_text_version": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Data Sharing Consent Text Version"
+          },
+          "data_sharing_issues": {
+            "default": [],
+            "items": {
+              "type": "string"
+            },
+            "title": "Data Sharing Issues",
+            "type": "array"
+          },
+          "dataspace_did": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Dataspace Did"
+          },
+          "dataspace_subject_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Dataspace Subject Id"
+          },
+          "dataspace_vc_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Dataspace Vc Id"
+          },
+          "dataspace_vc_issued_at": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Dataspace Vc Issued At"
+          },
+          "email": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Email"
+          },
+          "extra_data": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Extra Data"
+          },
+          "extracted_data": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Extracted Data"
+          },
+          "first_name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "First Name"
+          },
+          "fiscal_code": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Fiscal Code"
+          },
+          "gdpr_consent": {
+            "title": "Gdpr Consent",
+            "type": "boolean"
+          },
+          "gdpr_consent_at": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Gdpr Consent At"
+          },
+          "gdpr_consent_version": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Gdpr Consent Version"
+          },
+          "id": {
+            "format": "uuid",
+            "title": "Id",
+            "type": "string"
+          },
+          "id_extracted_data": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Id Extracted Data"
+          },
+          "keep_me_updated": {
+            "title": "Keep Me Updated",
+            "type": "boolean"
+          },
+          "last_name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Last Name"
+          },
+          "notes": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Notes"
+          },
+          "phone": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Phone"
+          },
+          "phone_verified": {
+            "title": "Phone Verified",
+            "type": "boolean"
+          },
+          "phone_verified_at": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Phone Verified At"
+          },
+          "pod_code": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Pod Code"
+          },
+          "policy_consent": {
+            "title": "Policy Consent",
+            "type": "boolean"
+          },
+          "policy_consent_at": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Policy Consent At"
+          },
+          "policy_consent_version": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Policy Consent Version"
+          },
+          "rec_slug": {
+            "title": "Rec Slug",
+            "type": "string"
+          },
+          "ref": {
+            "title": "Ref",
+            "type": "string"
+          },
+          "share_provisioned": {
+            "title": "Share Provisioned",
+            "type": "boolean"
+          },
+          "status": {
+            "$ref": "#/components/schemas/SubmissionStatus"
+          },
+          "statute_consent": {
+            "title": "Statute Consent",
+            "type": "boolean"
+          },
+          "statute_consent_at": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Statute Consent At"
+          },
+          "statute_consent_version": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Statute Consent Version"
+          },
+          "supply_municipality": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Supply Municipality"
+          },
+          "updated_at": {
+            "format": "date-time",
+            "title": "Updated At",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "ref",
+          "rec_slug",
+          "status",
+          "first_name",
+          "last_name",
+          "email",
+          "phone",
+          "fiscal_code",
+          "pod_code",
+          "supply_municipality",
+          "extracted_data",
+          "id_extracted_data",
+          "extra_data",
+          "gdpr_consent",
+          "gdpr_consent_at",
+          "gdpr_consent_version",
+          "policy_consent",
+          "policy_consent_at",
+          "policy_consent_version",
+          "statute_consent",
+          "statute_consent_at",
+          "statute_consent_version",
+          "data_sharing_consent",
+          "data_sharing_consent_at",
+          "data_sharing_consent_offer_ids",
+          "data_sharing_consent_text_version",
+          "data_sharing_consent_locale",
+          "data_sharing_consent_text_sha256",
+          "share_provisioned",
+          "keep_me_updated",
+          "phone_verified",
+          "phone_verified_at",
+          "notes",
+          "created_at",
+          "updated_at",
+          "consent_ip",
+          "dataspace_subject_id",
+          "dataspace_did",
+          "dataspace_vc_id",
+          "dataspace_vc_issued_at"
+        ],
+        "title": "SubmissionAdminRead",
+        "type": "object"
+      },
+      "SubmissionCreatedRead": {
+        "properties": {
+          "created_at": {
+            "format": "date-time",
+            "title": "Created At",
+            "type": "string"
+          },
+          "data_sharing_consent": {
+            "title": "Data Sharing Consent",
+            "type": "boolean"
+          },
+          "data_sharing_consent_at": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Data Sharing Consent At"
+          },
+          "data_sharing_consent_locale": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Data Sharing Consent Locale"
+          },
+          "data_sharing_consent_offer_ids": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Data Sharing Consent Offer Ids"
+          },
+          "data_sharing_consent_text_sha256": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Data Sharing Consent Text Sha256"
+          },
+          "data_sharing_consent_text_version": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Data Sharing Consent Text Version"
+          },
+          "email": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Email"
+          },
+          "extra_data": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Extra Data"
+          },
+          "extracted_data": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Extracted Data"
+          },
+          "first_name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "First Name"
+          },
+          "fiscal_code": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Fiscal Code"
+          },
+          "gdpr_consent": {
+            "title": "Gdpr Consent",
+            "type": "boolean"
+          },
+          "gdpr_consent_at": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Gdpr Consent At"
+          },
+          "gdpr_consent_version": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Gdpr Consent Version"
+          },
+          "id": {
+            "format": "uuid",
+            "title": "Id",
+            "type": "string"
+          },
+          "id_extracted_data": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Id Extracted Data"
+          },
+          "keep_me_updated": {
+            "title": "Keep Me Updated",
+            "type": "boolean"
+          },
+          "last_name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Last Name"
+          },
+          "notes": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Notes"
+          },
+          "phone": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Phone"
+          },
+          "phone_verified": {
+            "title": "Phone Verified",
+            "type": "boolean"
+          },
+          "phone_verified_at": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Phone Verified At"
+          },
+          "pod_code": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Pod Code"
+          },
+          "policy_consent": {
+            "title": "Policy Consent",
+            "type": "boolean"
+          },
+          "policy_consent_at": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Policy Consent At"
+          },
+          "policy_consent_version": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Policy Consent Version"
+          },
+          "rec_slug": {
+            "title": "Rec Slug",
+            "type": "string"
+          },
+          "ref": {
+            "title": "Ref",
+            "type": "string"
+          },
+          "session_token": {
+            "title": "Session Token",
+            "type": "string"
+          },
+          "share_provisioned": {
+            "title": "Share Provisioned",
+            "type": "boolean"
+          },
+          "status": {
+            "$ref": "#/components/schemas/SubmissionStatus"
+          },
+          "statute_consent": {
+            "title": "Statute Consent",
+            "type": "boolean"
+          },
+          "statute_consent_at": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Statute Consent At"
+          },
+          "statute_consent_version": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Statute Consent Version"
+          },
+          "supply_municipality": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Supply Municipality"
+          },
+          "updated_at": {
+            "format": "date-time",
+            "title": "Updated At",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "ref",
+          "rec_slug",
+          "status",
+          "first_name",
+          "last_name",
+          "email",
+          "phone",
+          "fiscal_code",
+          "pod_code",
+          "supply_municipality",
+          "extracted_data",
+          "id_extracted_data",
+          "extra_data",
+          "gdpr_consent",
+          "gdpr_consent_at",
+          "gdpr_consent_version",
+          "policy_consent",
+          "policy_consent_at",
+          "policy_consent_version",
+          "statute_consent",
+          "statute_consent_at",
+          "statute_consent_version",
+          "data_sharing_consent",
+          "data_sharing_consent_at",
+          "data_sharing_consent_offer_ids",
+          "data_sharing_consent_text_version",
+          "data_sharing_consent_locale",
+          "data_sharing_consent_text_sha256",
+          "share_provisioned",
+          "keep_me_updated",
+          "phone_verified",
+          "phone_verified_at",
+          "notes",
+          "created_at",
+          "updated_at",
+          "session_token"
+        ],
+        "title": "SubmissionCreatedRead",
+        "type": "object"
+      },
+      "SubmissionRead": {
+        "properties": {
+          "created_at": {
+            "format": "date-time",
+            "title": "Created At",
+            "type": "string"
+          },
+          "data_sharing_consent": {
+            "title": "Data Sharing Consent",
+            "type": "boolean"
+          },
+          "data_sharing_consent_at": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Data Sharing Consent At"
+          },
+          "data_sharing_consent_locale": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Data Sharing Consent Locale"
+          },
+          "data_sharing_consent_offer_ids": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Data Sharing Consent Offer Ids"
+          },
+          "data_sharing_consent_text_sha256": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Data Sharing Consent Text Sha256"
+          },
+          "data_sharing_consent_text_version": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Data Sharing Consent Text Version"
+          },
+          "email": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Email"
+          },
+          "extra_data": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Extra Data"
+          },
+          "extracted_data": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Extracted Data"
+          },
+          "first_name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "First Name"
+          },
+          "fiscal_code": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Fiscal Code"
+          },
+          "gdpr_consent": {
+            "title": "Gdpr Consent",
+            "type": "boolean"
+          },
+          "gdpr_consent_at": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Gdpr Consent At"
+          },
+          "gdpr_consent_version": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Gdpr Consent Version"
+          },
+          "id": {
+            "format": "uuid",
+            "title": "Id",
+            "type": "string"
+          },
+          "id_extracted_data": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Id Extracted Data"
+          },
+          "keep_me_updated": {
+            "title": "Keep Me Updated",
+            "type": "boolean"
+          },
+          "last_name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Last Name"
+          },
+          "notes": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Notes"
+          },
+          "phone": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Phone"
+          },
+          "phone_verified": {
+            "title": "Phone Verified",
+            "type": "boolean"
+          },
+          "phone_verified_at": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Phone Verified At"
+          },
+          "pod_code": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Pod Code"
+          },
+          "policy_consent": {
+            "title": "Policy Consent",
+            "type": "boolean"
+          },
+          "policy_consent_at": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Policy Consent At"
+          },
+          "policy_consent_version": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Policy Consent Version"
+          },
+          "rec_slug": {
+            "title": "Rec Slug",
+            "type": "string"
+          },
+          "ref": {
+            "title": "Ref",
+            "type": "string"
+          },
+          "share_provisioned": {
+            "title": "Share Provisioned",
+            "type": "boolean"
+          },
+          "status": {
+            "$ref": "#/components/schemas/SubmissionStatus"
+          },
+          "statute_consent": {
+            "title": "Statute Consent",
+            "type": "boolean"
+          },
+          "statute_consent_at": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Statute Consent At"
+          },
+          "statute_consent_version": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Statute Consent Version"
+          },
+          "supply_municipality": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Supply Municipality"
+          },
+          "updated_at": {
+            "format": "date-time",
+            "title": "Updated At",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "ref",
+          "rec_slug",
+          "status",
+          "first_name",
+          "last_name",
+          "email",
+          "phone",
+          "fiscal_code",
+          "pod_code",
+          "supply_municipality",
+          "extracted_data",
+          "id_extracted_data",
+          "extra_data",
+          "gdpr_consent",
+          "gdpr_consent_at",
+          "gdpr_consent_version",
+          "policy_consent",
+          "policy_consent_at",
+          "policy_consent_version",
+          "statute_consent",
+          "statute_consent_at",
+          "statute_consent_version",
+          "data_sharing_consent",
+          "data_sharing_consent_at",
+          "data_sharing_consent_offer_ids",
+          "data_sharing_consent_text_version",
+          "data_sharing_consent_locale",
+          "data_sharing_consent_text_sha256",
+          "share_provisioned",
+          "keep_me_updated",
+          "phone_verified",
+          "phone_verified_at",
+          "notes",
+          "created_at",
+          "updated_at"
+        ],
+        "title": "SubmissionRead",
+        "type": "object"
+      },
+      "SubmissionStatus": {
+        "enum": [
+          "draft",
+          "submitted",
+          "under_review",
+          "approved",
+          "rejected"
+        ],
+        "title": "SubmissionStatus",
+        "type": "string"
+      },
+      "SubmissionUpdate": {
+        "properties": {
+          "data_sharing_consent": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Data Sharing Consent"
+          },
+          "data_sharing_consent_locale": {
+            "anyOf": [
+              {
+                "maxLength": 20,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Data Sharing Consent Locale"
+          },
+          "data_sharing_consent_offer_ids": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Data Sharing Consent Offer Ids"
+          },
+          "data_sharing_consent_text_sha256": {
+            "anyOf": [
+              {
+                "maxLength": 64,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Data Sharing Consent Text Sha256"
+          },
+          "data_sharing_consent_text_version": {
+            "anyOf": [
+              {
+                "maxLength": 200,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Data Sharing Consent Text Version"
+          },
+          "email": {
+            "anyOf": [
+              {
+                "maxLength": 255,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Email"
+          },
+          "extra_data": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Extra Data"
+          },
+          "extracted_data": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Extracted Data"
+          },
+          "first_name": {
+            "anyOf": [
+              {
+                "maxLength": 100,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "First Name"
+          },
+          "fiscal_code": {
+            "anyOf": [
+              {
+                "maxLength": 16,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Fiscal Code"
+          },
+          "id_extracted_data": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Id Extracted Data"
+          },
+          "keep_me_updated": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Keep Me Updated"
+          },
+          "last_name": {
+            "anyOf": [
+              {
+                "maxLength": 100,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Last Name"
+          },
+          "notes": {
+            "anyOf": [
+              {
+                "maxLength": 2000,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Notes"
+          },
+          "phone": {
+            "anyOf": [
+              {
+                "maxLength": 30,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Phone"
+          },
+          "pod_code": {
+            "anyOf": [
+              {
+                "maxLength": 20,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Pod Code"
+          },
+          "status": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/SubmissionStatus"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "statute_consent": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Statute Consent"
+          },
+          "supply_municipality": {
+            "anyOf": [
+              {
+                "maxLength": 200,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Supply Municipality"
+          }
+        },
+        "title": "SubmissionUpdate",
+        "type": "object"
+      },
+      "TransitionRequest": {
+        "properties": {
+          "reason": {
+            "anyOf": [
+              {
+                "maxLength": 1000,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Why. Required when rejecting \u2014 the participant is told, and an operator reopening the case months later needs to know.",
+            "title": "Reason"
+          },
+          "target": {
+            "$ref": "#/components/schemas/SubmissionStatus"
+          }
+        },
+        "required": [
+          "target"
+        ],
+        "title": "TransitionRequest",
+        "type": "object"
+      },
+      "ValidationError": {
+        "properties": {
+          "ctx": {
+            "title": "Context",
+            "type": "object"
+          },
+          "input": {
+            "title": "Input"
+          },
+          "loc": {
+            "items": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "integer"
+                }
+              ]
+            },
+            "title": "Location",
+            "type": "array"
+          },
+          "msg": {
+            "title": "Message",
+            "type": "string"
+          },
+          "type": {
+            "title": "Error Type",
+            "type": "string"
+          }
+        },
+        "required": [
+          "loc",
+          "msg",
+          "type"
+        ],
+        "title": "ValidationError",
+        "type": "object"
+      }
+    }
+  },
+  "info": {
+    "title": "REC Onboarding",
+    "version": "0.1.0"
+  },
+  "openapi": "3.1.0",
+  "paths": {
+    "/api/admin/me": {
+      "get": {
+        "description": "The caller's identity and per-community capabilities.\n\n403 when they administer nothing. A valid token that grants nothing is not an\nauthentication problem, and answering 200-with-an-empty-list would send the\nconsole to a login screen it has already passed.",
+        "operationId": "me_api_admin_me_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdminMe"
+                }
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "summary": "Me",
+        "tags": [
+          "admin"
+        ]
+      }
+    },
+    "/api/admin/recs": {
+      "get": {
+        "description": "Drives the console's community picker.\n\nUnlike `/me` this returns an empty list rather than 403 \u2014 a picker with\nnothing in it is a legitimate answer, and the caller has already been told by\n`/me` if they administer nothing.",
+        "operationId": "list_accessible_recs_api_admin_recs_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/RecAccess"
+                  },
+                  "title": "Response List Accessible Recs Api Admin Recs Get",
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "summary": "List Accessible Recs",
+        "tags": [
+          "admin"
+        ]
+      }
+    },
+    "/api/admin/recs/reload": {
+      "post": {
+        "description": "Force a manifest cache refresh.\n\nDeployment-wide, so it belongs to no community \u2014 only a realm-level operator\n(or a scoped service account) satisfies it. Gated on `recs.read` rather than a\nwrite capability because the cache refreshes itself on a 5-second TTL anyway;\nthis only makes an operator stop waiting.\n\nMoved here from the public `/api/recs` router, which protected it with the\nshared admin token.",
+        "operationId": "reload_templates_api_admin_recs_reload_post",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "title": "Response Reload Templates Api Admin Recs Reload Post",
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "summary": "Reload Templates",
+        "tags": [
+          "admin"
+        ]
+      }
+    },
+    "/api/admin/{rec_slug}/audit-logs": {
+      "get": {
+        "description": "Scoped to the community in the path.\n\nThe previous endpoint sat under `/api/{rec}/admin` but ignored the slug, so\nany token holder read the whole deployment's history. Rows written before\n`rec_slug` existed and not recovered by the 0009 backfill are excluded: they\nname no community, and showing them under an arbitrary one would invent the\nfact.\n\nReading the trail is deliberately *not* itself audited. It is a read granted\nto every tier, and logging each view would bury the actions worth finding\nunder the act of looking for them.",
+        "operationId": "list_audit_logs_api_admin__rec_slug__audit_logs_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "rec_slug",
+            "required": true,
+            "schema": {
+              "title": "Rec Slug",
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "skip",
+            "required": false,
+            "schema": {
+              "default": 0,
+              "minimum": 0,
+              "title": "Skip",
+              "type": "integer"
+            }
+          },
+          {
+            "in": "query",
+            "name": "limit",
+            "required": false,
+            "schema": {
+              "default": 100,
+              "maximum": 500,
+              "minimum": 1,
+              "title": "Limit",
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/AuditLogRead"
+                  },
+                  "title": "Response List Audit Logs Api Admin  Rec Slug  Audit Logs Get",
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "List Audit Logs",
+        "tags": [
+          "admin"
+        ]
+      }
+    },
+    "/api/admin/{rec_slug}/exports/csv": {
+      "post": {
+        "description": "Every submission in this community, as CSV.",
+        "operationId": "export_csv_api_admin__rec_slug__exports_csv_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "rec_slug",
+            "required": true,
+            "schema": {
+              "title": "Rec Slug",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CsvExportRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Export Csv",
+        "tags": [
+          "admin"
+        ]
+      }
+    },
+    "/api/admin/{rec_slug}/exports/pod-list": {
+      "post": {
+        "description": "The supply points whose owners agreed, and nothing else.\n\nA snapshot: somebody who withdraws stays on the recipient's copy until the\nnext run, so the re-export cadence *is* the revocation latency. The file's\nheader says so.",
+        "operationId": "export_pods_api_admin__rec_slug__exports_pod_list_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "rec_slug",
+            "required": true,
+            "schema": {
+              "title": "Rec Slug",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PodListRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Export Pods",
+        "tags": [
+          "admin"
+        ]
+      }
+    },
+    "/api/admin/{rec_slug}/stats": {
+      "get": {
+        "operationId": "rec_stats_api_admin__rec_slug__stats_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "rec_slug",
+            "required": true,
+            "schema": {
+              "title": "Rec Slug",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RecStats"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Rec Stats",
+        "tags": [
+          "admin"
+        ]
+      }
+    },
+    "/api/admin/{rec_slug}/submissions": {
+      "get": {
+        "description": "One page of the queue, always masked.\n\nReveal is a per-record act on the detail endpoint, not something a list can\ndo wholesale.",
+        "operationId": "list_submissions_api_admin__rec_slug__submissions_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "rec_slug",
+            "required": true,
+            "schema": {
+              "title": "Rec Slug",
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "skip",
+            "required": false,
+            "schema": {
+              "default": 0,
+              "minimum": 0,
+              "title": "Skip",
+              "type": "integer"
+            }
+          },
+          {
+            "in": "query",
+            "name": "limit",
+            "required": false,
+            "schema": {
+              "default": 50,
+              "maximum": 200,
+              "minimum": 1,
+              "title": "Limit",
+              "type": "integer"
+            }
+          },
+          {
+            "in": "query",
+            "name": "status",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "$ref": "#/components/schemas/SubmissionStatus"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Status"
+            }
+          },
+          {
+            "description": "Substring of the submission reference. Deliberately the only searchable field: everything else is encrypted with a non-deterministic IV, so there is no ciphertext to match against.",
+            "in": "query",
+            "name": "ref",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "maxLength": 40,
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Substring of the submission reference. Deliberately the only searchable field: everything else is encrypted with a non-deterministic IV, so there is no ciphertext to match against.",
+              "title": "Ref"
+            }
+          },
+          {
+            "in": "query",
+            "name": "created_from",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "format": "date-time",
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Created From"
+            }
+          },
+          {
+            "in": "query",
+            "name": "created_to",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "format": "date-time",
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Created To"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/SubmissionAdminRead"
+                  },
+                  "title": "Response List Submissions Api Admin  Rec Slug  Submissions Get",
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "List Submissions",
+        "tags": [
+          "admin"
+        ]
+      }
+    },
+    "/api/admin/{rec_slug}/submissions/{submission_id}": {
+      "delete": {
+        "description": "GDPR erasure: files from disk, rows from the database.",
+        "operationId": "delete_submission_api_admin__rec_slug__submissions__submission_id__delete",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "submission_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Submission Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "rec_slug",
+            "required": true,
+            "schema": {
+              "title": "Rec Slug",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Delete Submission",
+        "tags": [
+          "admin"
+        ]
+      },
+      "get": {
+        "description": "One submission, with the identifiers masked unless `reveal` is asked for.\n\nThe point of the reveal capability is not that an operator must never see a\nfiscal code \u2014 sometimes they must, to resolve exactly the kind of mismatch\nreview exists to catch \u2014 but that doing so is a deliberate act with their name\non it.",
+        "operationId": "get_submission_api_admin__rec_slug__submissions__submission_id__get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "submission_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Submission Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "rec_slug",
+            "required": true,
+            "schema": {
+              "title": "Rec Slug",
+              "type": "string"
+            }
+          },
+          {
+            "description": "Unmask the fiscal code and POD. Requires `submissions.reveal`, and is recorded in the audit trail.",
+            "in": "query",
+            "name": "reveal",
+            "required": false,
+            "schema": {
+              "default": false,
+              "description": "Unmask the fiscal code and POD. Requires `submissions.reveal`, and is recorded in the audit trail.",
+              "title": "Reveal",
+              "type": "boolean"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SubmissionAdminRead"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Get Submission",
+        "tags": [
+          "admin"
+        ]
+      },
+      "patch": {
+        "description": "Edit fields, and \u2014 for now \u2014 drive the state machine.\n\nA payload carrying `status` additionally requires `submissions.review`: an\neditor may correct a misread fiscal code, but approving somebody provisions a\nlogin, a registry member and a dataspace identity, which is a different\ndecision. The transition moves to its own endpoint in B2, where it can also\ncarry a rejection reason; the extra check is here so the distinction is\nenforced now rather than after the restructure.",
+        "operationId": "update_submission_api_admin__rec_slug__submissions__submission_id__patch",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "submission_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Submission Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "rec_slug",
+            "required": true,
+            "schema": {
+              "title": "Rec Slug",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SubmissionUpdate"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SubmissionAdminRead"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Update Submission",
+        "tags": [
+          "admin"
+        ]
+      }
+    },
+    "/api/admin/{rec_slug}/submissions/{submission_id}/documents": {
+      "get": {
+        "operationId": "list_documents_api_admin__rec_slug__submissions__submission_id__documents_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "submission_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Submission Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "rec_slug",
+            "required": true,
+            "schema": {
+              "title": "Rec Slug",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/DocumentRead"
+                  },
+                  "title": "Response List Documents Api Admin  Rec Slug  Submissions  Submission Id  Documents Get",
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "List Documents",
+        "tags": [
+          "admin"
+        ]
+      }
+    },
+    "/api/admin/{rec_slug}/submissions/{submission_id}/documents/{document_id}": {
+      "get": {
+        "description": "Stream one document, decrypted.\n\nAudited, unlike the document *list*: the bill itself carries the address,\nsupply point and consumption history, so opening one is an act worth\nattributing. Listing filenames is not.\n\nOwnership is checked on both the submission and the document \u2014 a document id\nfrom another community must not be reachable by pairing it with a submission\nid from this one.",
+        "operationId": "download_document_api_admin__rec_slug__submissions__submission_id__documents__document_id__get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "submission_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Submission Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "document_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Document Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "rec_slug",
+            "required": true,
+            "schema": {
+              "title": "Rec Slug",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Download Document",
+        "tags": [
+          "admin"
+        ]
+      }
+    },
+    "/api/admin/{rec_slug}/submissions/{submission_id}/enablement": {
+      "get": {
+        "operationId": "get_enablement_api_admin__rec_slug__submissions__submission_id__enablement_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "submission_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Submission Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "rec_slug",
+            "required": true,
+            "schema": {
+              "title": "Rec Slug",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EnablementRead"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Get Enablement",
+        "tags": [
+          "admin"
+        ]
+      }
+    },
+    "/api/admin/{rec_slug}/submissions/{submission_id}/enablement/retry": {
+      "post": {
+        "description": "Re-run failed steps. Never raises on failure \u2014 the step rows are the answer.\n\nThe submission is already approved, so unlike approval there is no decision to\nblock: the operator asked to repair, and either it worked or the row now says\nwhy it did not.",
+        "operationId": "retry_enablement_api_admin__rec_slug__submissions__submission_id__enablement_retry_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "submission_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Submission Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "rec_slug",
+            "required": true,
+            "schema": {
+              "title": "Rec Slug",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RetryRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EnablementRead"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Retry Enablement",
+        "tags": [
+          "admin"
+        ]
+      }
+    },
+    "/api/admin/{rec_slug}/submissions/{submission_id}/enablement/revoke": {
+      "post": {
+        "description": "Undo enablement in reverse: credential, membership, registry, login.\n\nBest-effort per step and recorded per step. A revocation that fails half way\nmust leave a record of what is still out there \u2014 that record is the only way\nanybody finds the rest.\n\nThe standing sharing consent is deliberately **not** revoked here: withdrawal\nis the data subject's own act, authenticated with their own credential, and\nonboarding holds no credential to make it on their behalf.",
+        "operationId": "revoke_enablement_api_admin__rec_slug__submissions__submission_id__enablement_revoke_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "submission_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Submission Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "rec_slug",
+            "required": true,
+            "schema": {
+              "title": "Rec Slug",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EnablementRead"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Revoke Enablement",
+        "tags": [
+          "admin"
+        ]
+      }
+    },
+    "/api/admin/{rec_slug}/submissions/{submission_id}/pdf": {
+      "get": {
+        "operationId": "download_submission_pdf_api_admin__rec_slug__submissions__submission_id__pdf_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "submission_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Submission Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "rec_slug",
+            "required": true,
+            "schema": {
+              "title": "Rec Slug",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Download Submission Pdf",
+        "tags": [
+          "admin"
+        ]
+      }
+    },
+    "/api/admin/{rec_slug}/submissions/{submission_id}/retry-share": {
+      "post": {
+        "deprecated": true,
+        "description": "Deprecated alias for `enablement/retry?step=dataspace_share`.\n\nKept for one release because it is the only admin endpoint that existed before\nthe console did. The enablement endpoint supersedes it: it records the attempt\non the step row, so a repeated failure is visible as a count rather than as a\n422 the operator sees and nothing remembers.",
+        "operationId": "retry_share_api_admin__rec_slug__submissions__submission_id__retry_share_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "submission_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Submission Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "rec_slug",
+            "required": true,
+            "schema": {
+              "title": "Rec Slug",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SubmissionAdminRead"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Retry Share",
+        "tags": [
+          "admin"
+        ]
+      }
+    },
+    "/api/admin/{rec_slug}/submissions/{submission_id}/transition": {
+      "post": {
+        "description": "Drive the review state machine.\n\nSplit out of `PATCH` because the state machine is not a field: it has its own\ncapability, its own preconditions, and a reason that a field update has\nnowhere to put.\n\nOn approval the enablement pipeline runs first. A fail-closed step failing\nreturns 422 and leaves the submission in review \u2014 but everything the pipeline\n*did* manage is committed, so the retry finishes the job instead of starting\nit again.",
+        "operationId": "transition_submission_api_admin__rec_slug__submissions__submission_id__transition_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "submission_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Submission Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "rec_slug",
+            "required": true,
+            "schema": {
+              "title": "Rec Slug",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TransitionRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SubmissionAdminRead"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Transition Submission",
+        "tags": [
+          "admin"
+        ]
+      }
+    },
+    "/api/downloads/{token}": {
+      "get": {
+        "operationId": "download_submission_package_api_downloads__token__get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "token",
+            "required": true,
+            "schema": {
+              "title": "Token",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Download Submission Package",
+        "tags": [
+          "downloads"
+        ]
+      }
+    },
+    "/api/health": {
+      "get": {
+        "operationId": "health_api_health_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "summary": "Health"
+      }
+    },
+    "/api/me/data-sharing": {
+      "get": {
+        "description": "What this member is sharing, and what they could share.\n\nOffers come from the published vocabulary through the REC's allow-list, and\ndecisions from the connector under the member's own credential, so what is\nshown here and what the dataspace enforces cannot drift.",
+        "operationId": "get_data_sharing_api_me_data_sharing_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DataSharingStatusResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "summary": "Get Data Sharing",
+        "tags": [
+          "me"
+        ]
+      }
+    },
+    "/api/me/data-sharing/history": {
+      "get": {
+        "description": "What has happened with this member's data, from their own record.\n\nAbsent provenance returns an empty list rather than failing: the decisions\nstand without their history, and refusing the whole page for a detail is\nworse than showing it without one.",
+        "operationId": "get_data_sharing_history_api_me_data_sharing_history_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DataSharingHistoryResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "summary": "Get Data Sharing History",
+        "tags": [
+          "me"
+        ]
+      }
+    },
+    "/api/me/data-sharing/{offer_id}": {
+      "post": {
+        "description": "Grant or withdraw one offer.\n\nWithdrawal is the reason this route exists: the onboarding wizard can only\ngrant, so without it a consent could be given and never taken back \u2014 which\nArt. 7(3) requires to be as easy as giving it.",
+        "operationId": "set_data_sharing_api_me_data_sharing__offer_id__post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "offer_id",
+            "required": true,
+            "schema": {
+              "title": "Offer Id",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DataSharingDecisionRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DataSharingStatusResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Set Data Sharing",
+        "tags": [
+          "me"
+        ]
+      }
+    },
+    "/api/recs": {
+      "get": {
+        "operationId": "list_recs_api_recs_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "summary": "List Recs",
+        "tags": [
+          "recs"
+        ]
+      }
+    },
+    "/api/recs/find-by-address": {
+      "post": {
+        "operationId": "find_recs_by_address_api_recs_find_by_address_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/FindByAddressRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Find Recs By Address",
+        "tags": [
+          "recs"
+        ]
+      }
+    },
+    "/api/{rec_slug}/config": {
+      "get": {
+        "operationId": "get_config_api__rec_slug__config_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "rec_slug",
+            "required": true,
+            "schema": {
+              "title": "Rec Slug",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Get Config",
+        "tags": [
+          "config"
+        ]
+      }
+    },
+    "/api/{rec_slug}/consent-documents": {
+      "get": {
+        "operationId": "list_consent_documents_api__rec_slug__consent_documents_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "rec_slug",
+            "required": true,
+            "schema": {
+              "title": "Rec Slug",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "List Consent Documents",
+        "tags": [
+          "consent-documents"
+        ]
+      }
+    },
+    "/api/{rec_slug}/consent-documents/{slug}": {
+      "get": {
+        "operationId": "download_consent_document_api__rec_slug__consent_documents__slug__get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "slug",
+            "required": true,
+            "schema": {
+              "title": "Slug",
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "rec_slug",
+            "required": true,
+            "schema": {
+              "title": "Rec Slug",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Download Consent Document",
+        "tags": [
+          "consent-documents"
+        ]
+      }
+    },
+    "/api/{rec_slug}/consent-documents/{slug}/meta": {
+      "get": {
+        "operationId": "get_consent_meta_api__rec_slug__consent_documents__slug__meta_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "slug",
+            "required": true,
+            "schema": {
+              "title": "Slug",
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "rec_slug",
+            "required": true,
+            "schema": {
+              "title": "Rec Slug",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Get Consent Meta",
+        "tags": [
+          "consent-documents"
+        ]
+      }
+    },
+    "/api/{rec_slug}/documents/{document_id}/extract": {
+      "post": {
+        "operationId": "extract_from_document_api__rec_slug__documents__document_id__extract_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "document_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Document Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "rec_slug",
+            "required": true,
+            "schema": {
+              "title": "Rec Slug",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ExtractionRead"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Extract From Document",
+        "tags": [
+          "extractions"
+        ]
+      }
+    },
+    "/api/{rec_slug}/eligibility": {
+      "post": {
+        "operationId": "check_eligibility_api__rec_slug__eligibility_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "rec_slug",
+            "required": true,
+            "schema": {
+              "title": "Rec Slug",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/EligibilityRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EligibilityResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Check Eligibility",
+        "tags": [
+          "eligibility"
+        ]
+      }
+    },
+    "/api/{rec_slug}/extract": {
+      "post": {
+        "operationId": "extract_from_upload_api__rec_slug__extract_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "rec_slug",
+            "required": true,
+            "schema": {
+              "title": "Rec Slug",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "$ref": "#/components/schemas/Body_extract_from_upload_api__rec_slug__extract_post"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Extract From Upload",
+        "tags": [
+          "extractions"
+        ]
+      }
+    },
+    "/api/{rec_slug}/extract-id": {
+      "post": {
+        "operationId": "extract_from_id_upload_api__rec_slug__extract_id_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "rec_slug",
+            "required": true,
+            "schema": {
+              "title": "Rec Slug",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "$ref": "#/components/schemas/Body_extract_from_id_upload_api__rec_slug__extract_id_post"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Extract From Id Upload",
+        "tags": [
+          "extractions"
+        ]
+      }
+    },
+    "/api/{rec_slug}/extractions/{extraction_id}/confirm": {
+      "post": {
+        "operationId": "confirm_extraction_api__rec_slug__extractions__extraction_id__confirm_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "extraction_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Extraction Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "rec_slug",
+            "required": true,
+            "schema": {
+              "title": "Rec Slug",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ExtractionConfirm"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ExtractionRead"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Confirm Extraction",
+        "tags": [
+          "extractions"
+        ]
+      }
+    },
+    "/api/{rec_slug}/sharing-offers": {
+      "get": {
+        "description": "Public: the data-sharing offers the wizard renders (codes + English fallback).\n\nAnswers 503 when the published vocabulary cannot be read, so the wizard can\nsay the options are temporarily unavailable. An empty 200 means this\ncommunity genuinely offers nothing \u2014 the two must not look alike, or a\nmisconfiguration silently costs every consent in the window.",
+        "operationId": "get_sharing_offers_api__rec_slug__sharing_offers_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "rec_slug",
+            "required": true,
+            "schema": {
+              "title": "Rec Slug",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Get Sharing Offers",
+        "tags": [
+          "config"
+        ]
+      }
+    },
+    "/api/{rec_slug}/submissions": {
+      "post": {
+        "operationId": "create_submission_api__rec_slug__submissions_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "rec_slug",
+            "required": true,
+            "schema": {
+              "title": "Rec Slug",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ConsentCreate"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SubmissionCreatedRead"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Create Submission",
+        "tags": [
+          "submissions"
+        ]
+      }
+    },
+    "/api/{rec_slug}/submissions/{submission_id}": {
+      "get": {
+        "operationId": "get_submission_api__rec_slug__submissions__submission_id__get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "submission_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Submission Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "rec_slug",
+            "required": true,
+            "schema": {
+              "title": "Rec Slug",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SubmissionRead"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Get Submission",
+        "tags": [
+          "submissions"
+        ]
+      },
+      "patch": {
+        "operationId": "update_submission_api__rec_slug__submissions__submission_id__patch",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "submission_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Submission Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "rec_slug",
+            "required": true,
+            "schema": {
+              "title": "Rec Slug",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SubmissionUpdate"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SubmissionRead"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Update Submission",
+        "tags": [
+          "submissions"
+        ]
+      }
+    },
+    "/api/{rec_slug}/submissions/{submission_id}/confirm-phone": {
+      "post": {
+        "description": "Confirm the OTP and mark the submission's phone as verified.",
+        "operationId": "confirm_phone_api__rec_slug__submissions__submission_id__confirm_phone_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "submission_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Submission Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "rec_slug",
+            "required": true,
+            "schema": {
+              "title": "Rec Slug",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PhoneConfirmRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PhoneVerifyStatus"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Confirm Phone",
+        "tags": [
+          "phone-verification"
+        ]
+      }
+    },
+    "/api/{rec_slug}/submissions/{submission_id}/documents": {
+      "get": {
+        "operationId": "list_documents_api__rec_slug__submissions__submission_id__documents_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "submission_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Submission Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "rec_slug",
+            "required": true,
+            "schema": {
+              "title": "Rec Slug",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/DocumentRead"
+                  },
+                  "title": "Response List Documents Api  Rec Slug  Submissions  Submission Id  Documents Get",
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "List Documents",
+        "tags": [
+          "documents"
+        ]
+      },
+      "post": {
+        "operationId": "upload_document_api__rec_slug__submissions__submission_id__documents_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "submission_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Submission Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "rec_slug",
+            "required": true,
+            "schema": {
+              "title": "Rec Slug",
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "doc_type",
+            "required": false,
+            "schema": {
+              "$ref": "#/components/schemas/DocumentType",
+              "default": "utility_bill"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "$ref": "#/components/schemas/Body_upload_document_api__rec_slug__submissions__submission_id__documents_post"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DocumentRead"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Upload Document",
+        "tags": [
+          "documents"
+        ]
+      }
+    },
+    "/api/{rec_slug}/submissions/{submission_id}/pdf": {
+      "get": {
+        "operationId": "download_submission_pdf_api__rec_slug__submissions__submission_id__pdf_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "submission_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Submission Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "rec_slug",
+            "required": true,
+            "schema": {
+              "title": "Rec Slug",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Download Submission Pdf",
+        "tags": [
+          "submissions"
+        ]
+      }
+    },
+    "/api/{rec_slug}/submissions/{submission_id}/verify-phone": {
+      "post": {
+        "description": "Send an OTP to the submission's phone number.",
+        "operationId": "verify_phone_api__rec_slug__submissions__submission_id__verify_phone_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "submission_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Submission Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "rec_slug",
+            "required": true,
+            "schema": {
+              "title": "Rec Slug",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PhoneVerifyRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PhoneVerifyStatus"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Verify Phone",
+        "tags": [
+          "phone-verification"
+        ]
+      }
+    },
+    "/api/{rec_slug}/template/{path}": {
+      "get": {
+        "operationId": "get_template_file_api__rec_slug__template__path__get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "path",
+            "required": true,
+            "schema": {
+              "title": "Path",
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "rec_slug",
+            "required": true,
+            "schema": {
+              "title": "Rec Slug",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Get Template File",
+        "tags": [
+          "config"
+        ]
+      }
+    }
+  }
+}

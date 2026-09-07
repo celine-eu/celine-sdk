@@ -13,6 +13,9 @@ services:
   flexibility:
     package: flexibility
     openapi: http://api.celine.localhost/flexibility/openapi.json
+  onboarding:
+    package: onboarding
+    openapi: http://api.celine.localhost/onboarding/openapi.json
   ai-assistant:
     package: ai_assistant
     # The platform routes this service at /assistant, not /ai-assistant. The
