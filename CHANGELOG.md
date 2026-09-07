@@ -2,6 +2,19 @@
 
 <!-- version list -->
 
+## v1.17.0 (2026-09-07)
+
+### Bug Fixes
+
+- Regen onboarding v0.2
+  ([`7c304e8`](https://github.com/celine-eu/celine-sdk/commit/7c304e80b781e55905bee3bf40019eb37a3f3993))
+
+### Features
+
+- Add onboarding API
+  ([`477d239`](https://github.com/celine-eu/celine-sdk/commit/477d239b81d97bb497f2fddd02aafd0a0716cc81))
+
+
 ## v1.16.0 (2026-08-31)
 
 ### Bug Fixes
