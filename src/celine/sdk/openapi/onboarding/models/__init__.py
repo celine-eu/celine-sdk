@@ -15,6 +15,7 @@ from .data_sharing_decision_request import DataSharingDecisionRequest
 from .data_sharing_history_response import DataSharingHistoryResponse
 from .data_sharing_history_response_events_item import DataSharingHistoryResponseEventsItem
 from .data_sharing_status_response import DataSharingStatusResponse
+from .data_sharing_status_response_identity_type_0 import DataSharingStatusResponseIdentityType0
 from .data_sharing_status_response_offers_item import DataSharingStatusResponseOffersItem
 from .document_read import DocumentRead
 from .document_type import DocumentType
@@ -71,6 +72,7 @@ __all__ = (
     "DataSharingHistoryResponse",
     "DataSharingHistoryResponseEventsItem",
     "DataSharingStatusResponse",
+    "DataSharingStatusResponseIdentityType0",
     "DataSharingStatusResponseOffersItem",
     "DocumentRead",
     "DocumentType",
