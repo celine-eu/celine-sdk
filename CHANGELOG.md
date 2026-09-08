@@ -2,6 +2,14 @@
 
 <!-- version list -->
 
+## v1.17.1 (2026-09-08)
+
+### Bug Fixes
+
+- **nudging**: Restore Facts model dropped by regen; tolerate non-contract ingest error bodies
+  ([`dbc7a7d`](https://github.com/celine-eu/celine-sdk/commit/dbc7a7daa01c91f523e6dcf141b74762e8185e8f))
+
+
 ## v1.17.0 (2026-09-07)
 
 ### Bug Fixes
