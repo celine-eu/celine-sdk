@@ -14,6 +14,7 @@ from .notification_click_track_in import NotificationClickTrackIn
 from .notification_kind_preference_out import NotificationKindPreferenceOut
 from .notification_out import NotificationOut
 from .nudge_created_item import NudgeCreatedItem
+from .facts import Facts
 from .payload import Payload
 from .scheduled_event_out import ScheduledEventOut
 from .seed_apply_request import SeedApplyRequest
@@ -49,6 +50,7 @@ __all__ = (
     "NotificationKindPreferenceOut",
     "NotificationOut",
     "NudgeCreatedItem",
+    "Facts",
     "Payload",
     "ScheduledEventOut",
     "SeedApplyRequest",

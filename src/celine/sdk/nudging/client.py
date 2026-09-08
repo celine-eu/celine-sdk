@@ -54,6 +54,32 @@ __all__ = [
 ]
 
 
+
+def _lenient_ingest_error(response: httpx.Response) -> IngestErrorDetailSchema:
+    """Build an `IngestErrorDetailSchema` from a body the generated parser rejected.
+
+    Unwraps FastAPI's `{"detail": {...}}` when the inner object is the declared
+    error model, keeps a string `detail` as the reason, and otherwise reports the
+    HTTP status with the raw text so the caller can log something readable.
+    """
+    from celine.sdk.openapi.nudging.models import IngestErrorDetail
+
+    try:
+        body = response.json()
+    except ValueError:
+        body = None
+    detail = body.get("detail") if isinstance(body, dict) else None
+    if isinstance(detail, dict) and "error" in detail:
+        try:
+            return to_schema(IngestErrorDetail.from_dict(detail), IngestErrorDetailSchema)
+        except (KeyError, TypeError, ValueError):
+            pass
+    if isinstance(detail, str):
+        reason: str | None = detail
+    else:
+        reason = (response.text or "").strip()[:500] or None
+    return IngestErrorDetailSchema(error=f"http_{response.status_code}", reason=reason)
+
 class NudgingClient:
     """User-facing nudging client.
 
@@ -361,22 +387,31 @@ class NudgingAdminClient:
             None                         on 204 (no nudges triggered)
         """
         client = await self._get_client(token)
-        res = await ingest_event_admin_ingest_event_post.asyncio_detailed(
-            client=client,
-            body=body,
-        )
+        kwargs = ingest_event_admin_ingest_event_post._get_kwargs(body=body)
+        response = await client.get_async_httpx_client().request(**kwargs)
+
         from celine.sdk.openapi.nudging.models import (
             IngestOkResponse,
             IngestAcceptedResponse,
             IngestErrorDetail,
         )
 
-        if isinstance(res.parsed, IngestOkResponse):
-            return to_schema(res.parsed, IngestOkResponseSchema)
-        if isinstance(res.parsed, IngestAcceptedResponse):
-            return to_schema(res.parsed, IngestAcceptedResponseSchema)
-        if isinstance(res.parsed, IngestErrorDetail):
-            return to_schema(res.parsed, IngestErrorDetailSchema)
+        try:
+            parsed = ingest_event_admin_ingest_event_post._parse_response(
+                client=client, response=response
+            )
+        except (KeyError, TypeError, ValueError):
+            # Nudging answered outside its own contract: FastAPI's {"detail": ...}
+            # wrapper (nudging <= v1.6.3 on 400/409/422/500) or a bare-text 500.
+            # A sender told "duplicate" must get an error detail, not a stack trace.
+            return _lenient_ingest_error(response)
+
+        if isinstance(parsed, IngestOkResponse):
+            return to_schema(parsed, IngestOkResponseSchema)
+        if isinstance(parsed, IngestAcceptedResponse):
+            return to_schema(parsed, IngestAcceptedResponseSchema)
+        if isinstance(parsed, IngestErrorDetail):
+            return to_schema(parsed, IngestErrorDetailSchema)
         return None  # 204 - no nudges triggered
 
     # ------------------------------------------------------------------ #
