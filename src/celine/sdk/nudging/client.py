@@ -6,6 +6,7 @@ Initialize once, pass tokens per-call - no client recreation overhead.
 
 from __future__ import annotations
 
+from datetime import date
 from typing import Any, Optional
 
 import httpx
@@ -24,6 +25,7 @@ from celine.sdk.openapi.nudging.api.webpush import (
 )
 from celine.sdk.openapi.nudging.api.admin import (
     admin_list_notifications_admin_notifications_get,
+    get_community_nudging_analytics,
     ingest_event_admin_ingest_event_post,
     send_test_admin_webpush_send_test_post,
 )
@@ -36,6 +38,7 @@ from celine.sdk.openapi.nudging.models import (
 from celine.sdk.openapi.nudging.models.http_validation_error import HTTPValidationError
 from celine.sdk.openapi.nudging.schemas import (
     AdminNotificationOutSchema,
+    CommunityNudgingAnalyticsOutSchema,
     IngestAcceptedResponseSchema,
     IngestOkResponseSchema,
     IngestErrorDetailSchema,
@@ -275,9 +278,10 @@ class NudgingClient:
 
 
 class NudgingAdminClient:
-    """Admin nudging client. Requires nudging.admin scope or admin group.
+    """Service/admin nudging client.
 
     Covers:
+    - GET  /admin/analytics/communities/{id}/conversion - aggregate REC analytics
     - GET  /admin/notifications         - list all notifications (filterable)
     - POST /admin/ingest-event          - ingest a Digital Twin event
     - POST /admin/webpush/send-test     - send a test push notification to any user
@@ -325,6 +329,33 @@ class NudgingAdminClient:
             verify_ssl=self._verify_ssl,
             raise_on_unexpected_status=True,
         )
+
+    # ------------------------------------------------------------------ #
+    # Aggregate analytics                                                 #
+    # ------------------------------------------------------------------ #
+
+    async def get_community_analytics(
+        self,
+        community_id: str,
+        *,
+        start: date,
+        end: date,
+        token: Optional[str] = None,
+    ) -> CommunityNudgingAnalyticsOutSchema:
+        """Return privacy-safe nudging aggregates for one REC and date range."""
+        client = await self._get_client(token)
+        res = await get_community_nudging_analytics.asyncio_detailed(
+            community_id=community_id,
+            start=start,
+            end=end,
+            client=client,
+        )
+        if isinstance(res.parsed, HTTPValidationError):
+            raise ValueError(res.parsed.to_dict())
+        result = to_schema(res.parsed, CommunityNudgingAnalyticsOutSchema)
+        if result is None:
+            raise ValueError("Nudging analytics returned an empty response")
+        return result
 
     # ------------------------------------------------------------------ #
     # Admin - Notifications                                                #

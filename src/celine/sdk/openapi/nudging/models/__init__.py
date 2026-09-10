@@ -1,6 +1,11 @@
 """Contains all the data models used in inputs/outputs"""
 
 from .admin_notification_out import AdminNotificationOut
+from .analytics_delivery_failure import AnalyticsDeliveryFailure
+from .analytics_funnel_step import AnalyticsFunnelStep
+from .analytics_reachability import AnalyticsReachability
+from .analytics_rule_metric import AnalyticsRuleMetric
+from .community_nudging_analytics_out import CommunityNudgingAnalyticsOut
 from .context import Context
 from .delivery_job_out import DeliveryJobOut
 from .digital_twin_event import DigitalTwinEvent
@@ -37,6 +42,11 @@ from .web_push_subscription_in import WebPushSubscriptionIn
 
 __all__ = (
     "AdminNotificationOut",
+    "AnalyticsDeliveryFailure",
+    "AnalyticsFunnelStep",
+    "AnalyticsReachability",
+    "AnalyticsRuleMetric",
+    "CommunityNudgingAnalyticsOut",
     "Context",
     "DeliveryJobOut",
     "DigitalTwinEvent",

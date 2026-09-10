@@ -6,32 +6,37 @@ from typing import Any, TypeVar
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
 
-T = TypeVar("T", bound="WebPushKeysIn")
+T = TypeVar("T", bound="AnalyticsDeliveryFailure")
 
 
 @_attrs_define
-class WebPushKeysIn:
+class AnalyticsDeliveryFailure:
     """
     Attributes:
-        p256dh (str):
-        auth (str):
+        channel (str): webpush | email
+        error_class (str):
+        count (int):
     """
 
-    p256dh: str
-    auth: str
+    channel: str
+    error_class: str
+    count: int
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
-        p256dh = self.p256dh
+        channel = self.channel
 
-        auth = self.auth
+        error_class = self.error_class
+
+        count = self.count
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update(
             {
-                "p256dh": p256dh,
-                "auth": auth,
+                "channel": channel,
+                "error_class": error_class,
+                "count": count,
             }
         )
 
@@ -40,17 +45,20 @@ class WebPushKeysIn:
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
         d = dict(src_dict)
-        p256dh = d.pop("p256dh")
+        channel = d.pop("channel")
 
-        auth = d.pop("auth")
+        error_class = d.pop("error_class")
 
-        web_push_keys_in = cls(
-            p256dh=p256dh,
-            auth=auth,
+        count = d.pop("count")
+
+        analytics_delivery_failure = cls(
+            channel=channel,
+            error_class=error_class,
+            count=count,
         )
 
-        web_push_keys_in.additional_properties = d
-        return web_push_keys_in
+        analytics_delivery_failure.additional_properties = d
+        return analytics_delivery_failure
 
     @property
     def additional_keys(self) -> list[str]:

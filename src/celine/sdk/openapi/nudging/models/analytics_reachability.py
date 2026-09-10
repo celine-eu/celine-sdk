@@ -6,32 +6,42 @@ from typing import Any, TypeVar
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
 
-T = TypeVar("T", bound="WebPushKeysIn")
+T = TypeVar("T", bound="AnalyticsReachability")
 
 
 @_attrs_define
-class WebPushKeysIn:
+class AnalyticsReachability:
     """
     Attributes:
-        p256dh (str):
-        auth (str):
+        channel (str): webpush | email
+        reachable (int):
+        total (int):
+        opted_out (int):
     """
 
-    p256dh: str
-    auth: str
+    channel: str
+    reachable: int
+    total: int
+    opted_out: int
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
-        p256dh = self.p256dh
+        channel = self.channel
 
-        auth = self.auth
+        reachable = self.reachable
+
+        total = self.total
+
+        opted_out = self.opted_out
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update(
             {
-                "p256dh": p256dh,
-                "auth": auth,
+                "channel": channel,
+                "reachable": reachable,
+                "total": total,
+                "opted_out": opted_out,
             }
         )
 
@@ -40,17 +50,23 @@ class WebPushKeysIn:
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
         d = dict(src_dict)
-        p256dh = d.pop("p256dh")
+        channel = d.pop("channel")
 
-        auth = d.pop("auth")
+        reachable = d.pop("reachable")
 
-        web_push_keys_in = cls(
-            p256dh=p256dh,
-            auth=auth,
+        total = d.pop("total")
+
+        opted_out = d.pop("opted_out")
+
+        analytics_reachability = cls(
+            channel=channel,
+            reachable=reachable,
+            total=total,
+            opted_out=opted_out,
         )
 
-        web_push_keys_in.additional_properties = d
-        return web_push_keys_in
+        analytics_reachability.additional_properties = d
+        return analytics_reachability
 
     @property
     def additional_keys(self) -> list[str]:

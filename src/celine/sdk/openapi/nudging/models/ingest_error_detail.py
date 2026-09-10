@@ -20,19 +20,25 @@ class IngestErrorDetail:
     """
     Attributes:
         error (str):
-        errors (list[str] | None | Unset):
         reason (None | str | Unset):
+        errors (list[str] | None | Unset):
         results (list[EngineResultOut] | None | Unset):
     """
 
     error: str
-    errors: list[str] | None | Unset = UNSET
     reason: None | str | Unset = UNSET
+    errors: list[str] | None | Unset = UNSET
     results: list[EngineResultOut] | None | Unset = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
         error = self.error
+
+        reason: None | str | Unset
+        if isinstance(self.reason, Unset):
+            reason = UNSET
+        else:
+            reason = self.reason
 
         errors: list[str] | None | Unset
         if isinstance(self.errors, Unset):
@@ -42,12 +48,6 @@ class IngestErrorDetail:
 
         else:
             errors = self.errors
-
-        reason: None | str | Unset
-        if isinstance(self.reason, Unset):
-            reason = UNSET
-        else:
-            reason = self.reason
 
         results: list[dict[str, Any]] | None | Unset
         if isinstance(self.results, Unset):
@@ -68,10 +68,10 @@ class IngestErrorDetail:
                 "error": error,
             }
         )
-        if errors is not UNSET:
-            field_dict["errors"] = errors
         if reason is not UNSET:
             field_dict["reason"] = reason
+        if errors is not UNSET:
+            field_dict["errors"] = errors
         if results is not UNSET:
             field_dict["results"] = results
 
@@ -83,6 +83,15 @@ class IngestErrorDetail:
 
         d = dict(src_dict)
         error = d.pop("error")
+
+        def _parse_reason(data: object) -> None | str | Unset:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            return cast(None | str | Unset, data)
+
+        reason = _parse_reason(d.pop("reason", UNSET))
 
         def _parse_errors(data: object) -> list[str] | None | Unset:
             if data is None:
@@ -100,15 +109,6 @@ class IngestErrorDetail:
             return cast(list[str] | None | Unset, data)
 
         errors = _parse_errors(d.pop("errors", UNSET))
-
-        def _parse_reason(data: object) -> None | str | Unset:
-            if data is None:
-                return data
-            if isinstance(data, Unset):
-                return data
-            return cast(None | str | Unset, data)
-
-        reason = _parse_reason(d.pop("reason", UNSET))
 
         def _parse_results(data: object) -> list[EngineResultOut] | None | Unset:
             if data is None:
@@ -134,8 +134,8 @@ class IngestErrorDetail:
 
         ingest_error_detail = cls(
             error=error,
-            errors=errors,
             reason=reason,
+            errors=errors,
             results=results,
         )
 

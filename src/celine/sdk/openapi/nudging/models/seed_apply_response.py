@@ -15,28 +15,28 @@ T = TypeVar("T", bound="SeedApplyResponse")
 class SeedApplyResponse:
     """
     Attributes:
-        overrides (int):
-        preferences (int):
         rules (int):
         templates (int):
+        preferences (int):
+        overrides (int):
         status (str | Unset):  Default: 'ok'.
     """
 
-    overrides: int
-    preferences: int
     rules: int
     templates: int
+    preferences: int
+    overrides: int
     status: str | Unset = "ok"
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
-        overrides = self.overrides
-
-        preferences = self.preferences
-
         rules = self.rules
 
         templates = self.templates
+
+        preferences = self.preferences
+
+        overrides = self.overrides
 
         status = self.status
 
@@ -44,10 +44,10 @@ class SeedApplyResponse:
         field_dict.update(self.additional_properties)
         field_dict.update(
             {
-                "overrides": overrides,
-                "preferences": preferences,
                 "rules": rules,
                 "templates": templates,
+                "preferences": preferences,
+                "overrides": overrides,
             }
         )
         if status is not UNSET:
@@ -58,21 +58,21 @@ class SeedApplyResponse:
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
         d = dict(src_dict)
-        overrides = d.pop("overrides")
-
-        preferences = d.pop("preferences")
-
         rules = d.pop("rules")
 
         templates = d.pop("templates")
 
+        preferences = d.pop("preferences")
+
+        overrides = d.pop("overrides")
+
         status = d.pop("status", UNSET)
 
         seed_apply_response = cls(
-            overrides=overrides,
-            preferences=preferences,
             rules=rules,
             templates=templates,
+            preferences=preferences,
+            overrides=overrides,
             status=status,
         )
 

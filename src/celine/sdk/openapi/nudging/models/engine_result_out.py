@@ -20,19 +20,25 @@ class EngineResultOut:
     """
     Attributes:
         status (str):
-        details (EngineResultOutDetailsType0 | None | Unset):
         reason (None | str | Unset):
+        details (EngineResultOutDetailsType0 | None | Unset):
     """
 
     status: str
-    details: EngineResultOutDetailsType0 | None | Unset = UNSET
     reason: None | str | Unset = UNSET
+    details: EngineResultOutDetailsType0 | None | Unset = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
         from ..models.engine_result_out_details_type_0 import EngineResultOutDetailsType0
 
         status = self.status
+
+        reason: None | str | Unset
+        if isinstance(self.reason, Unset):
+            reason = UNSET
+        else:
+            reason = self.reason
 
         details: dict[str, Any] | None | Unset
         if isinstance(self.details, Unset):
@@ -42,12 +48,6 @@ class EngineResultOut:
         else:
             details = self.details
 
-        reason: None | str | Unset
-        if isinstance(self.reason, Unset):
-            reason = UNSET
-        else:
-            reason = self.reason
-
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update(
@@ -55,10 +55,10 @@ class EngineResultOut:
                 "status": status,
             }
         )
-        if details is not UNSET:
-            field_dict["details"] = details
         if reason is not UNSET:
             field_dict["reason"] = reason
+        if details is not UNSET:
+            field_dict["details"] = details
 
         return field_dict
 
@@ -68,6 +68,15 @@ class EngineResultOut:
 
         d = dict(src_dict)
         status = d.pop("status")
+
+        def _parse_reason(data: object) -> None | str | Unset:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            return cast(None | str | Unset, data)
+
+        reason = _parse_reason(d.pop("reason", UNSET))
 
         def _parse_details(data: object) -> EngineResultOutDetailsType0 | None | Unset:
             if data is None:
@@ -86,19 +95,10 @@ class EngineResultOut:
 
         details = _parse_details(d.pop("details", UNSET))
 
-        def _parse_reason(data: object) -> None | str | Unset:
-            if data is None:
-                return data
-            if isinstance(data, Unset):
-                return data
-            return cast(None | str | Unset, data)
-
-        reason = _parse_reason(d.pop("reason", UNSET))
-
         engine_result_out = cls(
             status=status,
-            details=details,
             reason=reason,
+            details=details,
         )
 
         engine_result_out.additional_properties = d

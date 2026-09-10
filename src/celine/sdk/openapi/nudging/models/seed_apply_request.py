@@ -22,33 +22,19 @@ T = TypeVar("T", bound="SeedApplyRequest")
 class SeedApplyRequest:
     """
     Attributes:
-        overrides (list[SeedApplyRequestOverridesItem] | Unset):
-        preferences (list[SeedApplyRequestPreferencesItem] | Unset):
         rules (list[SeedApplyRequestRulesItem] | Unset):
         templates (list[SeedApplyRequestTemplatesItem] | Unset):
+        preferences (list[SeedApplyRequestPreferencesItem] | Unset):
+        overrides (list[SeedApplyRequestOverridesItem] | Unset):
     """
 
-    overrides: list[SeedApplyRequestOverridesItem] | Unset = UNSET
-    preferences: list[SeedApplyRequestPreferencesItem] | Unset = UNSET
     rules: list[SeedApplyRequestRulesItem] | Unset = UNSET
     templates: list[SeedApplyRequestTemplatesItem] | Unset = UNSET
+    preferences: list[SeedApplyRequestPreferencesItem] | Unset = UNSET
+    overrides: list[SeedApplyRequestOverridesItem] | Unset = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
-        overrides: list[dict[str, Any]] | Unset = UNSET
-        if not isinstance(self.overrides, Unset):
-            overrides = []
-            for overrides_item_data in self.overrides:
-                overrides_item = overrides_item_data.to_dict()
-                overrides.append(overrides_item)
-
-        preferences: list[dict[str, Any]] | Unset = UNSET
-        if not isinstance(self.preferences, Unset):
-            preferences = []
-            for preferences_item_data in self.preferences:
-                preferences_item = preferences_item_data.to_dict()
-                preferences.append(preferences_item)
-
         rules: list[dict[str, Any]] | Unset = UNSET
         if not isinstance(self.rules, Unset):
             rules = []
@@ -63,17 +49,31 @@ class SeedApplyRequest:
                 templates_item = templates_item_data.to_dict()
                 templates.append(templates_item)
 
+        preferences: list[dict[str, Any]] | Unset = UNSET
+        if not isinstance(self.preferences, Unset):
+            preferences = []
+            for preferences_item_data in self.preferences:
+                preferences_item = preferences_item_data.to_dict()
+                preferences.append(preferences_item)
+
+        overrides: list[dict[str, Any]] | Unset = UNSET
+        if not isinstance(self.overrides, Unset):
+            overrides = []
+            for overrides_item_data in self.overrides:
+                overrides_item = overrides_item_data.to_dict()
+                overrides.append(overrides_item)
+
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update({})
-        if overrides is not UNSET:
-            field_dict["overrides"] = overrides
-        if preferences is not UNSET:
-            field_dict["preferences"] = preferences
         if rules is not UNSET:
             field_dict["rules"] = rules
         if templates is not UNSET:
             field_dict["templates"] = templates
+        if preferences is not UNSET:
+            field_dict["preferences"] = preferences
+        if overrides is not UNSET:
+            field_dict["overrides"] = overrides
 
         return field_dict
 
@@ -85,24 +85,6 @@ class SeedApplyRequest:
         from ..models.seed_apply_request_templates_item import SeedApplyRequestTemplatesItem
 
         d = dict(src_dict)
-        _overrides = d.pop("overrides", UNSET)
-        overrides: list[SeedApplyRequestOverridesItem] | Unset = UNSET
-        if _overrides is not UNSET:
-            overrides = []
-            for overrides_item_data in _overrides:
-                overrides_item = SeedApplyRequestOverridesItem.from_dict(overrides_item_data)
-
-                overrides.append(overrides_item)
-
-        _preferences = d.pop("preferences", UNSET)
-        preferences: list[SeedApplyRequestPreferencesItem] | Unset = UNSET
-        if _preferences is not UNSET:
-            preferences = []
-            for preferences_item_data in _preferences:
-                preferences_item = SeedApplyRequestPreferencesItem.from_dict(preferences_item_data)
-
-                preferences.append(preferences_item)
-
         _rules = d.pop("rules", UNSET)
         rules: list[SeedApplyRequestRulesItem] | Unset = UNSET
         if _rules is not UNSET:
@@ -121,11 +103,29 @@ class SeedApplyRequest:
 
                 templates.append(templates_item)
 
+        _preferences = d.pop("preferences", UNSET)
+        preferences: list[SeedApplyRequestPreferencesItem] | Unset = UNSET
+        if _preferences is not UNSET:
+            preferences = []
+            for preferences_item_data in _preferences:
+                preferences_item = SeedApplyRequestPreferencesItem.from_dict(preferences_item_data)
+
+                preferences.append(preferences_item)
+
+        _overrides = d.pop("overrides", UNSET)
+        overrides: list[SeedApplyRequestOverridesItem] | Unset = UNSET
+        if _overrides is not UNSET:
+            overrides = []
+            for overrides_item_data in _overrides:
+                overrides_item = SeedApplyRequestOverridesItem.from_dict(overrides_item_data)
+
+                overrides.append(overrides_item)
+
         seed_apply_request = cls(
-            overrides=overrides,
-            preferences=preferences,
             rules=rules,
             templates=templates,
+            preferences=preferences,
+            overrides=overrides,
         )
 
         seed_apply_request.additional_properties = d

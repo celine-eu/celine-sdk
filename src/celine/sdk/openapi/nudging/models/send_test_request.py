@@ -17,23 +17,21 @@ class SendTestRequest:
 
     Attributes:
         user_id (str): Target user ID
-        body (str | Unset):  Default: 'Hello!'.
         community_id (None | str | Unset): Optional community scope for the test send
         title (str | Unset):  Default: 'Test'.
+        body (str | Unset):  Default: 'Hello!'.
         url (str | Unset):  Default: '/'.
     """
 
     user_id: str
-    body: str | Unset = "Hello!"
     community_id: None | str | Unset = UNSET
     title: str | Unset = "Test"
+    body: str | Unset = "Hello!"
     url: str | Unset = "/"
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
         user_id = self.user_id
-
-        body = self.body
 
         community_id: None | str | Unset
         if isinstance(self.community_id, Unset):
@@ -42,6 +40,8 @@ class SendTestRequest:
             community_id = self.community_id
 
         title = self.title
+
+        body = self.body
 
         url = self.url
 
@@ -52,12 +52,12 @@ class SendTestRequest:
                 "user_id": user_id,
             }
         )
-        if body is not UNSET:
-            field_dict["body"] = body
         if community_id is not UNSET:
             field_dict["community_id"] = community_id
         if title is not UNSET:
             field_dict["title"] = title
+        if body is not UNSET:
+            field_dict["body"] = body
         if url is not UNSET:
             field_dict["url"] = url
 
@@ -67,8 +67,6 @@ class SendTestRequest:
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
         d = dict(src_dict)
         user_id = d.pop("user_id")
-
-        body = d.pop("body", UNSET)
 
         def _parse_community_id(data: object) -> None | str | Unset:
             if data is None:
@@ -81,13 +79,15 @@ class SendTestRequest:
 
         title = d.pop("title", UNSET)
 
+        body = d.pop("body", UNSET)
+
         url = d.pop("url", UNSET)
 
         send_test_request = cls(
             user_id=user_id,
-            body=body,
             community_id=community_id,
             title=title,
+            body=body,
             url=url,
         )
 

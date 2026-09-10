@@ -17,46 +17,52 @@ T = TypeVar("T", bound="ScheduledEventOut")
 class ScheduledEventOut:
     """
     Attributes:
-        created_at (datetime.datetime):
-        event_type (str):
         id (str):
-        status (str):
-        trigger_at (datetime.datetime):
+        event_type (str):
         user_id (str):
+        trigger_at (datetime.datetime):
+        status (str):
+        created_at (datetime.datetime):
         community_id (None | str | Unset):
-        dispatched_at (datetime.datetime | None | Unset):
         external_key (None | str | Unset):
+        dispatched_at (datetime.datetime | None | Unset):
     """
 
-    created_at: datetime.datetime
-    event_type: str
     id: str
-    status: str
-    trigger_at: datetime.datetime
+    event_type: str
     user_id: str
+    trigger_at: datetime.datetime
+    status: str
+    created_at: datetime.datetime
     community_id: None | str | Unset = UNSET
-    dispatched_at: datetime.datetime | None | Unset = UNSET
     external_key: None | str | Unset = UNSET
+    dispatched_at: datetime.datetime | None | Unset = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
-        created_at = self.created_at.isoformat()
+        id = self.id
 
         event_type = self.event_type
 
-        id = self.id
-
-        status = self.status
+        user_id = self.user_id
 
         trigger_at = self.trigger_at.isoformat()
 
-        user_id = self.user_id
+        status = self.status
+
+        created_at = self.created_at.isoformat()
 
         community_id: None | str | Unset
         if isinstance(self.community_id, Unset):
             community_id = UNSET
         else:
             community_id = self.community_id
+
+        external_key: None | str | Unset
+        if isinstance(self.external_key, Unset):
+            external_key = UNSET
+        else:
+            external_key = self.external_key
 
         dispatched_at: None | str | Unset
         if isinstance(self.dispatched_at, Unset):
@@ -66,47 +72,41 @@ class ScheduledEventOut:
         else:
             dispatched_at = self.dispatched_at
 
-        external_key: None | str | Unset
-        if isinstance(self.external_key, Unset):
-            external_key = UNSET
-        else:
-            external_key = self.external_key
-
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update(
             {
-                "created_at": created_at,
-                "event_type": event_type,
                 "id": id,
-                "status": status,
-                "trigger_at": trigger_at,
+                "event_type": event_type,
                 "user_id": user_id,
+                "trigger_at": trigger_at,
+                "status": status,
+                "created_at": created_at,
             }
         )
         if community_id is not UNSET:
             field_dict["community_id"] = community_id
-        if dispatched_at is not UNSET:
-            field_dict["dispatched_at"] = dispatched_at
         if external_key is not UNSET:
             field_dict["external_key"] = external_key
+        if dispatched_at is not UNSET:
+            field_dict["dispatched_at"] = dispatched_at
 
         return field_dict
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
         d = dict(src_dict)
-        created_at = isoparse(d.pop("created_at"))
+        id = d.pop("id")
 
         event_type = d.pop("event_type")
 
-        id = d.pop("id")
-
-        status = d.pop("status")
+        user_id = d.pop("user_id")
 
         trigger_at = isoparse(d.pop("trigger_at"))
 
-        user_id = d.pop("user_id")
+        status = d.pop("status")
+
+        created_at = isoparse(d.pop("created_at"))
 
         def _parse_community_id(data: object) -> None | str | Unset:
             if data is None:
@@ -116,6 +116,15 @@ class ScheduledEventOut:
             return cast(None | str | Unset, data)
 
         community_id = _parse_community_id(d.pop("community_id", UNSET))
+
+        def _parse_external_key(data: object) -> None | str | Unset:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            return cast(None | str | Unset, data)
+
+        external_key = _parse_external_key(d.pop("external_key", UNSET))
 
         def _parse_dispatched_at(data: object) -> datetime.datetime | None | Unset:
             if data is None:
@@ -134,25 +143,16 @@ class ScheduledEventOut:
 
         dispatched_at = _parse_dispatched_at(d.pop("dispatched_at", UNSET))
 
-        def _parse_external_key(data: object) -> None | str | Unset:
-            if data is None:
-                return data
-            if isinstance(data, Unset):
-                return data
-            return cast(None | str | Unset, data)
-
-        external_key = _parse_external_key(d.pop("external_key", UNSET))
-
         scheduled_event_out = cls(
-            created_at=created_at,
-            event_type=event_type,
             id=id,
-            status=status,
-            trigger_at=trigger_at,
+            event_type=event_type,
             user_id=user_id,
+            trigger_at=trigger_at,
+            status=status,
+            created_at=created_at,
             community_id=community_id,
-            dispatched_at=dispatched_at,
             external_key=external_key,
+            dispatched_at=dispatched_at,
         )
 
         scheduled_event_out.additional_properties = d

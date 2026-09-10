@@ -6,32 +6,32 @@ from typing import Any, TypeVar
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
 
-T = TypeVar("T", bound="WebPushKeysIn")
+T = TypeVar("T", bound="AnalyticsFunnelStep")
 
 
 @_attrs_define
-class WebPushKeysIn:
+class AnalyticsFunnelStep:
     """
     Attributes:
-        p256dh (str):
-        auth (str):
+        id (str): sent | delivered | read | clicked | committed
+        count (int):
     """
 
-    p256dh: str
-    auth: str
+    id: str
+    count: int
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
-        p256dh = self.p256dh
+        id = self.id
 
-        auth = self.auth
+        count = self.count
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update(
             {
-                "p256dh": p256dh,
-                "auth": auth,
+                "id": id,
+                "count": count,
             }
         )
 
@@ -40,17 +40,17 @@ class WebPushKeysIn:
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
         d = dict(src_dict)
-        p256dh = d.pop("p256dh")
+        id = d.pop("id")
 
-        auth = d.pop("auth")
+        count = d.pop("count")
 
-        web_push_keys_in = cls(
-            p256dh=p256dh,
-            auth=auth,
+        analytics_funnel_step = cls(
+            id=id,
+            count=count,
         )
 
-        web_push_keys_in.additional_properties = d
-        return web_push_keys_in
+        analytics_funnel_step.additional_properties = d
+        return analytics_funnel_step
 
     @property
     def additional_keys(self) -> list[str]:

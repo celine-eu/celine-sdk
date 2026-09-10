@@ -16,19 +16,25 @@ class SendTestResponse:
     """
     Attributes:
         status (str):
+        sent (int | None | Unset):
         failed (int | None | Unset):
         notification_id (None | str | Unset):
-        sent (int | None | Unset):
     """
 
     status: str
+    sent: int | None | Unset = UNSET
     failed: int | None | Unset = UNSET
     notification_id: None | str | Unset = UNSET
-    sent: int | None | Unset = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
         status = self.status
+
+        sent: int | None | Unset
+        if isinstance(self.sent, Unset):
+            sent = UNSET
+        else:
+            sent = self.sent
 
         failed: int | None | Unset
         if isinstance(self.failed, Unset):
@@ -42,12 +48,6 @@ class SendTestResponse:
         else:
             notification_id = self.notification_id
 
-        sent: int | None | Unset
-        if isinstance(self.sent, Unset):
-            sent = UNSET
-        else:
-            sent = self.sent
-
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update(
@@ -55,12 +55,12 @@ class SendTestResponse:
                 "status": status,
             }
         )
+        if sent is not UNSET:
+            field_dict["sent"] = sent
         if failed is not UNSET:
             field_dict["failed"] = failed
         if notification_id is not UNSET:
             field_dict["notification_id"] = notification_id
-        if sent is not UNSET:
-            field_dict["sent"] = sent
 
         return field_dict
 
@@ -68,6 +68,15 @@ class SendTestResponse:
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
         d = dict(src_dict)
         status = d.pop("status")
+
+        def _parse_sent(data: object) -> int | None | Unset:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            return cast(int | None | Unset, data)
+
+        sent = _parse_sent(d.pop("sent", UNSET))
 
         def _parse_failed(data: object) -> int | None | Unset:
             if data is None:
@@ -87,20 +96,11 @@ class SendTestResponse:
 
         notification_id = _parse_notification_id(d.pop("notification_id", UNSET))
 
-        def _parse_sent(data: object) -> int | None | Unset:
-            if data is None:
-                return data
-            if isinstance(data, Unset):
-                return data
-            return cast(int | None | Unset, data)
-
-        sent = _parse_sent(d.pop("sent", UNSET))
-
         send_test_response = cls(
             status=status,
+            sent=sent,
             failed=failed,
             notification_id=notification_id,
-            sent=sent,
         )
 
         send_test_response.additional_properties = d

@@ -13,6 +13,8 @@ reminders. A sender that is *told* "duplicate" must not be handed a stack trace.
 
 from __future__ import annotations
 
+from datetime import date
+
 import httpx
 import pytest
 
@@ -129,3 +131,36 @@ async def test_a_204_is_none(mock_http):
     mock_http(_answer(204))
 
     assert await _client().ingest_event(_event()) is None
+
+
+async def test_manager_analytics_use_generated_route_and_service_token(mock_http) -> None:
+    def handle(request: httpx.Request) -> httpx.Response:
+        return httpx.Response(
+            200,
+            json={
+                "community_id": "gr-renewable-community",
+                "start": "2026-08-01",
+                "end": "2026-08-31",
+                "steps": [{"id": "sent", "count": 12}],
+                "rules": [],
+                "failures": [],
+                "reachability": [],
+            },
+        )
+
+    seen = mock_http(handle)
+    client = NudgingAdminClient("http://nudging.test", default_token="service-token")
+
+    result = await client.get_community_analytics(
+        "gr-renewable-community",
+        start=date(2026, 8, 1),
+        end=date(2026, 8, 31),
+    )
+
+    assert seen[0].url.path == (
+        "/admin/analytics/communities/gr-renewable-community/conversion"
+    )
+    assert dict(seen[0].url.params) == {"start": "2026-08-01", "end": "2026-08-31"}
+    assert seen[0].headers["authorization"] == "Bearer service-token"
+    assert result.community_id == "gr-renewable-community"
+    assert result.steps[0].count == 12

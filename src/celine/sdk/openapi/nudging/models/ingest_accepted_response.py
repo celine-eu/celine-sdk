@@ -22,14 +22,14 @@ class IngestAcceptedResponse:
     Attributes:
         created (list[NudgeCreatedItem]):
         suppressed (list[EngineResultOut]):
-        delivery (str | Unset):  Default: 'suppressed'.
         status (str | Unset):  Default: 'accepted'.
+        delivery (str | Unset):  Default: 'suppressed'.
     """
 
     created: list[NudgeCreatedItem]
     suppressed: list[EngineResultOut]
-    delivery: str | Unset = "suppressed"
     status: str | Unset = "accepted"
+    delivery: str | Unset = "suppressed"
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -43,9 +43,9 @@ class IngestAcceptedResponse:
             suppressed_item = suppressed_item_data.to_dict()
             suppressed.append(suppressed_item)
 
-        delivery = self.delivery
-
         status = self.status
+
+        delivery = self.delivery
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
@@ -55,10 +55,10 @@ class IngestAcceptedResponse:
                 "suppressed": suppressed,
             }
         )
-        if delivery is not UNSET:
-            field_dict["delivery"] = delivery
         if status is not UNSET:
             field_dict["status"] = status
+        if delivery is not UNSET:
+            field_dict["delivery"] = delivery
 
         return field_dict
 
@@ -82,15 +82,15 @@ class IngestAcceptedResponse:
 
             suppressed.append(suppressed_item)
 
-        delivery = d.pop("delivery", UNSET)
-
         status = d.pop("status", UNSET)
+
+        delivery = d.pop("delivery", UNSET)
 
         ingest_accepted_response = cls(
             created=created,
             suppressed=suppressed,
-            delivery=delivery,
             status=status,
+            delivery=delivery,
         )
 
         ingest_accepted_response.additional_properties = d

@@ -1,60 +1,882 @@
 {
+  "openapi": "3.1.0",
+  "info": {
+    "title": "nudging-tool-api",
+    "version": "0.1.0"
+  },
+  "paths": {
+    "/webpush/vapid-public-key": {
+      "get": {
+        "tags": [
+          "webpush"
+        ],
+        "summary": "Get VAPID public key",
+        "description": "Returns the VAPID public key needed by the browser to set up a push subscription.",
+        "operationId": "vapid_public_key_webpush_vapid_public_key_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/VapidPublicKeyResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/webpush/subscribe": {
+      "post": {
+        "tags": [
+          "webpush"
+        ],
+        "summary": "Register a push subscription",
+        "description": "Registers or updates a Web Push subscription for the authenticated user. The user identity is taken from the JWT \u2013 callers cannot register on behalf of others. If the endpoint already exists for that user, its keys are refreshed.",
+        "operationId": "subscribe_webpush_subscribe_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SubscribeRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StatusResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/webpush/unsubscribe": {
+      "post": {
+        "tags": [
+          "webpush"
+        ],
+        "summary": "Remove a push subscription",
+        "description": "Disables the push subscription identified by endpoint for the authenticated user. The user identity is taken from the JWT \u2013 callers cannot remove others' subscriptions.",
+        "operationId": "unsubscribe_webpush_unsubscribe_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UnsubscribeRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StatusResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/notifications": {
+      "get": {
+        "tags": [
+          "notifications"
+        ],
+        "summary": "List my notifications",
+        "description": "Returns the caller's notifications ordered newest-first. Soft-deleted entries are always excluded.",
+        "operationId": "list_notifications_notifications_get",
+        "parameters": [
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 200,
+              "minimum": 1,
+              "description": "Max results to return",
+              "default": 50,
+              "title": "Limit"
+            },
+            "description": "Max results to return"
+          },
+          {
+            "name": "offset",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 0,
+              "description": "Pagination offset",
+              "default": 0,
+              "title": "Offset"
+            },
+            "description": "Pagination offset"
+          },
+          {
+            "name": "unread_only",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "boolean",
+              "description": "Return only unread notifications",
+              "default": false,
+              "title": "Unread Only"
+            },
+            "description": "Return only unread notifications"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/NotificationOut"
+                  },
+                  "title": "Response List Notifications Notifications Get"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/notifications/track-click": {
+      "post": {
+        "tags": [
+          "notifications"
+        ],
+        "summary": "Track notification click",
+        "description": "Public endpoint used by a service worker to record that a push notification was clicked. The request must carry a valid signed tracking token from the push payload.",
+        "operationId": "track_click_notifications_track_click_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/NotificationClickTrackIn"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StatusResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/notifications/{notification_id}": {
+      "put": {
+        "tags": [
+          "notifications"
+        ],
+        "summary": "Mark notification as read",
+        "description": "Idempotent \u2013 safe to call multiple times.",
+        "operationId": "mark_read_notifications__notification_id__put",
+        "parameters": [
+          {
+            "name": "notification_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Notification Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NotificationOut"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Notification not found"
+          },
+          "410": {
+            "description": "Notification has been deleted"
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "notifications"
+        ],
+        "summary": "Delete a notification",
+        "description": "Soft-deletes. Idempotent \u2013 returns 204 even if already deleted.",
+        "operationId": "soft_delete_notification_notifications__notification_id__delete",
+        "parameters": [
+          {
+            "name": "notification_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Notification Id"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Deleted (or was already deleted)"
+          },
+          "404": {
+            "description": "Notification not found or belongs to another user"
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/preferences/me": {
+      "get": {
+        "tags": [
+          "preferences"
+        ],
+        "summary": "Get My Preferences",
+        "operationId": "get_my_preferences_preferences_me_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserPreferenceOut"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "preferences"
+        ],
+        "summary": "Update My Preferences",
+        "operationId": "update_my_preferences_preferences_me_put",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UserPreferenceUpdateIn"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserPreferenceOut"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/preferences/catalog": {
+      "get": {
+        "tags": [
+          "preferences"
+        ],
+        "summary": "Get My Notification Catalog",
+        "operationId": "get_my_notification_catalog_preferences_catalog_get",
+        "parameters": [
+          {
+            "name": "lang",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Lang"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/NotificationKindPreferenceOut"
+                  },
+                  "title": "Response Get My Notification Catalog Preferences Catalog Get"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/health": {
+      "get": {
+        "tags": [
+          "meta"
+        ],
+        "summary": "Health",
+        "operationId": "health_health_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          }
+        }
+      }
+    },
+    "/admin/analytics/communities/{community_id}/conversion": {
+      "get": {
+        "tags": [
+          "admin",
+          "analytics"
+        ],
+        "summary": "Get aggregate nudging analytics for one REC",
+        "description": "Returns funnel, rule, failure and reachability aggregates only. No participant identity, destination or message content is returned.",
+        "operationId": "get_community_nudging_analytics",
+        "parameters": [
+          {
+            "name": "community_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Community Id"
+            }
+          },
+          {
+            "name": "start",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "date",
+              "description": "First UTC calendar day, inclusive",
+              "title": "Start"
+            },
+            "description": "First UTC calendar day, inclusive"
+          },
+          {
+            "name": "end",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "date",
+              "description": "Last UTC calendar day, inclusive",
+              "title": "End"
+            },
+            "description": "Last UTC calendar day, inclusive"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CommunityNudgingAnalyticsOut"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/admin/ingest-event": {
+      "post": {
+        "tags": [
+          "admin",
+          "admin"
+        ],
+        "summary": "Ingest a Digital Twin event",
+        "description": "Accepts an enriched Digital Twin event, evaluates nudging rules, and dispatches deliveries for any triggered nudges.",
+        "operationId": "ingest_event_admin_ingest_event_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DigitalTwinEvent"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IngestOkResponse"
+                }
+              }
+            }
+          },
+          "202": {
+            "description": "Nudges created but all deliveries suppressed by the orchestrator",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IngestAcceptedResponse"
+                }
+              }
+            }
+          },
+          "204": {
+            "description": "No rules triggered"
+          },
+          "400": {
+            "description": "Unknown scenario",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IngestErrorDetail"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "All rules suppressed by dedup",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IngestErrorDetail"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Invalid or missing facts",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IngestErrorDetail"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Unexpected engine failure",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IngestErrorDetail"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/admin/notifications": {
+      "get": {
+        "tags": [
+          "admin",
+          "admin"
+        ],
+        "summary": "List notifications (admin)",
+        "description": "Admin view of all notifications. Filterable by user_id, family, severity. Requires nudging.admin scope or admin group.",
+        "operationId": "admin_list_notifications_admin_notifications_get",
+        "parameters": [
+          {
+            "name": "user_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Filter by user ID",
+              "title": "User Id"
+            },
+            "description": "Filter by user ID"
+          },
+          {
+            "name": "family",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Filter by family (energy, onboarding, \u2026)",
+              "title": "Family"
+            },
+            "description": "Filter by family (energy, onboarding, \u2026)"
+          },
+          {
+            "name": "severity",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Filter by severity (info, warning, critical)",
+              "title": "Severity"
+            },
+            "description": "Filter by severity (info, warning, critical)"
+          },
+          {
+            "name": "include_deleted",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "boolean",
+              "description": "Include soft-deleted notifications",
+              "default": false,
+              "title": "Include Deleted"
+            },
+            "description": "Include soft-deleted notifications"
+          },
+          {
+            "name": "unread_only",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "boolean",
+              "description": "Return only unread notifications",
+              "default": false,
+              "title": "Unread Only"
+            },
+            "description": "Return only unread notifications"
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 500,
+              "minimum": 1,
+              "default": 100,
+              "title": "Limit"
+            }
+          },
+          {
+            "name": "offset",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 0,
+              "default": 0,
+              "title": "Offset"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/AdminNotificationOut"
+                  },
+                  "title": "Response Admin List Notifications Admin Notifications Get"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/admin/scheduled-events": {
+      "post": {
+        "tags": [
+          "admin",
+          "admin"
+        ],
+        "summary": "Schedule a future nudging event",
+        "operationId": "create_scheduled_event_admin_scheduled_events_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ScheduledEventCreateRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ScheduledEventOut"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/admin/seed/apply": {
+      "post": {
+        "tags": [
+          "admin",
+          "admin"
+        ],
+        "summary": "Apply seed data",
+        "description": "Upserts rules, templates and preferences from the provided payload. Idempotent \u2014 safe to call multiple times or at application startup.",
+        "operationId": "seed_apply_admin_seed_apply_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SeedApplyRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SeedApplyResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/admin/webpush/send-test": {
+      "post": {
+        "tags": [
+          "admin"
+        ],
+        "summary": "Send a test push notification",
+        "description": "Sends a test Web Push notification to all active subscriptions for a given user. Requires nudging.admin scope or admin group. user_id is explicit in the body because an admin targets any user.",
+        "operationId": "send_test_admin_webpush_send_test_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SendTestRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SendTestResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
   "components": {
     "schemas": {
       "AdminNotificationOut": {
-        "description": "Admin view \u2013 same fields, explicit class for OpenAPI separation.",
         "properties": {
-          "body": {
-            "title": "Body",
-            "type": "string"
-          },
-          "click_action": {
-            "anyOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Click Action"
-          },
-          "clicked_at": {
-            "anyOf": [
-              {
-                "format": "date-time",
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Clicked At"
-          },
-          "created_at": {
-            "format": "date-time",
-            "title": "Created At",
-            "type": "string"
-          },
-          "deleted_at": {
-            "anyOf": [
-              {
-                "format": "date-time",
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Deleted At"
-          },
-          "family": {
-            "title": "Family",
-            "type": "string"
-          },
           "id": {
-            "title": "Id",
-            "type": "string"
+            "type": "string",
+            "title": "Id"
           },
           "nudge_log_id": {
             "anyOf": [
@@ -67,11 +889,43 @@
             ],
             "title": "Nudge Log Id"
           },
+          "rule_id": {
+            "type": "string",
+            "title": "Rule Id"
+          },
+          "user_id": {
+            "type": "string",
+            "title": "User Id"
+          },
+          "family": {
+            "type": "string",
+            "title": "Family"
+          },
+          "type": {
+            "type": "string",
+            "title": "Type"
+          },
+          "severity": {
+            "type": "string",
+            "title": "Severity"
+          },
+          "title": {
+            "type": "string",
+            "title": "Title"
+          },
+          "body": {
+            "type": "string",
+            "title": "Body"
+          },
+          "status": {
+            "type": "string",
+            "title": "Status"
+          },
           "read_at": {
             "anyOf": [
               {
-                "format": "date-time",
-                "type": "string"
+                "type": "string",
+                "format": "date-time"
               },
               {
                 "type": "null"
@@ -79,31 +933,48 @@
             ],
             "title": "Read At"
           },
-          "rule_id": {
-            "title": "Rule Id",
-            "type": "string"
+          "clicked_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Clicked At"
           },
-          "severity": {
-            "title": "Severity",
-            "type": "string"
+          "click_action": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Click Action"
           },
-          "status": {
-            "title": "Status",
-            "type": "string"
+          "deleted_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Deleted At"
           },
-          "title": {
-            "title": "Title",
-            "type": "string"
-          },
-          "type": {
-            "title": "Type",
-            "type": "string"
-          },
-          "user_id": {
-            "title": "User Id",
-            "type": "string"
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Created At"
           }
         },
+        "type": "object",
         "required": [
           "id",
           "rule_id",
@@ -117,52 +988,253 @@
           "created_at"
         ],
         "title": "AdminNotificationOut",
-        "type": "object"
+        "description": "Admin view \u2013 same fields, explicit class for OpenAPI separation."
+      },
+      "AnalyticsDeliveryFailure": {
+        "properties": {
+          "channel": {
+            "type": "string",
+            "title": "Channel",
+            "description": "webpush | email"
+          },
+          "error_class": {
+            "type": "string",
+            "title": "Error Class"
+          },
+          "count": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Count"
+          }
+        },
+        "type": "object",
+        "required": [
+          "channel",
+          "error_class",
+          "count"
+        ],
+        "title": "AnalyticsDeliveryFailure"
+      },
+      "AnalyticsFunnelStep": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id",
+            "description": "sent | delivered | read | clicked | committed"
+          },
+          "count": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Count"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "count"
+        ],
+        "title": "AnalyticsFunnelStep"
+      },
+      "AnalyticsReachability": {
+        "properties": {
+          "channel": {
+            "type": "string",
+            "title": "Channel",
+            "description": "webpush | email"
+          },
+          "reachable": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Reachable"
+          },
+          "total": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Total"
+          },
+          "opted_out": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Opted Out"
+          }
+        },
+        "type": "object",
+        "required": [
+          "channel",
+          "reachable",
+          "total",
+          "opted_out"
+        ],
+        "title": "AnalyticsReachability"
+      },
+      "AnalyticsRuleMetric": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "name": {
+            "type": "string",
+            "title": "Name"
+          },
+          "family": {
+            "type": "string",
+            "title": "Family"
+          },
+          "channel": {
+            "type": "string",
+            "title": "Channel",
+            "description": "webpush | email"
+          },
+          "severity": {
+            "type": "string",
+            "title": "Severity"
+          },
+          "active": {
+            "type": "boolean",
+            "title": "Active"
+          },
+          "last_fired_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Last Fired At"
+          },
+          "volume": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Volume"
+          },
+          "steps": {
+            "items": {
+              "$ref": "#/components/schemas/AnalyticsFunnelStep"
+            },
+            "type": "array",
+            "title": "Steps"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "name",
+          "family",
+          "channel",
+          "severity",
+          "active",
+          "volume",
+          "steps"
+        ],
+        "title": "AnalyticsRuleMetric"
+      },
+      "CommunityNudgingAnalyticsOut": {
+        "properties": {
+          "community_id": {
+            "type": "string",
+            "title": "Community Id"
+          },
+          "start": {
+            "type": "string",
+            "format": "date",
+            "title": "Start"
+          },
+          "end": {
+            "type": "string",
+            "format": "date",
+            "title": "End"
+          },
+          "steps": {
+            "items": {
+              "$ref": "#/components/schemas/AnalyticsFunnelStep"
+            },
+            "type": "array",
+            "title": "Steps"
+          },
+          "rules": {
+            "items": {
+              "$ref": "#/components/schemas/AnalyticsRuleMetric"
+            },
+            "type": "array",
+            "title": "Rules"
+          },
+          "failures": {
+            "items": {
+              "$ref": "#/components/schemas/AnalyticsDeliveryFailure"
+            },
+            "type": "array",
+            "title": "Failures"
+          },
+          "reachability": {
+            "items": {
+              "$ref": "#/components/schemas/AnalyticsReachability"
+            },
+            "type": "array",
+            "title": "Reachability"
+          }
+        },
+        "type": "object",
+        "required": [
+          "community_id",
+          "start",
+          "end",
+          "steps",
+          "rules",
+          "failures",
+          "reachability"
+        ],
+        "title": "CommunityNudgingAnalyticsOut",
+        "description": "Privacy-safe, REC-scoped input for the manager dashboard."
       },
       "DeliveryJobOut": {
         "properties": {
-          "body": {
-            "title": "Body",
-            "type": "string"
-          },
-          "channel": {
-            "title": "Channel",
-            "type": "string"
-          },
-          "created_at": {
-            "format": "date-time",
-            "title": "Created At",
-            "type": "string"
-          },
-          "dedup_key": {
-            "title": "Dedup Key",
-            "type": "string"
-          },
-          "destination": {
-            "title": "Destination",
-            "type": "string"
-          },
           "job_id": {
-            "title": "Job Id",
-            "type": "string"
-          },
-          "nudge_id": {
-            "title": "Nudge Id",
-            "type": "string"
-          },
-          "rule_id": {
-            "title": "Rule Id",
-            "type": "string"
-          },
-          "title": {
-            "title": "Title",
-            "type": "string"
+            "type": "string",
+            "title": "Job Id"
           },
           "user_id": {
-            "title": "User Id",
-            "type": "string"
+            "type": "string",
+            "title": "User Id"
+          },
+          "rule_id": {
+            "type": "string",
+            "title": "Rule Id"
+          },
+          "nudge_id": {
+            "type": "string",
+            "title": "Nudge Id"
+          },
+          "channel": {
+            "type": "string",
+            "title": "Channel"
+          },
+          "destination": {
+            "type": "string",
+            "title": "Destination"
+          },
+          "title": {
+            "type": "string",
+            "title": "Title"
+          },
+          "body": {
+            "type": "string",
+            "title": "Body"
+          },
+          "dedup_key": {
+            "type": "string",
+            "title": "Dedup Key"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Created At"
           }
         },
+        "type": "object",
         "required": [
           "job_id",
           "user_id",
@@ -175,41 +1247,18 @@
           "dedup_key",
           "created_at"
         ],
-        "title": "DeliveryJobOut",
-        "type": "object"
+        "title": "DeliveryJobOut"
       },
       "DigitalTwinEvent": {
         "properties": {
-          "community_id": {
-            "anyOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Community Id"
-          },
           "event_type": {
-            "title": "Event Type",
-            "type": "string"
-          },
-          "facts": {
-            "additionalProperties": true,
-            "description": "Enriched facts computed by Digital Twin",
-            "title": "Facts",
-            "type": "object"
-          },
-          "payload": {
-            "additionalProperties": true,
-            "title": "Payload",
-            "type": "object"
+            "type": "string",
+            "title": "Event Type"
           },
           "timestamp": {
+            "type": "string",
             "format": "date-time",
-            "title": "Timestamp",
-            "type": "string"
+            "title": "Timestamp"
           },
           "user_id": {
             "anyOf": [
@@ -221,27 +1270,41 @@
               }
             ],
             "title": "User Id"
-          }
-        },
-        "required": [
-          "event_type"
-        ],
-        "title": "DigitalTwinEvent",
-        "type": "object"
-      },
-      "EngineResultOut": {
-        "properties": {
-          "details": {
+          },
+          "community_id": {
             "anyOf": [
               {
-                "additionalProperties": true,
-                "type": "object"
+                "type": "string"
               },
               {
                 "type": "null"
               }
             ],
-            "title": "Details"
+            "title": "Community Id"
+          },
+          "payload": {
+            "additionalProperties": true,
+            "type": "object",
+            "title": "Payload"
+          },
+          "facts": {
+            "additionalProperties": true,
+            "type": "object",
+            "title": "Facts",
+            "description": "Enriched facts computed by Digital Twin"
+          }
+        },
+        "type": "object",
+        "required": [
+          "event_type"
+        ],
+        "title": "DigitalTwinEvent"
+      },
+      "EngineResultOut": {
+        "properties": {
+          "status": {
+            "type": "string",
+            "title": "Status"
           },
           "reason": {
             "anyOf": [
@@ -254,16 +1317,24 @@
             ],
             "title": "Reason"
           },
-          "status": {
-            "title": "Status",
-            "type": "string"
+          "details": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Details"
           }
         },
+        "type": "object",
         "required": [
           "status"
         ],
-        "title": "EngineResultOut",
-        "type": "object"
+        "title": "EngineResultOut"
       },
       "HTTPValidationError": {
         "properties": {
@@ -271,58 +1342,69 @@
             "items": {
               "$ref": "#/components/schemas/ValidationError"
             },
-            "title": "Detail",
-            "type": "array"
+            "type": "array",
+            "title": "Detail"
           }
         },
-        "title": "HTTPValidationError",
-        "type": "object"
+        "type": "object",
+        "title": "HTTPValidationError"
       },
       "IngestAcceptedResponse": {
         "properties": {
+          "status": {
+            "type": "string",
+            "title": "Status",
+            "default": "accepted",
+            "examples": [
+              "accepted"
+            ]
+          },
+          "delivery": {
+            "type": "string",
+            "title": "Delivery",
+            "default": "suppressed",
+            "examples": [
+              "suppressed"
+            ]
+          },
           "created": {
             "items": {
               "$ref": "#/components/schemas/NudgeCreatedItem"
             },
-            "title": "Created",
-            "type": "array"
-          },
-          "delivery": {
-            "default": "suppressed",
-            "examples": [
-              "suppressed"
-            ],
-            "title": "Delivery",
-            "type": "string"
-          },
-          "status": {
-            "default": "accepted",
-            "examples": [
-              "accepted"
-            ],
-            "title": "Status",
-            "type": "string"
+            "type": "array",
+            "title": "Created"
           },
           "suppressed": {
             "items": {
               "$ref": "#/components/schemas/EngineResultOut"
             },
-            "title": "Suppressed",
-            "type": "array"
+            "type": "array",
+            "title": "Suppressed"
           }
         },
+        "type": "object",
         "required": [
           "created",
           "suppressed"
         ],
-        "title": "IngestAcceptedResponse",
-        "type": "object"
+        "title": "IngestAcceptedResponse"
       },
       "IngestErrorDetail": {
         "properties": {
           "error": {
-            "title": "Error",
-            "type": "string"
+            "type": "string",
+            "title": "Error"
+          },
+          "reason": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Reason"
           },
           "errors": {
             "anyOf": [
@@ -337,17 +1419,6 @@
               }
             ],
             "title": "Errors"
-          },
-          "reason": {
-            "anyOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Reason"
           },
           "results": {
             "anyOf": [
@@ -364,46 +1435,50 @@
             "title": "Results"
           }
         },
+        "type": "object",
         "required": [
           "error"
         ],
-        "title": "IngestErrorDetail",
-        "type": "object"
+        "title": "IngestErrorDetail"
       },
       "IngestOkResponse": {
         "properties": {
+          "status": {
+            "type": "string",
+            "title": "Status",
+            "default": "ok",
+            "examples": [
+              "ok"
+            ]
+          },
           "created": {
             "items": {
               "$ref": "#/components/schemas/NudgeCreatedItem"
             },
-            "title": "Created",
-            "type": "array"
-          },
-          "status": {
-            "default": "ok",
-            "examples": [
-              "ok"
-            ],
-            "title": "Status",
-            "type": "string"
+            "type": "array",
+            "title": "Created"
           },
           "suppressed": {
             "items": {
               "$ref": "#/components/schemas/EngineResultOut"
             },
-            "title": "Suppressed",
-            "type": "array"
+            "type": "array",
+            "title": "Suppressed"
           }
         },
+        "type": "object",
         "required": [
           "created",
           "suppressed"
         ],
-        "title": "IngestOkResponse",
-        "type": "object"
+        "title": "IngestOkResponse"
       },
       "NotificationClickTrackIn": {
         "properties": {
+          "token": {
+            "type": "string",
+            "title": "Token"
+          },
           "action": {
             "anyOf": [
               {
@@ -413,48 +1488,45 @@
                 "type": "null"
               }
             ],
-            "description": "Notification action identifier; empty means default notification body click",
-            "title": "Action"
-          },
-          "token": {
-            "title": "Token",
-            "type": "string"
+            "title": "Action",
+            "description": "Notification action identifier; empty means default notification body click"
           }
         },
+        "type": "object",
         "required": [
           "token"
         ],
-        "title": "NotificationClickTrackIn",
-        "type": "object"
+        "title": "NotificationClickTrackIn"
       },
       "NotificationKindPreferenceOut": {
         "properties": {
-          "cadence": {
-            "title": "Cadence",
-            "type": "string"
-          },
-          "description": {
-            "title": "Description",
-            "type": "string"
-          },
-          "editable": {
-            "default": true,
-            "title": "Editable",
-            "type": "boolean"
-          },
-          "enabled": {
-            "title": "Enabled",
-            "type": "boolean"
-          },
           "kind": {
-            "title": "Kind",
-            "type": "string"
+            "type": "string",
+            "title": "Kind"
           },
           "label": {
-            "title": "Label",
-            "type": "string"
+            "type": "string",
+            "title": "Label"
+          },
+          "description": {
+            "type": "string",
+            "title": "Description"
+          },
+          "cadence": {
+            "type": "string",
+            "title": "Cadence"
+          },
+          "enabled": {
+            "type": "boolean",
+            "title": "Enabled"
+          },
+          "editable": {
+            "type": "boolean",
+            "title": "Editable",
+            "default": true
           }
         },
+        "type": "object",
         "required": [
           "kind",
           "label",
@@ -462,67 +1534,13 @@
           "cadence",
           "enabled"
         ],
-        "title": "NotificationKindPreferenceOut",
-        "type": "object"
+        "title": "NotificationKindPreferenceOut"
       },
       "NotificationOut": {
-        "description": "User-facing notification. Fields are proper columns, not buried JSON.",
         "properties": {
-          "body": {
-            "title": "Body",
-            "type": "string"
-          },
-          "click_action": {
-            "anyOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "description": "Action identifier reported by the notification click event",
-            "title": "Click Action"
-          },
-          "clicked_at": {
-            "anyOf": [
-              {
-                "format": "date-time",
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "description": "Null if the push was never clicked",
-            "title": "Clicked At"
-          },
-          "created_at": {
-            "format": "date-time",
-            "title": "Created At",
-            "type": "string"
-          },
-          "deleted_at": {
-            "anyOf": [
-              {
-                "format": "date-time",
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "description": "Null if not soft-deleted",
-            "title": "Deleted At"
-          },
-          "family": {
-            "description": "energy | onboarding | seasonal | \u2026",
-            "title": "Family",
-            "type": "string"
-          },
           "id": {
-            "title": "Id",
-            "type": "string"
+            "type": "string",
+            "title": "Id"
           },
           "nudge_log_id": {
             "anyOf": [
@@ -533,50 +1551,103 @@
                 "type": "null"
               }
             ],
-            "description": "Originating engine audit row",
-            "title": "Nudge Log Id"
+            "title": "Nudge Log Id",
+            "description": "Originating engine audit row"
+          },
+          "rule_id": {
+            "type": "string",
+            "title": "Rule Id"
+          },
+          "user_id": {
+            "type": "string",
+            "title": "User Id"
+          },
+          "family": {
+            "type": "string",
+            "title": "Family",
+            "description": "energy | onboarding | seasonal | \u2026"
+          },
+          "type": {
+            "type": "string",
+            "title": "Type",
+            "description": "informative | opportunity | alert"
+          },
+          "severity": {
+            "type": "string",
+            "title": "Severity",
+            "description": "info | warning | critical"
+          },
+          "title": {
+            "type": "string",
+            "title": "Title"
+          },
+          "body": {
+            "type": "string",
+            "title": "Body"
+          },
+          "status": {
+            "type": "string",
+            "title": "Status",
+            "description": "pending | sent | suppressed | failed"
           },
           "read_at": {
             "anyOf": [
               {
-                "format": "date-time",
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Read At",
+            "description": "Null if unread"
+          },
+          "clicked_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Clicked At",
+            "description": "Null if the push was never clicked"
+          },
+          "click_action": {
+            "anyOf": [
+              {
                 "type": "string"
               },
               {
                 "type": "null"
               }
             ],
-            "description": "Null if unread",
-            "title": "Read At"
+            "title": "Click Action",
+            "description": "Action identifier reported by the notification click event"
           },
-          "rule_id": {
-            "title": "Rule Id",
-            "type": "string"
+          "deleted_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Deleted At",
+            "description": "Null if not soft-deleted"
           },
-          "severity": {
-            "description": "info | warning | critical",
-            "title": "Severity",
-            "type": "string"
-          },
-          "status": {
-            "description": "pending | sent | suppressed | failed",
-            "title": "Status",
-            "type": "string"
-          },
-          "title": {
-            "title": "Title",
-            "type": "string"
-          },
-          "type": {
-            "description": "informative | opportunity | alert",
-            "title": "Type",
-            "type": "string"
-          },
-          "user_id": {
-            "title": "User Id",
-            "type": "string"
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Created At"
           }
         },
+        "type": "object",
         "required": [
           "id",
           "rule_id",
@@ -590,36 +1661,44 @@
           "created_at"
         ],
         "title": "NotificationOut",
-        "type": "object"
+        "description": "User-facing notification. Fields are proper columns, not buried JSON."
       },
       "NudgeCreatedItem": {
         "properties": {
+          "nudge_id": {
+            "type": "string",
+            "title": "Nudge Id"
+          },
+          "rule_id": {
+            "type": "string",
+            "title": "Rule Id"
+          },
           "deliveries": {
             "items": {
               "$ref": "#/components/schemas/DeliveryJobOut"
             },
-            "title": "Deliveries",
-            "type": "array"
-          },
-          "nudge_id": {
-            "title": "Nudge Id",
-            "type": "string"
-          },
-          "rule_id": {
-            "title": "Rule Id",
-            "type": "string"
+            "type": "array",
+            "title": "Deliveries"
           }
         },
+        "type": "object",
         "required": [
           "nudge_id",
           "rule_id",
           "deliveries"
         ],
-        "title": "NudgeCreatedItem",
-        "type": "object"
+        "title": "NudgeCreatedItem"
       },
       "ScheduledEventCreateRequest": {
         "properties": {
+          "event_type": {
+            "type": "string",
+            "title": "Event Type"
+          },
+          "user_id": {
+            "type": "string",
+            "title": "User Id"
+          },
           "community_id": {
             "anyOf": [
               {
@@ -630,10 +1709,6 @@
               }
             ],
             "title": "Community Id"
-          },
-          "event_type": {
-            "title": "Event Type",
-            "type": "string"
           },
           "external_key": {
             "anyOf": [
@@ -646,31 +1721,39 @@
             ],
             "title": "External Key"
           },
+          "trigger_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Trigger At"
+          },
           "facts": {
             "additionalProperties": true,
-            "title": "Facts",
-            "type": "object"
-          },
-          "trigger_at": {
-            "format": "date-time",
-            "title": "Trigger At",
-            "type": "string"
-          },
-          "user_id": {
-            "title": "User Id",
-            "type": "string"
+            "type": "object",
+            "title": "Facts"
           }
         },
+        "type": "object",
         "required": [
           "event_type",
           "user_id",
           "trigger_at"
         ],
-        "title": "ScheduledEventCreateRequest",
-        "type": "object"
+        "title": "ScheduledEventCreateRequest"
       },
       "ScheduledEventOut": {
         "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "event_type": {
+            "type": "string",
+            "title": "Event Type"
+          },
+          "user_id": {
+            "type": "string",
+            "title": "User Id"
+          },
           "community_id": {
             "anyOf": [
               {
@@ -682,56 +1765,45 @@
             ],
             "title": "Community Id"
           },
-          "created_at": {
+          "external_key": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "External Key"
+          },
+          "trigger_at": {
+            "type": "string",
             "format": "date-time",
-            "title": "Created At",
-            "type": "string"
+            "title": "Trigger At"
+          },
+          "status": {
+            "type": "string",
+            "title": "Status"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Created At"
           },
           "dispatched_at": {
             "anyOf": [
               {
-                "format": "date-time",
-                "type": "string"
+                "type": "string",
+                "format": "date-time"
               },
               {
                 "type": "null"
               }
             ],
             "title": "Dispatched At"
-          },
-          "event_type": {
-            "title": "Event Type",
-            "type": "string"
-          },
-          "external_key": {
-            "anyOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "External Key"
-          },
-          "id": {
-            "title": "Id",
-            "type": "string"
-          },
-          "status": {
-            "title": "Status",
-            "type": "string"
-          },
-          "trigger_at": {
-            "format": "date-time",
-            "title": "Trigger At",
-            "type": "string"
-          },
-          "user_id": {
-            "title": "User Id",
-            "type": "string"
           }
         },
+        "type": "object",
         "required": [
           "id",
           "event_type",
@@ -740,94 +1812,89 @@
           "status",
           "created_at"
         ],
-        "title": "ScheduledEventOut",
-        "type": "object"
+        "title": "ScheduledEventOut"
       },
       "SeedApplyRequest": {
         "properties": {
-          "overrides": {
-            "default": [],
-            "items": {
-              "additionalProperties": true,
-              "type": "object"
-            },
-            "title": "Overrides",
-            "type": "array"
-          },
-          "preferences": {
-            "default": [],
-            "items": {
-              "additionalProperties": true,
-              "type": "object"
-            },
-            "title": "Preferences",
-            "type": "array"
-          },
           "rules": {
-            "default": [],
             "items": {
               "additionalProperties": true,
               "type": "object"
             },
+            "type": "array",
             "title": "Rules",
-            "type": "array"
+            "default": []
           },
           "templates": {
-            "default": [],
             "items": {
               "additionalProperties": true,
               "type": "object"
             },
+            "type": "array",
             "title": "Templates",
-            "type": "array"
+            "default": []
+          },
+          "preferences": {
+            "items": {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            "type": "array",
+            "title": "Preferences",
+            "default": []
+          },
+          "overrides": {
+            "items": {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            "type": "array",
+            "title": "Overrides",
+            "default": []
           }
         },
-        "title": "SeedApplyRequest",
-        "type": "object"
+        "type": "object",
+        "title": "SeedApplyRequest"
       },
       "SeedApplyResponse": {
         "properties": {
-          "overrides": {
-            "title": "Overrides",
-            "type": "integer"
-          },
-          "preferences": {
-            "title": "Preferences",
-            "type": "integer"
+          "status": {
+            "type": "string",
+            "title": "Status",
+            "default": "ok"
           },
           "rules": {
-            "title": "Rules",
-            "type": "integer"
-          },
-          "status": {
-            "default": "ok",
-            "title": "Status",
-            "type": "string"
+            "type": "integer",
+            "title": "Rules"
           },
           "templates": {
-            "title": "Templates",
-            "type": "integer"
+            "type": "integer",
+            "title": "Templates"
+          },
+          "preferences": {
+            "type": "integer",
+            "title": "Preferences"
+          },
+          "overrides": {
+            "type": "integer",
+            "title": "Overrides"
           }
         },
+        "type": "object",
         "required": [
           "rules",
           "templates",
           "preferences",
           "overrides"
         ],
-        "title": "SeedApplyResponse",
-        "type": "object"
+        "title": "SeedApplyResponse"
       },
       "SendTestRequest": {
-        "description": "Admin-only: user_id is explicit because an admin targets any user.",
         "properties": {
-          "body": {
-            "default": "Hello!",
-            "examples": [
-              "Hello!"
-            ],
-            "title": "Body",
-            "type": "string"
+          "user_id": {
+            "type": "string",
+            "title": "User Id",
+            "description": "Target user ID"
           },
           "community_id": {
             "anyOf": [
@@ -838,39 +1905,58 @@
                 "type": "null"
               }
             ],
-            "description": "Optional community scope for the test send",
-            "title": "Community Id"
+            "title": "Community Id",
+            "description": "Optional community scope for the test send"
           },
           "title": {
+            "type": "string",
+            "title": "Title",
             "default": "Test",
             "examples": [
               "Test"
-            ],
-            "title": "Title",
-            "type": "string"
+            ]
+          },
+          "body": {
+            "type": "string",
+            "title": "Body",
+            "default": "Hello!",
+            "examples": [
+              "Hello!"
+            ]
           },
           "url": {
+            "type": "string",
+            "title": "Url",
             "default": "/",
             "examples": [
               "/"
-            ],
-            "title": "Url",
-            "type": "string"
-          },
-          "user_id": {
-            "description": "Target user ID",
-            "title": "User Id",
-            "type": "string"
+            ]
           }
         },
+        "type": "object",
         "required": [
           "user_id"
         ],
         "title": "SendTestRequest",
-        "type": "object"
+        "description": "Admin-only: user_id is explicit because an admin targets any user."
       },
       "SendTestResponse": {
         "properties": {
+          "status": {
+            "type": "string",
+            "title": "Status"
+          },
+          "sent": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Sent"
+          },
           "failed": {
             "anyOf": [
               {
@@ -892,48 +1978,35 @@
               }
             ],
             "title": "Notification Id"
-          },
-          "sent": {
-            "anyOf": [
-              {
-                "type": "integer"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Sent"
-          },
-          "status": {
-            "title": "Status",
-            "type": "string"
           }
         },
+        "type": "object",
         "required": [
           "status"
         ],
-        "title": "SendTestResponse",
-        "type": "object"
+        "title": "SendTestResponse"
       },
       "StatusResponse": {
         "properties": {
           "status": {
+            "type": "string",
+            "title": "Status",
             "examples": [
               "ok"
-            ],
-            "title": "Status",
-            "type": "string"
+            ]
           }
         },
+        "type": "object",
         "required": [
           "status"
         ],
-        "title": "StatusResponse",
-        "type": "object"
+        "title": "StatusResponse"
       },
       "SubscribeRequest": {
-        "description": "user_id is derived from the JWT \u2013 not accepted from the caller.",
         "properties": {
+          "subscription": {
+            "$ref": "#/components/schemas/WebPushSubscriptionIn"
+          },
           "community_id": {
             "anyOf": [
               {
@@ -943,22 +2016,23 @@
                 "type": "null"
               }
             ],
-            "description": "Optional community scope for the subscription",
-            "title": "Community Id"
-          },
-          "subscription": {
-            "$ref": "#/components/schemas/WebPushSubscriptionIn"
+            "title": "Community Id",
+            "description": "Optional community scope for the subscription"
           }
         },
+        "type": "object",
         "required": [
           "subscription"
         ],
         "title": "SubscribeRequest",
-        "type": "object"
+        "description": "user_id is derived from the JWT \u2013 not accepted from the caller."
       },
       "UnsubscribeRequest": {
-        "description": "user_id is derived from the JWT \u2013 not accepted from the caller.",
         "properties": {
+          "endpoint": {
+            "type": "string",
+            "title": "Endpoint"
+          },
           "community_id": {
             "anyOf": [
               {
@@ -968,26 +2042,34 @@
                 "type": "null"
               }
             ],
-            "description": "Optional community scope for the subscription",
-            "title": "Community Id"
-          },
-          "endpoint": {
-            "title": "Endpoint",
-            "type": "string"
+            "title": "Community Id",
+            "description": "Optional community scope for the subscription"
           }
         },
+        "type": "object",
         "required": [
           "endpoint"
         ],
         "title": "UnsubscribeRequest",
-        "type": "object"
+        "description": "user_id is derived from the JWT \u2013 not accepted from the caller."
       },
       "UserPreferenceOut": {
         "properties": {
+          "lang": {
+            "type": "string",
+            "title": "Lang",
+            "default": "en"
+          },
+          "max_per_day": {
+            "type": "integer",
+            "maximum": 10.0,
+            "minimum": 1.0,
+            "title": "Max Per Day"
+          },
           "channel_email": {
-            "default": false,
+            "type": "boolean",
             "title": "Channel Email",
-            "type": "boolean"
+            "default": false
           },
           "email": {
             "anyOf": [
@@ -1004,29 +2086,35 @@
             "items": {
               "type": "string"
             },
-            "title": "Enabled Notification Kinds",
-            "type": "array"
-          },
-          "lang": {
-            "default": "en",
-            "title": "Lang",
-            "type": "string"
-          },
-          "max_per_day": {
-            "maximum": 10.0,
-            "minimum": 1.0,
-            "title": "Max Per Day",
-            "type": "integer"
+            "type": "array",
+            "title": "Enabled Notification Kinds"
           }
         },
+        "type": "object",
         "required": [
           "max_per_day"
         ],
-        "title": "UserPreferenceOut",
-        "type": "object"
+        "title": "UserPreferenceOut"
       },
       "UserPreferenceUpdateIn": {
         "properties": {
+          "max_per_day": {
+            "type": "integer",
+            "maximum": 10.0,
+            "minimum": 1.0,
+            "title": "Max Per Day"
+          },
+          "lang": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Lang"
+          },
           "channel_email": {
             "anyOf": [
               {
@@ -1062,40 +2150,16 @@
               }
             ],
             "title": "Enabled Notification Kinds"
-          },
-          "lang": {
-            "anyOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Lang"
-          },
-          "max_per_day": {
-            "maximum": 10.0,
-            "minimum": 1.0,
-            "title": "Max Per Day",
-            "type": "integer"
           }
         },
+        "type": "object",
         "required": [
           "max_per_day"
         ],
-        "title": "UserPreferenceUpdateIn",
-        "type": "object"
+        "title": "UserPreferenceUpdateIn"
       },
       "ValidationError": {
         "properties": {
-          "ctx": {
-            "title": "Context",
-            "type": "object"
-          },
-          "input": {
-            "title": "Input"
-          },
           "loc": {
             "items": {
               "anyOf": [
@@ -1107,876 +2171,80 @@
                 }
               ]
             },
-            "title": "Location",
-            "type": "array"
+            "type": "array",
+            "title": "Location"
           },
           "msg": {
-            "title": "Message",
-            "type": "string"
+            "type": "string",
+            "title": "Message"
           },
           "type": {
-            "title": "Error Type",
-            "type": "string"
+            "type": "string",
+            "title": "Error Type"
+          },
+          "input": {
+            "title": "Input"
+          },
+          "ctx": {
+            "type": "object",
+            "title": "Context"
           }
         },
+        "type": "object",
         "required": [
           "loc",
           "msg",
           "type"
         ],
-        "title": "ValidationError",
-        "type": "object"
+        "title": "ValidationError"
       },
       "VapidPublicKeyResponse": {
         "properties": {
           "public_key": {
-            "title": "Public Key",
-            "type": "string"
+            "type": "string",
+            "title": "Public Key"
           }
         },
+        "type": "object",
         "required": [
           "public_key"
         ],
-        "title": "VapidPublicKeyResponse",
-        "type": "object"
+        "title": "VapidPublicKeyResponse"
       },
       "WebPushKeysIn": {
         "properties": {
-          "auth": {
-            "title": "Auth",
-            "type": "string"
-          },
           "p256dh": {
-            "title": "P256Dh",
-            "type": "string"
+            "type": "string",
+            "title": "P256Dh"
+          },
+          "auth": {
+            "type": "string",
+            "title": "Auth"
           }
         },
+        "type": "object",
         "required": [
           "p256dh",
           "auth"
         ],
-        "title": "WebPushKeysIn",
-        "type": "object"
+        "title": "WebPushKeysIn"
       },
       "WebPushSubscriptionIn": {
         "properties": {
           "endpoint": {
-            "title": "Endpoint",
-            "type": "string"
+            "type": "string",
+            "title": "Endpoint"
           },
           "keys": {
             "$ref": "#/components/schemas/WebPushKeysIn"
           }
         },
+        "type": "object",
         "required": [
           "endpoint",
           "keys"
         ],
-        "title": "WebPushSubscriptionIn",
-        "type": "object"
-      }
-    }
-  },
-  "info": {
-    "title": "nudging-tool-api",
-    "version": "0.1.0"
-  },
-  "openapi": "3.1.0",
-  "paths": {
-    "/admin/ingest-event": {
-      "post": {
-        "description": "Accepts an enriched Digital Twin event, evaluates nudging rules, and dispatches deliveries for any triggered nudges.",
-        "operationId": "ingest_event_admin_ingest_event_post",
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/DigitalTwinEvent"
-              }
-            }
-          },
-          "required": true
-        },
-        "responses": {
-          "200": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/IngestOkResponse"
-                }
-              }
-            },
-            "description": "Successful Response"
-          },
-          "202": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/IngestAcceptedResponse"
-                }
-              }
-            },
-            "description": "Nudges created but all deliveries suppressed by the orchestrator"
-          },
-          "204": {
-            "description": "No rules triggered"
-          },
-          "400": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/IngestErrorDetail"
-                }
-              }
-            },
-            "description": "Unknown scenario"
-          },
-          "409": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/IngestErrorDetail"
-                }
-              }
-            },
-            "description": "All rules suppressed by dedup"
-          },
-          "422": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/IngestErrorDetail"
-                }
-              }
-            },
-            "description": "Invalid or missing facts"
-          },
-          "500": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/IngestErrorDetail"
-                }
-              }
-            },
-            "description": "Unexpected engine failure"
-          }
-        },
-        "summary": "Ingest a Digital Twin event",
-        "tags": [
-          "admin",
-          "admin"
-        ]
-      }
-    },
-    "/admin/notifications": {
-      "get": {
-        "description": "Admin view of all notifications. Filterable by user_id, family, severity. Requires nudging.admin scope or admin group.",
-        "operationId": "admin_list_notifications_admin_notifications_get",
-        "parameters": [
-          {
-            "description": "Filter by user ID",
-            "in": "query",
-            "name": "user_id",
-            "required": false,
-            "schema": {
-              "anyOf": [
-                {
-                  "type": "string"
-                },
-                {
-                  "type": "null"
-                }
-              ],
-              "description": "Filter by user ID",
-              "title": "User Id"
-            }
-          },
-          {
-            "description": "Filter by family (energy, onboarding, \u2026)",
-            "in": "query",
-            "name": "family",
-            "required": false,
-            "schema": {
-              "anyOf": [
-                {
-                  "type": "string"
-                },
-                {
-                  "type": "null"
-                }
-              ],
-              "description": "Filter by family (energy, onboarding, \u2026)",
-              "title": "Family"
-            }
-          },
-          {
-            "description": "Filter by severity (info, warning, critical)",
-            "in": "query",
-            "name": "severity",
-            "required": false,
-            "schema": {
-              "anyOf": [
-                {
-                  "type": "string"
-                },
-                {
-                  "type": "null"
-                }
-              ],
-              "description": "Filter by severity (info, warning, critical)",
-              "title": "Severity"
-            }
-          },
-          {
-            "description": "Include soft-deleted notifications",
-            "in": "query",
-            "name": "include_deleted",
-            "required": false,
-            "schema": {
-              "default": false,
-              "description": "Include soft-deleted notifications",
-              "title": "Include Deleted",
-              "type": "boolean"
-            }
-          },
-          {
-            "description": "Return only unread notifications",
-            "in": "query",
-            "name": "unread_only",
-            "required": false,
-            "schema": {
-              "default": false,
-              "description": "Return only unread notifications",
-              "title": "Unread Only",
-              "type": "boolean"
-            }
-          },
-          {
-            "in": "query",
-            "name": "limit",
-            "required": false,
-            "schema": {
-              "default": 100,
-              "maximum": 500,
-              "minimum": 1,
-              "title": "Limit",
-              "type": "integer"
-            }
-          },
-          {
-            "in": "query",
-            "name": "offset",
-            "required": false,
-            "schema": {
-              "default": 0,
-              "minimum": 0,
-              "title": "Offset",
-              "type": "integer"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "items": {
-                    "$ref": "#/components/schemas/AdminNotificationOut"
-                  },
-                  "title": "Response Admin List Notifications Admin Notifications Get",
-                  "type": "array"
-                }
-              }
-            },
-            "description": "Successful Response"
-          },
-          "422": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
-                }
-              }
-            },
-            "description": "Validation Error"
-          }
-        },
-        "summary": "List notifications (admin)",
-        "tags": [
-          "admin",
-          "admin"
-        ]
-      }
-    },
-    "/admin/scheduled-events": {
-      "post": {
-        "operationId": "create_scheduled_event_admin_scheduled_events_post",
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/ScheduledEventCreateRequest"
-              }
-            }
-          },
-          "required": true
-        },
-        "responses": {
-          "201": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ScheduledEventOut"
-                }
-              }
-            },
-            "description": "Successful Response"
-          },
-          "422": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
-                }
-              }
-            },
-            "description": "Validation Error"
-          }
-        },
-        "summary": "Schedule a future nudging event",
-        "tags": [
-          "admin",
-          "admin"
-        ]
-      }
-    },
-    "/admin/seed/apply": {
-      "post": {
-        "description": "Upserts rules, templates and preferences from the provided payload. Idempotent \u2014 safe to call multiple times or at application startup.",
-        "operationId": "seed_apply_admin_seed_apply_post",
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/SeedApplyRequest"
-              }
-            }
-          },
-          "required": true
-        },
-        "responses": {
-          "200": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/SeedApplyResponse"
-                }
-              }
-            },
-            "description": "Successful Response"
-          },
-          "422": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
-                }
-              }
-            },
-            "description": "Validation Error"
-          }
-        },
-        "summary": "Apply seed data",
-        "tags": [
-          "admin",
-          "admin"
-        ]
-      }
-    },
-    "/admin/webpush/send-test": {
-      "post": {
-        "description": "Sends a test Web Push notification to all active subscriptions for a given user. Requires nudging.admin scope or admin group. user_id is explicit in the body because an admin targets any user.",
-        "operationId": "send_test_admin_webpush_send_test_post",
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/SendTestRequest"
-              }
-            }
-          },
-          "required": true
-        },
-        "responses": {
-          "200": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/SendTestResponse"
-                }
-              }
-            },
-            "description": "Successful Response"
-          },
-          "422": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
-                }
-              }
-            },
-            "description": "Validation Error"
-          }
-        },
-        "summary": "Send a test push notification",
-        "tags": [
-          "admin"
-        ]
-      }
-    },
-    "/health": {
-      "get": {
-        "operationId": "health_health_get",
-        "responses": {
-          "200": {
-            "content": {
-              "application/json": {
-                "schema": {}
-              }
-            },
-            "description": "Successful Response"
-          }
-        },
-        "summary": "Health",
-        "tags": [
-          "meta"
-        ]
-      }
-    },
-    "/notifications": {
-      "get": {
-        "description": "Returns the caller's notifications ordered newest-first. Soft-deleted entries are always excluded.",
-        "operationId": "list_notifications_notifications_get",
-        "parameters": [
-          {
-            "description": "Max results to return",
-            "in": "query",
-            "name": "limit",
-            "required": false,
-            "schema": {
-              "default": 50,
-              "description": "Max results to return",
-              "maximum": 200,
-              "minimum": 1,
-              "title": "Limit",
-              "type": "integer"
-            }
-          },
-          {
-            "description": "Pagination offset",
-            "in": "query",
-            "name": "offset",
-            "required": false,
-            "schema": {
-              "default": 0,
-              "description": "Pagination offset",
-              "minimum": 0,
-              "title": "Offset",
-              "type": "integer"
-            }
-          },
-          {
-            "description": "Return only unread notifications",
-            "in": "query",
-            "name": "unread_only",
-            "required": false,
-            "schema": {
-              "default": false,
-              "description": "Return only unread notifications",
-              "title": "Unread Only",
-              "type": "boolean"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "items": {
-                    "$ref": "#/components/schemas/NotificationOut"
-                  },
-                  "title": "Response List Notifications Notifications Get",
-                  "type": "array"
-                }
-              }
-            },
-            "description": "Successful Response"
-          },
-          "422": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
-                }
-              }
-            },
-            "description": "Validation Error"
-          }
-        },
-        "summary": "List my notifications",
-        "tags": [
-          "notifications"
-        ]
-      }
-    },
-    "/notifications/track-click": {
-      "post": {
-        "description": "Public endpoint used by a service worker to record that a push notification was clicked. The request must carry a valid signed tracking token from the push payload.",
-        "operationId": "track_click_notifications_track_click_post",
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/NotificationClickTrackIn"
-              }
-            }
-          },
-          "required": true
-        },
-        "responses": {
-          "200": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/StatusResponse"
-                }
-              }
-            },
-            "description": "Successful Response"
-          },
-          "422": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
-                }
-              }
-            },
-            "description": "Validation Error"
-          }
-        },
-        "summary": "Track notification click",
-        "tags": [
-          "notifications"
-        ]
-      }
-    },
-    "/notifications/{notification_id}": {
-      "delete": {
-        "description": "Soft-deletes. Idempotent \u2013 returns 204 even if already deleted.",
-        "operationId": "soft_delete_notification_notifications__notification_id__delete",
-        "parameters": [
-          {
-            "in": "path",
-            "name": "notification_id",
-            "required": true,
-            "schema": {
-              "title": "Notification Id",
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "204": {
-            "description": "Deleted (or was already deleted)"
-          },
-          "404": {
-            "description": "Notification not found or belongs to another user"
-          },
-          "422": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
-                }
-              }
-            },
-            "description": "Validation Error"
-          }
-        },
-        "summary": "Delete a notification",
-        "tags": [
-          "notifications"
-        ]
-      },
-      "put": {
-        "description": "Idempotent \u2013 safe to call multiple times.",
-        "operationId": "mark_read_notifications__notification_id__put",
-        "parameters": [
-          {
-            "in": "path",
-            "name": "notification_id",
-            "required": true,
-            "schema": {
-              "title": "Notification Id",
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/NotificationOut"
-                }
-              }
-            },
-            "description": "Successful Response"
-          },
-          "404": {
-            "description": "Notification not found"
-          },
-          "410": {
-            "description": "Notification has been deleted"
-          },
-          "422": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
-                }
-              }
-            },
-            "description": "Validation Error"
-          }
-        },
-        "summary": "Mark notification as read",
-        "tags": [
-          "notifications"
-        ]
-      }
-    },
-    "/preferences/catalog": {
-      "get": {
-        "operationId": "get_my_notification_catalog_preferences_catalog_get",
-        "parameters": [
-          {
-            "in": "query",
-            "name": "lang",
-            "required": false,
-            "schema": {
-              "anyOf": [
-                {
-                  "type": "string"
-                },
-                {
-                  "type": "null"
-                }
-              ],
-              "title": "Lang"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "items": {
-                    "$ref": "#/components/schemas/NotificationKindPreferenceOut"
-                  },
-                  "title": "Response Get My Notification Catalog Preferences Catalog Get",
-                  "type": "array"
-                }
-              }
-            },
-            "description": "Successful Response"
-          },
-          "422": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
-                }
-              }
-            },
-            "description": "Validation Error"
-          }
-        },
-        "summary": "Get My Notification Catalog",
-        "tags": [
-          "preferences"
-        ]
-      }
-    },
-    "/preferences/me": {
-      "get": {
-        "operationId": "get_my_preferences_preferences_me_get",
-        "responses": {
-          "200": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/UserPreferenceOut"
-                }
-              }
-            },
-            "description": "Successful Response"
-          }
-        },
-        "summary": "Get My Preferences",
-        "tags": [
-          "preferences"
-        ]
-      },
-      "put": {
-        "operationId": "update_my_preferences_preferences_me_put",
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/UserPreferenceUpdateIn"
-              }
-            }
-          },
-          "required": true
-        },
-        "responses": {
-          "200": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/UserPreferenceOut"
-                }
-              }
-            },
-            "description": "Successful Response"
-          },
-          "422": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
-                }
-              }
-            },
-            "description": "Validation Error"
-          }
-        },
-        "summary": "Update My Preferences",
-        "tags": [
-          "preferences"
-        ]
-      }
-    },
-    "/webpush/subscribe": {
-      "post": {
-        "description": "Registers or updates a Web Push subscription for the authenticated user. The user identity is taken from the JWT \u2013 callers cannot register on behalf of others. If the endpoint already exists for that user, its keys are refreshed.",
-        "operationId": "subscribe_webpush_subscribe_post",
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/SubscribeRequest"
-              }
-            }
-          },
-          "required": true
-        },
-        "responses": {
-          "200": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/StatusResponse"
-                }
-              }
-            },
-            "description": "Successful Response"
-          },
-          "422": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
-                }
-              }
-            },
-            "description": "Validation Error"
-          }
-        },
-        "summary": "Register a push subscription",
-        "tags": [
-          "webpush"
-        ]
-      }
-    },
-    "/webpush/unsubscribe": {
-      "post": {
-        "description": "Disables the push subscription identified by endpoint for the authenticated user. The user identity is taken from the JWT \u2013 callers cannot remove others' subscriptions.",
-        "operationId": "unsubscribe_webpush_unsubscribe_post",
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/UnsubscribeRequest"
-              }
-            }
-          },
-          "required": true
-        },
-        "responses": {
-          "200": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/StatusResponse"
-                }
-              }
-            },
-            "description": "Successful Response"
-          },
-          "422": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
-                }
-              }
-            },
-            "description": "Validation Error"
-          }
-        },
-        "summary": "Remove a push subscription",
-        "tags": [
-          "webpush"
-        ]
-      }
-    },
-    "/webpush/vapid-public-key": {
-      "get": {
-        "description": "Returns the VAPID public key needed by the browser to set up a push subscription.",
-        "operationId": "vapid_public_key_webpush_vapid_public_key_get",
-        "responses": {
-          "200": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/VapidPublicKeyResponse"
-                }
-              }
-            },
-            "description": "Successful Response"
-          }
-        },
-        "summary": "Get VAPID public key",
-        "tags": [
-          "webpush"
-        ]
+        "title": "WebPushSubscriptionIn"
       }
     }
   }

@@ -17,33 +17,33 @@ T = TypeVar("T", bound="NudgeCreatedItem")
 class NudgeCreatedItem:
     """
     Attributes:
-        deliveries (list[DeliveryJobOut]):
         nudge_id (str):
         rule_id (str):
+        deliveries (list[DeliveryJobOut]):
     """
 
-    deliveries: list[DeliveryJobOut]
     nudge_id: str
     rule_id: str
+    deliveries: list[DeliveryJobOut]
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
+        nudge_id = self.nudge_id
+
+        rule_id = self.rule_id
+
         deliveries = []
         for deliveries_item_data in self.deliveries:
             deliveries_item = deliveries_item_data.to_dict()
             deliveries.append(deliveries_item)
 
-        nudge_id = self.nudge_id
-
-        rule_id = self.rule_id
-
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update(
             {
-                "deliveries": deliveries,
                 "nudge_id": nudge_id,
                 "rule_id": rule_id,
+                "deliveries": deliveries,
             }
         )
 
@@ -54,6 +54,10 @@ class NudgeCreatedItem:
         from ..models.delivery_job_out import DeliveryJobOut
 
         d = dict(src_dict)
+        nudge_id = d.pop("nudge_id")
+
+        rule_id = d.pop("rule_id")
+
         deliveries = []
         _deliveries = d.pop("deliveries")
         for deliveries_item_data in _deliveries:
@@ -61,14 +65,10 @@ class NudgeCreatedItem:
 
             deliveries.append(deliveries_item)
 
-        nudge_id = d.pop("nudge_id")
-
-        rule_id = d.pop("rule_id")
-
         nudge_created_item = cls(
-            deliveries=deliveries,
             nudge_id=nudge_id,
             rule_id=rule_id,
+            deliveries=deliveries,
         )
 
         nudge_created_item.additional_properties = d

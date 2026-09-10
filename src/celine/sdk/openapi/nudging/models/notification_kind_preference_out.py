@@ -15,32 +15,32 @@ T = TypeVar("T", bound="NotificationKindPreferenceOut")
 class NotificationKindPreferenceOut:
     """
     Attributes:
-        cadence (str):
-        description (str):
-        enabled (bool):
         kind (str):
         label (str):
+        description (str):
+        cadence (str):
+        enabled (bool):
         editable (bool | Unset):  Default: True.
     """
 
-    cadence: str
-    description: str
-    enabled: bool
     kind: str
     label: str
+    description: str
+    cadence: str
+    enabled: bool
     editable: bool | Unset = True
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
-        cadence = self.cadence
-
-        description = self.description
-
-        enabled = self.enabled
-
         kind = self.kind
 
         label = self.label
+
+        description = self.description
+
+        cadence = self.cadence
+
+        enabled = self.enabled
 
         editable = self.editable
 
@@ -48,11 +48,11 @@ class NotificationKindPreferenceOut:
         field_dict.update(self.additional_properties)
         field_dict.update(
             {
-                "cadence": cadence,
-                "description": description,
-                "enabled": enabled,
                 "kind": kind,
                 "label": label,
+                "description": description,
+                "cadence": cadence,
+                "enabled": enabled,
             }
         )
         if editable is not UNSET:
@@ -63,24 +63,24 @@ class NotificationKindPreferenceOut:
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
         d = dict(src_dict)
-        cadence = d.pop("cadence")
-
-        description = d.pop("description")
-
-        enabled = d.pop("enabled")
-
         kind = d.pop("kind")
 
         label = d.pop("label")
 
+        description = d.pop("description")
+
+        cadence = d.pop("cadence")
+
+        enabled = d.pop("enabled")
+
         editable = d.pop("editable", UNSET)
 
         notification_kind_preference_out = cls(
-            cadence=cadence,
-            description=description,
-            enabled=enabled,
             kind=kind,
             label=label,
+            description=description,
+            cadence=cadence,
+            enabled=enabled,
             editable=editable,
         )
 

@@ -23,37 +23,23 @@ class DigitalTwinEvent:
     """
     Attributes:
         event_type (str):
-        community_id (None | str | Unset):
-        facts (Facts | Unset): Enriched facts computed by Digital Twin
-        payload (Payload | Unset):
         timestamp (datetime.datetime | Unset):
         user_id (None | str | Unset):
+        community_id (None | str | Unset):
+        payload (Payload | Unset):
+        facts (Facts | Unset): Enriched facts computed by Digital Twin
     """
 
     event_type: str
-    community_id: None | str | Unset = UNSET
-    facts: Facts | Unset = UNSET
-    payload: Payload | Unset = UNSET
     timestamp: datetime.datetime | Unset = UNSET
     user_id: None | str | Unset = UNSET
+    community_id: None | str | Unset = UNSET
+    payload: Payload | Unset = UNSET
+    facts: Facts | Unset = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
         event_type = self.event_type
-
-        community_id: None | str | Unset
-        if isinstance(self.community_id, Unset):
-            community_id = UNSET
-        else:
-            community_id = self.community_id
-
-        facts: dict[str, Any] | Unset = UNSET
-        if not isinstance(self.facts, Unset):
-            facts = self.facts.to_dict()
-
-        payload: dict[str, Any] | Unset = UNSET
-        if not isinstance(self.payload, Unset):
-            payload = self.payload.to_dict()
 
         timestamp: str | Unset = UNSET
         if not isinstance(self.timestamp, Unset):
@@ -65,6 +51,20 @@ class DigitalTwinEvent:
         else:
             user_id = self.user_id
 
+        community_id: None | str | Unset
+        if isinstance(self.community_id, Unset):
+            community_id = UNSET
+        else:
+            community_id = self.community_id
+
+        payload: dict[str, Any] | Unset = UNSET
+        if not isinstance(self.payload, Unset):
+            payload = self.payload.to_dict()
+
+        facts: dict[str, Any] | Unset = UNSET
+        if not isinstance(self.facts, Unset):
+            facts = self.facts.to_dict()
+
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update(
@@ -72,16 +72,16 @@ class DigitalTwinEvent:
                 "event_type": event_type,
             }
         )
-        if community_id is not UNSET:
-            field_dict["community_id"] = community_id
-        if facts is not UNSET:
-            field_dict["facts"] = facts
-        if payload is not UNSET:
-            field_dict["payload"] = payload
         if timestamp is not UNSET:
             field_dict["timestamp"] = timestamp
         if user_id is not UNSET:
             field_dict["user_id"] = user_id
+        if community_id is not UNSET:
+            field_dict["community_id"] = community_id
+        if payload is not UNSET:
+            field_dict["payload"] = payload
+        if facts is not UNSET:
+            field_dict["facts"] = facts
 
         return field_dict
 
@@ -92,29 +92,6 @@ class DigitalTwinEvent:
 
         d = dict(src_dict)
         event_type = d.pop("event_type")
-
-        def _parse_community_id(data: object) -> None | str | Unset:
-            if data is None:
-                return data
-            if isinstance(data, Unset):
-                return data
-            return cast(None | str | Unset, data)
-
-        community_id = _parse_community_id(d.pop("community_id", UNSET))
-
-        _facts = d.pop("facts", UNSET)
-        facts: Facts | Unset
-        if isinstance(_facts, Unset):
-            facts = UNSET
-        else:
-            facts = Facts.from_dict(_facts)
-
-        _payload = d.pop("payload", UNSET)
-        payload: Payload | Unset
-        if isinstance(_payload, Unset):
-            payload = UNSET
-        else:
-            payload = Payload.from_dict(_payload)
 
         _timestamp = d.pop("timestamp", UNSET)
         timestamp: datetime.datetime | Unset
@@ -132,13 +109,36 @@ class DigitalTwinEvent:
 
         user_id = _parse_user_id(d.pop("user_id", UNSET))
 
+        def _parse_community_id(data: object) -> None | str | Unset:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            return cast(None | str | Unset, data)
+
+        community_id = _parse_community_id(d.pop("community_id", UNSET))
+
+        _payload = d.pop("payload", UNSET)
+        payload: Payload | Unset
+        if isinstance(_payload, Unset):
+            payload = UNSET
+        else:
+            payload = Payload.from_dict(_payload)
+
+        _facts = d.pop("facts", UNSET)
+        facts: Facts | Unset
+        if isinstance(_facts, Unset):
+            facts = UNSET
+        else:
+            facts = Facts.from_dict(_facts)
+
         digital_twin_event = cls(
             event_type=event_type,
-            community_id=community_id,
-            facts=facts,
-            payload=payload,
             timestamp=timestamp,
             user_id=user_id,
+            community_id=community_id,
+            payload=payload,
+            facts=facts,
         )
 
         digital_twin_event.additional_properties = d
