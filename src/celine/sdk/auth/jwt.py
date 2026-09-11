@@ -26,6 +26,10 @@ __all__ = [
     "extract_groups",
     "get_expected_audiences",
     "is_service_account",
+    "normalize_groups",
+    "organization_aliases",
+    "organization_groups",
+    "realm_groups",
 ]
 
 
@@ -36,6 +40,66 @@ logger = logging.getLogger(__name__)
 def _get_jwks_client(jwks_uri: str) -> PyJWKClient:
     logger.info(f"Loading JWKS from {jwks_uri}")
     return PyJWKClient(jwks_uri, cache_jwk_set=True, lifespan=3600)
+
+
+def normalize_groups(values: Any) -> list[str]:
+    """Strip Keycloak's leading slash and deduplicate, preserving order.
+
+    Anything that is not a list is discarded rather than iterated: a ``groups``
+    claim that arrived as a bare string would otherwise be walked character by
+    character and yield single-letter "groups".
+    """
+    if not isinstance(values, (list, tuple)):
+        return []
+
+    out: list[str] = []
+    seen: set[str] = set()
+    for value in values:
+        if not isinstance(value, str):
+            continue
+        name = value.lstrip("/")
+        if name and name not in seen:
+            seen.add(name)
+            out.append(name)
+    return out
+
+
+def realm_groups(claims: dict) -> list[str]:
+    """Groups from the top-level ``groups`` claim — realm level **only**.
+
+    Deliberately not `extract_groups`, which merges realm groups with every
+    organization's groups into one flat list. That is the right answer for a
+    service asking "is this user a viewer?", and the wrong one for a service
+    deciding *which tenant* an action applies to: a realm group is a
+    platform-wide grant, so merging lets a ``managers`` badge held inside
+    organization A satisfy a realm-level check and authorise an action on
+    organization B. A caller that authorises per organization must read the two
+    levels apart, with this and `organization_groups`.
+    """
+    return normalize_groups(claims.get("groups"))
+
+
+def organization_groups(claims: dict, alias: str) -> list[str]:
+    """Groups the caller holds inside one specific organization.
+
+    Read from the raw claim rather than `JwtUser.organizations` because the
+    per-organization ``groups`` key is what carries a tenant-scoped role.
+    """
+    orgs = claims.get("organization")
+    if not isinstance(orgs, dict):
+        return []
+    org = orgs.get(alias)
+    if not isinstance(org, dict):
+        return []
+    return normalize_groups(org.get("groups"))
+
+
+def organization_aliases(claims: dict) -> list[str]:
+    """Every organization alias the caller is a member of, sorted."""
+    orgs = claims.get("organization")
+    if not isinstance(orgs, dict):
+        return []
+    return sorted(str(alias) for alias in orgs)
 
 
 def extract_groups(claims: dict) -> list[str]:
@@ -132,28 +196,52 @@ def get_expected_audiences(oidc: OidcSettings) -> list[str] | str | None:
     return audiences if audiences else None
 
 
+def _first(value: Any) -> str | None:
+    """The first string of a KC multi-valued attribute, or the value itself."""
+    if isinstance(value, str):
+        return value or None
+    if isinstance(value, (list, tuple)):
+        for item in value:
+            if isinstance(item, str) and item:
+                return item
+    return None
+
+
 @dataclass
 class Organization:
     """Organization membership parsed from the JWT 'organization' claim.
 
     KC 26 ``oidc-organization-membership-mapper`` with ``org.add.attributes=true``
-    and ``org.include.member.roles=true`` produces::
+    and ``org.include.member.roles=true``, plus
+    ``oidc-organization-group-membership-mapper``, produces::
 
         "organization": {
-            "set": {
-                "attributes": {"type": ["dso"]},
-                "roles": ["member"]
+            "gr-renewable-community": {
+                "id": "0f4ba6e3-0f1c-43a6-a117-4eb88863bb02",
+                "type": ["rec"],
+                "groups": ["/managers"]
             }
         }
 
-    ``alias`` is the KC organization alias (used directly as the DT network ID).
-    ``attributes`` contains org-level attributes, e.g. ``{"type": ["dso"]}``.
-    ``roles`` contains member roles (built-in ``"member"`` in KC 26).
+    **Org attributes arrive flattened, not under an ``attributes`` key.** Measured
+    against KC 26.4 with the realm's own mapper: ``type`` sits at the top level of
+    the entry, so ``org.type`` is the reliable reader and
+    ``org.has_attribute("type", ...)`` answers False on a real token. ``attributes``
+    is still parsed, because a differently configured mapper does nest them, and
+    ``type`` falls back to it.
+
+    ``alias`` is the KC organization alias (used directly as the DT network ID, and
+    as the REC registry's community key). ``id`` is the organization's KC UUID.
+    ``groups`` are the groups the caller holds **inside this organization** — a
+    tenant-scoped role, which is not the same thing as a realm group; see
+    `realm_groups`.
     """
 
     alias: str
     type: Optional[str] = None
     attributes: dict[str, list[str]] = field(default_factory=dict)
+    id: Optional[str] = None
+    groups: list[str] = field(default_factory=list)
 
     def is_type(self, type: str) -> bool:
         return type == self.type
@@ -170,23 +258,35 @@ class Organization:
     def _from_claim(cls, alias: str, data: Any) -> "Organization":
         # organization: {'example-dso': {'id': '179d8382-58fe-4092-8bfe-ecc607a4b804', 'type': ['dso']}}
         attributes: dict[str, list[str]] = {}
+        org_id: str | None = None
+        groups: list[str] = []
 
         org_type: str | None = None
         if isinstance(data, dict):
-
-            org_type = data.get("type", None)
-            org_type = (
-                org_type[0]
-                if isinstance(org_type, list) and len(org_type) > 0
-                else None
-            )
 
             raw_attrs = data.get("attributes", {})
             if isinstance(raw_attrs, dict):
                 attributes = {
                     k: v if isinstance(v, list) else [v] for k, v in raw_attrs.items()
                 }
-        return cls(alias=alias, type=org_type, attributes=attributes)
+
+            # Flattened first, nested second. The realm's mapper emits the
+            # flattened shape; the nested one is what the docstring above used to
+            # promise, and a mapper elsewhere may still produce it.
+            org_type = _first(data.get("type")) or _first(attributes.get("type"))
+
+            raw_id = data.get("id")
+            org_id = raw_id if isinstance(raw_id, str) and raw_id else None
+
+            groups = normalize_groups(data.get("groups"))
+
+        return cls(
+            alias=alias,
+            type=org_type,
+            attributes=attributes,
+            id=org_id,
+            groups=groups,
+        )
 
 
 @dataclass

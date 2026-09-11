@@ -1,8 +1,15 @@
-"""Tests for celine.sdk.auth.jwt — extract_groups and is_service_account."""
+"""Tests for celine.sdk.auth.jwt — group readers, organization parsing, subject type."""
 
 import pytest
 
-from celine.sdk.auth.jwt import extract_groups, is_service_account
+from celine.sdk.auth.jwt import (
+    Organization,
+    extract_groups,
+    is_service_account,
+    organization_aliases,
+    organization_groups,
+    realm_groups,
+)
 
 
 # ---------------------------------------------------------------------------
@@ -210,3 +217,99 @@ class TestIsServiceAccount:
     # @verifies REQ-0031
     def test_empty_claims(self):
         assert is_service_account({}) is False
+
+
+# ---------------------------------------------------------------------------
+# Organization parsing, and reading the two group levels apart
+# ---------------------------------------------------------------------------
+
+
+class TestOrganizationClaim:
+    # The shape a real KC 26.4 token carries, copied from the celine realm:
+    # `type` flattened, `groups` with a leading slash, no `attributes` key.
+    REAL = {
+        "gr-renewable-community": {
+            "id": "0f4ba6e3-0f1c-43a6-a117-4eb88863bb02",
+            "type": ["rec"],
+            "groups": ["/managers"],
+        }
+    }
+
+    # @verifies REQ-0040
+    def test_flattened_type_and_groups(self):
+        org = Organization._from_claim("gr-renewable-community", self.REAL[
+            "gr-renewable-community"
+        ])
+        assert org.alias == "gr-renewable-community"
+        assert org.type == "rec"
+        assert org.id == "0f4ba6e3-0f1c-43a6-a117-4eb88863bb02"
+        assert org.groups == ["managers"]
+
+    # @verifies REQ-0040
+    def test_nested_attributes_still_give_a_type(self):
+        org = Organization._from_claim("set", {"attributes": {"type": ["dso"]}})
+        assert org.type == "dso"
+        assert org.has_attribute("type", "dso")
+
+    # @verifies REQ-0040
+    def test_flattened_type_wins_over_nested(self):
+        org = Organization._from_claim(
+            "set", {"type": ["rec"], "attributes": {"type": ["dso"]}}
+        )
+        assert org.type == "rec"
+
+    # @verifies REQ-0040
+    def test_absent_id_and_groups_are_empty_not_an_error(self):
+        org = Organization._from_claim("set", {"type": ["dso"]})
+        assert org.id is None
+        assert org.groups == []
+
+    # @verifies REQ-0040
+    def test_malformed_entry_yields_a_bare_membership(self):
+        org = Organization._from_claim("set", "not-a-dict")
+        assert org.alias == "set"
+        assert org.type is None
+        assert org.id is None
+        assert org.groups == []
+
+
+class TestRealmAndOrganizationGroups:
+    CLAIMS = {
+        "groups": ["/viewers", "viewers"],
+        "organization": {
+            "rec-a": {"type": ["rec"], "groups": ["/managers"]},
+            "rec-b": {"type": ["rec"], "groups": ["/participants"]},
+        },
+    }
+
+    # @verifies REQ-0041
+    def test_realm_groups_exclude_organization_groups(self):
+        assert realm_groups(self.CLAIMS) == ["viewers"]
+
+    # @verifies REQ-0041
+    def test_organization_groups_are_scoped_to_one_alias(self):
+        assert organization_groups(self.CLAIMS, "rec-a") == ["managers"]
+        assert organization_groups(self.CLAIMS, "rec-b") == ["participants"]
+        assert organization_groups(self.CLAIMS, "rec-c") == []
+
+    # @verifies REQ-0041
+    def test_extract_groups_still_merges_the_two_levels(self):
+        """The contrast REQ-0041 exists for, asserted rather than described.
+
+        `managers` is held in rec-a only. A multi-tenant caller asking about
+        rec-b must not see it, and `extract_groups` shows it regardless.
+        """
+        assert "managers" in extract_groups(self.CLAIMS)
+        assert "managers" not in organization_groups(self.CLAIMS, "rec-b")
+
+    # @verifies REQ-0041
+    def test_organization_aliases_are_sorted(self):
+        assert organization_aliases(self.CLAIMS) == ["rec-a", "rec-b"]
+
+    # @verifies REQ-0041
+    def test_claims_of_the_wrong_shape_are_tolerated(self):
+        assert realm_groups({}) == []
+        assert realm_groups({"groups": "managers"}) == []
+        assert organization_groups({"organization": "nope"}, "rec-a") == []
+        assert organization_groups({"organization": {"rec-a": "nope"}}, "rec-a") == []
+        assert organization_aliases({}) == []

@@ -4,7 +4,15 @@ from celine.sdk.auth.oidc_discovery import OidcDiscoveryClient, OidcConfiguratio
 from celine.sdk.auth.oidc import OidcClientCredentialsProvider
 from celine.sdk.auth.static import StaticTokenProvider
 
-from celine.sdk.auth.jwt import JwtUser, Organization, is_service_account
+from celine.sdk.auth.jwt import (
+    JwtUser,
+    Organization,
+    is_service_account,
+    normalize_groups,
+    organization_aliases,
+    organization_groups,
+    realm_groups,
+)
 
 __all__ = [
     "AccessToken",
@@ -16,4 +24,8 @@ __all__ = [
     "JwtUser",
     "Organization",
     "is_service_account",
+    "normalize_groups",
+    "organization_aliases",
+    "organization_groups",
+    "realm_groups",
 ]

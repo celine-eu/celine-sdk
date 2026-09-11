@@ -117,6 +117,29 @@ callers holding a token they intend to reuse.
 
 ---
 
+### REQ-0040 — an organization membership carries its Keycloak id and the groups held inside it
+
+`Organization` exposes `id` (the KC organization UUID) and `groups` (the groups the caller
+holds **inside that organization**, leading slashes stripped) alongside `alias`, `type` and
+`attributes`. Both are absent from the claim on a realm whose mapper does not emit them, and
+are then an empty value rather than an error.
+
+`type` is read from the flattened `type` key first and from `attributes.type` second.
+Keycloak's own organization mapper emits the flattened shape; the nested one is what a
+differently configured mapper produces, and both must parse.
+
+### REQ-0041 — realm groups and organization groups can be read apart
+
+`realm_groups(claims)` returns the top-level `groups` claim alone.
+`organization_groups(claims, alias)` returns one organization's groups alone.
+`organization_aliases(claims)` returns every alias, sorted. All three normalise as
+REQ-0030 does and tolerate a claim of the wrong shape.
+
+These exist because REQ-0030's merge is unsafe for a multi-tenant service, and a service
+that must not merge should not have to re-implement the reading. A caller authorising
+`(subject, action, tenant)` uses these; a single-tenant caller asking "is this user a
+viewer?" uses `extract_groups`.
+
 ## Obtaining a token
 
 ### REQ-0034 — an access token carries its expiry and answers whether it is still usable
