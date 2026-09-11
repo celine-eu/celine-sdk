@@ -2,6 +2,14 @@
 
 <!-- version list -->
 
+## v1.17.2 (2026-09-11)
+
+### Bug Fixes
+
+- Added the Manager Dashboard
+  ([`f4cbbd5`](https://github.com/celine-eu/celine-sdk/commit/f4cbbd51c748e344364a80267788ef70d7a3bffa))
+
+
 ## v1.17.1 (2026-09-08)
 
 ### Bug Fixes
