@@ -2,6 +2,14 @@
 
 <!-- version list -->
 
+## v1.17.3 (2026-09-11)
+
+### Bug Fixes
+
+- Improve organization claim management
+  ([`725e795`](https://github.com/celine-eu/celine-sdk/commit/725e795e98241b64464bd912039c5823b66d5415))
+
+
 ## v1.17.2 (2026-09-11)
 
 ### Bug Fixes
