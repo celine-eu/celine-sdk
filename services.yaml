@@ -16,6 +16,22 @@ services:
   onboarding:
     package: onboarding
     openapi: http://api.celine.localhost/onboarding/openapi.json
+  provisioning:
+    package: provisioning
+    # **Not `api.celine.localhost`, and that is the whole point of this entry.**
+    #
+    # The provisioning service holds realm-wide Keycloak administration —
+    # `manage-users` + `manage-realm` — and is safe to hold it only because
+    # nothing outside the network can reach it. There is no ingress route to it
+    # and there must not be one: celine-policies `docs/decisions/ADR-0007`, and
+    # the guard in `celine-dev/config/caddy/Caddyfile`.
+    #
+    # So the spec is read from the container's own port on the developer's
+    # machine, not through the shared front door. `task gen` needs the service
+    # running and listening on 8010, which `docker compose up provisioning` in
+    # celine-policies does; a fetch with nothing there is reported and skipped
+    # like any other, and the previous snapshot is reused.
+    openapi: http://localhost:8010/openapi.json
   ai-assistant:
     package: ai_assistant
     # The platform routes this service at /assistant, not /ai-assistant. The
