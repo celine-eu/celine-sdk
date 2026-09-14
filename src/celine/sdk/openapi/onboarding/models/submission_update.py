@@ -7,6 +7,7 @@ from attrs import define as _attrs_define
 from attrs import field as _attrs_field
 
 from ..models.submission_status import SubmissionStatus
+from ..models.submission_update_locale_type_0 import SubmissionUpdateLocaleType0
 from ..types import UNSET, Unset
 
 if TYPE_CHECKING:
@@ -35,6 +36,7 @@ class SubmissionUpdate:
         id_extracted_data (None | SubmissionUpdateIdExtractedDataType0 | Unset):
         keep_me_updated (bool | None | Unset):
         last_name (None | str | Unset):
+        locale (None | SubmissionUpdateLocaleType0 | Unset):
         notes (None | str | Unset):
         phone (None | str | Unset):
         pod_code (None | str | Unset):
@@ -56,6 +58,7 @@ class SubmissionUpdate:
     id_extracted_data: None | SubmissionUpdateIdExtractedDataType0 | Unset = UNSET
     keep_me_updated: bool | None | Unset = UNSET
     last_name: None | str | Unset = UNSET
+    locale: None | SubmissionUpdateLocaleType0 | Unset = UNSET
     notes: None | str | Unset = UNSET
     phone: None | str | Unset = UNSET
     pod_code: None | str | Unset = UNSET
@@ -156,6 +159,14 @@ class SubmissionUpdate:
         else:
             last_name = self.last_name
 
+        locale: None | str | Unset
+        if isinstance(self.locale, Unset):
+            locale = UNSET
+        elif isinstance(self.locale, SubmissionUpdateLocaleType0):
+            locale = self.locale.value
+        else:
+            locale = self.locale
+
         notes: None | str | Unset
         if isinstance(self.notes, Unset):
             notes = UNSET
@@ -223,6 +234,8 @@ class SubmissionUpdate:
             field_dict["keep_me_updated"] = keep_me_updated
         if last_name is not UNSET:
             field_dict["last_name"] = last_name
+        if locale is not UNSET:
+            field_dict["locale"] = locale
         if notes is not UNSET:
             field_dict["notes"] = notes
         if phone is not UNSET:
@@ -401,6 +414,23 @@ class SubmissionUpdate:
 
         last_name = _parse_last_name(d.pop("last_name", UNSET))
 
+        def _parse_locale(data: object) -> None | SubmissionUpdateLocaleType0 | Unset:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            try:
+                if not isinstance(data, str):
+                    raise TypeError()
+                locale_type_0 = SubmissionUpdateLocaleType0(data)
+
+                return locale_type_0
+            except (TypeError, ValueError, AttributeError, KeyError):
+                pass
+            return cast(None | SubmissionUpdateLocaleType0 | Unset, data)
+
+        locale = _parse_locale(d.pop("locale", UNSET))
+
         def _parse_notes(data: object) -> None | str | Unset:
             if data is None:
                 return data
@@ -477,6 +507,7 @@ class SubmissionUpdate:
             id_extracted_data=id_extracted_data,
             keep_me_updated=keep_me_updated,
             last_name=last_name,
+            locale=locale,
             notes=notes,
             phone=phone,
             pod_code=pod_code,

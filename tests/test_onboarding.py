@@ -19,7 +19,12 @@ import json
 import httpx
 import pytest
 
-from celine.sdk.onboarding import OnboardingApiError, OnboardingClient
+from celine.sdk.onboarding import (
+    ACTING_USER_HEADER,
+    OnboardingAdminClient,
+    OnboardingApiError,
+    OnboardingClient,
+)
 
 pytestmark = pytest.mark.asyncio
 
@@ -172,3 +177,171 @@ class TestTokens:
             await OnboardingClient("http://onboarding.test").get_data_sharing()
 
         assert seen == []
+
+
+# --------------------------------------------------------------------------- #
+# The delegated member emails                                                 #
+# --------------------------------------------------------------------------- #
+
+SENT = {"code": "sent", "kind": "invitation", "lifespanSeconds": 604800}
+
+
+class _Provider:
+    def __init__(self) -> None:
+        self.calls = 0
+
+    async def get_token(self):
+        self.calls += 1
+        return type("AccessToken", (), {"access_token": "tok-service"})()
+
+
+def _admin(**kwargs) -> OnboardingAdminClient:
+    return OnboardingAdminClient("http://onboarding.test", **kwargs)
+
+
+class TestMemberEmails:
+    async def test_an_invitation_goes_to_its_own_route_with_both_tokens(self, mock_http):
+        seen = mock_http(_answer(200, SENT))
+        provider = _Provider()
+
+        sent = await _admin(token_provider=provider).send_member_invitation(
+            "greenland", "GL-00001", acting_token="tok-manager"
+        )
+
+        request = seen[0]
+        assert request.method == "POST"
+        assert request.url.path == "/api/admin/communities/greenland/members/GL-00001/invitation"
+        assert request.headers["authorization"] == "Bearer tok-service"
+        assert request.headers[ACTING_USER_HEADER] == "tok-manager"
+        # Onboarding refuses a delegated call carrying the proxy's header.
+        assert "x-auth-request-access-token" not in request.headers
+        assert request.read() == b""
+        assert provider.calls == 1
+        assert sent.code == "sent"
+        assert sent.kind.value == "invitation"
+        assert sent.lifespanSeconds == 604800
+
+    async def test_a_reset_goes_to_the_reset_route(self, mock_http):
+        seen = mock_http(
+            _answer(200, {"code": "sent", "kind": "password_reset", "lifespanSeconds": 3600})
+        )
+
+        sent = await _admin(default_token="tok-service").send_member_password_reset(
+            "greenland", "GL-00001", acting_token="tok-manager"
+        )
+
+        assert seen[0].url.path == "/api/admin/communities/greenland/members/GL-00001/password-reset"
+        assert sent.kind.value == "password_reset"
+
+    async def test_path_values_are_escaped_not_reinterpreted(self, mock_http):
+        seen = mock_http(_answer(200, SENT))
+
+        await _admin(default_token="t").send_member_invitation(
+            "greenland", "a/b", acting_token="tok-manager"
+        )
+
+        assert seen[0].url.raw_path.endswith(b"/members/a%2Fb/invitation")
+
+    @pytest.mark.parametrize("acting", ["", "   "])
+    async def test_no_acting_manager_is_refused_before_any_request(self, mock_http, acting):
+        seen = mock_http(_answer(200, SENT))
+
+        with pytest.raises(ValueError):
+            await _admin(default_token="t").send_member_invitation(
+                "greenland", "GL-00001", acting_token=acting
+            )
+
+        assert seen == []
+
+    async def test_not_on_dev_list_is_an_answer(self, mock_http):
+        mock_http(_answer(200, {"code": "not_on_dev_list", "kind": "invitation", "lifespanSeconds": 604800}))
+
+        sent = await _admin(default_token="t").send_member_invitation(
+            "greenland", "GL-00001", acting_token="m"
+        )
+
+        assert sent.code == "not_on_dev_list"
+
+    @pytest.mark.parametrize(
+        ("status", "code"),
+        [
+            (401, "proxy_token_refused"),
+            (403, "forbidden"),
+            (404, "member_not_found"),
+            (409, "has_password"),
+            (409, "no_email"),
+            (502, "send_failed"),
+            (503, "provisioning_unavailable"),
+            (409, "a_code_nobody_has_invented_yet"),
+        ],
+    )
+    async def test_every_refusal_carries_its_code_as_a_string(self, mock_http, status, code):
+        mock_http(_answer(status, {"detail": {"code": code, "message": "English, for logs"}}))
+
+        with pytest.raises(OnboardingApiError) as raised:
+            await _admin(default_token="t").send_member_invitation(
+                "greenland", "GL-00001", acting_token="m"
+            )
+
+        assert raised.value.status_code == status
+        assert raised.value.code == code
+        assert type(raised.value.code) is str
+        assert raised.value.detail == "English, for logs"
+        assert raised.value.retry_after_seconds is None
+
+    async def test_a_cooldown_says_when_to_try_again(self, mock_http):
+        def handle(request: httpx.Request) -> httpx.Response:
+            return httpx.Response(
+                429,
+                json={"detail": {"code": "cooldown", "message": "wait", "retryAfterSeconds": 240}},
+                headers={"Retry-After": "240"},
+            )
+
+        mock_http(handle)
+
+        with pytest.raises(OnboardingApiError) as raised:
+            await _admin(default_token="t").send_member_password_reset(
+                "greenland", "GL-00001", acting_token="m"
+            )
+
+        assert raised.value.code == "cooldown"
+        assert raised.value.retry_after_seconds == 240
+
+    async def test_retry_after_falls_back_to_the_header(self, mock_http):
+        def handle(request: httpx.Request) -> httpx.Response:
+            return httpx.Response(
+                429, json={"detail": {"code": "cooldown", "message": "wait"}}, headers={"Retry-After": "90"}
+            )
+
+        mock_http(handle)
+
+        with pytest.raises(OnboardingApiError) as raised:
+            await _admin(default_token="t").send_member_invitation(
+                "greenland", "GL-00001", acting_token="m"
+            )
+
+        assert raised.value.retry_after_seconds == 90
+
+    async def test_a_gateway_page_raises_with_no_code(self, mock_http):
+        def handle(request: httpx.Request) -> httpx.Response:
+            return httpx.Response(502, content=b"<html>bad gateway</html>")
+
+        mock_http(handle)
+
+        with pytest.raises(OnboardingApiError) as raised:
+            await _admin(default_token="t").send_member_invitation(
+                "greenland", "GL-00001", acting_token="m"
+            )
+
+        assert raised.value.status_code == 502
+        assert raised.value.code is None
+
+    async def test_the_member_surface_still_reads_a_sentence(self, mock_http):
+        """The shared refusal parsing did not change what the member client reports."""
+        mock_http(_answer(409, {"detail": "grid-operations is disclosed under a contract"}))
+
+        with pytest.raises(OnboardingApiError) as raised:
+            await _client().set_data_sharing("grid-operations", enabled=True)
+
+        assert raised.value.detail == "grid-operations is disclosed under a contract"
+        assert raised.value.code is None

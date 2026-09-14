@@ -16,6 +16,7 @@ if TYPE_CHECKING:
     from ..models.submission_admin_read_extra_data_type_0 import SubmissionAdminReadExtraDataType0
     from ..models.submission_admin_read_extracted_data_type_0 import SubmissionAdminReadExtractedDataType0
     from ..models.submission_admin_read_id_extracted_data_type_0 import SubmissionAdminReadIdExtractedDataType0
+    from ..models.verification_read import VerificationRead
 
 
 T = TypeVar("T", bound="SubmissionAdminRead")
@@ -67,6 +68,8 @@ class SubmissionAdminRead:
         supply_municipality (None | str):
         updated_at (datetime.datetime):
         data_sharing_issues (list[str] | Unset):
+        phone_verification_waived (bool | Unset):  Default: False.
+        verification (None | Unset | VerificationRead):
     """
 
     consent_ip: str
@@ -111,12 +114,15 @@ class SubmissionAdminRead:
     supply_municipality: None | str
     updated_at: datetime.datetime
     data_sharing_issues: list[str] | Unset = UNSET
+    phone_verification_waived: bool | Unset = False
+    verification: None | Unset | VerificationRead = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
         from ..models.submission_admin_read_extra_data_type_0 import SubmissionAdminReadExtraDataType0
         from ..models.submission_admin_read_extracted_data_type_0 import SubmissionAdminReadExtractedDataType0
         from ..models.submission_admin_read_id_extracted_data_type_0 import SubmissionAdminReadIdExtractedDataType0
+        from ..models.verification_read import VerificationRead
 
         consent_ip = self.consent_ip
 
@@ -262,6 +268,16 @@ class SubmissionAdminRead:
         if not isinstance(self.data_sharing_issues, Unset):
             data_sharing_issues = self.data_sharing_issues
 
+        phone_verification_waived = self.phone_verification_waived
+
+        verification: dict[str, Any] | None | Unset
+        if isinstance(self.verification, Unset):
+            verification = UNSET
+        elif isinstance(self.verification, VerificationRead):
+            verification = self.verification.to_dict()
+        else:
+            verification = self.verification
+
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update(
@@ -311,6 +327,10 @@ class SubmissionAdminRead:
         )
         if data_sharing_issues is not UNSET:
             field_dict["data_sharing_issues"] = data_sharing_issues
+        if phone_verification_waived is not UNSET:
+            field_dict["phone_verification_waived"] = phone_verification_waived
+        if verification is not UNSET:
+            field_dict["verification"] = verification
 
         return field_dict
 
@@ -319,6 +339,7 @@ class SubmissionAdminRead:
         from ..models.submission_admin_read_extra_data_type_0 import SubmissionAdminReadExtraDataType0
         from ..models.submission_admin_read_extracted_data_type_0 import SubmissionAdminReadExtractedDataType0
         from ..models.submission_admin_read_id_extracted_data_type_0 import SubmissionAdminReadIdExtractedDataType0
+        from ..models.verification_read import VerificationRead
 
         d = dict(src_dict)
         consent_ip = d.pop("consent_ip")
@@ -624,6 +645,25 @@ class SubmissionAdminRead:
 
         data_sharing_issues = cast(list[str], d.pop("data_sharing_issues", UNSET))
 
+        phone_verification_waived = d.pop("phone_verification_waived", UNSET)
+
+        def _parse_verification(data: object) -> None | Unset | VerificationRead:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            try:
+                if not isinstance(data, dict):
+                    raise TypeError()
+                verification_type_0 = VerificationRead.from_dict(data)
+
+                return verification_type_0
+            except (TypeError, ValueError, AttributeError, KeyError):
+                pass
+            return cast(None | Unset | VerificationRead, data)
+
+        verification = _parse_verification(d.pop("verification", UNSET))
+
         submission_admin_read = cls(
             consent_ip=consent_ip,
             created_at=created_at,
@@ -667,6 +707,8 @@ class SubmissionAdminRead:
             supply_municipality=supply_municipality,
             updated_at=updated_at,
             data_sharing_issues=data_sharing_issues,
+            phone_verification_waived=phone_verification_waived,
+            verification=verification,
         )
 
         submission_admin_read.additional_properties = d

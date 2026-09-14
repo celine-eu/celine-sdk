@@ -18,6 +18,11 @@ class OnboardingApiError(RuntimeError):
     under a contract, or a member with no dataspace identity yet. The caller is a
     backend-for-frontend that shows that sentence to the member, so flattening
     the refusal into a generic failure would lose it.
+
+    On the admin member routes the refusal is a **code** instead
+    (`{"detail": {"code", "message"}}`): `code` carries it, `detail` the English
+    message, and `retry_after_seconds` the wait a `cooldown` names. Compare `code`
+    as a string; it is never an enum.
     """
 
     def __init__(
@@ -26,8 +31,12 @@ class OnboardingApiError(RuntimeError):
         status_code: int | None = None,
         detail: str | None = None,
         body: object | None = None,
+        code: str | None = None,
+        retry_after_seconds: int | None = None,
     ):
         super().__init__(message)
         self.status_code = status_code
         self.detail = detail
         self.body = body
+        self.code = code
+        self.retry_after_seconds = retry_after_seconds

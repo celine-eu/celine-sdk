@@ -8,6 +8,8 @@ from attrs import define as _attrs_define
 from attrs import field as _attrs_field
 from dateutil.parser import isoparse
 
+from ..types import UNSET, Unset
+
 T = TypeVar("T", bound="StepRead")
 
 
@@ -25,6 +27,7 @@ class StepRead:
         started_at (datetime.datetime | None):
         status (str):
         step (str):
+        invitation (None | str | Unset):
     """
 
     attempts: int
@@ -37,6 +40,7 @@ class StepRead:
     started_at: datetime.datetime | None
     status: str
     step: str
+    invitation: None | str | Unset = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -71,6 +75,12 @@ class StepRead:
 
         step = self.step
 
+        invitation: None | str | Unset
+        if isinstance(self.invitation, Unset):
+            invitation = UNSET
+        else:
+            invitation = self.invitation
+
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update(
@@ -87,6 +97,8 @@ class StepRead:
                 "step": step,
             }
         )
+        if invitation is not UNSET:
+            field_dict["invitation"] = invitation
 
         return field_dict
 
@@ -154,6 +166,15 @@ class StepRead:
 
         step = d.pop("step")
 
+        def _parse_invitation(data: object) -> None | str | Unset:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            return cast(None | str | Unset, data)
+
+        invitation = _parse_invitation(d.pop("invitation", UNSET))
+
         step_read = cls(
             attempts=attempts,
             completed_at=completed_at,
@@ -165,6 +186,7 @@ class StepRead:
             started_at=started_at,
             status=status,
             step=step,
+            invitation=invitation,
         )
 
         step_read.additional_properties = d

@@ -28,6 +28,8 @@ from .extraction_confirm_extracted_data_type_0 import ExtractionConfirmExtracted
 from .extraction_read import ExtractionRead
 from .find_by_address_request import FindByAddressRequest
 from .http_validation_error import HTTPValidationError
+from .member_email_sent import MemberEmailSent
+from .member_email_sent_kind import MemberEmailSentKind
 from .phone_confirm_request import PhoneConfirmRequest
 from .phone_verify_request import PhoneVerifyRequest
 from .phone_verify_status import PhoneVerifyStatus
@@ -55,8 +57,12 @@ from .submission_update import SubmissionUpdate
 from .submission_update_extra_data_type_0 import SubmissionUpdateExtraDataType0
 from .submission_update_extracted_data_type_0 import SubmissionUpdateExtractedDataType0
 from .submission_update_id_extracted_data_type_0 import SubmissionUpdateIdExtractedDataType0
+from .submission_update_locale_type_0 import SubmissionUpdateLocaleType0
 from .transition_request import TransitionRequest
 from .validation_error import ValidationError
+from .verification_create import VerificationCreate
+from .verification_method import VerificationMethod
+from .verification_read import VerificationRead
 
 __all__ = (
     "AdminMe",
@@ -85,6 +91,8 @@ __all__ = (
     "ExtractionRead",
     "FindByAddressRequest",
     "HTTPValidationError",
+    "MemberEmailSent",
+    "MemberEmailSentKind",
     "PhoneConfirmRequest",
     "PhoneVerifyRequest",
     "PhoneVerifyStatus",
@@ -112,6 +120,10 @@ __all__ = (
     "SubmissionUpdateExtractedDataType0",
     "SubmissionUpdateExtraDataType0",
     "SubmissionUpdateIdExtractedDataType0",
+    "SubmissionUpdateLocaleType0",
     "TransitionRequest",
     "ValidationError",
+    "VerificationCreate",
+    "VerificationMethod",
+    "VerificationRead",
 )

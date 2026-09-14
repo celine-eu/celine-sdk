@@ -59,6 +59,22 @@ def sync_detailed(
 ) -> Response[Any | HTTPValidationError]:
     """Get Config
 
+     The manifest's public allow-list, and whether approval brings a login.
+
+    ``login_invitation`` is what lets the wizard tell the person that approval
+    comes with an email to set a password — and not tell them when it does not.
+    Approval sends that invitation only where a login is provisioned at all: a
+    deployment with no provisioning service, or a REC declaring no
+    ``rec_registry`` block, gets no account and therefore no email. A promise
+    the platform then breaks is worse than saying nothing.
+
+    ``features`` is what the deployment allows, which the manifest cannot know.
+    The wizard renders upload and scanning only where these say so, rather than
+    offering a control the API would refuse. Upload and scan are separate
+    fields that follow one switch today, so that upload without scanning can be
+    enabled later without changing this response. ``phone_verification`` says
+    whether a ``phone_verify`` step can run; off, the wizard leaves it out.
+
     Args:
         rec_slug (str):
 
@@ -88,6 +104,22 @@ def sync(
 ) -> Any | HTTPValidationError | None:
     """Get Config
 
+     The manifest's public allow-list, and whether approval brings a login.
+
+    ``login_invitation`` is what lets the wizard tell the person that approval
+    comes with an email to set a password — and not tell them when it does not.
+    Approval sends that invitation only where a login is provisioned at all: a
+    deployment with no provisioning service, or a REC declaring no
+    ``rec_registry`` block, gets no account and therefore no email. A promise
+    the platform then breaks is worse than saying nothing.
+
+    ``features`` is what the deployment allows, which the manifest cannot know.
+    The wizard renders upload and scanning only where these say so, rather than
+    offering a control the API would refuse. Upload and scan are separate
+    fields that follow one switch today, so that upload without scanning can be
+    enabled later without changing this response. ``phone_verification`` says
+    whether a ``phone_verify`` step can run; off, the wizard leaves it out.
+
     Args:
         rec_slug (str):
 
@@ -111,6 +143,22 @@ async def asyncio_detailed(
     client: AuthenticatedClient | Client,
 ) -> Response[Any | HTTPValidationError]:
     """Get Config
+
+     The manifest's public allow-list, and whether approval brings a login.
+
+    ``login_invitation`` is what lets the wizard tell the person that approval
+    comes with an email to set a password — and not tell them when it does not.
+    Approval sends that invitation only where a login is provisioned at all: a
+    deployment with no provisioning service, or a REC declaring no
+    ``rec_registry`` block, gets no account and therefore no email. A promise
+    the platform then breaks is worse than saying nothing.
+
+    ``features`` is what the deployment allows, which the manifest cannot know.
+    The wizard renders upload and scanning only where these say so, rather than
+    offering a control the API would refuse. Upload and scan are separate
+    fields that follow one switch today, so that upload without scanning can be
+    enabled later without changing this response. ``phone_verification`` says
+    whether a ``phone_verify`` step can run; off, the wizard leaves it out.
 
     Args:
         rec_slug (str):
@@ -138,6 +186,22 @@ async def asyncio(
     client: AuthenticatedClient | Client,
 ) -> Any | HTTPValidationError | None:
     """Get Config
+
+     The manifest's public allow-list, and whether approval brings a login.
+
+    ``login_invitation`` is what lets the wizard tell the person that approval
+    comes with an email to set a password — and not tell them when it does not.
+    Approval sends that invitation only where a login is provisioned at all: a
+    deployment with no provisioning service, or a REC declaring no
+    ``rec_registry`` block, gets no account and therefore no email. A promise
+    the platform then breaks is worse than saying nothing.
+
+    ``features`` is what the deployment allows, which the manifest cannot know.
+    The wizard renders upload and scanning only where these say so, rather than
+    offering a control the API would refuse. Upload and scan are separate
+    fields that follow one switch today, so that upload without scanning can be
+    enabled later without changing this response. ``phone_verification`` says
+    whether a ``phone_verify`` step can run; off, the wizard leaves it out.
 
     Args:
         rec_slug (str):
