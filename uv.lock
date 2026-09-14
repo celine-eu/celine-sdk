@@ -132,7 +132,7 @@ wheels = [
 
 [[package]]
 name = "celine-sdk"
-version = "1.17.3"
+version = "1.18.0"
 source = { editable = "." }
 dependencies = [
     { name = "aiomqtt" },

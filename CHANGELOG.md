@@ -2,6 +2,17 @@
 
 <!-- version list -->
 
+## v1.18.0 (2026-09-14)
+
+### Features
+
+- Add provisioning API
+  ([`9ada16c`](https://github.com/celine-eu/celine-sdk/commit/9ada16c4a2b5a459c4b714cf66a01934ebb3fd60))
+
+- Upgrade provisioning signature
+  ([`6058fc2`](https://github.com/celine-eu/celine-sdk/commit/6058fc28be9fa9f7c3e7f757294a2269437f189c))
+
+
 ## v1.17.3 (2026-09-11)
 
 ### Bug Fixes
