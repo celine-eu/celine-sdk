@@ -2,6 +2,17 @@
 
 <!-- version list -->
 
+## v1.20.0 (2026-09-14)
+
+### Features
+
+- Regen for onboarding
+  ([`e16017b`](https://github.com/celine-eu/celine-sdk/commit/e16017bcc2045ee12925f56a7170fee434355f9d))
+
+- Update rec registry create signature
+  ([`aa908f8`](https://github.com/celine-eu/celine-sdk/commit/aa908f8d492866422c61ece6debbd3c5b34d6a57))
+
+
 ## v1.19.0 (2026-09-14)
 
 ### Features
