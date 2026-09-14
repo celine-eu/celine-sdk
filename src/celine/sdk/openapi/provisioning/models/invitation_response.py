@@ -1,34 +1,46 @@
 from __future__ import annotations
 
 from collections.abc import Mapping
-from typing import Any, TypeVar
+from typing import Any, TypeVar, cast
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
 
-T = TypeVar("T", bound="PasswordResetResponse")
+from ..models.invitation_send_outcome import InvitationSendOutcome
+
+T = TypeVar("T", bound="InvitationResponse")
 
 
 @_attrs_define
-class PasswordResetResponse:
-    """The one-time credential, and who it belongs to.
+class InvitationResponse:
+    """What `POST .../invitation` emailed, and for how long the link lasts.
 
-    Temporary by construction: the participant is made to change it at next
-    login, so what travels back here is a handover and never their password.
+    No credential travels here: the person sets their own through the link
+    Keycloak sends. `actions` says which email it was — `UPDATE_PASSWORD` and
+    `VERIFY_EMAIL` for an account with no password (an invitation),
+    `UPDATE_PASSWORD` alone for one that has a password (a reset).
 
         Attributes:
-            temporary_password (str):
+            actions (list[str]):
+            invitation (InvitationSendOutcome): What `POST .../invitation` did: sent, or refused by the dev list.
+            lifespan (int): Seconds the link stays usable
             user_id (str):
             username (str):
     """
 
-    temporary_password: str
+    actions: list[str]
+    invitation: InvitationSendOutcome
+    lifespan: int
     user_id: str
     username: str
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
-        temporary_password = self.temporary_password
+        actions = self.actions
+
+        invitation = self.invitation.value
+
+        lifespan = self.lifespan
 
         user_id = self.user_id
 
@@ -38,7 +50,9 @@ class PasswordResetResponse:
         field_dict.update(self.additional_properties)
         field_dict.update(
             {
-                "temporary_password": temporary_password,
+                "actions": actions,
+                "invitation": invitation,
+                "lifespan": lifespan,
                 "user_id": user_id,
                 "username": username,
             }
@@ -49,20 +63,26 @@ class PasswordResetResponse:
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
         d = dict(src_dict)
-        temporary_password = d.pop("temporary_password")
+        actions = cast(list[str], d.pop("actions"))
+
+        invitation = InvitationSendOutcome(d.pop("invitation"))
+
+        lifespan = d.pop("lifespan")
 
         user_id = d.pop("user_id")
 
         username = d.pop("username")
 
-        password_reset_response = cls(
-            temporary_password=temporary_password,
+        invitation_response = cls(
+            actions=actions,
+            invitation=invitation,
+            lifespan=lifespan,
             user_id=user_id,
             username=username,
         )
 
-        password_reset_response.additional_properties = d
-        return password_reset_response
+        invitation_response.additional_properties = d
+        return invitation_response
 
     @property
     def additional_keys(self) -> list[str]:

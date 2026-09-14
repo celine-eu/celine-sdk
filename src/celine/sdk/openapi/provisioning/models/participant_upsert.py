@@ -6,6 +6,7 @@ from typing import Any, TypeVar, cast
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
 
+from ..models.locale import Locale
 from ..types import UNSET, Unset
 
 T = TypeVar("T", bound="ParticipantUpsert")
@@ -35,12 +36,20 @@ class ParticipantUpsert:
         Attributes:
             email (str): The participant's address; used to find or create the account
             first_name (None | str | Unset): Given name, optional
+            invite (bool | Unset): Email the participant a link to set their password — only if the account was created in
+                this call or has no password. The outcome is in `invitation`; the upsert never fails because of it. Default:
+                False.
             last_name (None | str | Unset): Family name, optional
+            locale (Locale | None | Unset): The participant's language, used for Keycloak's emails. Written on creation, and
+                on an existing account only if it has none. Needs internationalization enabled on the realm, or Keycloak drops
+                it.
     """
 
     email: str
     first_name: None | str | Unset = UNSET
+    invite: bool | Unset = False
     last_name: None | str | Unset = UNSET
+    locale: Locale | None | Unset = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -52,11 +61,21 @@ class ParticipantUpsert:
         else:
             first_name = self.first_name
 
+        invite = self.invite
+
         last_name: None | str | Unset
         if isinstance(self.last_name, Unset):
             last_name = UNSET
         else:
             last_name = self.last_name
+
+        locale: None | str | Unset
+        if isinstance(self.locale, Unset):
+            locale = UNSET
+        elif isinstance(self.locale, Locale):
+            locale = self.locale.value
+        else:
+            locale = self.locale
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
@@ -67,8 +86,12 @@ class ParticipantUpsert:
         )
         if first_name is not UNSET:
             field_dict["first_name"] = first_name
+        if invite is not UNSET:
+            field_dict["invite"] = invite
         if last_name is not UNSET:
             field_dict["last_name"] = last_name
+        if locale is not UNSET:
+            field_dict["locale"] = locale
 
         return field_dict
 
@@ -86,6 +109,8 @@ class ParticipantUpsert:
 
         first_name = _parse_first_name(d.pop("first_name", UNSET))
 
+        invite = d.pop("invite", UNSET)
+
         def _parse_last_name(data: object) -> None | str | Unset:
             if data is None:
                 return data
@@ -95,10 +120,29 @@ class ParticipantUpsert:
 
         last_name = _parse_last_name(d.pop("last_name", UNSET))
 
+        def _parse_locale(data: object) -> Locale | None | Unset:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            try:
+                if not isinstance(data, str):
+                    raise TypeError()
+                locale_type_0 = Locale(data)
+
+                return locale_type_0
+            except (TypeError, ValueError, AttributeError, KeyError):
+                pass
+            return cast(Locale | None | Unset, data)
+
+        locale = _parse_locale(d.pop("locale", UNSET))
+
         participant_upsert = cls(
             email=email,
             first_name=first_name,
+            invite=invite,
             last_name=last_name,
+            locale=locale,
         )
 
         participant_upsert.additional_properties = d

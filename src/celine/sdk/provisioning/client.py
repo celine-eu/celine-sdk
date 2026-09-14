@@ -13,6 +13,11 @@ arrives as "unexpected" and would be raised with the status buried. Each is
 turned into :class:`ProvisioningApiError` instead, carrying the code and the
 service's own sentence.
 
+**`invitation` in an answer is an enum, not a string.** The generated schemas
+use plain `Enum`s, so compare `account.invitation.value == "sent"` — or read
+`account.invited` — rather than `account.invitation == "sent"`, which is always
+false.
+
 **A diverging reconcile gets its own exception.** It is neither a refusal nor an
 outage: the sweep provisioned everybody and the realm still disagrees. See
 :class:`ReconcileDivergence`.
@@ -39,18 +44,19 @@ from celine.sdk.openapi.provisioning.api.provisioning import (
     reconcile_reconcile_community_post as _reconcile,
 )
 from celine.sdk.openapi.provisioning.api.provisioning import (
-    reset_password_participants_community_key_password_reset_post as _reset_password,
+    send_invitation_participants_community_key_invitation_post as _send_invitation,
 )
 from celine.sdk.openapi.provisioning.api.provisioning import (
     upsert_participant_participants_community_key_put as _upsert_participant,
 )
-from celine.sdk.openapi.provisioning.models import ParticipantUpsert
+from celine.sdk.openapi.provisioning.models import Locale, ParticipantUpsert
 from celine.sdk.openapi.provisioning.schemas import (
     DisableResponseSchema,
+    InvitationResponseSchema,
     ParticipantResponseSchema,
-    PasswordResetResponseSchema,
     ReconcileResponseSchema,
 )
+from celine.sdk.openapi.provisioning.types import UNSET
 from celine.sdk.provisioning.errors import ProvisioningApiError, ReconcileDivergence
 from celine.sdk.utils.convert import to_schema
 
@@ -61,10 +67,10 @@ class ProvisioningClient:
     """Participant accounts in the celine realm, written through one service.
 
     Covers:
-    - PUT  /participants/{community}/{key}                 - ensure the account
-    - POST /participants/{community}/{key}/password-reset  - one-time credential
-    - POST /participants/{community}/{key}/disable         - revoke access
-    - POST /reconcile/{community}                          - sweep a community
+    - PUT  /participants/{community}/{key}             - ensure the account, optionally invite
+    - POST /participants/{community}/{key}/invitation  - re-send an invitation, or a reset
+    - POST /participants/{community}/{key}/disable     - revoke access
+    - POST /reconcile/{community}                      - sweep a community
 
     Args:
         base_url: Base URL of the provisioning service, on the internal network.
@@ -162,6 +168,8 @@ class ProvisioningClient:
         email: str,
         first_name: Optional[str] = None,
         last_name: Optional[str] = None,
+        locale: Optional[str] = None,
+        invite: bool = False,
         token: Optional[str] = None,
     ) -> ParticipantResponseSchema:
         """Ensure the account exists, is in the REC organization and its org group.
@@ -183,7 +191,19 @@ class ProvisioningClient:
 
         **Write the member row after this returns, not before.** The login then
         exists before the row that keys on it, which is the fail-closed order.
+
+        `locale` is one of `it`, `en`, `es`, and anything else raises
+        `ValueError` before a request is made (the service would answer `422`).
+        It is written on a new account, and on an existing one only if it has
+        none.
+
+        `invite=True` asks Keycloak to email a link to set a password — only for
+        an account created in this call, or one with no password. **It never
+        fails the call.** What happened is in `invitation` (`not_requested`,
+        `sent`, `has_password`, `not_on_dev_list`, `account_disabled`), a reason
+        code to show the operator; `invited` is true only for `sent`.
         """
+        wire_locale = Locale(locale) if locale is not None else UNSET
         client = await self._get_client(token)
         res = await _upsert_participant.asyncio_detailed(
             community=community,
@@ -193,36 +213,42 @@ class ProvisioningClient:
                 email=email,
                 first_name=first_name,
                 last_name=last_name,
+                locale=wire_locale,
+                invite=invite,
             ),
         )
         return to_schema(
             self._check(res, "ensure_participant"), ParticipantResponseSchema
         )
 
-    async def reset_password(
+    async def send_invitation(
         self,
         community: str,
         key: str,
         *,
         token: Optional[str] = None,
-    ) -> PasswordResetResponseSchema:
-        """Issue a one-time credential for a member the registry already holds.
+    ) -> InvitationResponseSchema:
+        """Email a member the registry already holds a link to set their password.
 
-        The credential is **temporary**: the participant has to change it at
-        next login, so what comes back is a handover and never their password.
-        Treat it as one — it should reach the person and nothing else, and it
-        should not be logged.
+        One call, two emails, decided by the account. Without a password it is
+        an invitation (`actions` `UPDATE_PASSWORD` and `VERIFY_EMAIL`, the long
+        invitation lifespan); with one it is a reset (`UPDATE_PASSWORD` only,
+        one hour by default). `lifespan` in the answer is in seconds. No
+        credential is generated or returned: Keycloak sends the link.
 
-        A `404` carried by :class:`ProvisioningApiError` means the registry has
-        no such member, or the realm has no account for one — provision it
-        first.
+        `invitation` is `sent`, or `not_on_dev_list` when the service runs in
+        dev email mode and the address is not allowed — nothing was sent then.
+
+        Refusals arrive as :class:`ProvisioningApiError`: `404` for a member the
+        registry or the realm does not have, `409` for a disabled account, `429`
+        when the same account was emailed within the cooldown (a few minutes).
         """
         client = await self._get_client(token)
-        res = await _reset_password.asyncio_detailed(
+        res = await _send_invitation.asyncio_detailed(
             community=community, key=key, client=client
         )
         return to_schema(
-            self._check(res, "reset_password"), PasswordResetResponseSchema
+            self._check(res, "send_invitation"), InvitationResponseSchema
         )
 
     async def disable(

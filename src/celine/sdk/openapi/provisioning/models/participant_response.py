@@ -6,6 +6,8 @@ from typing import Any, TypeVar
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
 
+from ..models.invitation_outcome import InvitationOutcome
+
 T = TypeVar("T", bound="ParticipantResponse")
 
 
@@ -15,18 +17,29 @@ class ParticipantResponse:
 
     Attributes:
         created (bool): Whether this call created the account. A retry returns false.
+        invitation (InvitationOutcome): Why an upsert did, or did not, send an invitation.
+
+            Mirrors `celine.provisioning.invitation.InvitationOutcome`. A stable reason
+            code the consumer translates for the operator who approved.
+        invited (bool): True if and only if `invitation` is `sent`.
         user_id (str): The Keycloak uuid of the account (not the registry's user_id)
         username (str): What this account authenticates as, read back from Keycloak. This is the value that becomes the
             registry's Member.user_id.
     """
 
     created: bool
+    invitation: InvitationOutcome
+    invited: bool
     user_id: str
     username: str
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
         created = self.created
+
+        invitation = self.invitation.value
+
+        invited = self.invited
 
         user_id = self.user_id
 
@@ -37,6 +50,8 @@ class ParticipantResponse:
         field_dict.update(
             {
                 "created": created,
+                "invitation": invitation,
+                "invited": invited,
                 "user_id": user_id,
                 "username": username,
             }
@@ -49,12 +64,18 @@ class ParticipantResponse:
         d = dict(src_dict)
         created = d.pop("created")
 
+        invitation = InvitationOutcome(d.pop("invitation"))
+
+        invited = d.pop("invited")
+
         user_id = d.pop("user_id")
 
         username = d.pop("username")
 
         participant_response = cls(
             created=created,
+            invitation=invitation,
+            invited=invited,
             user_id=user_id,
             username=username,
         )

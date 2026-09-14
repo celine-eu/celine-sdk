@@ -90,6 +90,11 @@ def sync_detailed(
     meaning, and `created` in the body says which happened; a `201` on one and a
     `200` on the other would make a retry look like a different outcome.
 
+    **`invite` does not change that.** A disabled account, an address outside
+    the dev list or an account that already has a password is still a `200`,
+    with the reason in `invitation`, so an approval is never blocked by its
+    email.
+
     Args:
         community (str):
         key (str):
@@ -156,6 +161,11 @@ def sync(
     meaning, and `created` in the body says which happened; a `201` on one and a
     `200` on the other would make a retry look like a different outcome.
 
+    **`invite` does not change that.** A disabled account, an address outside
+    the dev list or an account that already has a password is still a `200`,
+    with the reason in `invitation`, so an approval is never blocked by its
+    email.
+
     Args:
         community (str):
         key (str):
@@ -216,6 +226,11 @@ async def asyncio_detailed(
     Always `200`. A create and a no-op are the same request with the same
     meaning, and `created` in the body says which happened; a `201` on one and a
     `200` on the other would make a retry look like a different outcome.
+
+    **`invite` does not change that.** A disabled account, an address outside
+    the dev list or an account that already has a password is still a `200`,
+    with the reason in `invitation`, so an approval is never blocked by its
+    email.
 
     Args:
         community (str):
@@ -280,6 +295,11 @@ async def asyncio(
     Always `200`. A create and a no-op are the same request with the same
     meaning, and `created` in the body says which happened; a `201` on one and a
     `200` on the other would make a retry look like a different outcome.
+
+    **`invite` does not change that.** A disabled account, an address outside
+    the dev list or an account that already has a password is still a `200`,
+    with the reason in `invitation`, so an approval is never blocked by its
+    email.
 
     Args:
         community (str):

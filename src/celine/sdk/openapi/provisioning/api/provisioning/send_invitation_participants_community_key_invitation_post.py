@@ -7,7 +7,7 @@ import httpx
 from ... import errors
 from ...client import AuthenticatedClient, Client
 from ...models.http_validation_error import HTTPValidationError
-from ...models.password_reset_response import PasswordResetResponse
+from ...models.invitation_response import InvitationResponse
 from ...types import UNSET, Response, Unset
 
 
@@ -23,7 +23,7 @@ def _get_kwargs(
 
     _kwargs: dict[str, Any] = {
         "method": "post",
-        "url": "/participants/{community}/{key}/password-reset".format(
+        "url": "/participants/{community}/{key}/invitation".format(
             community=quote(str(community), safe=""),
             key=quote(str(key), safe=""),
         ),
@@ -35,9 +35,9 @@ def _get_kwargs(
 
 def _parse_response(
     *, client: AuthenticatedClient | Client, response: httpx.Response
-) -> HTTPValidationError | PasswordResetResponse | None:
+) -> HTTPValidationError | InvitationResponse | None:
     if response.status_code == 200:
-        response_200 = PasswordResetResponse.from_dict(response.json())
+        response_200 = InvitationResponse.from_dict(response.json())
 
         return response_200
 
@@ -54,7 +54,7 @@ def _parse_response(
 
 def _build_response(
     *, client: AuthenticatedClient | Client, response: httpx.Response
-) -> Response[HTTPValidationError | PasswordResetResponse]:
+) -> Response[HTTPValidationError | InvitationResponse]:
     return Response(
         status_code=HTTPStatus(response.status_code),
         content=response.content,
@@ -69,11 +69,14 @@ def sync_detailed(
     *,
     client: AuthenticatedClient | Client,
     authorization: None | str | Unset = UNSET,
-) -> Response[HTTPValidationError | PasswordResetResponse]:
-    """Issue a one-time credential for a member
+) -> Response[HTTPValidationError | InvitationResponse]:
+    """Email a member a link to set, or reset, their password
 
-     The credential is temporary: the participant must change it at next
-    login, so what comes back is a handover and never their password.
+     Keycloak emails the link; no credential is generated or returned.
+
+    An account with no password gets an invitation, one with a password gets a
+    reset with a short lifespan. `404` for a member the registry or the realm
+    does not have, `409` for a disabled account, `429` within the cooldown.
 
     Args:
         community (str):
@@ -85,7 +88,7 @@ def sync_detailed(
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Response[HTTPValidationError | PasswordResetResponse]
+        Response[HTTPValidationError | InvitationResponse]
     """
 
     kwargs = _get_kwargs(
@@ -107,11 +110,14 @@ def sync(
     *,
     client: AuthenticatedClient | Client,
     authorization: None | str | Unset = UNSET,
-) -> HTTPValidationError | PasswordResetResponse | None:
-    """Issue a one-time credential for a member
+) -> HTTPValidationError | InvitationResponse | None:
+    """Email a member a link to set, or reset, their password
 
-     The credential is temporary: the participant must change it at next
-    login, so what comes back is a handover and never their password.
+     Keycloak emails the link; no credential is generated or returned.
+
+    An account with no password gets an invitation, one with a password gets a
+    reset with a short lifespan. `404` for a member the registry or the realm
+    does not have, `409` for a disabled account, `429` within the cooldown.
 
     Args:
         community (str):
@@ -123,7 +129,7 @@ def sync(
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        HTTPValidationError | PasswordResetResponse
+        HTTPValidationError | InvitationResponse
     """
 
     return sync_detailed(
@@ -140,11 +146,14 @@ async def asyncio_detailed(
     *,
     client: AuthenticatedClient | Client,
     authorization: None | str | Unset = UNSET,
-) -> Response[HTTPValidationError | PasswordResetResponse]:
-    """Issue a one-time credential for a member
+) -> Response[HTTPValidationError | InvitationResponse]:
+    """Email a member a link to set, or reset, their password
 
-     The credential is temporary: the participant must change it at next
-    login, so what comes back is a handover and never their password.
+     Keycloak emails the link; no credential is generated or returned.
+
+    An account with no password gets an invitation, one with a password gets a
+    reset with a short lifespan. `404` for a member the registry or the realm
+    does not have, `409` for a disabled account, `429` within the cooldown.
 
     Args:
         community (str):
@@ -156,7 +165,7 @@ async def asyncio_detailed(
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Response[HTTPValidationError | PasswordResetResponse]
+        Response[HTTPValidationError | InvitationResponse]
     """
 
     kwargs = _get_kwargs(
@@ -176,11 +185,14 @@ async def asyncio(
     *,
     client: AuthenticatedClient | Client,
     authorization: None | str | Unset = UNSET,
-) -> HTTPValidationError | PasswordResetResponse | None:
-    """Issue a one-time credential for a member
+) -> HTTPValidationError | InvitationResponse | None:
+    """Email a member a link to set, or reset, their password
 
-     The credential is temporary: the participant must change it at next
-    login, so what comes back is a handover and never their password.
+     Keycloak emails the link; no credential is generated or returned.
+
+    An account with no password gets an invitation, one with a password gets a
+    reset with a short lifespan. `404` for a member the registry or the realm
+    does not have, `409` for a disabled account, `429` within the cooldown.
 
     Args:
         community (str):
@@ -192,7 +204,7 @@ async def asyncio(
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        HTTPValidationError | PasswordResetResponse
+        HTTPValidationError | InvitationResponse
     """
 
     return (

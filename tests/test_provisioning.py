@@ -20,6 +20,8 @@ wrong:
 
 from __future__ import annotations
 
+import json
+
 import httpx
 import pytest
 
@@ -43,11 +45,19 @@ def _answer(code: int, payload):
     return handle
 
 
-ACCOUNT = {"user_id": "3f1c-uuid", "username": "gl-00001", "created": True}
-RESET = {
+ACCOUNT = {
     "user_id": "3f1c-uuid",
     "username": "gl-00001",
-    "temporary_password": "Xk7@mQ2rTb9pLw3n",
+    "created": True,
+    "invitation": "not_requested",
+    "invited": False,
+}
+INVITED = {
+    "user_id": "3f1c-uuid",
+    "username": "gl-00001",
+    "invitation": "sent",
+    "actions": ["UPDATE_PASSWORD", "VERIFY_EMAIL"],
+    "lifespan": 604800,
 }
 DISABLED = {"user_id": "3f1c-uuid", "username": "gl-00001", "changed": True}
 SWEPT = {
@@ -133,15 +143,89 @@ class TestEnsuringAParticipant:
         assert seen == []
 
 
+class TestTheInvitation:
+    async def test_locale_and_invite_travel_in_the_body(self, mock_http):
+        seen = mock_http(_answer(200, {**ACCOUNT, "invitation": "sent", "invited": True}))
+
+        await _client().ensure_participant(
+            "greenland", "k", email="a@example.org", locale="es", invite=True
+        )
+
+        body = json.loads(seen[0].content)
+        assert body["locale"] == "es"
+        assert body["invite"] is True
+
+    async def test_without_them_no_locale_is_sent_and_invite_is_false(self, mock_http):
+        seen = mock_http(_answer(200, ACCOUNT))
+
+        await _client().ensure_participant("greenland", "k", email="a@example.org")
+
+        body = json.loads(seen[0].content)
+        assert "locale" not in body
+        assert body["invite"] is False
+
+    async def test_a_locale_the_service_would_refuse_is_refused_before_the_request(
+        self, mock_http
+    ):
+        seen = mock_http(_answer(200, ACCOUNT))
+
+        with pytest.raises(ValueError):
+            await _client().ensure_participant(
+                "greenland", "k", email="a@example.org", locale="fr"
+            )
+
+        assert seen == []
+
+    @pytest.mark.parametrize(
+        "invitation",
+        ["not_requested", "sent", "has_password", "not_on_dev_list", "account_disabled"],
+    )
+    async def test_the_upsert_says_what_happened_to_the_invitation(
+        self, mock_http, invitation
+    ):
+        """A reason code the consumer shows the operator who approved. It is
+        an enum in the schema, so `.value` is the string."""
+        mock_http(
+            _answer(
+                200,
+                {**ACCOUNT, "invitation": invitation, "invited": invitation == "sent"},
+            )
+        )
+
+        account = await _client().ensure_participant(
+            "greenland", "k", email="a@example.org", invite=True
+        )
+
+        assert account.invitation.value == invitation
+        assert account.invited is (invitation == "sent")
+
+    async def test_an_invitation_reports_the_actions_and_the_lifespan(self, mock_http):
+        seen = mock_http(_answer(200, INVITED))
+
+        result = await _client().send_invitation("greenland", "gl-00001")
+
+        assert result.invitation.value == "sent"
+        assert result.actions == ["UPDATE_PASSWORD", "VERIFY_EMAIL"]
+        assert result.lifespan == 604800
+        assert seen[0].method == "POST"
+        assert seen[0].url.path == "/participants/greenland/gl-00001/invitation"
+
+    @pytest.mark.parametrize("code", [404, 409, 429])
+    async def test_a_refused_invitation_raises_with_the_status(self, mock_http, code):
+        mock_http(_answer(code, {"detail": "greenland/gl-00001: refused"}))
+
+        with pytest.raises(ProvisioningApiError) as excinfo:
+            await _client().send_invitation("greenland", "gl-00001")
+
+        assert excinfo.value.status_code == code
+        assert "refused" in excinfo.value.detail
+
+    async def test_reset_password_is_gone(self):
+        """It handed back a temporary password with no channel to deliver it."""
+        assert not hasattr(ProvisioningClient, "reset_password")
+
+
 class TestTheLifecycleCalls:
-    async def test_a_reset_hands_back_the_one_time_credential(self, mock_http):
-        mock_http(_answer(200, RESET))
-
-        result = await _client().reset_password("greenland", "gl-00001")
-
-        assert result.temporary_password == "Xk7@mQ2rTb9pLw3n"
-        assert result.username == "gl-00001"
-
     async def test_disabling_reports_whether_it_changed_anything(self, mock_http):
         mock_http(_answer(200, {**DISABLED, "changed": False}))
 
@@ -149,14 +233,6 @@ class TestTheLifecycleCalls:
 
         # Already revoked. Not a failure, and it must not be reported as one.
         assert result.changed is False
-
-    async def test_the_reset_route_is_the_one_the_service_declares(self, mock_http):
-        seen = mock_http(_answer(200, RESET))
-
-        await _client().reset_password("greenland", "gl-00001")
-
-        assert seen[0].method == "POST"
-        assert seen[0].url.path == "/participants/greenland/gl-00001/password-reset"
 
     async def test_the_disable_route_is_the_one_the_service_declares(self, mock_http):
         # A second `mock_http` in one test does not replace the first — the
@@ -203,7 +279,7 @@ class TestWhatRefusalsMean:
         mock_http(_answer(502, {"detail": "Could not export from http://registry"}))
 
         with pytest.raises(ProvisioningApiError) as excinfo:
-            await _client().reset_password("greenland", "gl-00001")
+            await _client().send_invitation("greenland", "gl-00001")
 
         assert excinfo.value.status_code == 502
 
