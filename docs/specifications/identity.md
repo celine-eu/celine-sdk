@@ -97,7 +97,10 @@ such a service must read the two levels apart and not call this function.
 authoritative (Keycloak's client-credentials convention) and `gty=client-credentials` as an
 equivalent signal from other providers. An email, any group, or any other
 `preferred_username` marks a human. Failing all of those, a token carrying a client id and
-no email is a service.
+no email is a service, and so is a token whose Keycloak grant marker (the `jti` prefix Keycloak
+26 writes, e.g. `trrtcc:`) names client credentials. A realm that does not assign Keycloak's
+built-in `service_account` scope issues such tokens with neither `preferred_username` nor
+`client_id`.
 
 The platform authorises services by scope and users by group membership; this is the
 function that decides which of the two a caller is.

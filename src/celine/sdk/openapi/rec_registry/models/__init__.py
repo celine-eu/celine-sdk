@@ -69,6 +69,7 @@ from .lookup_by_delivery_point_response import LookupByDeliveryPointResponse
 from .lookup_by_sensor_id_response import LookupBySensorIdResponse
 from .lookup_by_user_id_response import LookupByUserIdResponse
 from .member_create import MemberCreate
+from .member_create_extra_type_0 import MemberCreateExtraType0
 from .member_detail import MemberDetail
 from .member_detail_extra import MemberDetailExtra
 from .member_in import MemberIn
@@ -202,6 +203,7 @@ __all__ = (
     "LookupBySensorIdResponse",
     "LookupByUserIdResponse",
     "MemberCreate",
+    "MemberCreateExtraType0",
     "MemberDetail",
     "MemberDetailExtra",
     "MemberIn",

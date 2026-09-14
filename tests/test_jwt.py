@@ -215,6 +215,53 @@ class TestIsServiceAccount:
         assert is_service_account(claims) is True
 
     # @verifies REQ-0031
+    def test_a_keycloak_client_credentials_token_without_the_service_account_scope(self):
+        """Measured on the celine dev realm, Keycloak 26.7.3, 2026-09-14.
+
+        The sync assigns exactly the declared scopes, so Keycloak's built-in
+        `service_account` scope is absent: no `preferred_username`, no `client_id`.
+        """
+        claims = {
+            "exp": 1789401714,
+            "iat": 1789401414,
+            "jti": "trrtcc:9d3dab58-9f8e-b9ad-2a2c-380dd8312b0d",
+            "iss": "http://keycloak.celine.localhost/realms/celine",
+            "aud": ["svc-digital-twin", "svc-onboarding"],
+            "sub": "447989f5-9e75-459b-a77e-75cb515c85b3",
+            "typ": "Bearer",
+            "azp": "svc-community",
+            "scope": "community.read onboarding.members.invite",
+        }
+        assert is_service_account(claims) is True
+
+    # @verifies REQ-0031
+    @pytest.mark.parametrize("jti", ["onrtro:5f0e", "onrtrt:5f0e", "onrtac:5f0e"])
+    def test_a_keycloak_user_grant_stripped_of_identity_claims_is_not_a_service(self, jti):
+        """Only the client-credentials marker counts; `azp` without a session is not enough."""
+        claims = {"jti": jti, "azp": "some-client", "sub": "u", "scope": "community.read"}
+        assert is_service_account(claims) is False
+
+    # @verifies REQ-0031
+    def test_a_measured_keycloak_user_token_stays_a_user(self):
+        """Password grant through oauth2_proxy on the same realm, same day."""
+        claims = {
+            "jti": "onrtro:1c7a",
+            "azp": "oauth2_proxy",
+            "sid": "8f1e",
+            "sub": "11111111-1111-1111-1111-111111111111",
+            "preferred_username": "admin",
+            "email": "admin@celine.localhost",
+            "groups": ["/admins"],
+            "scope": "openid email profile",
+        }
+        assert is_service_account(claims) is False
+
+    # @verifies REQ-0031
+    @pytest.mark.parametrize("jti", ["trrtcc", "cc:abc", "TRRTCC:abc", 42, None, "a-random-uuid"])
+    def test_a_jti_that_is_not_keycloaks_marker_grants_nothing(self, jti):
+        assert is_service_account({"jti": jti, "azp": "x"}) is False
+
+    # @verifies REQ-0031
     def test_empty_claims(self):
         assert is_service_account({}) is False
 

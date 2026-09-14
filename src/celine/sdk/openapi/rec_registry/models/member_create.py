@@ -11,6 +11,7 @@ from ..types import UNSET, Unset
 if TYPE_CHECKING:
     from ..models.asset_collection_in import AssetCollectionIn
     from ..models.delivery_point_in import DeliveryPointIn
+    from ..models.member_create_extra_type_0 import MemberCreateExtraType0
 
 
 T = TypeVar("T", bound="MemberCreate")
@@ -31,6 +32,7 @@ class MemberCreate:
             assets (AssetCollectionIn | Unset): Collection of assets organized by type.
             delivery_points (list[DeliveryPointIn] | Unset):
             did (None | str | Unset):
+            extra (MemberCreateExtraType0 | None | Unset):
             key (None | str | Unset):
             type_ (None | str | Unset):
     """
@@ -43,11 +45,14 @@ class MemberCreate:
     assets: AssetCollectionIn | Unset = UNSET
     delivery_points: list[DeliveryPointIn] | Unset = UNSET
     did: None | str | Unset = UNSET
+    extra: MemberCreateExtraType0 | None | Unset = UNSET
     key: None | str | Unset = UNSET
     type_: None | str | Unset = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
+        from ..models.member_create_extra_type_0 import MemberCreateExtraType0
+
         area = self.area
 
         name = self.name
@@ -74,6 +79,14 @@ class MemberCreate:
             did = UNSET
         else:
             did = self.did
+
+        extra: dict[str, Any] | None | Unset
+        if isinstance(self.extra, Unset):
+            extra = UNSET
+        elif isinstance(self.extra, MemberCreateExtraType0):
+            extra = self.extra.to_dict()
+        else:
+            extra = self.extra
 
         key: None | str | Unset
         if isinstance(self.key, Unset):
@@ -104,6 +117,8 @@ class MemberCreate:
             field_dict["delivery_points"] = delivery_points
         if did is not UNSET:
             field_dict["did"] = did
+        if extra is not UNSET:
+            field_dict["extra"] = extra
         if key is not UNSET:
             field_dict["key"] = key
         if type_ is not UNSET:
@@ -115,6 +130,7 @@ class MemberCreate:
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
         from ..models.asset_collection_in import AssetCollectionIn
         from ..models.delivery_point_in import DeliveryPointIn
+        from ..models.member_create_extra_type_0 import MemberCreateExtraType0
 
         d = dict(src_dict)
         area = d.pop("area")
@@ -152,6 +168,23 @@ class MemberCreate:
 
         did = _parse_did(d.pop("did", UNSET))
 
+        def _parse_extra(data: object) -> MemberCreateExtraType0 | None | Unset:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            try:
+                if not isinstance(data, dict):
+                    raise TypeError()
+                extra_type_0 = MemberCreateExtraType0.from_dict(data)
+
+                return extra_type_0
+            except (TypeError, ValueError, AttributeError, KeyError):
+                pass
+            return cast(MemberCreateExtraType0 | None | Unset, data)
+
+        extra = _parse_extra(d.pop("extra", UNSET))
+
         def _parse_key(data: object) -> None | str | Unset:
             if data is None:
                 return data
@@ -179,6 +212,7 @@ class MemberCreate:
             assets=assets,
             delivery_points=delivery_points,
             did=did,
+            extra=extra,
             key=key,
             type_=type_,
         )

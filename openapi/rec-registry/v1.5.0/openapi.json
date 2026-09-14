@@ -1942,6 +1942,18 @@
             ],
             "title": "Did"
           },
+          "extra": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Extra"
+          },
           "key": {
             "anyOf": [
               {

@@ -5,6 +5,7 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from functools import lru_cache
 import logging
+import re
 from typing import Any, Optional
 import time
 
@@ -135,6 +136,18 @@ def extract_groups(claims: dict) -> list[str]:
     return result
 
 
+#: Keycloak 26 prefixes a token's `jti` with how it was issued: two letters for the
+#: session kind, `rt`, then two for the grant. Measured on 26.7.3: `onrtro:` for a
+#: password grant, `onrtrt:` for a refresh, `trrtcc:` for client credentials.
+_KEYCLOAK_GRANT = re.compile(r"^[a-z]{2}rt([a-z]{2}):")
+
+
+def _keycloak_grant(jti: Any) -> str | None:
+    """The two-letter grant Keycloak encoded in *jti*, or None if it encoded none."""
+    match = _KEYCLOAK_GRANT.match(jti) if isinstance(jti, str) else None
+    return match.group(1) if match else None
+
+
 def is_service_account(claims: dict) -> bool:
     """
     Detect a Keycloak client_credentials service account token.
@@ -166,8 +179,17 @@ def is_service_account(claims: dict) -> bool:
     if preferred_username and not preferred_username.startswith("service-account-"):
         return False
 
-    # Generic heuristic: has client_id/azp but no email (no human behind the token)
+    # Generic heuristic: has client_id but no email (no human behind the token)
     if claims.get("client_id") and not claims.get("email"):
+        return True
+
+    # Keycloak's own record of the grant. A realm whose clients do not carry the
+    # built-in `service_account` scope (celine-policies' sync assigns exactly the
+    # declared scopes) issues client-credentials tokens with neither
+    # `preferred_username` nor `client_id`: only `azp`, `sub` and `scope`. `azp`
+    # alone would not do, because a user token can lose its identity claims too;
+    # the grant cannot be anything but client credentials.
+    if _keycloak_grant(claims.get("jti")) == "cc":
         return True
 
     return False
