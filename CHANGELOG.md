@@ -2,6 +2,14 @@
 
 <!-- version list -->
 
+## v1.19.0 (2026-09-14)
+
+### Features
+
+- Review provisioning api, add email invitation
+  ([`e8c5578`](https://github.com/celine-eu/celine-sdk/commit/e8c5578fdf44acb2ecc7a8eea863f8e19f6b9d90))
+
+
 ## v1.18.0 (2026-09-14)
 
 ### Features
