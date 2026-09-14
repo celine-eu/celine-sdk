@@ -17,8 +17,8 @@ class InvitationResponse:
 
     No credential travels here: the person sets their own through the link
     Keycloak sends. `actions` says which email it was — `UPDATE_PASSWORD` and
-    `VERIFY_EMAIL` for an account with no password (an invitation),
-    `UPDATE_PASSWORD` alone for one that has a password (a reset).
+    `VERIFY_EMAIL` for intent `invitation`, `UPDATE_PASSWORD` alone for intent
+    `password_reset`.
 
         Attributes:
             actions (list[str]):

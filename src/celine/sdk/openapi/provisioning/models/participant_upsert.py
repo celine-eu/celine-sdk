@@ -36,9 +36,9 @@ class ParticipantUpsert:
         Attributes:
             email (str): The participant's address; used to find or create the account
             first_name (None | str | Unset): Given name, optional
-            invite (bool | Unset): Email the participant a link to set their password — only if the account was created in
-                this call or has no password. The outcome is in `invitation`; the upsert never fails because of it. Default:
-                False.
+            invite (bool | Unset): Email the participant an invitation to set their password — only if the account was
+                created in this call or has no password. Never a reset. The outcome is in `invitation`; the upsert never fails
+                because of it. Default: False.
             last_name (None | str | Unset): Family name, optional
             locale (Locale | None | Unset): The participant's language, used for Keycloak's emails. Written on creation, and
                 on an existing account only if it has none. Needs internationalization enabled on the realm, or Keycloak drops

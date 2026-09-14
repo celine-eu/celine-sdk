@@ -6,6 +6,7 @@ import httpx
 
 from ... import errors
 from ...client import AuthenticatedClient, Client
+from ...models.error_response import ErrorResponse
 from ...models.http_validation_error import HTTPValidationError
 from ...models.participant_response import ParticipantResponse
 from ...models.participant_upsert import ParticipantUpsert
@@ -41,16 +42,31 @@ def _get_kwargs(
 
 def _parse_response(
     *, client: AuthenticatedClient | Client, response: httpx.Response
-) -> HTTPValidationError | ParticipantResponse | None:
+) -> ErrorResponse | HTTPValidationError | ParticipantResponse | None:
     if response.status_code == 200:
         response_200 = ParticipantResponse.from_dict(response.json())
 
         return response_200
 
+    if response.status_code == 401:
+        response_401 = ErrorResponse.from_dict(response.json())
+
+        return response_401
+
+    if response.status_code == 403:
+        response_403 = ErrorResponse.from_dict(response.json())
+
+        return response_403
+
     if response.status_code == 422:
         response_422 = HTTPValidationError.from_dict(response.json())
 
         return response_422
+
+    if response.status_code == 502:
+        response_502 = ErrorResponse.from_dict(response.json())
+
+        return response_502
 
     if client.raise_on_unexpected_status:
         raise errors.UnexpectedStatus(response.status_code, response.content)
@@ -60,7 +76,7 @@ def _parse_response(
 
 def _build_response(
     *, client: AuthenticatedClient | Client, response: httpx.Response
-) -> Response[HTTPValidationError | ParticipantResponse]:
+) -> Response[ErrorResponse | HTTPValidationError | ParticipantResponse]:
     return Response(
         status_code=HTTPStatus(response.status_code),
         content=response.content,
@@ -76,7 +92,7 @@ def sync_detailed(
     client: AuthenticatedClient | Client,
     body: ParticipantUpsert,
     authorization: None | str | Unset = UNSET,
-) -> Response[HTTPValidationError | ParticipantResponse]:
+) -> Response[ErrorResponse | HTTPValidationError | ParticipantResponse]:
     """Ensure a participant's account, organization and org group
 
      Find or create the account, and file it in the REC.
@@ -90,10 +106,11 @@ def sync_detailed(
     meaning, and `created` in the body says which happened; a `201` on one and a
     `200` on the other would make a retry look like a different outcome.
 
-    **`invite` does not change that.** A disabled account, an address outside
-    the dev list or an account that already has a password is still a `200`,
-    with the reason in `invitation`, so an approval is never blocked by its
-    email.
+    **`invite` does not change that.** A disabled account, an account that
+    already has a password, one with no email address, one emailed within the
+    cooldown, an address outside the dev list or a send Keycloak did not
+    complete is still a `200`, with the reason in `invitation`, so an approval
+    is never blocked by its email. `invite` only ever means an invitation.
 
     Args:
         community (str):
@@ -123,7 +140,7 @@ def sync_detailed(
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Response[HTTPValidationError | ParticipantResponse]
+        Response[ErrorResponse | HTTPValidationError | ParticipantResponse]
     """
 
     kwargs = _get_kwargs(
@@ -147,7 +164,7 @@ def sync(
     client: AuthenticatedClient | Client,
     body: ParticipantUpsert,
     authorization: None | str | Unset = UNSET,
-) -> HTTPValidationError | ParticipantResponse | None:
+) -> ErrorResponse | HTTPValidationError | ParticipantResponse | None:
     """Ensure a participant's account, organization and org group
 
      Find or create the account, and file it in the REC.
@@ -161,10 +178,11 @@ def sync(
     meaning, and `created` in the body says which happened; a `201` on one and a
     `200` on the other would make a retry look like a different outcome.
 
-    **`invite` does not change that.** A disabled account, an address outside
-    the dev list or an account that already has a password is still a `200`,
-    with the reason in `invitation`, so an approval is never blocked by its
-    email.
+    **`invite` does not change that.** A disabled account, an account that
+    already has a password, one with no email address, one emailed within the
+    cooldown, an address outside the dev list or a send Keycloak did not
+    complete is still a `200`, with the reason in `invitation`, so an approval
+    is never blocked by its email. `invite` only ever means an invitation.
 
     Args:
         community (str):
@@ -194,7 +212,7 @@ def sync(
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        HTTPValidationError | ParticipantResponse
+        ErrorResponse | HTTPValidationError | ParticipantResponse
     """
 
     return sync_detailed(
@@ -213,7 +231,7 @@ async def asyncio_detailed(
     client: AuthenticatedClient | Client,
     body: ParticipantUpsert,
     authorization: None | str | Unset = UNSET,
-) -> Response[HTTPValidationError | ParticipantResponse]:
+) -> Response[ErrorResponse | HTTPValidationError | ParticipantResponse]:
     """Ensure a participant's account, organization and org group
 
      Find or create the account, and file it in the REC.
@@ -227,10 +245,11 @@ async def asyncio_detailed(
     meaning, and `created` in the body says which happened; a `201` on one and a
     `200` on the other would make a retry look like a different outcome.
 
-    **`invite` does not change that.** A disabled account, an address outside
-    the dev list or an account that already has a password is still a `200`,
-    with the reason in `invitation`, so an approval is never blocked by its
-    email.
+    **`invite` does not change that.** A disabled account, an account that
+    already has a password, one with no email address, one emailed within the
+    cooldown, an address outside the dev list or a send Keycloak did not
+    complete is still a `200`, with the reason in `invitation`, so an approval
+    is never blocked by its email. `invite` only ever means an invitation.
 
     Args:
         community (str):
@@ -260,7 +279,7 @@ async def asyncio_detailed(
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Response[HTTPValidationError | ParticipantResponse]
+        Response[ErrorResponse | HTTPValidationError | ParticipantResponse]
     """
 
     kwargs = _get_kwargs(
@@ -282,7 +301,7 @@ async def asyncio(
     client: AuthenticatedClient | Client,
     body: ParticipantUpsert,
     authorization: None | str | Unset = UNSET,
-) -> HTTPValidationError | ParticipantResponse | None:
+) -> ErrorResponse | HTTPValidationError | ParticipantResponse | None:
     """Ensure a participant's account, organization and org group
 
      Find or create the account, and file it in the REC.
@@ -296,10 +315,11 @@ async def asyncio(
     meaning, and `created` in the body says which happened; a `201` on one and a
     `200` on the other would make a retry look like a different outcome.
 
-    **`invite` does not change that.** A disabled account, an address outside
-    the dev list or an account that already has a password is still a `200`,
-    with the reason in `invitation`, so an approval is never blocked by its
-    email.
+    **`invite` does not change that.** A disabled account, an account that
+    already has a password, one with no email address, one emailed within the
+    cooldown, an address outside the dev list or a send Keycloak did not
+    complete is still a `200`, with the reason in `invitation`, so an approval
+    is never blocked by its email. `invite` only ever means an invitation.
 
     Args:
         community (str):
@@ -329,7 +349,7 @@ async def asyncio(
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        HTTPValidationError | ParticipantResponse
+        ErrorResponse | HTTPValidationError | ParticipantResponse
     """
 
     return (

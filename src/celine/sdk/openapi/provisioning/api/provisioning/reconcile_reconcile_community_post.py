@@ -1,11 +1,12 @@
 from http import HTTPStatus
-from typing import Any
+from typing import Any, cast
 from urllib.parse import quote
 
 import httpx
 
 from ... import errors
 from ...client import AuthenticatedClient, Client
+from ...models.error_response import ErrorResponse
 from ...models.http_validation_error import HTTPValidationError
 from ...models.reconcile_response import ReconcileResponse
 from ...types import UNSET, Response, Unset
@@ -33,16 +34,40 @@ def _get_kwargs(
 
 def _parse_response(
     *, client: AuthenticatedClient | Client, response: httpx.Response
-) -> HTTPValidationError | ReconcileResponse | None:
+) -> Any | ErrorResponse | HTTPValidationError | ReconcileResponse | None:
     if response.status_code == 200:
         response_200 = ReconcileResponse.from_dict(response.json())
 
         return response_200
 
+    if response.status_code == 401:
+        response_401 = ErrorResponse.from_dict(response.json())
+
+        return response_401
+
+    if response.status_code == 403:
+        response_403 = ErrorResponse.from_dict(response.json())
+
+        return response_403
+
+    if response.status_code == 404:
+        response_404 = ErrorResponse.from_dict(response.json())
+
+        return response_404
+
     if response.status_code == 422:
         response_422 = HTTPValidationError.from_dict(response.json())
 
         return response_422
+
+    if response.status_code == 500:
+        response_500 = cast(Any, None)
+        return response_500
+
+    if response.status_code == 502:
+        response_502 = ErrorResponse.from_dict(response.json())
+
+        return response_502
 
     if client.raise_on_unexpected_status:
         raise errors.UnexpectedStatus(response.status_code, response.content)
@@ -52,7 +77,7 @@ def _parse_response(
 
 def _build_response(
     *, client: AuthenticatedClient | Client, response: httpx.Response
-) -> Response[HTTPValidationError | ReconcileResponse]:
+) -> Response[Any | ErrorResponse | HTTPValidationError | ReconcileResponse]:
     return Response(
         status_code=HTTPStatus(response.status_code),
         content=response.content,
@@ -66,7 +91,7 @@ def sync_detailed(
     *,
     client: AuthenticatedClient | Client,
     authorization: None | str | Unset = UNSET,
-) -> Response[HTTPValidationError | ReconcileResponse]:
+) -> Response[Any | ErrorResponse | HTTPValidationError | ReconcileResponse]:
     """Sweep one community from the registry
 
      Provision every active member the registry holds, then assert that each
@@ -90,7 +115,7 @@ def sync_detailed(
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Response[HTTPValidationError | ReconcileResponse]
+        Response[Any | ErrorResponse | HTTPValidationError | ReconcileResponse]
     """
 
     kwargs = _get_kwargs(
@@ -110,7 +135,7 @@ def sync(
     *,
     client: AuthenticatedClient | Client,
     authorization: None | str | Unset = UNSET,
-) -> HTTPValidationError | ReconcileResponse | None:
+) -> Any | ErrorResponse | HTTPValidationError | ReconcileResponse | None:
     """Sweep one community from the registry
 
      Provision every active member the registry holds, then assert that each
@@ -134,7 +159,7 @@ def sync(
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        HTTPValidationError | ReconcileResponse
+        Any | ErrorResponse | HTTPValidationError | ReconcileResponse
     """
 
     return sync_detailed(
@@ -149,7 +174,7 @@ async def asyncio_detailed(
     *,
     client: AuthenticatedClient | Client,
     authorization: None | str | Unset = UNSET,
-) -> Response[HTTPValidationError | ReconcileResponse]:
+) -> Response[Any | ErrorResponse | HTTPValidationError | ReconcileResponse]:
     """Sweep one community from the registry
 
      Provision every active member the registry holds, then assert that each
@@ -173,7 +198,7 @@ async def asyncio_detailed(
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Response[HTTPValidationError | ReconcileResponse]
+        Response[Any | ErrorResponse | HTTPValidationError | ReconcileResponse]
     """
 
     kwargs = _get_kwargs(
@@ -191,7 +216,7 @@ async def asyncio(
     *,
     client: AuthenticatedClient | Client,
     authorization: None | str | Unset = UNSET,
-) -> HTTPValidationError | ReconcileResponse | None:
+) -> Any | ErrorResponse | HTTPValidationError | ReconcileResponse | None:
     """Sweep one community from the registry
 
      Provision every active member the registry holds, then assert that each
@@ -215,7 +240,7 @@ async def asyncio(
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        HTTPValidationError | ReconcileResponse
+        Any | ErrorResponse | HTTPValidationError | ReconcileResponse
     """
 
     return (

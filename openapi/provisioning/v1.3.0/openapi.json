@@ -1,0 +1,853 @@
+{
+  "components": {
+    "schemas": {
+      "DisableResponse": {
+        "description": "Whether the account was disabled, or already was.\n\n`changed` is false for a revocation that was already in force, which must\nnot read as a revocation that just happened.",
+        "properties": {
+          "changed": {
+            "title": "Changed",
+            "type": "boolean"
+          },
+          "user_id": {
+            "title": "User Id",
+            "type": "string"
+          },
+          "username": {
+            "title": "Username",
+            "type": "string"
+          }
+        },
+        "required": [
+          "user_id",
+          "username",
+          "changed"
+        ],
+        "title": "DisableResponse",
+        "type": "object"
+      },
+      "DivergenceModel": {
+        "description": "One member whose Keycloak state does not match the registry.",
+        "properties": {
+          "detail": {
+            "default": "",
+            "title": "Detail",
+            "type": "string"
+          },
+          "key": {
+            "title": "Key",
+            "type": "string"
+          },
+          "kind": {
+            "title": "Kind",
+            "type": "string"
+          },
+          "username": {
+            "title": "Username",
+            "type": "string"
+          }
+        },
+        "required": [
+          "key",
+          "username",
+          "kind"
+        ],
+        "title": "DivergenceModel",
+        "type": "object"
+      },
+      "ErrorDetail": {
+        "description": "`detail` in every error body except `422`, which is FastAPI's own list.\n\n`message` is the service's sentence, naming the member or the scope. It is\nfor a log or an operator, and it is not a contract.\n\n**`code` is a string, not an enum, on purpose.** A generated client turns an\nenum into a strict type that raises on a value it has never seen, so every\nnew code would break every consumer that has not regenerated \u2014 on the error\npath, where a crash hides the refusal it was meant to report. The codes are\nlisted in the description and in `docs/api-reference.md`.",
+        "properties": {
+          "code": {
+            "description": "Stable machine-readable reason: `missing_token`, `invalid_token`, `insufficient_scope`, `community_not_found`, `member_not_found`, `account_not_found`, `account_disabled`, `has_password`, `no_password`, `no_email`, `cooldown`, `reconcile_diverged`, `registry_unavailable`, `send_failed`, `provisioning_failed`. New codes may be added: branch on the HTTP status for one you do not know.",
+            "title": "Code",
+            "type": "string"
+          },
+          "message": {
+            "description": "A human sentence. Not a contract.",
+            "title": "Message",
+            "type": "string"
+          }
+        },
+        "required": [
+          "code",
+          "message"
+        ],
+        "title": "ErrorDetail",
+        "type": "object"
+      },
+      "ErrorResponse": {
+        "description": "`{\"detail\": {\"code\": \"...\", \"message\": \"...\"}}`.\n\n`detail` stays the top-level key, so a consumer that already reads\n`detail` keeps finding it; it is an object rather than a string.",
+        "properties": {
+          "detail": {
+            "$ref": "#/components/schemas/ErrorDetail"
+          }
+        },
+        "required": [
+          "detail"
+        ],
+        "title": "ErrorResponse",
+        "type": "object"
+      },
+      "HTTPValidationError": {
+        "properties": {
+          "detail": {
+            "items": {
+              "$ref": "#/components/schemas/ValidationError"
+            },
+            "title": "Detail",
+            "type": "array"
+          }
+        },
+        "title": "HTTPValidationError",
+        "type": "object"
+      },
+      "InvitationIntent": {
+        "description": "Which email the caller of `POST .../invitation` asks for.\n\nExplicit, and required, so the email is always the button a person pressed\n(requester, 2026-09-14, A2: \"do not trick the user\"). The service checks it\nagainst the account in the same call that sends and refuses a mismatch.",
+        "enum": [
+          "invitation",
+          "password_reset"
+        ],
+        "title": "InvitationIntent",
+        "type": "string"
+      },
+      "InvitationOutcome": {
+        "description": "Why an upsert did, or did not, send an invitation.\n\nMirrors `celine.provisioning.invitation.InvitationOutcome`. A stable reason\ncode the consumer translates for the operator who approved.",
+        "enum": [
+          "not_requested",
+          "sent",
+          "has_password",
+          "not_on_dev_list",
+          "account_disabled",
+          "cooldown",
+          "send_failed",
+          "no_email"
+        ],
+        "title": "InvitationOutcome",
+        "type": "string"
+      },
+      "InvitationRequest": {
+        "description": "The body of `POST /participants/{community}/{key}/invitation`.",
+        "properties": {
+          "intent": {
+            "$ref": "#/components/schemas/InvitationIntent",
+            "description": "`invitation`: set a first password (`UPDATE_PASSWORD` + `VERIFY_EMAIL`, 7 days); refused `409 has_password` when the account has one. `password_reset`: replace it (`UPDATE_PASSWORD`, 1 hour); refused `409 no_password` when the account has none. Never turned into the other."
+          }
+        },
+        "required": [
+          "intent"
+        ],
+        "title": "InvitationRequest",
+        "type": "object"
+      },
+      "InvitationResponse": {
+        "description": "What `POST .../invitation` emailed, and for how long the link lasts.\n\nNo credential travels here: the person sets their own through the link\nKeycloak sends. `actions` says which email it was \u2014 `UPDATE_PASSWORD` and\n`VERIFY_EMAIL` for intent `invitation`, `UPDATE_PASSWORD` alone for intent\n`password_reset`.",
+        "properties": {
+          "actions": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Actions",
+            "type": "array"
+          },
+          "invitation": {
+            "$ref": "#/components/schemas/InvitationSendOutcome",
+            "description": "`sent`, or `not_on_dev_list` when dev email mode refused the address"
+          },
+          "lifespan": {
+            "description": "Seconds the link stays usable",
+            "title": "Lifespan",
+            "type": "integer"
+          },
+          "user_id": {
+            "title": "User Id",
+            "type": "string"
+          },
+          "username": {
+            "title": "Username",
+            "type": "string"
+          }
+        },
+        "required": [
+          "user_id",
+          "username",
+          "invitation",
+          "actions",
+          "lifespan"
+        ],
+        "title": "InvitationResponse",
+        "type": "object"
+      },
+      "InvitationSendOutcome": {
+        "description": "What `POST .../invitation` did: sent, or refused by the dev list.",
+        "enum": [
+          "sent",
+          "not_on_dev_list"
+        ],
+        "title": "InvitationSendOutcome",
+        "type": "string"
+      },
+      "Locale": {
+        "description": "The languages the email and login themes carry.\n\nKeycloak stores any value it is given and silently falls back to the realm\ndefault for one it has no bundle for (measured), so the check is here.",
+        "enum": [
+          "it",
+          "en",
+          "es"
+        ],
+        "title": "Locale",
+        "type": "string"
+      },
+      "ParticipantResponse": {
+        "description": "What the caller cannot compute and has to be told.",
+        "properties": {
+          "created": {
+            "description": "Whether this call created the account. A retry returns false.",
+            "title": "Created",
+            "type": "boolean"
+          },
+          "invitation": {
+            "$ref": "#/components/schemas/InvitationOutcome",
+            "description": "What happened to the invitation: `not_requested` (invite was false), `sent`, `has_password` (nothing to invite to), `not_on_dev_list` (dev email mode, address not allowed), `no_email` (the account has no email address, whatever the mode), `account_disabled`, `cooldown` (this account was emailed within the cooldown; nothing sent), `send_failed` (Keycloak did not send it; no cooldown started, so a retry may send). New codes may be added: show an unknown one raw."
+          },
+          "invited": {
+            "description": "True if and only if `invitation` is `sent`.",
+            "title": "Invited",
+            "type": "boolean"
+          },
+          "user_id": {
+            "description": "The Keycloak uuid of the account (not the registry's user_id)",
+            "title": "User Id",
+            "type": "string"
+          },
+          "username": {
+            "description": "What this account authenticates as, read back from Keycloak. This is the value that becomes the registry's Member.user_id.",
+            "title": "Username",
+            "type": "string"
+          }
+        },
+        "required": [
+          "user_id",
+          "username",
+          "created",
+          "invitation",
+          "invited"
+        ],
+        "title": "ParticipantResponse",
+        "type": "object"
+      },
+      "ParticipantUpsert": {
+        "description": "The body of `PUT /participants/{community}/{key}`.\n\n**The email transits and is stored nowhere.** Not here \u2014 this service keeps\nno state at all \u2014 and not in the registry, which has no email column and is\ngaining none. It is on the account in Keycloak, which is where the address a\nperson logs in with belongs.\n\nIt is required because it is the only thing that can find an account this\nplatform did not name. A participant who already has a login authenticates\nunder whatever convention created it, and the address is the one identifier\nevery writer agrees on.\n\n**A plain string, not `EmailStr`.** The address belongs to the submission\n`../onboarding` already validated and accepted; re-deciding here whether it\nis well formed would mean a person who has been approved cannot be given a\nlogin because two libraries disagree about their address. Non-empty is the\nwhole check, and it exists so a missing value fails here rather than\ncreating an account named the empty string.",
+        "properties": {
+          "email": {
+            "description": "The participant's address; used to find or create the account",
+            "minLength": 1,
+            "title": "Email",
+            "type": "string"
+          },
+          "first_name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Given name, optional",
+            "title": "First Name"
+          },
+          "invite": {
+            "default": false,
+            "description": "Email the participant an invitation to set their password \u2014 only if the account was created in this call or has no password. Never a reset. The outcome is in `invitation`; the upsert never fails because of it.",
+            "title": "Invite",
+            "type": "boolean"
+          },
+          "last_name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Family name, optional",
+            "title": "Last Name"
+          },
+          "locale": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Locale"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "The participant's language, used for Keycloak's emails. Written on creation, and on an existing account only if it has none. Needs internationalization enabled on the realm, or Keycloak drops it."
+          }
+        },
+        "required": [
+          "email"
+        ],
+        "title": "ParticipantUpsert",
+        "type": "object"
+      },
+      "ReconcileResponse": {
+        "description": "What a community sweep did, and what it could not put right.\n\n`divergences` is empty on a healthy run **and a sweep that ends with any is\na failure, reported as one**. The check runs after provisioning, so anything\nit finds is something a provisioning call claimed to have done and had not:\nquietly repairing it on the next sweep is how 10 of 45 members ended up\noutside their own organization with nothing saying so.",
+        "properties": {
+          "community": {
+            "title": "Community",
+            "type": "string"
+          },
+          "created": {
+            "title": "Created",
+            "type": "integer"
+          },
+          "divergences": {
+            "items": {
+              "$ref": "#/components/schemas/DivergenceModel"
+            },
+            "title": "Divergences",
+            "type": "array"
+          },
+          "existing": {
+            "title": "Existing",
+            "type": "integer"
+          },
+          "members": {
+            "title": "Members",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "community",
+          "members",
+          "created",
+          "existing"
+        ],
+        "title": "ReconcileResponse",
+        "type": "object"
+      },
+      "ValidationError": {
+        "properties": {
+          "ctx": {
+            "title": "Context",
+            "type": "object"
+          },
+          "input": {
+            "title": "Input"
+          },
+          "loc": {
+            "items": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "integer"
+                }
+              ]
+            },
+            "title": "Location",
+            "type": "array"
+          },
+          "msg": {
+            "title": "Message",
+            "type": "string"
+          },
+          "type": {
+            "title": "Error Type",
+            "type": "string"
+          }
+        },
+        "required": [
+          "loc",
+          "msg",
+          "type"
+        ],
+        "title": "ValidationError",
+        "type": "object"
+      }
+    }
+  },
+  "info": {
+    "description": "The only writer of participant accounts in the celine realm. Internal: no public route, and authorization by provisioning.* scopes.",
+    "title": "CELINE Provisioning Service",
+    "version": "1.3.0"
+  },
+  "openapi": "3.1.0",
+  "paths": {
+    "/health": {
+      "get": {
+        "description": "Liveness only.\n\nIt deliberately does **not** authenticate against Keycloak. A health\nprobe that reaches the realm turns a Keycloak restart into a cascade of\nrestarted services, and this service's readiness to answer is not the\nsame question as the realm's.",
+        "operationId": "health_check_health_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "summary": "Health Check"
+      }
+    },
+    "/participants/{community}/{key}": {
+      "put": {
+        "description": "Find or create the account, and file it in the REC.\n\nSynchronous rather than a signal, because the caller needs the `username`\nback: it becomes the registry's `Member.user_id`, and it is read from\nKeycloak rather than computed \u2014 an account that already existed may\nauthenticate under a convention nobody here chose.\n\nAlways `200`. A create and a no-op are the same request with the same\nmeaning, and `created` in the body says which happened; a `201` on one and a\n`200` on the other would make a retry look like a different outcome.\n\n**`invite` does not change that.** A disabled account, an account that\nalready has a password, one with no email address, one emailed within the\ncooldown, an address outside the dev list or a send Keycloak did not\ncomplete is still a `200`, with the reason in `invitation`, so an approval\nis never blocked by its email. `invite` only ever means an invitation.",
+        "operationId": "upsert_participant_participants__community___key__put",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "community",
+            "required": true,
+            "schema": {
+              "title": "Community",
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "key",
+            "required": true,
+            "schema": {
+              "title": "Key",
+              "type": "string"
+            }
+          },
+          {
+            "in": "header",
+            "name": "authorization",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ParticipantUpsert"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ParticipantResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "No bearer token (`missing_token`), or it does not verify (`invalid_token`)"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "The token lacks the scope (`insufficient_scope`)"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          },
+          "502": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "A dependency failed: `registry_unavailable`, `send_failed`, `provisioning_failed`"
+          }
+        },
+        "summary": "Ensure a participant's account, organization and org group",
+        "tags": [
+          "Provisioning"
+        ]
+      }
+    },
+    "/participants/{community}/{key}/disable": {
+      "post": {
+        "description": "Disables the account. Nothing is deleted and re-enabling is one call \u2014\nwhat is being revoked is somebody's access to their own energy community.",
+        "operationId": "disable_participant_participants__community___key__disable_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "community",
+            "required": true,
+            "schema": {
+              "title": "Community",
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "key",
+            "required": true,
+            "schema": {
+              "title": "Key",
+              "type": "string"
+            }
+          },
+          {
+            "in": "header",
+            "name": "authorization",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DisableResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "No bearer token (`missing_token`), or it does not verify (`invalid_token`)"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "The token lacks the scope (`insufficient_scope`)"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "`community_not_found`, `member_not_found` or `account_not_found`"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          },
+          "502": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "A dependency failed: `registry_unavailable`, `send_failed`, `provisioning_failed`"
+          }
+        },
+        "summary": "Revoke a member's access",
+        "tags": [
+          "Provisioning"
+        ]
+      }
+    },
+    "/participants/{community}/{key}/invitation": {
+      "post": {
+        "description": "Keycloak emails the link; no credential is generated or returned.\n\nThe body names the email: `invitation` for an account with no password,\n`password_reset` (short lifespan) for one that has one. A mismatch is `409`\n`has_password` or `no_password`, before any send or cooldown, and the\nservice never picks the other email instead. `404` for a community, member\nor account that does not exist (the code says which), `409` for a disabled\naccount or one with no email address (`no_email`), `429` within the\ncooldown of the last email to that account \u2014 sent by this route or by an\nupsert \u2014 and `502` `send_failed` when Keycloak did not send it, which starts\nno cooldown.",
+        "operationId": "send_invitation_participants__community___key__invitation_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "community",
+            "required": true,
+            "schema": {
+              "title": "Community",
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "key",
+            "required": true,
+            "schema": {
+              "title": "Key",
+              "type": "string"
+            }
+          },
+          {
+            "in": "header",
+            "name": "authorization",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/InvitationRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/InvitationResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "No bearer token (`missing_token`), or it does not verify (`invalid_token`)"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "The token lacks the scope (`insufficient_scope`)"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "`community_not_found`, `member_not_found` or `account_not_found`"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "The account's state rules it out: `account_disabled`; on the invitation route also `has_password` (intent `invitation`), `no_password` (intent `password_reset`) and `no_email`"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          },
+          "429": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Emailed within the cooldown (`cooldown`); see `Retry-After`"
+          },
+          "502": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "A dependency failed: `registry_unavailable`, `send_failed`, `provisioning_failed`"
+          }
+        },
+        "summary": "Email a member an invitation, or a password reset, as the caller names",
+        "tags": [
+          "Provisioning"
+        ]
+      }
+    },
+    "/reconcile/{community}": {
+      "post": {
+        "description": "Provision every active member the registry holds, then assert that each\nis in the REC's organization.\n\n**A sweep that ends with a divergence answers `500`**, with the divergences\nin the body. Everything checked is something this same call claimed to have\ndone, so a finding is a provisioning call that reported success and had not\nsucceeded \u2014 a `200` with a list nobody reads is how 10 of 45 members ended\nup outside their own organization with nothing saying so.\n\nWhat calls this on a schedule is a deployment concern. The route is the\nentry point and nothing here is a scheduler.",
+        "operationId": "reconcile_reconcile__community__post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "community",
+            "required": true,
+            "schema": {
+              "title": "Community",
+              "type": "string"
+            }
+          },
+          {
+            "in": "header",
+            "name": "authorization",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ReconcileResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "No bearer token (`missing_token`), or it does not verify (`invalid_token`)"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "The token lacks the scope (`insufficient_scope`)"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "`community_not_found`, `member_not_found` or `account_not_found`"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          },
+          "500": {
+            "description": "The sweep left divergences (`reconcile_diverged`). `detail` is the whole report, with `code` and `message` beside it"
+          },
+          "502": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "A dependency failed: `registry_unavailable`, `send_failed`, `provisioning_failed`"
+          }
+        },
+        "summary": "Sweep one community from the registry",
+        "tags": [
+          "Provisioning"
+        ]
+      }
+    }
+  }
+}

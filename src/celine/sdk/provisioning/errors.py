@@ -14,18 +14,32 @@ from typing import Any
 class ProvisioningApiError(RuntimeError):
     """The provisioning service refused or failed a request.
 
-    It carries the **status code and the service's own detail**, because on this
-    surface they are the answer rather than diagnostics, and they mean different
-    things a caller has to act on differently:
+    It carries the **status code, the service's `code` and its own detail**,
+    because on this surface they are the answer rather than diagnostics.
 
-    - `401` — the credential did not verify. Renew it.
-    - `403` — it verified and does not hold `provisioning.participants.write` or
+    **Branch on :attr:`code`, never on the text.** A 1.2.0+ service answers
+    `{"detail": {"code": ..., "message": ...}}`: `code` is that stable string,
+    `detail` is the dict, and the message is in ``str(exc)``. An older service
+    answered a string `detail`: `code` is then `None`, `detail` is the string,
+    and it is in ``str(exc)`` too. `code` is a plain string, not an enum, so
+    ``exc.code == "cooldown"`` is a real comparison. New codes may appear:
+    fall back to :attr:`status_code` for one you do not know.
+
+    - `401` — `missing_token`, `invalid_token`. Renew the credential.
+    - `403` — `insufficient_scope`: no `provisioning.participants.write` or
       `provisioning.reconcile`. Ask for the grant; retrying will not help.
-    - `404` — no such member, or no Keycloak account for one. For a password
-      reset or a revocation this is often the true answer, not a fault.
-    - `422` — the request carried no address.
-    - `502` — Keycloak or the registry failed. **A dependency, not a refusal**,
-      and the one status here that is worth retrying.
+    - `404` — `community_not_found`, `member_not_found`, `account_not_found`.
+      Only the last means the realm has no account for a member it knows.
+    - `409` — `account_disabled`; on `send_invitation` also `has_password`
+      (asked for an invitation), `no_password` (asked for a reset) and
+      `no_email`. Nothing was sent and no cooldown started.
+    - `422` — the request failed validation: no address on the upsert, or no
+      intent on the invitation. FastAPI's own body; `code` is `None`.
+    - `429` — `cooldown`. :attr:`retry_after` is the seconds to wait.
+    - `500` — `reconcile_diverged`, raised as :class:`ReconcileDivergence`.
+    - `502` — `send_failed`, `registry_unavailable`, `provisioning_failed`.
+      **A dependency, not a refusal**, and worth retrying: a failed send starts
+      no cooldown.
     """
 
     def __init__(
@@ -34,11 +48,24 @@ class ProvisioningApiError(RuntimeError):
         status_code: int | None = None,
         detail: Any = None,
         body: object | None = None,
+        *,
+        code: str | None = None,
+        retry_after: int | None = None,
     ):
         super().__init__(message)
         self.status_code = status_code
         self.detail = detail
         self.body = body
+        self.code = code
+        self.retry_after = retry_after
+
+    @staticmethod
+    def code_of(detail: Any) -> str | None:
+        """`detail["code"]` when `detail` is the 1.2.0+ object, else `None`."""
+        if isinstance(detail, dict):
+            code = detail.get("code")
+            return code if isinstance(code, str) else None
+        return None
 
 
 class ReconcileDivergence(ProvisioningApiError):
@@ -63,7 +90,10 @@ class ReconcileDivergence(ProvisioningApiError):
         divergences: list[dict],
         status_code: int | None = None,
         body: object | None = None,
+        code: str | None = None,
     ):
-        super().__init__(message, status_code=status_code, detail=divergences, body=body)
+        super().__init__(
+            message, status_code=status_code, detail=divergences, body=body, code=code
+        )
         self.community = community
         self.divergences = divergences
