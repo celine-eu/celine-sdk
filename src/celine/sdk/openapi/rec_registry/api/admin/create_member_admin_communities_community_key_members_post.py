@@ -85,7 +85,7 @@ def sync_detailed(
     Args:
         community_key (str):
         body (MemberCreate): Create one member. `key` is minted from the community's own numbering
-            when omitted, so a caller with no opinion still gets `gl-00007` rather than
+            when omitted, so a caller with no opinion still gets `ex-00007` rather than
             something that reads as foreign in an exported bundle.
 
     Raises:
@@ -129,7 +129,7 @@ def sync(
     Args:
         community_key (str):
         body (MemberCreate): Create one member. `key` is minted from the community's own numbering
-            when omitted, so a caller with no opinion still gets `gl-00007` rather than
+            when omitted, so a caller with no opinion still gets `ex-00007` rather than
             something that reads as foreign in an exported bundle.
 
     Raises:
@@ -168,7 +168,7 @@ async def asyncio_detailed(
     Args:
         community_key (str):
         body (MemberCreate): Create one member. `key` is minted from the community's own numbering
-            when omitted, so a caller with no opinion still gets `gl-00007` rather than
+            when omitted, so a caller with no opinion still gets `ex-00007` rather than
             something that reads as foreign in an exported bundle.
 
     Raises:
@@ -210,7 +210,7 @@ async def asyncio(
     Args:
         community_key (str):
         body (MemberCreate): Create one member. `key` is minted from the community's own numbering
-            when omitted, so a caller with no opinion still gets `gl-00007` rather than
+            when omitted, so a caller with no opinion still gets `ex-00007` rather than
             something that reads as foreign in an exported bundle.
 
     Raises:

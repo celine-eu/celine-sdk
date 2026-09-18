@@ -238,7 +238,7 @@ class Organization:
     ``oidc-organization-group-membership-mapper``, produces::
 
         "organization": {
-            "gr-renewable-community": {
+            "example-renewable-community": {
                 "id": "0f4ba6e3-0f1c-43a6-a117-4eb88863bb02",
                 "type": ["rec"],
                 "groups": ["/managers"]

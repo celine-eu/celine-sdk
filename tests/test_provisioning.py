@@ -58,21 +58,21 @@ def _refusal(code: str, message: str) -> dict:
 
 ACCOUNT = {
     "user_id": "3f1c-uuid",
-    "username": "gl-00001",
+    "username": "ex-00001",
     "created": True,
     "invitation": "not_requested",
     "invited": False,
 }
 INVITED = {
     "user_id": "3f1c-uuid",
-    "username": "gl-00001",
+    "username": "ex-00001",
     "invitation": "sent",
     "actions": ["UPDATE_PASSWORD", "VERIFY_EMAIL"],
     "lifespan": 604800,
 }
-DISABLED = {"user_id": "3f1c-uuid", "username": "gl-00001", "changed": True}
+DISABLED = {"user_id": "3f1c-uuid", "username": "ex-00001", "changed": True}
 SWEPT = {
-    "community": "greenland",
+    "community": "example-rec",
     "members": 45,
     "created": 2,
     "existing": 43,
@@ -85,11 +85,11 @@ class TestEnsuringAParticipant:
         mock_http(_answer(200, ACCOUNT))
 
         account = await _client().ensure_participant(
-            "greenland", "20260912-a3f9c2", email="a.person@example.org"
+            "example-rec", "20260912-a3f9c2", email="a.person@example.org"
         )
 
         assert account.user_id == "3f1c-uuid"
-        assert account.username == "gl-00001"
+        assert account.username == "ex-00001"
         assert account.created is True
 
     async def test_the_username_is_whatever_keycloak_says_not_what_was_sent(
@@ -98,13 +98,13 @@ class TestEnsuringAParticipant:
         """The reason this call is synchronous rather than a signal. A caller
         that derives the username from the address it just sent would make a
         second account beside the one this participant already signs in with."""
-        mock_http(_answer(200, {**ACCOUNT, "username": "gl-00002", "created": False}))
+        mock_http(_answer(200, {**ACCOUNT, "username": "ex-00002", "created": False}))
 
         account = await _client().ensure_participant(
-            "greenland", "k", email="a.person@example.org"
+            "example-rec", "k", email="a.person@example.org"
         )
 
-        assert account.username == "gl-00002"
+        assert account.username == "ex-00002"
         assert account.created is False
 
     async def test_the_request_carries_the_address_and_the_keys_in_the_path(
@@ -113,7 +113,7 @@ class TestEnsuringAParticipant:
         seen = mock_http(_answer(200, ACCOUNT))
 
         await _client().ensure_participant(
-            "greenland",
+            "example-rec",
             "20260912-a3f9c2",
             email="a.person@example.org",
             first_name="A",
@@ -121,7 +121,7 @@ class TestEnsuringAParticipant:
         )
 
         assert seen[0].method == "PUT"
-        assert seen[0].url.path == "/participants/greenland/20260912-a3f9c2"
+        assert seen[0].url.path == "/participants/example-rec/20260912-a3f9c2"
         assert b"a.person@example.org" in seen[0].content
 
     async def test_one_authorization_header_and_it_is_the_token(self, mock_http):
@@ -130,7 +130,7 @@ class TestEnsuringAParticipant:
         sources for one credential; the wrapper leaves it UNSET."""
         seen = mock_http(_answer(200, ACCOUNT))
 
-        await _client().ensure_participant("greenland", "k", email="a@example.org")
+        await _client().ensure_participant("example-rec", "k", email="a@example.org")
 
         assert seen[0].headers.get_list("authorization") == ["Bearer tok-svc"]
 
@@ -138,7 +138,7 @@ class TestEnsuringAParticipant:
         seen = mock_http(_answer(200, ACCOUNT))
 
         await _client().ensure_participant(
-            "greenland", "k", email="a@example.org", token="tok-request"
+            "example-rec", "k", email="a@example.org", token="tok-request"
         )
 
         assert seen[0].headers["authorization"] == "Bearer tok-request"
@@ -148,7 +148,7 @@ class TestEnsuringAParticipant:
 
         with pytest.raises(ValueError):
             await ProvisioningClient("http://provisioning.test").ensure_participant(
-                "greenland", "k", email="a@example.org"
+                "example-rec", "k", email="a@example.org"
             )
 
         assert seen == []
@@ -159,7 +159,7 @@ class TestTheInvitation:
         seen = mock_http(_answer(200, {**ACCOUNT, "invitation": "sent", "invited": True}))
 
         await _client().ensure_participant(
-            "greenland", "k", email="a@example.org", locale="es", invite=True
+            "example-rec", "k", email="a@example.org", locale="es", invite=True
         )
 
         body = json.loads(seen[0].content)
@@ -169,7 +169,7 @@ class TestTheInvitation:
     async def test_without_them_no_locale_is_sent_and_invite_is_false(self, mock_http):
         seen = mock_http(_answer(200, ACCOUNT))
 
-        await _client().ensure_participant("greenland", "k", email="a@example.org")
+        await _client().ensure_participant("example-rec", "k", email="a@example.org")
 
         body = json.loads(seen[0].content)
         assert "locale" not in body
@@ -182,7 +182,7 @@ class TestTheInvitation:
 
         with pytest.raises(ValueError):
             await _client().ensure_participant(
-                "greenland", "k", email="a@example.org", locale="fr"
+                "example-rec", "k", email="a@example.org", locale="fr"
             )
 
         assert seen == []
@@ -213,7 +213,7 @@ class TestTheInvitation:
         )
 
         account = await _client().ensure_participant(
-            "greenland", "k", email="a@example.org", invite=True
+            "example-rec", "k", email="a@example.org", invite=True
         )
 
         assert account.invitation.value == invitation
@@ -223,14 +223,14 @@ class TestTheInvitation:
         seen = mock_http(_answer(200, INVITED))
 
         result = await _client().send_invitation(
-            "greenland", "gl-00001", intent="invitation"
+            "example-rec", "ex-00001", intent="invitation"
         )
 
         assert result.invitation.value == "sent"
         assert result.actions == ["UPDATE_PASSWORD", "VERIFY_EMAIL"]
         assert result.lifespan == 604800
         assert seen[0].method == "POST"
-        assert seen[0].url.path == "/participants/greenland/gl-00001/invitation"
+        assert seen[0].url.path == "/participants/example-rec/ex-00001/invitation"
 
     @pytest.mark.parametrize("intent", ["invitation", "password_reset"])
     async def test_the_intent_travels_in_the_body(self, mock_http, intent):
@@ -238,7 +238,7 @@ class TestTheInvitation:
             _answer(200, {**INVITED, "actions": ["UPDATE_PASSWORD"], "lifespan": 3600})
         )
 
-        await _client().send_invitation("greenland", "gl-00001", intent=intent)
+        await _client().send_invitation("example-rec", "ex-00001", intent=intent)
 
         assert json.loads(seen[0].content) == {"intent": intent}
         assert seen[0].headers["content-type"] == "application/json"
@@ -249,7 +249,7 @@ class TestTheInvitation:
     async def test_either_generated_enum_is_accepted_as_the_intent(self, mock_http, intent):
         seen = mock_http(_answer(200, INVITED))
 
-        await _client().send_invitation("greenland", "gl-00001", intent=intent)
+        await _client().send_invitation("example-rec", "ex-00001", intent=intent)
 
         assert json.loads(seen[0].content) == {"intent": "password_reset"}
 
@@ -260,7 +260,7 @@ class TestTheInvitation:
         seen = mock_http(_answer(200, INVITED))
 
         with pytest.raises(ValueError):
-            await _client().send_invitation("greenland", "gl-00001", intent=intent)
+            await _client().send_invitation("example-rec", "ex-00001", intent=intent)
 
         assert seen == []
 
@@ -268,7 +268,7 @@ class TestTheInvitation:
         """No default: a default would be the SDK choosing the email for the
         person who pressed the button."""
         with pytest.raises(TypeError):
-            await _client().send_invitation("greenland", "gl-00001")  # type: ignore[call-arg]
+            await _client().send_invitation("example-rec", "ex-00001")  # type: ignore[call-arg]
 
     @pytest.mark.parametrize(
         "status,code,intent",
@@ -285,17 +285,17 @@ class TestTheInvitation:
     async def test_a_refused_invitation_raises_with_the_status_and_the_code(
         self, mock_http, status, code, intent
     ):
-        mock_http(_answer(status, _refusal(code, "greenland/gl-00001: refused")))
+        mock_http(_answer(status, _refusal(code, "example-rec/ex-00001: refused")))
 
         with pytest.raises(ProvisioningApiError) as excinfo:
-            await _client().send_invitation("greenland", "gl-00001", intent=intent)
+            await _client().send_invitation("example-rec", "ex-00001", intent=intent)
 
         error = excinfo.value
         assert error.status_code == status
         assert error.code == code
-        assert error.detail == {"code": code, "message": "greenland/gl-00001: refused"}
+        assert error.detail == {"code": code, "message": "example-rec/ex-00001: refused"}
         # the sentence stays readable in the exception, for a log
-        assert "greenland/gl-00001: refused" in str(error)
+        assert "example-rec/ex-00001: refused" in str(error)
         assert code in str(error)
         assert error.retry_after is None
 
@@ -303,13 +303,13 @@ class TestTheInvitation:
         mock_http(
             _answer(
                 429,
-                _refusal("cooldown", "greenland/gl-00001 was emailed less than 300s ago"),
+                _refusal("cooldown", "example-rec/ex-00001 was emailed less than 300s ago"),
                 headers={"Retry-After": "241"},
             )
         )
 
         with pytest.raises(ProvisioningApiError) as excinfo:
-            await _client().send_invitation("greenland", "gl-00001", intent="invitation")
+            await _client().send_invitation("example-rec", "ex-00001", intent="invitation")
 
         assert excinfo.value.status_code == 429
         assert excinfo.value.code == "cooldown"
@@ -321,14 +321,14 @@ class TestTheInvitation:
     ):
         """The generated parser now expects `ErrorResponse` on these statuses
         and raises on a string `detail`. The wrapper must not."""
-        mock_http(_answer(status, {"detail": "greenland/gl-00001: refused"}))
+        mock_http(_answer(status, {"detail": "example-rec/ex-00001: refused"}))
 
         with pytest.raises(ProvisioningApiError) as excinfo:
-            await _client().send_invitation("greenland", "gl-00001", intent="invitation")
+            await _client().send_invitation("example-rec", "ex-00001", intent="invitation")
 
         assert excinfo.value.status_code == status
         assert excinfo.value.code is None
-        assert excinfo.value.detail == "greenland/gl-00001: refused"
+        assert excinfo.value.detail == "example-rec/ex-00001: refused"
         assert "refused" in str(excinfo.value)
 
     async def test_an_unknown_code_is_passed_through_as_a_string(self, mock_http):
@@ -337,7 +337,7 @@ class TestTheInvitation:
         mock_http(_answer(409, _refusal("some_future_code", "something new")))
 
         with pytest.raises(ProvisioningApiError) as excinfo:
-            await _client().send_invitation("greenland", "gl-00001", intent="invitation")
+            await _client().send_invitation("example-rec", "ex-00001", intent="invitation")
 
         assert excinfo.value.code == "some_future_code"
 
@@ -350,7 +350,7 @@ class TestTheLifecycleCalls:
     async def test_disabling_reports_whether_it_changed_anything(self, mock_http):
         mock_http(_answer(200, {**DISABLED, "changed": False}))
 
-        result = await _client().disable("greenland", "gl-00001")
+        result = await _client().disable("example-rec", "ex-00001")
 
         # Already revoked. Not a failure, and it must not be reported as one.
         assert result.changed is False
@@ -361,10 +361,10 @@ class TestTheLifecycleCalls:
         # inner __init__ puts its own transport back. One handler per test.
         seen = mock_http(_answer(200, DISABLED))
 
-        await _client().disable("greenland", "gl-00001")
+        await _client().disable("example-rec", "ex-00001")
 
         assert seen[0].method == "POST"
-        assert seen[0].url.path == "/participants/greenland/gl-00001/disable"
+        assert seen[0].url.path == "/participants/example-rec/ex-00001/disable"
 
 
 class TestWhatRefusalsMean:
@@ -372,11 +372,11 @@ class TestWhatRefusalsMean:
         self, mock_http
     ):
         mock_http(
-            _answer(404, _refusal("member_not_found", "greenland has no member 'nobody'"))
+            _answer(404, _refusal("member_not_found", "example-rec has no member 'nobody'"))
         )
 
         with pytest.raises(ProvisioningApiError) as excinfo:
-            await _client().disable("greenland", "nobody")
+            await _client().disable("example-rec", "nobody")
 
         assert excinfo.value.status_code == 404
         assert excinfo.value.code == "member_not_found"
@@ -390,7 +390,7 @@ class TestWhatRefusalsMean:
         mock_http(_answer(404, _refusal(code, "missing")))
 
         with pytest.raises(ProvisioningApiError) as excinfo:
-            await _client().disable("greenland", "gl-00001")
+            await _client().disable("example-rec", "ex-00001")
 
         assert excinfo.value.code == code
 
@@ -409,7 +409,7 @@ class TestWhatRefusalsMean:
 
         with pytest.raises(ProvisioningApiError) as excinfo:
             await _client().ensure_participant(
-                "greenland", "k", email="a@example.org"
+                "example-rec", "k", email="a@example.org"
             )
 
         assert excinfo.value.status_code == 403
@@ -427,7 +427,7 @@ class TestWhatRefusalsMean:
         )
 
         with pytest.raises(ProvisioningApiError) as excinfo:
-            await _client().send_invitation("greenland", "gl-00001", intent="invitation")
+            await _client().send_invitation("example-rec", "ex-00001", intent="invitation")
 
         assert excinfo.value.status_code == 502
         assert excinfo.value.code == "registry_unavailable"
@@ -441,7 +441,7 @@ class TestWhatRefusalsMean:
         mock_http(handle)
 
         with pytest.raises(ProvisioningApiError) as excinfo:
-            await _client().disable("greenland", "gl-00001")
+            await _client().disable("example-rec", "ex-00001")
 
         assert excinfo.value.status_code == 502
         assert excinfo.value.detail is None
@@ -458,7 +458,7 @@ class TestWhatRefusalsMean:
         mock_http(handle)
 
         with pytest.raises(ProvisioningApiError) as excinfo:
-            await _client().send_invitation("greenland", "gl-00001", intent="invitation")
+            await _client().send_invitation("example-rec", "ex-00001", intent="invitation")
 
         assert excinfo.value.status_code == 404
         assert excinfo.value.code is None
@@ -472,7 +472,7 @@ class TestWhatRefusalsMean:
         )
 
         with pytest.raises(ProvisioningApiError) as excinfo:
-            await _client().send_invitation("greenland", "gl-00001", intent="invitation")
+            await _client().send_invitation("example-rec", "ex-00001", intent="invitation")
 
         assert excinfo.value.status_code == 422
         assert excinfo.value.code is None
@@ -482,7 +482,7 @@ class TestTheSweep:
     async def test_a_clean_sweep_reports_what_it_did(self, mock_http):
         mock_http(_answer(200, SWEPT))
 
-        result = await _client().reconcile("greenland")
+        result = await _client().reconcile("example-rec")
 
         assert result.members == 45
         assert result.created == 2
@@ -498,12 +498,12 @@ class TestTheSweep:
                 {
                     "detail": {
                         "code": "reconcile_diverged",
-                        "message": "reconcile of greenland left 1 member(s) outside",
+                        "message": "reconcile of example-rec left 1 member(s) outside",
                         **SWEPT,
                         "divergences": [
                             {
-                                "key": "gl-00001",
-                                "username": "gl-00001",
+                                "key": "ex-00001",
+                                "username": "ex-00001",
                                 "kind": "not in the REC organization",
                                 "detail": "no `organization` claim",
                             }
@@ -514,11 +514,11 @@ class TestTheSweep:
         )
 
         with pytest.raises(ReconcileDivergence) as excinfo:
-            await _client().reconcile("greenland")
+            await _client().reconcile("example-rec")
 
         error = excinfo.value
-        assert error.community == "greenland"
-        assert [d["key"] for d in error.divergences] == ["gl-00001"]
+        assert error.community == "example-rec"
+        assert [d["key"] for d in error.divergences] == ["ex-00001"]
         assert "1 member(s)" in str(error)
         assert error.code == "reconcile_diverged"
         # and it is still a ProvisioningApiError, so a caller that only knows
@@ -534,7 +534,7 @@ class TestTheSweep:
         mock_http(_answer(500, {"detail": "Internal Server Error"}))
 
         with pytest.raises(ProvisioningApiError) as excinfo:
-            await _client().reconcile("greenland")
+            await _client().reconcile("example-rec")
 
         assert not isinstance(excinfo.value, ReconcileDivergence)
         assert excinfo.value.status_code == 500

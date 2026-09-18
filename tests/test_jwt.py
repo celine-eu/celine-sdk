@@ -275,7 +275,7 @@ class TestOrganizationClaim:
     # The shape a real KC 26.4 token carries, copied from the celine realm:
     # `type` flattened, `groups` with a leading slash, no `attributes` key.
     REAL = {
-        "gr-renewable-community": {
+        "example-renewable-community": {
             "id": "0f4ba6e3-0f1c-43a6-a117-4eb88863bb02",
             "type": ["rec"],
             "groups": ["/managers"],
@@ -284,10 +284,10 @@ class TestOrganizationClaim:
 
     # @verifies REQ-0040
     def test_flattened_type_and_groups(self):
-        org = Organization._from_claim("gr-renewable-community", self.REAL[
-            "gr-renewable-community"
+        org = Organization._from_claim("example-renewable-community", self.REAL[
+            "example-renewable-community"
         ])
-        assert org.alias == "gr-renewable-community"
+        assert org.alias == "example-renewable-community"
         assert org.type == "rec"
         assert org.id == "0f4ba6e3-0f1c-43a6-a117-4eb88863bb02"
         assert org.groups == ["managers"]

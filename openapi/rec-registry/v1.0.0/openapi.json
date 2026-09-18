@@ -1886,7 +1886,7 @@
       },
       "MemberCreate": {
         "additionalProperties": true,
-        "description": "Create one member. `key` is minted from the community's own numbering\nwhen omitted, so a caller with no opinion still gets `gl-00007` rather than\nsomething that reads as foreign in an exported bundle.",
+        "description": "Create one member. `key` is minted from the community's own numbering\nwhen omitted, so a caller with no opinion still gets `ex-00007` rather than\nsomething that reads as foreign in an exported bundle.",
         "properties": {
           "area": {
             "title": "Area",

@@ -205,12 +205,12 @@ class TestMemberEmails:
         provider = _Provider()
 
         sent = await _admin(token_provider=provider).send_member_invitation(
-            "greenland", "GL-00001", acting_token="tok-manager"
+            "example-rec", "EX-00001", acting_token="tok-manager"
         )
 
         request = seen[0]
         assert request.method == "POST"
-        assert request.url.path == "/api/admin/communities/greenland/members/GL-00001/invitation"
+        assert request.url.path == "/api/admin/communities/example-rec/members/EX-00001/invitation"
         assert request.headers["authorization"] == "Bearer tok-service"
         assert request.headers[ACTING_USER_HEADER] == "tok-manager"
         # Onboarding refuses a delegated call carrying the proxy's header.
@@ -227,17 +227,17 @@ class TestMemberEmails:
         )
 
         sent = await _admin(default_token="tok-service").send_member_password_reset(
-            "greenland", "GL-00001", acting_token="tok-manager"
+            "example-rec", "EX-00001", acting_token="tok-manager"
         )
 
-        assert seen[0].url.path == "/api/admin/communities/greenland/members/GL-00001/password-reset"
+        assert seen[0].url.path == "/api/admin/communities/example-rec/members/EX-00001/password-reset"
         assert sent.kind.value == "password_reset"
 
     async def test_path_values_are_escaped_not_reinterpreted(self, mock_http):
         seen = mock_http(_answer(200, SENT))
 
         await _admin(default_token="t").send_member_invitation(
-            "greenland", "a/b", acting_token="tok-manager"
+            "example-rec", "a/b", acting_token="tok-manager"
         )
 
         assert seen[0].url.raw_path.endswith(b"/members/a%2Fb/invitation")
@@ -248,7 +248,7 @@ class TestMemberEmails:
 
         with pytest.raises(ValueError):
             await _admin(default_token="t").send_member_invitation(
-                "greenland", "GL-00001", acting_token=acting
+                "example-rec", "EX-00001", acting_token=acting
             )
 
         assert seen == []
@@ -257,7 +257,7 @@ class TestMemberEmails:
         mock_http(_answer(200, {"code": "not_on_dev_list", "kind": "invitation", "lifespanSeconds": 604800}))
 
         sent = await _admin(default_token="t").send_member_invitation(
-            "greenland", "GL-00001", acting_token="m"
+            "example-rec", "EX-00001", acting_token="m"
         )
 
         assert sent.code == "not_on_dev_list"
@@ -280,7 +280,7 @@ class TestMemberEmails:
 
         with pytest.raises(OnboardingApiError) as raised:
             await _admin(default_token="t").send_member_invitation(
-                "greenland", "GL-00001", acting_token="m"
+                "example-rec", "EX-00001", acting_token="m"
             )
 
         assert raised.value.status_code == status
@@ -301,7 +301,7 @@ class TestMemberEmails:
 
         with pytest.raises(OnboardingApiError) as raised:
             await _admin(default_token="t").send_member_password_reset(
-                "greenland", "GL-00001", acting_token="m"
+                "example-rec", "EX-00001", acting_token="m"
             )
 
         assert raised.value.code == "cooldown"
@@ -317,7 +317,7 @@ class TestMemberEmails:
 
         with pytest.raises(OnboardingApiError) as raised:
             await _admin(default_token="t").send_member_invitation(
-                "greenland", "GL-00001", acting_token="m"
+                "example-rec", "EX-00001", acting_token="m"
             )
 
         assert raised.value.retry_after_seconds == 90
@@ -330,7 +330,7 @@ class TestMemberEmails:
 
         with pytest.raises(OnboardingApiError) as raised:
             await _admin(default_token="t").send_member_invitation(
-                "greenland", "GL-00001", acting_token="m"
+                "example-rec", "EX-00001", acting_token="m"
             )
 
         assert raised.value.status_code == 502

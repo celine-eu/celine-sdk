@@ -17,13 +17,13 @@ network can reach it. Reach it by service name on the internal network.
     )
 
     account = await client.ensure_participant(
-        "greenland", submission.ref, email=submission.email
+        "example-rec", submission.ref, email=submission.email
     )
     # account.username is what the registry's Member.user_id must be set to,
     # and account.user_id is the Keycloak uuid.
 
     try:
-        await client.send_invitation("greenland", member_key, intent="password_reset")
+        await client.send_invitation("example-rec", member_key, intent="password_reset")
     except ProvisioningApiError as exc:
         if exc.code == "no_password":  # never set one: send intent="invitation"
             ...
