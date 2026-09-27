@@ -6,7 +6,9 @@ import httpx
 
 from ... import errors
 from ...client import AuthenticatedClient, Client
+from ...models.asset_detail import AssetDetail
 from ...models.asset_upsert import AssetUpsert
+from ...models.error_response import ErrorResponse
 from ...models.http_validation_error import HTTPValidationError
 from ...types import Response
 
@@ -39,13 +41,40 @@ def _get_kwargs(
 
 def _parse_response(
     *, client: AuthenticatedClient | Client, response: httpx.Response
-) -> Any | HTTPValidationError | None:
+) -> AssetDetail | ErrorResponse | ErrorResponse | HTTPValidationError | None:
     if response.status_code == 200:
-        response_200 = response.json()
+        response_200 = AssetDetail.from_dict(response.json())
+
         return response_200
 
+    if response.status_code == 404:
+        response_404 = ErrorResponse.from_dict(response.json())
+
+        return response_404
+
+    if response.status_code == 409:
+        response_409 = ErrorResponse.from_dict(response.json())
+
+        return response_409
+
     if response.status_code == 422:
-        response_422 = HTTPValidationError.from_dict(response.json())
+
+        def _parse_response_422(data: object) -> ErrorResponse | HTTPValidationError:
+            try:
+                if not isinstance(data, dict):
+                    raise TypeError()
+                response_422_type_0 = ErrorResponse.from_dict(data)
+
+                return response_422_type_0
+            except (TypeError, ValueError, AttributeError, KeyError):
+                pass
+            if not isinstance(data, dict):
+                raise TypeError()
+            response_422_type_1 = HTTPValidationError.from_dict(data)
+
+            return response_422_type_1
+
+        response_422 = _parse_response_422(response.json())
 
         return response_422
 
@@ -57,7 +86,7 @@ def _parse_response(
 
 def _build_response(
     *, client: AuthenticatedClient | Client, response: httpx.Response
-) -> Response[Any | HTTPValidationError]:
+) -> Response[AssetDetail | ErrorResponse | ErrorResponse | HTTPValidationError]:
     return Response(
         status_code=HTTPStatus(response.status_code),
         content=response.content,
@@ -73,7 +102,7 @@ def sync_detailed(
     *,
     client: AuthenticatedClient | Client,
     body: AssetUpsert,
-) -> Response[Any | HTTPValidationError]:
+) -> Response[AssetDetail | ErrorResponse | ErrorResponse | HTTPValidationError]:
     """Upsert Asset
 
      Create or replace one asset, leaving the member's other assets alone.
@@ -86,6 +115,21 @@ def sync_detailed(
     conflict: the service applies it to the row the other writer created and
     answers `200`, because a create-or-replace is idempotent and a race means
     only that the two arrived in an order neither cared about.
+
+    **A meter is attached here** — by convention at `meter-<sensor id>`, the id
+    trimmed (REQ-0071). The outcomes a caller tells apart by `code`:
+
+    * `200` — attached, or already attached to this member (a no-op replace);
+    * `409 sensor_held` — another active member, in any community, holds the
+      sensor (REQ-0069); a holder outside this community is not named;
+    * `409 asset_key_taken` — another member of this community holds the key
+      (with the convention: an inactive member still holding the asset).
+
+    The sensor id is stored trimmed; one blank after trimming is `422`. An
+    asset key longer than 128 characters is `422 asset_key_too_long` — with the
+    convention, a sensor id longer than 122 (REQ-0028).
+
+    Answers the stored asset.
 
     Args:
         community_key (str):
@@ -101,7 +145,7 @@ def sync_detailed(
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Response[Any | HTTPValidationError]
+        Response[AssetDetail | ErrorResponse | ErrorResponse | HTTPValidationError]
     """
 
     kwargs = _get_kwargs(
@@ -125,7 +169,7 @@ def sync(
     *,
     client: AuthenticatedClient | Client,
     body: AssetUpsert,
-) -> Any | HTTPValidationError | None:
+) -> AssetDetail | ErrorResponse | ErrorResponse | HTTPValidationError | None:
     """Upsert Asset
 
      Create or replace one asset, leaving the member's other assets alone.
@@ -138,6 +182,21 @@ def sync(
     conflict: the service applies it to the row the other writer created and
     answers `200`, because a create-or-replace is idempotent and a race means
     only that the two arrived in an order neither cared about.
+
+    **A meter is attached here** — by convention at `meter-<sensor id>`, the id
+    trimmed (REQ-0071). The outcomes a caller tells apart by `code`:
+
+    * `200` — attached, or already attached to this member (a no-op replace);
+    * `409 sensor_held` — another active member, in any community, holds the
+      sensor (REQ-0069); a holder outside this community is not named;
+    * `409 asset_key_taken` — another member of this community holds the key
+      (with the convention: an inactive member still holding the asset).
+
+    The sensor id is stored trimmed; one blank after trimming is `422`. An
+    asset key longer than 128 characters is `422 asset_key_too_long` — with the
+    convention, a sensor id longer than 122 (REQ-0028).
+
+    Answers the stored asset.
 
     Args:
         community_key (str):
@@ -153,7 +212,7 @@ def sync(
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Any | HTTPValidationError
+        AssetDetail | ErrorResponse | ErrorResponse | HTTPValidationError
     """
 
     return sync_detailed(
@@ -172,7 +231,7 @@ async def asyncio_detailed(
     *,
     client: AuthenticatedClient | Client,
     body: AssetUpsert,
-) -> Response[Any | HTTPValidationError]:
+) -> Response[AssetDetail | ErrorResponse | ErrorResponse | HTTPValidationError]:
     """Upsert Asset
 
      Create or replace one asset, leaving the member's other assets alone.
@@ -185,6 +244,21 @@ async def asyncio_detailed(
     conflict: the service applies it to the row the other writer created and
     answers `200`, because a create-or-replace is idempotent and a race means
     only that the two arrived in an order neither cared about.
+
+    **A meter is attached here** — by convention at `meter-<sensor id>`, the id
+    trimmed (REQ-0071). The outcomes a caller tells apart by `code`:
+
+    * `200` — attached, or already attached to this member (a no-op replace);
+    * `409 sensor_held` — another active member, in any community, holds the
+      sensor (REQ-0069); a holder outside this community is not named;
+    * `409 asset_key_taken` — another member of this community holds the key
+      (with the convention: an inactive member still holding the asset).
+
+    The sensor id is stored trimmed; one blank after trimming is `422`. An
+    asset key longer than 128 characters is `422 asset_key_too_long` — with the
+    convention, a sensor id longer than 122 (REQ-0028).
+
+    Answers the stored asset.
 
     Args:
         community_key (str):
@@ -200,7 +274,7 @@ async def asyncio_detailed(
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Response[Any | HTTPValidationError]
+        Response[AssetDetail | ErrorResponse | ErrorResponse | HTTPValidationError]
     """
 
     kwargs = _get_kwargs(
@@ -222,7 +296,7 @@ async def asyncio(
     *,
     client: AuthenticatedClient | Client,
     body: AssetUpsert,
-) -> Any | HTTPValidationError | None:
+) -> AssetDetail | ErrorResponse | ErrorResponse | HTTPValidationError | None:
     """Upsert Asset
 
      Create or replace one asset, leaving the member's other assets alone.
@@ -235,6 +309,21 @@ async def asyncio(
     conflict: the service applies it to the row the other writer created and
     answers `200`, because a create-or-replace is idempotent and a race means
     only that the two arrived in an order neither cared about.
+
+    **A meter is attached here** — by convention at `meter-<sensor id>`, the id
+    trimmed (REQ-0071). The outcomes a caller tells apart by `code`:
+
+    * `200` — attached, or already attached to this member (a no-op replace);
+    * `409 sensor_held` — another active member, in any community, holds the
+      sensor (REQ-0069); a holder outside this community is not named;
+    * `409 asset_key_taken` — another member of this community holds the key
+      (with the convention: an inactive member still holding the asset).
+
+    The sensor id is stored trimmed; one blank after trimming is `422`. An
+    asset key longer than 128 characters is `422 asset_key_too_long` — with the
+    convention, a sensor id longer than 122 (REQ-0028).
+
+    Answers the stored asset.
 
     Args:
         community_key (str):
@@ -250,7 +339,7 @@ async def asyncio(
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Any | HTTPValidationError
+        AssetDetail | ErrorResponse | ErrorResponse | HTTPValidationError
     """
 
     return (

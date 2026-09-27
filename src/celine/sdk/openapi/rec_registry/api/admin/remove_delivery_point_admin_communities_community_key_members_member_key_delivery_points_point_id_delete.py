@@ -7,6 +7,7 @@ import httpx
 from ... import errors
 from ...client import AuthenticatedClient, Client
 from ...models.delivery_points_response import DeliveryPointsResponse
+from ...models.error_response import ErrorResponse
 from ...models.http_validation_error import HTTPValidationError
 from ...types import Response
 
@@ -30,11 +31,16 @@ def _get_kwargs(
 
 def _parse_response(
     *, client: AuthenticatedClient | Client, response: httpx.Response
-) -> DeliveryPointsResponse | HTTPValidationError | None:
+) -> DeliveryPointsResponse | ErrorResponse | HTTPValidationError | None:
     if response.status_code == 200:
         response_200 = DeliveryPointsResponse.from_dict(response.json())
 
         return response_200
+
+    if response.status_code == 404:
+        response_404 = ErrorResponse.from_dict(response.json())
+
+        return response_404
 
     if response.status_code == 422:
         response_422 = HTTPValidationError.from_dict(response.json())
@@ -49,7 +55,7 @@ def _parse_response(
 
 def _build_response(
     *, client: AuthenticatedClient | Client, response: httpx.Response
-) -> Response[DeliveryPointsResponse | HTTPValidationError]:
+) -> Response[DeliveryPointsResponse | ErrorResponse | HTTPValidationError]:
     return Response(
         status_code=HTTPStatus(response.status_code),
         content=response.content,
@@ -64,7 +70,7 @@ def sync_detailed(
     point_id: str,
     *,
     client: AuthenticatedClient | Client,
-) -> Response[DeliveryPointsResponse | HTTPValidationError]:
+) -> Response[DeliveryPointsResponse | ErrorResponse | HTTPValidationError]:
     """Remove Delivery Point
 
      Remove one supply point, keeping the others.
@@ -79,7 +85,7 @@ def sync_detailed(
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Response[DeliveryPointsResponse | HTTPValidationError]
+        Response[DeliveryPointsResponse | ErrorResponse | HTTPValidationError]
     """
 
     kwargs = _get_kwargs(
@@ -101,7 +107,7 @@ def sync(
     point_id: str,
     *,
     client: AuthenticatedClient | Client,
-) -> DeliveryPointsResponse | HTTPValidationError | None:
+) -> DeliveryPointsResponse | ErrorResponse | HTTPValidationError | None:
     """Remove Delivery Point
 
      Remove one supply point, keeping the others.
@@ -116,7 +122,7 @@ def sync(
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        DeliveryPointsResponse | HTTPValidationError
+        DeliveryPointsResponse | ErrorResponse | HTTPValidationError
     """
 
     return sync_detailed(
@@ -133,7 +139,7 @@ async def asyncio_detailed(
     point_id: str,
     *,
     client: AuthenticatedClient | Client,
-) -> Response[DeliveryPointsResponse | HTTPValidationError]:
+) -> Response[DeliveryPointsResponse | ErrorResponse | HTTPValidationError]:
     """Remove Delivery Point
 
      Remove one supply point, keeping the others.
@@ -148,7 +154,7 @@ async def asyncio_detailed(
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Response[DeliveryPointsResponse | HTTPValidationError]
+        Response[DeliveryPointsResponse | ErrorResponse | HTTPValidationError]
     """
 
     kwargs = _get_kwargs(
@@ -168,7 +174,7 @@ async def asyncio(
     point_id: str,
     *,
     client: AuthenticatedClient | Client,
-) -> DeliveryPointsResponse | HTTPValidationError | None:
+) -> DeliveryPointsResponse | ErrorResponse | HTTPValidationError | None:
     """Remove Delivery Point
 
      Remove one supply point, keeping the others.
@@ -183,7 +189,7 @@ async def asyncio(
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        DeliveryPointsResponse | HTTPValidationError
+        DeliveryPointsResponse | ErrorResponse | HTTPValidationError
     """
 
     return (

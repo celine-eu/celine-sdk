@@ -39,3 +39,4 @@ edited to say something else.
 | Record | Decision |
 |---|---|
 | [ADR-0001](ADR-0001-no-published-generation-extra.md) | The code generators are not published as an extra; generation is a maintainer task in a checkout |
+| [ADR-0002](ADR-0002-requirements-may-land-ahead-of-the-code.md) | A requirement may land ahead of the code, marked planned, and turns implemented in the change that makes it pass |

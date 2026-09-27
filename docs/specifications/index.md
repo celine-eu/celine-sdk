@@ -2,11 +2,17 @@
 
 What this SDK must do, stated so that a test can name it.
 
-These requirements were **extracted from the implementation** on 2026-08-15, not written
+The first requirements were **extracted from the implementation** on 2026-08-15, not written
 ahead of it. That direction matters when reading them: each one says what the code already
 does and what consumers therefore depend on. Where the extraction found the published
 documentation disagreeing with the code, the code won and `docs/` was corrected — the
 disagreements are listed at the end of this file.
+
+Since then a requirement may also be written **ahead of the code, marked planned**
+([ADR-0002](../decisions/ADR-0002-requirements-may-land-ahead-of-the-code.md)): a line
+`**Status:** planned` under its heading, no `@verifies` tag yet, and the status line removed
+in the change that lands the code and its tests. A requirement with no status line is
+implemented. A planned one is a design commitment, not something a consumer may call yet.
 
 Twelve repositories import `celine.sdk.auth` and ten import `celine.sdk.settings`
 (the companion's knowledge). A requirement here is therefore
@@ -18,7 +24,8 @@ a promise to those repositories, and changing one is a platform change, not a lo
 | [Identity](identity.md) | `celine.sdk.auth` — token verification, claims, token providers |
 | [Policy evaluation](policy-evaluation.md) | `celine.sdk.policies` — bundle loading, decisions, decision cache |
 | [Messaging](messaging.md) | `celine.sdk.broker` — MQTT lifecycle, topics, dispatch |
-| [REC registry client](rec-registry-client.md) | `celine.sdk.rec_registry` — the batch asset lookups |
+| [REC registry client](rec-registry-client.md) | `celine.sdk.rec_registry` — the batch asset lookups; the meter writes; the profile write (planned) |
+| [Onboarding client](onboarding-client.md) | `celine.sdk.onboarding` — the registry sync of a community's areas (planned) |
 | [Spec management](spec-management.md) | the CLI, spec versioning, generated-client conversion |
 
 ## Identifiers
@@ -30,7 +37,7 @@ never written by hand. the companion's testing playbook states how.
 Numbers are allocated in blocks per document so a new requirement can be appended without
 renumbering: configuration `0001–0019`, identity `0020–0049`, policy evaluation
 `0050–0069`, messaging `0070–0099`, spec management `0100–0119`, REC registry client
-`0120–0139`.
+`0120–0139`, onboarding client `0140–0159`.
 
 ## What is deliberately not specified here
 

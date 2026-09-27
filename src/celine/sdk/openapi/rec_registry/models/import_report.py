@@ -10,6 +10,7 @@ from ..types import UNSET, Unset
 
 if TYPE_CHECKING:
     from ..models.deleted import Deleted
+    from ..models.import_refusal import ImportRefusal
     from ..models.inserted import Inserted
 
 
@@ -24,12 +25,14 @@ class ImportReport:
         community_key (str):
         deleted (Deleted | Unset):
         inserted (Inserted | Unset):
+        refusals (list[ImportRefusal] | Unset):
         warnings (list[str] | Unset):
     """
 
     community_key: str
     deleted: Deleted | Unset = UNSET
     inserted: Inserted | Unset = UNSET
+    refusals: list[ImportRefusal] | Unset = UNSET
     warnings: list[str] | Unset = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
@@ -43,6 +46,13 @@ class ImportReport:
         inserted: dict[str, Any] | Unset = UNSET
         if not isinstance(self.inserted, Unset):
             inserted = self.inserted.to_dict()
+
+        refusals: list[dict[str, Any]] | Unset = UNSET
+        if not isinstance(self.refusals, Unset):
+            refusals = []
+            for refusals_item_data in self.refusals:
+                refusals_item = refusals_item_data.to_dict()
+                refusals.append(refusals_item)
 
         warnings: list[str] | Unset = UNSET
         if not isinstance(self.warnings, Unset):
@@ -59,6 +69,8 @@ class ImportReport:
             field_dict["deleted"] = deleted
         if inserted is not UNSET:
             field_dict["inserted"] = inserted
+        if refusals is not UNSET:
+            field_dict["refusals"] = refusals
         if warnings is not UNSET:
             field_dict["warnings"] = warnings
 
@@ -67,6 +79,7 @@ class ImportReport:
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
         from ..models.deleted import Deleted
+        from ..models.import_refusal import ImportRefusal
         from ..models.inserted import Inserted
 
         d = dict(src_dict)
@@ -86,12 +99,22 @@ class ImportReport:
         else:
             inserted = Inserted.from_dict(_inserted)
 
+        _refusals = d.pop("refusals", UNSET)
+        refusals: list[ImportRefusal] | Unset = UNSET
+        if _refusals is not UNSET:
+            refusals = []
+            for refusals_item_data in _refusals:
+                refusals_item = ImportRefusal.from_dict(refusals_item_data)
+
+                refusals.append(refusals_item)
+
         warnings = cast(list[str], d.pop("warnings", UNSET))
 
         import_report = cls(
             community_key=community_key,
             deleted=deleted,
             inserted=inserted,
+            refusals=refusals,
             warnings=warnings,
         )
 

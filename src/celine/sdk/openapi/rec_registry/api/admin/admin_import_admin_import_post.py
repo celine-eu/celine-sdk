@@ -5,6 +5,7 @@ import httpx
 
 from ... import errors
 from ...client import AuthenticatedClient, Client
+from ...models.error_response import ErrorResponse
 from ...models.http_validation_error import HTTPValidationError
 from ...models.import_report import ImportReport
 from ...models.import_request import ImportRequest
@@ -32,14 +33,30 @@ def _get_kwargs(
 
 def _parse_response(
     *, client: AuthenticatedClient | Client, response: httpx.Response
-) -> HTTPValidationError | ImportReport | None:
+) -> ErrorResponse | HTTPValidationError | ImportReport | None:
     if response.status_code == 200:
         response_200 = ImportReport.from_dict(response.json())
 
         return response_200
 
     if response.status_code == 422:
-        response_422 = HTTPValidationError.from_dict(response.json())
+
+        def _parse_response_422(data: object) -> ErrorResponse | HTTPValidationError:
+            try:
+                if not isinstance(data, dict):
+                    raise TypeError()
+                response_422_type_0 = ErrorResponse.from_dict(data)
+
+                return response_422_type_0
+            except (TypeError, ValueError, AttributeError, KeyError):
+                pass
+            if not isinstance(data, dict):
+                raise TypeError()
+            response_422_type_1 = HTTPValidationError.from_dict(data)
+
+            return response_422_type_1
+
+        response_422 = _parse_response_422(response.json())
 
         return response_422
 
@@ -51,7 +68,7 @@ def _parse_response(
 
 def _build_response(
     *, client: AuthenticatedClient | Client, response: httpx.Response
-) -> Response[HTTPValidationError | ImportReport]:
+) -> Response[ErrorResponse | HTTPValidationError | ImportReport]:
     return Response(
         status_code=HTTPStatus(response.status_code),
         content=response.content,
@@ -64,7 +81,7 @@ def sync_detailed(
     *,
     client: AuthenticatedClient | Client,
     body: ImportRequest,
-) -> Response[HTTPValidationError | ImportReport]:
+) -> Response[ErrorResponse | HTTPValidationError | ImportReport]:
     """Admin Import
 
      Replacement import of a REC registry bundle.
@@ -81,6 +98,14 @@ def sync_detailed(
     Use `dry_run=true` to see the effect first — that is the intended way to
     decide whether `force` is warranted.
 
+    **A bundle that breaks an invariant is refused whole**, before anything is
+    deleted: `422` with the invariant's `code` — `sensor_held`, one sensor held
+    by two active members of the bundle, or by one of them and an active member
+    of another community (REQ-0069); `asset_key_too_long`, an asset key over
+    128 characters (REQ-0028). A dry run lists every such refusal in
+    `refusals` instead. A body that fails validation is a `422` too, with
+    FastAPI's list `detail`; the OpenAPI document declares both bodies.
+
     Args:
         body (ImportRequest): Import request payload.
 
@@ -89,7 +114,7 @@ def sync_detailed(
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Response[HTTPValidationError | ImportReport]
+        Response[ErrorResponse | HTTPValidationError | ImportReport]
     """
 
     kwargs = _get_kwargs(
@@ -107,7 +132,7 @@ def sync(
     *,
     client: AuthenticatedClient | Client,
     body: ImportRequest,
-) -> HTTPValidationError | ImportReport | None:
+) -> ErrorResponse | HTTPValidationError | ImportReport | None:
     """Admin Import
 
      Replacement import of a REC registry bundle.
@@ -124,6 +149,14 @@ def sync(
     Use `dry_run=true` to see the effect first — that is the intended way to
     decide whether `force` is warranted.
 
+    **A bundle that breaks an invariant is refused whole**, before anything is
+    deleted: `422` with the invariant's `code` — `sensor_held`, one sensor held
+    by two active members of the bundle, or by one of them and an active member
+    of another community (REQ-0069); `asset_key_too_long`, an asset key over
+    128 characters (REQ-0028). A dry run lists every such refusal in
+    `refusals` instead. A body that fails validation is a `422` too, with
+    FastAPI's list `detail`; the OpenAPI document declares both bodies.
+
     Args:
         body (ImportRequest): Import request payload.
 
@@ -132,7 +165,7 @@ def sync(
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        HTTPValidationError | ImportReport
+        ErrorResponse | HTTPValidationError | ImportReport
     """
 
     return sync_detailed(
@@ -145,7 +178,7 @@ async def asyncio_detailed(
     *,
     client: AuthenticatedClient | Client,
     body: ImportRequest,
-) -> Response[HTTPValidationError | ImportReport]:
+) -> Response[ErrorResponse | HTTPValidationError | ImportReport]:
     """Admin Import
 
      Replacement import of a REC registry bundle.
@@ -162,6 +195,14 @@ async def asyncio_detailed(
     Use `dry_run=true` to see the effect first — that is the intended way to
     decide whether `force` is warranted.
 
+    **A bundle that breaks an invariant is refused whole**, before anything is
+    deleted: `422` with the invariant's `code` — `sensor_held`, one sensor held
+    by two active members of the bundle, or by one of them and an active member
+    of another community (REQ-0069); `asset_key_too_long`, an asset key over
+    128 characters (REQ-0028). A dry run lists every such refusal in
+    `refusals` instead. A body that fails validation is a `422` too, with
+    FastAPI's list `detail`; the OpenAPI document declares both bodies.
+
     Args:
         body (ImportRequest): Import request payload.
 
@@ -170,7 +211,7 @@ async def asyncio_detailed(
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Response[HTTPValidationError | ImportReport]
+        Response[ErrorResponse | HTTPValidationError | ImportReport]
     """
 
     kwargs = _get_kwargs(
@@ -186,7 +227,7 @@ async def asyncio(
     *,
     client: AuthenticatedClient | Client,
     body: ImportRequest,
-) -> HTTPValidationError | ImportReport | None:
+) -> ErrorResponse | HTTPValidationError | ImportReport | None:
     """Admin Import
 
      Replacement import of a REC registry bundle.
@@ -203,6 +244,14 @@ async def asyncio(
     Use `dry_run=true` to see the effect first — that is the intended way to
     decide whether `force` is warranted.
 
+    **A bundle that breaks an invariant is refused whole**, before anything is
+    deleted: `422` with the invariant's `code` — `sensor_held`, one sensor held
+    by two active members of the bundle, or by one of them and an active member
+    of another community (REQ-0069); `asset_key_too_long`, an asset key over
+    128 characters (REQ-0028). A dry run lists every such refusal in
+    `refusals` instead. A body that fails validation is a `422` too, with
+    FastAPI's list `detail`; the OpenAPI document declares both bodies.
+
     Args:
         body (ImportRequest): Import request payload.
 
@@ -211,7 +260,7 @@ async def asyncio(
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        HTTPValidationError | ImportReport
+        ErrorResponse | HTTPValidationError | ImportReport
     """
 
     return (

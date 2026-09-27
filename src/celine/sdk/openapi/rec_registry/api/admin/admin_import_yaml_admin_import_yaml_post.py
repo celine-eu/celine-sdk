@@ -5,6 +5,7 @@ import httpx
 
 from ... import errors
 from ...client import AuthenticatedClient, Client
+from ...models.error_response import ErrorResponse
 from ...models.http_validation_error import HTTPValidationError
 from ...models.multi_import_report import MultiImportReport
 from ...types import UNSET, Response, Unset
@@ -34,14 +35,30 @@ def _get_kwargs(
 
 def _parse_response(
     *, client: AuthenticatedClient | Client, response: httpx.Response
-) -> HTTPValidationError | MultiImportReport | None:
+) -> ErrorResponse | HTTPValidationError | MultiImportReport | None:
     if response.status_code == 200:
         response_200 = MultiImportReport.from_dict(response.json())
 
         return response_200
 
     if response.status_code == 422:
-        response_422 = HTTPValidationError.from_dict(response.json())
+
+        def _parse_response_422(data: object) -> ErrorResponse | HTTPValidationError:
+            try:
+                if not isinstance(data, dict):
+                    raise TypeError()
+                response_422_type_0 = ErrorResponse.from_dict(data)
+
+                return response_422_type_0
+            except (TypeError, ValueError, AttributeError, KeyError):
+                pass
+            if not isinstance(data, dict):
+                raise TypeError()
+            response_422_type_1 = HTTPValidationError.from_dict(data)
+
+            return response_422_type_1
+
+        response_422 = _parse_response_422(response.json())
 
         return response_422
 
@@ -53,7 +70,7 @@ def _parse_response(
 
 def _build_response(
     *, client: AuthenticatedClient | Client, response: httpx.Response
-) -> Response[HTTPValidationError | MultiImportReport]:
+) -> Response[ErrorResponse | HTTPValidationError | MultiImportReport]:
     return Response(
         status_code=HTTPStatus(response.status_code),
         content=response.content,
@@ -67,7 +84,7 @@ def sync_detailed(
     client: AuthenticatedClient | Client,
     dry_run: bool | Unset = False,
     force: bool | Unset = False,
-) -> Response[HTTPValidationError | MultiImportReport]:
+) -> Response[ErrorResponse | HTTPValidationError | MultiImportReport]:
     """Admin Import Yaml
 
      Replacement import of one or more REC registry bundles from YAML.
@@ -76,7 +93,8 @@ def sync_detailed(
     Each document must be a valid registry bundle.
 
     **Destructive**: see `POST /admin/import`. `force=true` is required to
-    overwrite an existing community.
+    overwrite an existing community, and a bundle breaking an invariant refuses
+    the whole request with `422` and its `code`; a dry run reports it instead.
 
     Returns a report for each imported bundle.
 
@@ -90,7 +108,7 @@ def sync_detailed(
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Response[HTTPValidationError | MultiImportReport]
+        Response[ErrorResponse | HTTPValidationError | MultiImportReport]
     """
 
     kwargs = _get_kwargs(
@@ -110,7 +128,7 @@ def sync(
     client: AuthenticatedClient | Client,
     dry_run: bool | Unset = False,
     force: bool | Unset = False,
-) -> HTTPValidationError | MultiImportReport | None:
+) -> ErrorResponse | HTTPValidationError | MultiImportReport | None:
     """Admin Import Yaml
 
      Replacement import of one or more REC registry bundles from YAML.
@@ -119,7 +137,8 @@ def sync(
     Each document must be a valid registry bundle.
 
     **Destructive**: see `POST /admin/import`. `force=true` is required to
-    overwrite an existing community.
+    overwrite an existing community, and a bundle breaking an invariant refuses
+    the whole request with `422` and its `code`; a dry run reports it instead.
 
     Returns a report for each imported bundle.
 
@@ -133,7 +152,7 @@ def sync(
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        HTTPValidationError | MultiImportReport
+        ErrorResponse | HTTPValidationError | MultiImportReport
     """
 
     return sync_detailed(
@@ -148,7 +167,7 @@ async def asyncio_detailed(
     client: AuthenticatedClient | Client,
     dry_run: bool | Unset = False,
     force: bool | Unset = False,
-) -> Response[HTTPValidationError | MultiImportReport]:
+) -> Response[ErrorResponse | HTTPValidationError | MultiImportReport]:
     """Admin Import Yaml
 
      Replacement import of one or more REC registry bundles from YAML.
@@ -157,7 +176,8 @@ async def asyncio_detailed(
     Each document must be a valid registry bundle.
 
     **Destructive**: see `POST /admin/import`. `force=true` is required to
-    overwrite an existing community.
+    overwrite an existing community, and a bundle breaking an invariant refuses
+    the whole request with `422` and its `code`; a dry run reports it instead.
 
     Returns a report for each imported bundle.
 
@@ -171,7 +191,7 @@ async def asyncio_detailed(
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Response[HTTPValidationError | MultiImportReport]
+        Response[ErrorResponse | HTTPValidationError | MultiImportReport]
     """
 
     kwargs = _get_kwargs(
@@ -189,7 +209,7 @@ async def asyncio(
     client: AuthenticatedClient | Client,
     dry_run: bool | Unset = False,
     force: bool | Unset = False,
-) -> HTTPValidationError | MultiImportReport | None:
+) -> ErrorResponse | HTTPValidationError | MultiImportReport | None:
     """Admin Import Yaml
 
      Replacement import of one or more REC registry bundles from YAML.
@@ -198,7 +218,8 @@ async def asyncio(
     Each document must be a valid registry bundle.
 
     **Destructive**: see `POST /admin/import`. `force=true` is required to
-    overwrite an existing community.
+    overwrite an existing community, and a bundle breaking an invariant refuses
+    the whole request with `422` and its `code`; a dry run reports it instead.
 
     Returns a report for each imported bundle.
 
@@ -212,7 +233,7 @@ async def asyncio(
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        HTTPValidationError | MultiImportReport
+        ErrorResponse | HTTPValidationError | MultiImportReport
     """
 
     return (

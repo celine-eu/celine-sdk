@@ -6,7 +6,8 @@ Initialize once, pass tokens per-call - no client recreation overhead.
 
 from __future__ import annotations
 
-from typing import Any, Awaitable, Callable, Optional
+from http import HTTPStatus
+from typing import Any, Awaitable, Callable, Mapping, Optional
 
 import httpx
 
@@ -41,6 +42,9 @@ from celine.sdk.openapi.rec_registry.api.admin import (
     create_member_admin_communities_community_key_members_post as _create_member,
 )
 from celine.sdk.openapi.rec_registry.api.admin import (
+    delete_asset_admin_communities_community_key_members_member_key_assets_asset_key_delete as _delete_asset,
+)
+from celine.sdk.openapi.rec_registry.api.admin import (
     delete_member_admin_communities_community_key_members_member_key_delete as _delete_member,
 )
 from celine.sdk.openapi.rec_registry.api.admin import (
@@ -73,6 +77,7 @@ from celine.sdk.openapi.rec_registry.models import (
     AssetUpsert,
     DeletionReport,
     DeliveryPointIn,
+    ErrorResponse,
     HTTPValidationError,
     MemberCreate,
     MemberDetail,
@@ -96,6 +101,7 @@ from celine.sdk.rec_registry.errors import RecRegistryApiError
 from celine.sdk.utils.convert import to_schema
 
 from celine.sdk.openapi.rec_registry.schemas import (
+    AssetDetailSchema,
     DeliveryPointLookupSchema,
     DeliveryPointsResponseSchema,
     GlobalAssetLookupSchema,
@@ -118,6 +124,7 @@ __all__ = [
     "RecRegistryUserClient",
     "RecRegistryAdminClient",
     "RecRegistryApiError",
+    "AssetDetailSchema",
     "MAX_BATCH_LOOKUP_IDS",
 ]
 
@@ -398,8 +405,24 @@ class RecRegistryAdminClient:
             body=yaml_content,
             dry_run=dry_run,
         )
-        if isinstance(res.parsed, HTTPValidationError):
-            raise Exception(res.parsed)
+        # Since registry 1.6.0 the route's `422` is `oneOf` `ErrorResponse` (a
+        # bundle breaking an invariant, with its `code`) / `HTTPValidationError`
+        # (a body that failed validation). The generated parse tries
+        # `ErrorResponse` first and it accepts a validation body too (with no
+        # `code`), so which model came back says nothing: the code is read
+        # from the raw body. Both are refusals; neither is a report.
+        # `RecRegistryApiError` is an `Exception`, so a caller catching the
+        # bare `Exception` this used to raise still catches it.
+        if isinstance(res.parsed, (ErrorResponse, HTTPValidationError)):
+            code, detail = RecRegistryApiError.refusal_of(res.content)
+            raise RecRegistryApiError(
+                f"import-yaml refused (status={int(res.status_code)})"
+                + (f" {code}" if code else ""),
+                status_code=int(res.status_code),
+                body=res.content,
+                code=code,
+                detail=detail,
+            )
         return res.parsed
 
     # List operations
@@ -835,7 +858,11 @@ class RecRegistryAdminClient:
         *,
         token: Optional[str] = None,
     ) -> Any:
-        """Create or replace one asset, keeping the member's others."""
+        """Create or replace one asset, keeping the member's others.
+
+        Returns the undecoded response, `409` included. For a write whose
+        refusal is an answer to show someone, use :meth:`put_asset`.
+        """
         client = await self._get_client(token)
         return await _upsert_asset.asyncio_detailed(
             community_key=community_key,
@@ -844,6 +871,126 @@ class RecRegistryAdminClient:
             client=client,
             body=body,
         )
+
+    # ── Writes that raise with the registry's code ───────────────────────
+    #
+    # Unlike the writes above, these parse success into a schema and raise
+    # `RecRegistryApiError` on anything else, carrying the registry's refusal
+    # `code` (`sensor_held`, `asset_key_taken`, ...). They are for callers to
+    # whom a refusal is an answer to show a person — the community dashboard
+    # attaching and detaching a member's meter — rather than a branch in a
+    # retry loop.
+    #
+    # They send through the generated request builder (`_get_kwargs`), so the
+    # path, quoting and body stay generated, and read the response here: the
+    # generated `_parse_response` raises `UnexpectedStatus` on an undeclared
+    # status (a `403` from the policy middleware) and maps `code` onto a
+    # generated enum, and neither may reach the caller.
+
+    @staticmethod
+    async def _send(
+        client: AuthenticatedClient, kwargs: dict[str, Any]
+    ) -> httpx.Response:
+        return await client.get_async_httpx_client().request(**kwargs)
+
+    @staticmethod
+    def _refused(response: httpx.Response, what: str) -> RecRegistryApiError:
+        code, detail = RecRegistryApiError.refusal_of(response.content)
+        sentence = detail if isinstance(detail, str) else None
+        return RecRegistryApiError(
+            f"{what} refused: rec-registry answered {response.status_code}"
+            + (f" {code}" if code else "")
+            + (f" ({sentence})" if sentence else ""),
+            status_code=response.status_code,
+            body=response.content,
+            code=code,
+            detail=detail,
+        )
+
+    async def put_asset(
+        self,
+        community_key: str,
+        member_key: str,
+        asset_key: str,
+        body: AssetUpsert | Mapping[str, Any],
+        *,
+        token: Optional[str] = None,
+    ) -> AssetDetailSchema:
+        """Write one asset of one member; the way a manager attaches a meter.
+
+        Sends `PUT /admin/communities/{community_key}/members/{member_key}/assets/{asset_key}`
+        with exactly the key and body given. Nothing is composed or normalised
+        here: the `meter-<sensor_id>` key convention and the trimmed sensor-id
+        comparison are the registry's, so the caller passes the asset key and
+        the body's `key` as the registry expects them.
+
+        Answers the stored asset as the generated :class:`AssetDetailSchema` —
+        the shape the asset `GET` answers (registry 1.6.0 declares it on the
+        `PUT` too). A key the registry adds later is ignored, not refused.
+        Writing an asset the member already holds, with the same body, answers
+        it too — the registry treats that as a no-op, and so does this.
+
+        Anything but `200` raises :class:`RecRegistryApiError`; branch on its
+        `code`: `sensor_held` (`409`, another active member in any community
+        holds the sensor), `asset_key_taken` (`409`), `member_not_found` or
+        `community_not_found` (`404`), `asset_key_too_long` (`422`, a key over
+        the registry's 128 characters); `None` for a validation `422` or a
+        missing grant (`403`). Needs `rec-registry.assets.write`.
+        """
+        payload = (
+            body if isinstance(body, AssetUpsert) else AssetUpsert.from_dict(body)
+        )
+        client = await self._get_client(token)
+        response = await self._send(
+            client,
+            _upsert_asset._get_kwargs(
+                community_key=community_key,
+                member_key=member_key,
+                asset_key=asset_key,
+                body=payload,
+            ),
+        )
+        if response.status_code != HTTPStatus.OK:
+            raise self._refused(response, "put-asset")
+        try:
+            return AssetDetailSchema.model_validate(response.json())
+        except ValueError as exc:
+            raise RecRegistryApiError(
+                "put-asset: rec-registry answered 200 with nothing readable",
+                status_code=response.status_code,
+                body=response.content,
+            ) from exc
+
+    async def delete_asset(
+        self,
+        community_key: str,
+        member_key: str,
+        asset_key: str,
+        *,
+        token: Optional[str] = None,
+    ) -> None:
+        """Delete one asset of one member; the way a manager detaches a meter.
+
+        A hard delete of that one asset (the registry keeps no dated holding);
+        the member's other assets are untouched. Answers nothing on `204`.
+
+        Anything else raises :class:`RecRegistryApiError` — **including a
+        `404` for an asset the member does not hold** (`code`
+        `asset_not_found`, or `member_not_found` for the member). The wrapper
+        does not read that as "already detached": whether it is success is the
+        caller's decision. Needs `rec-registry.assets.write`.
+        """
+        client = await self._get_client(token)
+        response = await self._send(
+            client,
+            _delete_asset._get_kwargs(
+                community_key=community_key,
+                member_key=member_key,
+                asset_key=asset_key,
+            ),
+        )
+        if response.status_code != HTTPStatus.NO_CONTENT:
+            raise self._refused(response, "delete-asset")
 
     async def lookup_assets_by_user_ids(
         self,
