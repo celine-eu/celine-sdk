@@ -2,6 +2,20 @@
 
 <!-- version list -->
 
+## v1.21.0 (2026-09-28)
+
+### Features
+
+- Update api signature
+  ([`85f9265`](https://github.com/celine-eu/celine-sdk/commit/85f92652d15e176aea1dad245bad4d6ef52aa6ef))
+
+- Update rec registry, onboarding APIs
+  ([`919afa7`](https://github.com/celine-eu/celine-sdk/commit/919afa779ad0722e6d695e87de50c47a9a0c8f45))
+
+- Update registry api
+  ([`b6d6ba2`](https://github.com/celine-eu/celine-sdk/commit/b6d6ba2132ca72af2ae0a461d1f5bf78a64ab765))
+
+
 ## v1.20.0 (2026-09-14)
 
 ### Features
