@@ -14,7 +14,7 @@ Shared SDK for the CELINE platform. Provides OIDC authentication, MQTT broker ab
 | `celine.sdk.nudging` | Nudging service client |
 | `celine.sdk.onboarding` | Onboarding: a member's own data-sharing decisions (`OnboardingClient`), and, on `OnboardingAdminClient`, a service sending a registry member an invitation or password reset for a manager, and a realm admin's registry sync of a community's areas (`registry_sync`) |
 | `celine.sdk.policies` | OPA policy evaluation over a service's own `*.rego` bundle |
-| `celine.sdk.rec_registry` | REC registry client helpers |
+| `celine.sdk.rec_registry` | REC registry client helpers (`RecRegistryUserClient`, `RecRegistryAdminClient`): the batch lookups; a member's meter (`put_asset`, `delete_asset`) and role and area (`patch_member_profile`); a community's areas and topology (`read_community`, `put_area`, `delete_area`, `rename_area`, `put_topology_node`, `delete_topology_node`). A refusal raises `RecRegistryApiError` with the registry's `code` (`sensor_held`, `unknown_area`, `not_a_member`, …) beside `status_code` and `detail` |
 | `celine.sdk.flexibility` | Flexibility service client helpers |
 | `celine.sdk.ai_assistant` | AI assistant client helpers |
 

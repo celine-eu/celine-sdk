@@ -308,7 +308,6 @@ rather than answering `None`.
 
 This replaces the earlier contract, under which these reads raised the generated
 `UnexpectedStatus`. The consumers in the workspace other than dataset-api catch any
-exception around these reads. dataset-api's row filter, which denies rows on `not_a_member`
-and nothing else, calls the route itself today and is to move to `get_my_assets` and this
-exception's `code`.
+exception around these reads. dataset-api's row filter, which answers no rows on
+`not_a_member` and nothing else, calls `get_my_assets` and reads this exception's `code`.
 `get_me` is unaffected: the registry answers it `200` with no membership.
