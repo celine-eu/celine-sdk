@@ -19,13 +19,17 @@ T = TypeVar("T", bound="TopologyNodeIn")
 class TopologyNodeIn:
     """Grid topology node (substation, transformer, etc.).
 
-    Attributes:
-        id (str):
-        type_ (str):
-        area (None | TopologyNodeInAreaType0 | Unset):
-        name (None | str | Unset):
-        operator_id (None | str | Unset):
-        parent (None | str | Unset):
+    The body of the topology node `PUT` too (REQ-0072), and the names every
+    read answers (`TopologyNode`): `operator_id`, `parent`. Keys beyond these
+    are accepted and not stored, on the import and on the `PUT` alike.
+
+        Attributes:
+            id (str):
+            type_ (str):
+            area (None | TopologyNodeInAreaType0 | Unset):
+            name (None | str | Unset):
+            operator_id (None | str | Unset):
+            parent (None | str | Unset):
     """
 
     id: str

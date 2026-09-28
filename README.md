@@ -12,7 +12,7 @@ Shared SDK for the CELINE platform. Provides OIDC authentication, MQTT broker ab
 | `celine.sdk.openapi.*` | Generated typed clients for CELINE services |
 | `celine.sdk.dt` | Digital Twin domain client helpers |
 | `celine.sdk.nudging` | Nudging service client |
-| `celine.sdk.onboarding` | Onboarding: a member's own data-sharing decisions (`OnboardingClient`), and a service sending a registry member an invitation or password reset for a manager (`OnboardingAdminClient`) |
+| `celine.sdk.onboarding` | Onboarding: a member's own data-sharing decisions (`OnboardingClient`), and, on `OnboardingAdminClient`, a service sending a registry member an invitation or password reset for a manager, and a realm admin's registry sync of a community's areas (`registry_sync`) |
 | `celine.sdk.policies` | OPA policy evaluation over a service's own `*.rego` bundle |
 | `celine.sdk.rec_registry` | REC registry client helpers |
 | `celine.sdk.flexibility` | Flexibility service client helpers |

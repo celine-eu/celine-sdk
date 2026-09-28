@@ -9,6 +9,7 @@ from attrs import field as _attrs_field
 from ..types import UNSET, Unset
 
 if TYPE_CHECKING:
+    from ..models.area_boundary_in import AreaBoundaryIn
     from ..models.area_in_geometry_type_0 import AreaInGeometryType0
     from ..models.location_in import LocationIn
 
@@ -20,14 +21,29 @@ T = TypeVar("T", bound="AreaIn")
 class AreaIn:
     """Community area definition.
 
-    Attributes:
-        name (str):
-        geometry (AreaInGeometryType0 | None | Unset):
-        location (LocationIn | None | Unset):
-        topology (list[str] | Unset):
+    One primary substation (REQ-0067): `boundary` references it, and `topology`
+    lists exactly one node — a `primary_substation` whose id is `boundary.id`.
+    `boundary` is published as `AreaBoundaryIn` but accepts anything here, so
+    that an area with none, with a list of them or with a malformed one is
+    refused with `invalid_area_boundary` by the import's check rather than as a
+    validation error at parse time (REQ-0073).
+
+        Attributes:
+            name (str):
+            boundary (AreaBoundaryIn | Unset): The primary-substation boundary an area references (REQ-0067, schema v0.7).
+
+                `source` names the boundary dataset (`gse_cabine_primarie`), `id` the
+                substation code within it (`cod_ac`). Both are plain strings so that a wrong
+                value is refused with the code `invalid_area_boundary` rather than as a
+                validation error (REQ-0073); the registry never checks `id` against the
+                dataset, which it cannot read.
+            geometry (AreaInGeometryType0 | None | Unset):
+            location (LocationIn | None | Unset):
+            topology (list[str] | Unset):
     """
 
     name: str
+    boundary: AreaBoundaryIn | Unset = UNSET
     geometry: AreaInGeometryType0 | None | Unset = UNSET
     location: LocationIn | None | Unset = UNSET
     topology: list[str] | Unset = UNSET
@@ -38,6 +54,10 @@ class AreaIn:
         from ..models.location_in import LocationIn
 
         name = self.name
+
+        boundary: dict[str, Any] | Unset = UNSET
+        if not isinstance(self.boundary, Unset):
+            boundary = self.boundary.to_dict()
 
         geometry: dict[str, Any] | None | Unset
         if isinstance(self.geometry, Unset):
@@ -66,6 +86,8 @@ class AreaIn:
                 "name": name,
             }
         )
+        if boundary is not UNSET:
+            field_dict["boundary"] = boundary
         if geometry is not UNSET:
             field_dict["geometry"] = geometry
         if location is not UNSET:
@@ -77,11 +99,19 @@ class AreaIn:
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
+        from ..models.area_boundary_in import AreaBoundaryIn
         from ..models.area_in_geometry_type_0 import AreaInGeometryType0
         from ..models.location_in import LocationIn
 
         d = dict(src_dict)
         name = d.pop("name")
+
+        _boundary = d.pop("boundary", UNSET)
+        boundary: AreaBoundaryIn | Unset
+        if isinstance(_boundary, Unset):
+            boundary = UNSET
+        else:
+            boundary = AreaBoundaryIn.from_dict(_boundary)
 
         def _parse_geometry(data: object) -> AreaInGeometryType0 | None | Unset:
             if data is None:
@@ -121,6 +151,7 @@ class AreaIn:
 
         area_in = cls(
             name=name,
+            boundary=boundary,
             geometry=geometry,
             location=location,
             topology=topology,

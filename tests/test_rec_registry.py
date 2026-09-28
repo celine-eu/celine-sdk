@@ -1,6 +1,10 @@
 """Tests for `celine.sdk.rec_registry` — docs/specifications/rec-registry-client.md.
 
-The batch asset lookups and the meter writes (`put_asset`, `delete_asset`), which
+The batch asset lookups, the meter writes (`put_asset`, `delete_asset`), the
+profile write (`patch_member_profile`), the area and topology writes with the
+community read (`put_area`, `delete_area`, `put_topology_node`,
+`delete_topology_node`, `read_community`), the area rename (`rename_area`) and
+the self-service refusals, which
 is what that document specifies. The seam is
 `mock_http`: the generated client builds its own `httpx.AsyncClient`, so the
 class is what gets replaced, and everything this repository owns — chunking, the
@@ -733,3 +737,865 @@ class TestARefusedWriteCarriesTheCode:
         assert (error.status_code, error.body) == (422, b"{}")
         assert error.code is None
         assert error.detail is None
+
+
+# ── Profile write (REQ-0128) ────────────────────────────────────────────────
+
+PROFILE_PATH = "/admin/communities/example-rec/members/ex-00001/profile"
+
+
+def _member_detail(role: str = "prosumer", area: str = "area-1") -> dict:
+    return {
+        "id": "4b1d",
+        "key": "ex-00001",
+        "name": "Member One",
+        "user_id": "user-1",
+        "did": None,
+        "role": role,
+        "status": "active",
+        "area": area,
+        "extra": {},
+        "delivery_points": [],
+        "created_at": "2026-09-27T10:00:00Z",
+        "updated_at": "2026-09-27T11:00:00Z",
+    }
+
+
+class TestTheProfileWrite:
+    # @verifies REQ-0128
+    async def test_it_patches_the_profile_route_and_never_the_general_one(
+        self, mock_http
+    ):
+        seen = mock_http(_rows(_member_detail()))
+
+        await _client().patch_member_profile(
+            "example-rec", "ex-00001", role="prosumer", token="tok-profile"
+        )
+
+        assert len(seen) == 1
+        assert seen[0].method == "PATCH"
+        assert seen[0].url.path == PROFILE_PATH
+        assert seen[0].headers["authorization"] == "Bearer tok-profile"
+
+    # @verifies REQ-0128
+    @pytest.mark.parametrize(
+        ("kwargs", "sent"),
+        [
+            ({"role": "prosumer"}, {"role": "prosumer"}),
+            ({"area": "area-2"}, {"area": "area-2"}),
+            (
+                {"role": "consumer", "area": "area-2"},
+                {"role": "consumer", "area": "area-2"},
+            ),
+        ],
+    )
+    async def test_the_body_is_only_the_keys_set_and_an_omitted_one_is_not_null(
+        self, mock_http, kwargs, sent
+    ):
+        seen = mock_http(_rows(_member_detail()))
+
+        await _client().patch_member_profile("example-rec", "ex-00001", **kwargs)
+
+        assert json.loads(seen[0].content) == sent
+
+    # @verifies REQ-0128
+    async def test_it_has_no_parameter_for_any_other_member_field(self):
+        import inspect
+
+        params = set(
+            inspect.signature(RecRegistryAdminClient.patch_member_profile).parameters
+        )
+
+        assert params == {"self", "community_key", "member_key", "role", "area", "token"}
+
+    # @verifies REQ-0128
+    async def test_another_member_field_cannot_be_smuggled_in(self, mock_http):
+        seen = mock_http(_rows(_member_detail()))
+
+        with pytest.raises(TypeError):
+            await _client().patch_member_profile(  # type: ignore[call-arg]
+                "example-rec", "ex-00001", role="prosumer", status="inactive"
+            )
+
+        assert seen == []
+
+    # @verifies REQ-0128
+    async def test_neither_role_nor_area_sends_nothing(self, mock_http):
+        """An empty body would be the registry's uncoded `422`; there is
+        nothing to show a manager, so it is refused before any request."""
+        seen = mock_http(_rows(_member_detail()))
+
+        with pytest.raises(ValueError):
+            await _client().patch_member_profile("example-rec", "ex-00001")
+
+        assert seen == []
+
+    # @verifies REQ-0128
+    async def test_it_answers_the_updated_member_as_a_schema(self, mock_http):
+        from celine.sdk.openapi.rec_registry.schemas import MemberDetailSchema
+        from celine.sdk.rec_registry import MemberDetailSchema as exported
+
+        mock_http(_rows(_member_detail(role="prosumer", area="area-2")))
+
+        member = await _client().patch_member_profile(
+            "example-rec", "ex-00001", role="prosumer", area="area-2"
+        )
+
+        assert exported is MemberDetailSchema
+        assert type(member) is MemberDetailSchema
+        assert (member.key, member.role, member.area) == (
+            "ex-00001",
+            "prosumer",
+            "area-2",
+        )
+
+    # @verifies REQ-0128
+    # @verifies REQ-0127
+    @pytest.mark.parametrize(
+        ("status", "code"),
+        [
+            (422, "invalid_role"),
+            (422, "unknown_area"),
+            (404, "member_not_found"),
+            (404, "community_not_found"),
+            (409, "some_future_conflict"),
+        ],
+    )
+    async def test_a_refusal_raises_with_the_registrys_code(
+        self, mock_http, status, code
+    ):
+        mock_http(_refusal(status, "refused", code))
+
+        with pytest.raises(RecRegistryApiError) as excinfo:
+            await _client().patch_member_profile(
+                "example-rec", "ex-00001", role="prosumer"
+            )
+
+        assert excinfo.value.status_code == status
+        assert excinfo.value.code == code
+        assert excinfo.value.detail == "refused"
+
+    # @verifies REQ-0128
+    # @verifies REQ-0127
+    @pytest.mark.parametrize(
+        "respond",
+        [
+            _status(422, VALIDATION_ERROR),
+            _status(403, {"detail": "Forbidden"}),
+            _raw(502, b"<html>Bad gateway</html>"),
+        ],
+    )
+    async def test_a_refusal_that_names_no_code_raises_with_none(
+        self, mock_http, respond
+    ):
+        """A validation `422`, a missing grant, a proxy's page: the wrapper's
+        error, never the generated `UnexpectedStatus`, and no code."""
+        mock_http(respond)
+
+        with pytest.raises(RecRegistryApiError) as excinfo:
+            await _client().patch_member_profile(
+                "example-rec", "ex-00001", area="area-2"
+            )
+
+        assert not isinstance(excinfo.value, UnexpectedStatus)
+        assert excinfo.value.code is None
+
+    # @verifies REQ-0128
+    async def test_an_unreadable_200_raises_rather_than_answering_nothing(
+        self, mock_http
+    ):
+        mock_http(_raw(200, b"not json"))
+
+        with pytest.raises(RecRegistryApiError) as excinfo:
+            await _client().patch_member_profile(
+                "example-rec", "ex-00001", role="consumer"
+            )
+
+        assert excinfo.value.status_code == 200
+
+    # @verifies REQ-0128
+    async def test_the_generated_profile_model_omits_what_is_unset(self):
+        """Guards the regeneration: the generated body model drops an unset
+        key rather than writing `null`, which the registry refuses."""
+        from celine.sdk.openapi.rec_registry.models import MemberProfilePatch
+
+        assert MemberProfilePatch(role="prosumer").to_dict() == {"role": "prosumer"}
+        assert MemberProfilePatch(area="area-2").to_dict() == {"area": "area-2"}
+
+
+# ── Regeneration guard: the area boundary (rec-registry REQ-0067/0068) ─────
+
+
+class TestTheGeneratedAreaCarriesItsBoundary:
+    """Guards the 1.6.0 regeneration, not a requirement of this SDK: the
+    registry's area writes and reads carry `boundary` and `topology`, and a
+    caller building an area through the generated models must be able to
+    send and read both."""
+
+    async def test_an_area_upsert_sends_its_boundary_and_one_node(self):
+        from celine.sdk.openapi.rec_registry.models import AreaBoundaryIn, AreaUpsert
+
+        area = AreaUpsert(
+            name="Area One",
+            boundary=AreaBoundaryIn(source="gse_cabine_primarie", id="AC000E00001"),
+            topology=["AC000E00001"],
+        )
+
+        assert area.to_dict() == {
+            "name": "Area One",
+            "boundary": {"source": "gse_cabine_primarie", "id": "AC000E00001"},
+            "topology": ["AC000E00001"],
+        }
+
+    async def test_a_read_area_parses_boundary_and_topology(self):
+        from celine.sdk.openapi.rec_registry.schemas import AreaSchema
+
+        area = AreaSchema.model_validate(
+            {
+                "name": "Area One",
+                "boundary": {"source": "gse_cabine_primarie", "id": "AC000E00001"},
+                "topology": ["AC000E00001"],
+            }
+        )
+        legacy = AreaSchema.model_validate({"name": "Area Two"})
+
+        assert (area.boundary.source, area.boundary.id) == (
+            "gse_cabine_primarie",
+            "AC000E00001",
+        )
+        assert area.topology == ["AC000E00001"]
+        assert legacy.boundary is None
+
+    async def test_the_error_vocabulary_names_invalid_area_boundary(self):
+        from celine.sdk.openapi.rec_registry.models import ErrorCode
+
+        assert ErrorCode("invalid_area_boundary").value == "invalid_area_boundary"
+
+
+# ── Areas and topology: the onboarding template sync (REQ-0129–REQ-0131) ──
+
+
+AREA_PATH = "/admin/communities/example-rec/areas/area-one"
+NODE_PATH = "/admin/communities/example-rec/topology/AC000E00001"
+
+
+def _area_body(node: str = "AC000E00001") -> dict:
+    return {
+        "name": "Area One",
+        "boundary": {"source": "gse_cabine_primarie", "id": node},
+        "topology": [node],
+    }
+
+
+def _node_body(node: str = "AC000E00001") -> dict:
+    return {"id": node, "type": "primary_substation", "name": "Substation One"}
+
+
+def _community(*, areas: dict | None = None, nodes: list | None = None) -> dict:
+    return {
+        "id": "c0ffee",
+        "key": "example-rec",
+        "name": "Example REC",
+        "areas": {"area-one": _area_body()} if areas is None else areas,
+        "topology": (
+            [{**_node_body(), "operator_id": "op-1", "parent": None}]
+            if nodes is None
+            else nodes
+        ),
+    }
+
+
+def _sync_client() -> RecRegistryAdminClient:
+    """No default token: the sync passes its token per call (plan D37)."""
+    return RecRegistryAdminClient("http://registry.test")
+
+
+class TestReadingACommunity:
+    # @verifies REQ-0129
+    async def test_it_answers_areas_with_boundary_and_nodes_with_operator_id(
+        self, mock_http
+    ):
+        seen = mock_http(_rows(_community()))
+
+        community = await _sync_client().read_community(
+            "example-rec", token="tok-read"
+        )
+
+        assert seen[0].method == "GET"
+        assert seen[0].url.path == "/admin/communities/example-rec"
+        assert seen[0].headers["authorization"] == "Bearer tok-read"
+        area = community.areas["area-one"]
+        assert (area.boundary.source, area.boundary.id) == (
+            "gse_cabine_primarie",
+            "AC000E00001",
+        )
+        assert area.topology == ["AC000E00001"]
+        (node,) = community.topology
+        assert (node.id, node.type, node.operator_id) == (
+            "AC000E00001",
+            "primary_substation",
+            "op-1",
+        )
+
+    # @verifies REQ-0129
+    async def test_a_missing_community_raises_and_is_not_an_empty_one(
+        self, mock_http
+    ):
+        mock_http(_refusal(404, "Community not found"))
+
+        with pytest.raises(RecRegistryApiError) as excinfo:
+            await _sync_client().read_community("example-rec", token="tok-read")
+
+        assert excinfo.value.status_code == 404
+        assert excinfo.value.code is None
+
+    # @verifies REQ-0129
+    async def test_a_missing_grant_raises_the_wrappers_error(self, mock_http):
+        """The policy middleware's `403` is undeclared: it must not arrive as
+        the generated `UnexpectedStatus`."""
+        mock_http(_refusal(403, "Forbidden"))
+
+        with pytest.raises(RecRegistryApiError) as excinfo:
+            await _sync_client().read_community("example-rec", token="tok-read")
+
+        assert excinfo.value.status_code == 403
+        assert not isinstance(excinfo.value, UnexpectedStatus)
+
+    # @verifies REQ-0129
+    async def test_an_unreadable_200_raises(self, mock_http):
+        mock_http(_raw(200, b"<html>"))
+
+        with pytest.raises(RecRegistryApiError) as excinfo:
+            await _sync_client().read_community("example-rec", token="tok-read")
+
+        assert excinfo.value.status_code == 200
+
+
+class TestWritingAnArea:
+    # @verifies REQ-0130
+    async def test_it_puts_the_body_as_given_and_answers_the_community(
+        self, mock_http
+    ):
+        seen = mock_http(_rows(_community()))
+
+        community = await _sync_client().put_area(
+            "example-rec", "area-one", _area_body(), token="tok-write"
+        )
+
+        assert len(seen) == 1
+        assert seen[0].method == "PUT"
+        assert seen[0].url.path == AREA_PATH
+        assert seen[0].headers["authorization"] == "Bearer tok-write"
+        assert json.loads(seen[0].content) == _area_body()
+        assert community.key == "example-rec"
+        assert list(community.areas) == ["area-one"]
+
+    # @verifies REQ-0130
+    async def test_a_generated_model_is_sent_unchanged(self, mock_http):
+        from celine.sdk.openapi.rec_registry.models import AreaUpsert
+
+        seen = mock_http(_rows(_community()))
+
+        await _sync_client().put_area(
+            "example-rec",
+            "area-one",
+            AreaUpsert.from_dict(_area_body()),
+            token="tok-write",
+        )
+
+        assert json.loads(seen[0].content) == _area_body()
+
+    # @verifies REQ-0130
+    # @verifies REQ-0127
+    async def test_invalid_area_boundary_arrives_as_the_code(self, mock_http):
+        mock_http(
+            _refusal(
+                422,
+                "An area references exactly one primary substation",
+                "invalid_area_boundary",
+            )
+        )
+
+        with pytest.raises(RecRegistryApiError) as excinfo:
+            await _sync_client().put_area(
+                "example-rec", "area-one", _area_body(), token="tok-write"
+            )
+
+        assert excinfo.value.status_code == 422
+        assert excinfo.value.code == "invalid_area_boundary"
+
+    # @verifies REQ-0130
+    async def test_community_not_found_arrives_as_the_code(self, mock_http):
+        mock_http(_refusal(404, "Community not found", "community_not_found"))
+
+        with pytest.raises(RecRegistryApiError) as excinfo:
+            await _sync_client().put_area(
+                "example-rec", "area-one", _area_body(), token="tok-write"
+            )
+
+        assert excinfo.value.code == "community_not_found"
+
+    # @verifies REQ-0130
+    async def test_deleting_an_area_answers_the_community(self, mock_http):
+        seen = mock_http(_rows(_community(areas={})))
+
+        community = await _sync_client().delete_area(
+            "example-rec", "area-one", token="tok-write"
+        )
+
+        assert seen[0].method == "DELETE"
+        assert seen[0].url.path == AREA_PATH
+        assert seen[0].content == b""
+        assert community.areas == {}
+
+    # @verifies REQ-0130
+    # @verifies REQ-0127
+    async def test_an_area_in_use_arrives_as_the_code_with_the_sentence(
+        self, mock_http
+    ):
+        sentence = "Area 'area-one' is still referenced by 3 member(s); move them first"
+        mock_http(_refusal(409, sentence, "area_in_use"))
+
+        with pytest.raises(RecRegistryApiError) as excinfo:
+            await _sync_client().delete_area(
+                "example-rec", "area-one", token="tok-write"
+            )
+
+        assert excinfo.value.status_code == 409
+        assert excinfo.value.code == "area_in_use"
+        assert excinfo.value.detail == sentence
+
+    # @verifies REQ-0130
+    async def test_an_absent_area_is_raised_not_read_as_deleted(self, mock_http):
+        mock_http(_refusal(404, "Area 'area-one' not found"))
+
+        with pytest.raises(RecRegistryApiError) as excinfo:
+            await _sync_client().delete_area(
+                "example-rec", "area-one", token="tok-write"
+            )
+
+        assert excinfo.value.status_code == 404
+        assert excinfo.value.code is None
+
+
+class TestWritingATopologyNode:
+    # @verifies REQ-0131
+    async def test_it_puts_one_node_as_given_and_answers_the_community(
+        self, mock_http
+    ):
+        seen = mock_http(_rows(_community()))
+
+        community = await _sync_client().put_topology_node(
+            "example-rec", "AC000E00001", _node_body(), token="tok-write"
+        )
+
+        assert len(seen) == 1
+        assert seen[0].method == "PUT"
+        assert seen[0].url.path == NODE_PATH
+        assert seen[0].headers["authorization"] == "Bearer tok-write"
+        assert json.loads(seen[0].content) == _node_body()
+        assert [n.id for n in community.topology] == ["AC000E00001"]
+
+    # @verifies REQ-0131
+    async def test_a_body_id_differing_from_the_path_is_not_corrected(
+        self, mock_http
+    ):
+        """The registry refuses the mismatch; the wrapper does not hide it by
+        filling one from the other."""
+        seen = mock_http(_status(422, VALIDATION_ERROR))
+
+        with pytest.raises(RecRegistryApiError) as excinfo:
+            await _sync_client().put_topology_node(
+                "example-rec",
+                "AC000E00001",
+                _node_body("AC000E00002"),
+                token="tok-write",
+            )
+
+        assert seen[0].url.path == NODE_PATH
+        assert json.loads(seen[0].content)["id"] == "AC000E00002"
+        assert excinfo.value.status_code == 422
+        assert excinfo.value.code is None
+
+    # @verifies REQ-0131
+    # @verifies REQ-0127
+    async def test_a_type_change_an_area_relies_on_arrives_as_the_code(
+        self, mock_http
+    ):
+        mock_http(
+            _refusal(
+                422,
+                "Area 'area-one' needs a primary substation",
+                "invalid_area_boundary",
+            )
+        )
+
+        with pytest.raises(RecRegistryApiError) as excinfo:
+            await _sync_client().put_topology_node(
+                "example-rec",
+                "AC000E00001",
+                {**_node_body(), "type": "secondary_substation"},
+                token="tok-write",
+            )
+
+        assert excinfo.value.code == "invalid_area_boundary"
+
+    # @verifies REQ-0131
+    async def test_deleting_a_node_answers_the_community(self, mock_http):
+        seen = mock_http(_rows(_community(areas={}, nodes=[])))
+
+        community = await _sync_client().delete_topology_node(
+            "example-rec", "AC000E00001", token="tok-write"
+        )
+
+        assert seen[0].method == "DELETE"
+        assert seen[0].url.path == NODE_PATH
+        assert community.topology == []
+
+    # @verifies REQ-0131
+    # @verifies REQ-0127
+    async def test_a_node_an_area_lists_arrives_as_the_code(self, mock_http):
+        mock_http(
+            _refusal(
+                409,
+                "Topology node is listed by area(s): area-one",
+                "topology_node_in_use",
+            )
+        )
+
+        with pytest.raises(RecRegistryApiError) as excinfo:
+            await _sync_client().delete_topology_node(
+                "example-rec", "AC000E00001", token="tok-write"
+            )
+
+        assert excinfo.value.status_code == 409
+        assert excinfo.value.code == "topology_node_in_use"
+
+    # @verifies REQ-0131
+    async def test_an_absent_node_is_raised_not_read_as_deleted(self, mock_http):
+        mock_http(_refusal(404, "Topology node not found"))
+
+        with pytest.raises(RecRegistryApiError) as excinfo:
+            await _sync_client().delete_topology_node(
+                "example-rec", "AC000E00001", token="tok-write"
+            )
+
+        assert excinfo.value.status_code == 404
+        assert excinfo.value.code is None
+
+
+# ── Renaming an area with its members (REQ-0133) ─────────────────────────
+
+
+RENAME_PATH = "/admin/communities/example-rec/areas/area-one/rename"
+
+
+def _renamed(members_moved: int = 2) -> dict:
+    return {
+        "old_key": "area-one",
+        "new_key": "area-uno",
+        "members_moved": members_moved,
+        "community": _community(areas={"area-uno": _area_body()}),
+    }
+
+
+class TestRenamingAnArea:
+    # @verifies REQ-0133
+    async def test_it_posts_only_the_new_key_and_answers_what_moved(
+        self, mock_http
+    ):
+        seen = mock_http(_rows(_renamed()))
+
+        renamed = await _sync_client().rename_area(
+            "example-rec", "area-one", "area-uno", token="tok-write"
+        )
+
+        assert len(seen) == 1
+        assert seen[0].method == "POST"
+        assert seen[0].url.path == RENAME_PATH
+        assert seen[0].headers["authorization"] == "Bearer tok-write"
+        assert json.loads(seen[0].content) == {"new_key": "area-uno"}
+        assert (renamed.old_key, renamed.new_key, renamed.members_moved) == (
+            "area-one",
+            "area-uno",
+            2,
+        )
+        assert list(renamed.community.areas) == ["area-uno"]
+        area = renamed.community.areas["area-uno"]
+        assert (area.boundary.source, area.boundary.id) == (
+            "gse_cabine_primarie",
+            "AC000E00001",
+        )
+
+    # @verifies REQ-0133
+    async def test_a_renamed_area_is_one_write_then_the_sync_replaces_the_new_key(
+        self, mock_http
+    ):
+        """The plan's renamed-area case as the sync drives it: the rename moves
+        the area and its members in one request (no `PUT` under the new key,
+        which the one-substation rule refuses, and no `DELETE` of the old key,
+        which members block), and the sync's later `PUT` of the new key is an
+        ordinary replace."""
+        seen = mock_http(_rows(_renamed(), _community(areas={"area-uno": _area_body()})))
+        client = _sync_client()
+
+        renamed = await client.rename_area(
+            "example-rec", "area-one", "area-uno", token="tok-write"
+        )
+        community = await client.put_area(
+            "example-rec", "area-uno", _area_body(), token="tok-write"
+        )
+
+        assert [(r.method, r.url.path) for r in seen] == [
+            ("POST", RENAME_PATH),
+            ("PUT", "/admin/communities/example-rec/areas/area-uno"),
+        ]
+        assert renamed.members_moved == 2
+        assert list(community.areas) == ["area-uno"]
+
+    # @verifies REQ-0133
+    async def test_path_segments_are_quoted(self, mock_http):
+        seen = mock_http(_rows(_renamed()))
+
+        await _sync_client().rename_area(
+            "example-rec", "area one/x", "area-uno", token="tok-write"
+        )
+
+        assert seen[0].url.raw_path.decode() == (
+            "/admin/communities/example-rec/areas/area%20one%2Fx/rename"
+        )
+
+    # @verifies REQ-0133
+    # @verifies REQ-0127
+    @pytest.mark.parametrize(
+        ("status", "code"),
+        [
+            (422, "invalid_area_key"),
+            (404, "area_not_found"),
+            (409, "area_key_taken"),
+            (404, "community_not_found"),
+        ],
+    )
+    async def test_a_refusal_arrives_as_the_code(self, mock_http, status, code):
+        mock_http(_refusal(status, "Refused", code))
+
+        with pytest.raises(RecRegistryApiError) as excinfo:
+            await _sync_client().rename_area(
+                "example-rec", "area-one", "area uno", token="tok-write"
+            )
+
+        assert excinfo.value.status_code == status
+        assert excinfo.value.code == code
+        assert excinfo.value.detail == "Refused"
+
+    # @verifies REQ-0133
+    async def test_the_key_is_not_checked_here(self, mock_http):
+        """The key pattern is the registry's; the wrapper sends what it is given."""
+        seen = mock_http(_refusal(422, "Not an area key", "invalid_area_key"))
+
+        with pytest.raises(RecRegistryApiError):
+            await _sync_client().rename_area(
+                "example-rec", "area-one", "-bad key", token="tok-write"
+            )
+
+        assert json.loads(seen[0].content) == {"new_key": "-bad key"}
+
+    # @verifies REQ-0133
+    async def test_a_validation_422_has_no_code(self, mock_http):
+        mock_http(_status(422, VALIDATION_ERROR))
+
+        with pytest.raises(RecRegistryApiError) as excinfo:
+            await _sync_client().rename_area(
+                "example-rec", "area-one", "area-uno", token="tok-write"
+            )
+
+        assert excinfo.value.status_code == 422
+        assert excinfo.value.code is None
+
+    # @verifies REQ-0133
+    async def test_a_missing_grant_raises_the_wrappers_error(self, mock_http):
+        mock_http(_refusal(403, "Forbidden"))
+
+        with pytest.raises(RecRegistryApiError) as excinfo:
+            await _sync_client().rename_area(
+                "example-rec", "area-one", "area-uno", token="tok-write"
+            )
+
+        assert excinfo.value.status_code == 403
+        assert not isinstance(excinfo.value, UnexpectedStatus)
+
+    # @verifies REQ-0133
+    async def test_a_non_json_refusal_raises_without_a_code(self, mock_http):
+        mock_http(_raw(409, b"<html>conflict</html>"))
+
+        with pytest.raises(RecRegistryApiError) as excinfo:
+            await _sync_client().rename_area(
+                "example-rec", "area-one", "area-uno", token="tok-write"
+            )
+
+        assert excinfo.value.status_code == 409
+        assert (excinfo.value.code, excinfo.value.detail) == (None, None)
+
+    # @verifies REQ-0133
+    async def test_an_unreadable_200_raises(self, mock_http):
+        mock_http(_raw(200, b"<html>"))
+
+        with pytest.raises(RecRegistryApiError) as excinfo:
+            await _sync_client().rename_area(
+                "example-rec", "area-one", "area-uno", token="tok-write"
+            )
+
+        assert excinfo.value.status_code == 200
+
+    # @verifies REQ-0133
+    async def test_the_generated_vocabulary_names_the_rename_codes(self):
+        from celine.sdk.openapi.rec_registry.models import ErrorCode
+
+        for code in ("invalid_area_key", "area_not_found", "area_key_taken"):
+            assert ErrorCode(code).value == code
+
+
+# ── The self-service reads raise the wrapper's error (REQ-0132) ────────────
+
+
+NOT_A_MEMBER = {
+    "detail": "You are not a member of any community",
+    "code": "not_a_member",
+}
+
+USER_READS = [
+    ("get_my_community", (), "/user/community"),
+    ("get_my_member", (), "/user/member"),
+    ("get_my_assets", (), "/user/assets"),
+    ("get_my_asset", ("meter-SEN-1",), "/user/assets/meter-SEN-1"),
+    ("get_my_delivery_points", (), "/user/delivery-points"),
+]
+
+USER_ANSWERS = {
+    "get_my_community": {
+        "key": "example-rec",
+        "name": "Example REC",
+        "your_area": "area-one",
+        "your_role": "consumer",
+    },
+    "get_my_member": {
+        "key": "ex-00001",
+        "name": "Member One",
+        "area": "area-one",
+        "role": "consumer",
+        "status": "active",
+    },
+    "get_my_assets": {"items": [], "total": 0},
+    "get_my_asset": {
+        "key": "meter-SEN-1",
+        "name": "Meter",
+        "asset_type": "meter",
+        "sensor_id": "SEN-1",
+    },
+    "get_my_delivery_points": {"items": [], "total": 0},
+}
+
+
+def _user_client():
+    from celine.sdk.rec_registry import RecRegistryUserClient
+
+    return RecRegistryUserClient("http://registry.test", default_token="tok-user")
+
+
+class TestASelfServiceRefusalRaisesTheWrappersError:
+    # @verifies REQ-0132
+    @pytest.mark.parametrize(("method", "args", "path"), USER_READS)
+    async def test_not_a_member_arrives_as_the_code(
+        self, mock_http, method, args, path
+    ):
+        seen = mock_http(_status(403, NOT_A_MEMBER))
+
+        with pytest.raises(RecRegistryApiError) as excinfo:
+            await getattr(_user_client(), method)(*args)
+
+        assert seen[0].method == "GET"
+        assert seen[0].url.path == path
+        assert seen[0].headers["authorization"] == "Bearer tok-user"
+        assert excinfo.value.status_code == 403
+        assert excinfo.value.code == "not_a_member"
+        assert excinfo.value.detail == NOT_A_MEMBER["detail"]
+        assert json.loads(excinfo.value.body) == NOT_A_MEMBER
+
+    # @verifies REQ-0132
+    @pytest.mark.parametrize(("method", "args", "path"), USER_READS)
+    async def test_a_non_json_declared_status_raises_without_a_code(
+        self, mock_http, method, args, path
+    ):
+        """A proxy's HTML page on the `403` the route declares: the generated
+        parse would call `response.json()` on it and fail with a decode error."""
+        mock_http(_raw(403, b"<html>forbidden</html>"))
+
+        with pytest.raises(RecRegistryApiError) as excinfo:
+            await getattr(_user_client(), method)(*args)
+
+        assert excinfo.value.status_code == 403
+        assert (excinfo.value.code, excinfo.value.detail) == (None, None)
+        assert excinfo.value.body == b"<html>forbidden</html>"
+
+    # @verifies REQ-0132
+    @pytest.mark.parametrize(("method", "args", "path"), USER_READS)
+    async def test_an_undeclared_status_raises_the_same_error(
+        self, mock_http, method, args, path
+    ):
+        mock_http(_raw(502, b"bad gateway", "text/plain"))
+
+        with pytest.raises(RecRegistryApiError) as excinfo:
+            await getattr(_user_client(), method)(*args)
+
+        assert excinfo.value.status_code == 502
+        assert not isinstance(excinfo.value, UnexpectedStatus)
+
+    # @verifies REQ-0132
+    async def test_a_non_json_validation_status_raises_without_a_code(
+        self, mock_http
+    ):
+        """`/user/assets/{asset_key}` also declares `422`."""
+        mock_http(_raw(422, b"<html>"))
+
+        with pytest.raises(RecRegistryApiError) as excinfo:
+            await _user_client().get_my_asset("meter-SEN-1")
+
+        assert excinfo.value.status_code == 422
+        assert excinfo.value.code is None
+
+    # @verifies REQ-0132
+    @pytest.mark.parametrize(("method", "args", "path"), USER_READS)
+    async def test_a_200_answers_the_schema(self, mock_http, method, args, path):
+        mock_http(_rows(USER_ANSWERS[method]))
+
+        answer = await getattr(_user_client(), method)(*args)
+
+        assert answer is not None
+        assert answer.model_dump(exclude_none=True) == {
+            k: v for k, v in USER_ANSWERS[method].items()
+        }
+
+    # @verifies REQ-0132
+    @pytest.mark.parametrize(("method", "args", "path"), USER_READS)
+    async def test_an_unreadable_200_raises(self, mock_http, method, args, path):
+        mock_http(_raw(200, b"<html>"))
+
+        with pytest.raises(RecRegistryApiError) as excinfo:
+            await getattr(_user_client(), method)(*args)
+
+        assert excinfo.value.status_code == 200
+
+    # @verifies REQ-0132
+    async def test_a_member_owning_nothing_is_not_a_refusal(self, mock_http):
+        mock_http(_rows({"items": [], "total": 0}))
+
+        assets = await _user_client().get_my_assets()
+
+        assert (assets.items, assets.total) == ([], 0)
+
+    # @verifies REQ-0132
+    async def test_the_generated_vocabulary_names_the_new_codes(self):
+        from celine.sdk.openapi.rec_registry.models import ErrorCode
+
+        assert ErrorCode("not_a_member").value == "not_a_member"
+        assert ErrorCode("topology_node_in_use").value == "topology_node_in_use"

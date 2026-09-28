@@ -74,7 +74,9 @@ def sync_detailed(
 
     Args:
         rec_slug (str):
-        body (CsvExportRequest):
+        body (CsvExportRequest): No fields. The register export is for the community's own use and
+            names no
+            recipient; a body is still accepted so existing callers sending ``{}`` work.
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
@@ -108,7 +110,9 @@ def sync(
 
     Args:
         rec_slug (str):
-        body (CsvExportRequest):
+        body (CsvExportRequest): No fields. The register export is for the community's own use and
+            names no
+            recipient; a body is still accepted so existing callers sending ``{}`` work.
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
@@ -137,7 +141,9 @@ async def asyncio_detailed(
 
     Args:
         rec_slug (str):
-        body (CsvExportRequest):
+        body (CsvExportRequest): No fields. The register export is for the community's own use and
+            names no
+            recipient; a body is still accepted so existing callers sending ``{}`` work.
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
@@ -169,7 +175,9 @@ async def asyncio(
 
     Args:
         rec_slug (str):
-        body (CsvExportRequest):
+        body (CsvExportRequest): No fields. The register export is for the community's own use and
+            names no
+            recipient; a body is still accepted so existing callers sending ``{}`` work.
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.

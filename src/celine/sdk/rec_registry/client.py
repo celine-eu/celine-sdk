@@ -7,9 +7,10 @@ Initialize once, pass tokens per-call - no client recreation overhead.
 from __future__ import annotations
 
 from http import HTTPStatus
-from typing import Any, Awaitable, Callable, Mapping, Optional
+from typing import Any, Awaitable, Callable, Mapping, Optional, TypeVar
 
 import httpx
+from pydantic import BaseModel
 
 from celine.sdk.auth import TokenProvider
 from celine.sdk.openapi.rec_registry import AuthenticatedClient, Client
@@ -60,7 +61,25 @@ from celine.sdk.openapi.rec_registry.api.admin import (
     patch_member_admin_communities_community_key_members_member_key_patch as _patch_member,
 )
 from celine.sdk.openapi.rec_registry.api.admin import (
+    patch_member_profile_admin_communities_community_key_members_member_key_profile_patch as _patch_member_profile,
+)
+from celine.sdk.openapi.rec_registry.api.admin import (
     upsert_asset_admin_communities_community_key_members_member_key_assets_asset_key_put as _upsert_asset,
+)
+from celine.sdk.openapi.rec_registry.api.admin import (
+    upsert_area_admin_communities_community_key_areas_area_key_put as _upsert_area,
+)
+from celine.sdk.openapi.rec_registry.api.admin import (
+    delete_area_admin_communities_community_key_areas_area_key_delete as _delete_area,
+)
+from celine.sdk.openapi.rec_registry.api.admin import (
+    rename_area_admin_communities_community_key_areas_area_key_rename_post as _rename_area,
+)
+from celine.sdk.openapi.rec_registry.api.admin import (
+    upsert_topology_node_admin_communities_community_key_topology_node_id_put as _upsert_topology_node,
+)
+from celine.sdk.openapi.rec_registry.api.admin import (
+    delete_topology_node_admin_communities_community_key_topology_node_id_delete as _delete_topology_node,
 )
 from celine.sdk.openapi.rec_registry.api.admin import (
     upsert_delivery_point_admin_communities_community_key_members_member_key_delivery_points_point_id_put as _upsert_delivery_point,
@@ -74,6 +93,8 @@ from celine.sdk.openapi.rec_registry.api.me import (
     get_my_member_user_member_get,
 )
 from celine.sdk.openapi.rec_registry.models import (
+    AreaRename,
+    AreaUpsert,
     AssetUpsert,
     DeletionReport,
     DeliveryPointIn,
@@ -82,6 +103,7 @@ from celine.sdk.openapi.rec_registry.models import (
     MemberCreate,
     MemberDetail,
     MemberPatch,
+    MemberProfilePatch,
     MemberStatusChange,
     MultiImportReport,
     UserAssetsResponse,
@@ -91,6 +113,7 @@ from celine.sdk.openapi.rec_registry.models import (
     UserDeliveryPointsResponse,
     UserAssetDetail,
     SensorIdsBatchRequest,
+    TopologyNodeIn,
     UserIdsBatchRequest,
     DidsBatchRequest,
 )
@@ -101,7 +124,9 @@ from celine.sdk.rec_registry.errors import RecRegistryApiError
 from celine.sdk.utils.convert import to_schema
 
 from celine.sdk.openapi.rec_registry.schemas import (
+    AreaRenamedSchema,
     AssetDetailSchema,
+    CommunityDetailSchema,
     DeliveryPointLookupSchema,
     DeliveryPointsResponseSchema,
     GlobalAssetLookupSchema,
@@ -110,6 +135,7 @@ from celine.sdk.openapi.rec_registry.schemas import (
     LookupByDeliveryPointResponseSchema,
     LookupBySensorIdResponseSchema,
     LookupByUserIdResponseSchema,
+    MemberDetailSchema,
     UserAssetsResponseSchema,
     UserCommunityDetailSchema,
     UserMeResponseSchema,
@@ -124,7 +150,10 @@ __all__ = [
     "RecRegistryUserClient",
     "RecRegistryAdminClient",
     "RecRegistryApiError",
+    "AreaRenamedSchema",
     "AssetDetailSchema",
+    "CommunityDetailSchema",
+    "MemberDetailSchema",
     "MAX_BATCH_LOOKUP_IDS",
 ]
 
@@ -138,6 +167,49 @@ __all__ = [
 #: twice the two copies disagreed for months (rec-registry#37), which is why it
 #: is named here rather than typed into the two call sites.
 MAX_BATCH_LOOKUP_IDS = 500
+
+SchemaT = TypeVar("SchemaT", bound=BaseModel)
+
+
+def _refused(response: httpx.Response, what: str) -> RecRegistryApiError:
+    """The wrapper's error for a registry answer the helper does not take as success.
+
+    Carries the status, the raw body and, when the registry named one, its
+    refusal `code` read from the top level of the body (REQ-0127). A body that
+    is not JSON leaves `code` and `detail` at `None`; nothing is parsed out of
+    the sentence.
+    """
+    code, detail = RecRegistryApiError.refusal_of(response.content)
+    sentence = detail if isinstance(detail, str) else None
+    return RecRegistryApiError(
+        f"{what} refused: rec-registry answered {response.status_code}"
+        + (f" {code}" if code else "")
+        + (f" ({sentence})" if sentence else ""),
+        status_code=response.status_code,
+        body=response.content,
+        code=code,
+        detail=detail,
+    )
+
+
+def _answer(response: httpx.Response, schema: type[SchemaT], what: str) -> SchemaT:
+    """`200` parsed into `schema`; anything else raises `RecRegistryApiError`.
+
+    The response is read here, never by the generated `_parse_response`, which
+    calls `response.json()` on every status it declares and so fails with a
+    decode error on a proxy's HTML `403`, and maps `code` onto a generated enum.
+    An unreadable `200` raises too, rather than answering nothing.
+    """
+    if response.status_code != HTTPStatus.OK:
+        raise _refused(response, what)
+    try:
+        return schema.model_validate(response.json())
+    except ValueError as exc:
+        raise RecRegistryApiError(
+            f"{what}: rec-registry answered 200 with nothing readable",
+            status_code=response.status_code,
+            body=response.content,
+        ) from exc
 
 
 class RecRegistryUserClient:
@@ -212,58 +284,102 @@ class RecRegistryUserClient:
         res = await get_me_user_get.asyncio_detailed(client=client)
         return to_schema(res.parsed, UserMeResponseSchema)
 
+    # The self-service reads below send through the generated request builder
+    # (`_get_kwargs`), so path and quoting stay generated, and read the
+    # response themselves (REQ-0132): anything but `200` raises
+    # `RecRegistryApiError` with the registry's `code` — `not_a_member` on the
+    # `403` a caller who is no member gets — and a body that is not JSON (a
+    # proxy's page on a status the route declares) raises the same error with
+    # no code, never a decode error from the generated parse.
+
+    async def _read_mine(
+        self,
+        kwargs: dict[str, Any],
+        schema: type[SchemaT],
+        what: str,
+        token: Optional[str],
+    ) -> SchemaT:
+        client = self._get_client(token)
+        response = await client.get_async_httpx_client().request(**kwargs)
+        return _answer(response, schema, what)
+
     async def get_my_community(
         self, *, token: Optional[str] = None
-    ) -> UserCommunityDetailSchema | None:
-        """Get user's community details."""
-        client = self._get_client(token)
-        res = await get_my_community_user_community_get.asyncio_detailed(client=client)
-        return to_schema(res.parsed, UserCommunityDetailSchema)
+    ) -> UserCommunityDetailSchema:
+        """Get the caller's community.
+
+        Raises :class:`RecRegistryApiError` on anything but `200`; a caller
+        who is no member gets `status_code` 403 and `code` `not_a_member`.
+        """
+        return await self._read_mine(
+            get_my_community_user_community_get._get_kwargs(),
+            UserCommunityDetailSchema,
+            "get-my-community",
+            token,
+        )
 
     async def get_my_member(
         self, *, token: Optional[str] = None
-    ) -> UserMemberDetailSchema | None:
-        """Get user's member details."""
-        client = self._get_client(token)
-        res = await get_my_member_user_member_get.asyncio_detailed(client=client)
-        return to_schema(res.parsed, UserMemberDetailSchema)
+    ) -> UserMemberDetailSchema:
+        """Get the caller's member record.
+
+        Raises :class:`RecRegistryApiError` on anything but `200`; a caller
+        who is no member gets `status_code` 403 and `code` `not_a_member`.
+        """
+        return await self._read_mine(
+            get_my_member_user_member_get._get_kwargs(),
+            UserMemberDetailSchema,
+            "get-my-member",
+            token,
+        )
 
     async def get_my_assets(
         self, *, token: Optional[str] = None
-    ) -> UserAssetsResponseSchema | None:
-        """List all assets owned by the user."""
-        client = self._get_client(token)
-        res = await get_my_assets_user_assets_get.asyncio_detailed(client=client)
-        if isinstance(res.parsed, HTTPValidationError):
-            raise Exception(res.parsed)
-        return to_schema(res.parsed, UserAssetsResponseSchema)
+    ) -> UserAssetsResponseSchema:
+        """List the assets the caller owns.
+
+        Raises :class:`RecRegistryApiError` on anything but `200`; a caller
+        who is no member gets `status_code` 403 and `code` `not_a_member` —
+        which is not the same answer as a member owning nothing (`200`, no
+        items).
+        """
+        return await self._read_mine(
+            get_my_assets_user_assets_get._get_kwargs(),
+            UserAssetsResponseSchema,
+            "get-my-assets",
+            token,
+        )
 
     async def get_my_asset(
         self, asset_key: str, *, token: Optional[str] = None
-    ) -> UserAssetDetailSchema | None:
-        """Get specific asset owned by the user."""
-        client = self._get_client(token)
-        res = await get_my_asset_user_assets_asset_key_get.asyncio_detailed(
-            client=client,
-            asset_key=asset_key,
+    ) -> UserAssetDetailSchema:
+        """Get one asset the caller owns.
+
+        Raises :class:`RecRegistryApiError` on anything but `200`: `403`
+        `not_a_member` for a caller who is no member, `404` for an asset the
+        caller does not own.
+        """
+        return await self._read_mine(
+            get_my_asset_user_assets_asset_key_get._get_kwargs(asset_key=asset_key),
+            UserAssetDetailSchema,
+            "get-my-asset",
+            token,
         )
-
-        if isinstance(res.parsed, HTTPValidationError):
-            raise Exception(res.parsed)
-
-        return to_schema(res.parsed, UserAssetDetailSchema)
 
     async def get_my_delivery_points(
         self, *, token: Optional[str] = None
-    ) -> UserDeliveryPointsResponseSchema | None:
-        """Get user's delivery points."""
-        client = self._get_client(token)
+    ) -> UserDeliveryPointsResponseSchema:
+        """Get the caller's delivery points.
 
-        res = await get_my_delivery_points_user_delivery_points_get.asyncio_detailed(
-            client=client
+        Raises :class:`RecRegistryApiError` on anything but `200`; a caller
+        who is no member gets `status_code` 403 and `code` `not_a_member`.
+        """
+        return await self._read_mine(
+            get_my_delivery_points_user_delivery_points_get._get_kwargs(),
+            UserDeliveryPointsResponseSchema,
+            "get-my-delivery-points",
+            token,
         )
-
-        return to_schema(res.parsed, UserDeliveryPointsResponseSchema)
 
 
 class RecRegistryAdminClient:
@@ -878,8 +994,8 @@ class RecRegistryAdminClient:
     # `RecRegistryApiError` on anything else, carrying the registry's refusal
     # `code` (`sensor_held`, `asset_key_taken`, ...). They are for callers to
     # whom a refusal is an answer to show a person — the community dashboard
-    # attaching and detaching a member's meter — rather than a branch in a
-    # retry loop.
+    # attaching and detaching a member's meter, or correcting a member's role
+    # and area — rather than a branch in a retry loop.
     #
     # They send through the generated request builder (`_get_kwargs`), so the
     # path, quoting and body stay generated, and read the response here: the
@@ -895,17 +1011,7 @@ class RecRegistryAdminClient:
 
     @staticmethod
     def _refused(response: httpx.Response, what: str) -> RecRegistryApiError:
-        code, detail = RecRegistryApiError.refusal_of(response.content)
-        sentence = detail if isinstance(detail, str) else None
-        return RecRegistryApiError(
-            f"{what} refused: rec-registry answered {response.status_code}"
-            + (f" {code}" if code else "")
-            + (f" ({sentence})" if sentence else ""),
-            status_code=response.status_code,
-            body=response.content,
-            code=code,
-            detail=detail,
-        )
+        return _refused(response, what)
 
     async def put_asset(
         self,
@@ -991,6 +1097,266 @@ class RecRegistryAdminClient:
         )
         if response.status_code != HTTPStatus.NO_CONTENT:
             raise self._refused(response, "delete-asset")
+
+    async def patch_member_profile(
+        self,
+        community_key: str,
+        member_key: str,
+        *,
+        role: Optional[str] = None,
+        area: Optional[str] = None,
+        token: Optional[str] = None,
+    ) -> MemberDetailSchema:
+        """Correct one member's role and area; the way a manager edits a member.
+
+        Sends `PATCH /admin/communities/{community_key}/members/{member_key}/profile`
+        with a body of only the keys given, out of `role` and `area`. A key left
+        at `None` is omitted, never sent as `null`; there is no parameter for
+        any other member field, so `user_id`, `did`, `status` and the rest
+        cannot be sent from here. It never falls back to the general member
+        `PATCH`, which needs `rec-registry.members.write` — a grant that can
+        rewrite a member's identity and status.
+
+        Calling it with neither raises :class:`ValueError` without sending
+        anything: the registry refuses an empty body, with no code to show.
+
+        Values are passed as given: which roles a caller may set (the
+        dashboard allows only consumer and prosumer) is the caller's rule, and
+        the role and area sets are the registry's.
+
+        Answers the updated member as the generated :class:`MemberDetailSchema`.
+        Anything but `200` raises :class:`RecRegistryApiError`; branch on its
+        `code`: `invalid_role` or `unknown_area` (`422`), `member_not_found` or
+        `community_not_found` (`404`); `None` for a validation `422` or a
+        missing grant (`403`). Needs `rec-registry.members.profile.write`
+        (`rec-registry.members.write` and `rec-registry.admin` also satisfy it).
+        """
+        if role is None and area is None:
+            raise ValueError("patch_member_profile needs a role, an area, or both")
+        payload = MemberProfilePatch(
+            role=UNSET if role is None else role,
+            area=UNSET if area is None else area,
+        )
+        client = await self._get_client(token)
+        response = await self._send(
+            client,
+            _patch_member_profile._get_kwargs(
+                community_key=community_key,
+                member_key=member_key,
+                body=payload,
+            ),
+        )
+        if response.status_code != HTTPStatus.OK:
+            raise self._refused(response, "patch-member-profile")
+        try:
+            return MemberDetailSchema.model_validate(response.json())
+        except ValueError as exc:
+            raise RecRegistryApiError(
+                "patch-member-profile: rec-registry answered 200 with nothing readable",
+                status_code=response.status_code,
+                body=response.content,
+            ) from exc
+
+    # ── Areas and topology: the onboarding template sync ────────────────
+    #
+    # Onboarding owns a community's areas (its templates) and writes them to
+    # the registry: each substation as one topology node, then the area that
+    # references it. The sync's refusals are answers it reports to an admin
+    # (`invalid_area_boundary`, `area_in_use`, `topology_node_in_use`,
+    # `community_not_found`), so these follow the raising helpers above: a
+    # schema on success, `RecRegistryApiError` with the registry's `code` on
+    # anything else. Every write answers the whole community, as the registry
+    # does, so the caller sees the areas and nodes it did not touch.
+
+    @staticmethod
+    def _community_answer(
+        response: httpx.Response, what: str
+    ) -> CommunityDetailSchema:
+        return _answer(response, CommunityDetailSchema, what)
+
+    async def read_community(
+        self, community_key: str, *, token: Optional[str] = None
+    ) -> CommunityDetailSchema:
+        """Read one community, its areas and its topology, or raise.
+
+        Sends `GET /admin/communities/{community_key}` and answers the
+        generated :class:`CommunityDetailSchema` — `areas` (each with its
+        `boundary` and `topology`) and `topology` (each node's `id`, `type`,
+        `name`, `operator_id`, `parent`). This is the read a sync compares a
+        template against, and the drift check with it.
+
+        Unlike :meth:`get_community`, which answers the undecoded response
+        and raises the generated `UnexpectedStatus` on an undeclared status,
+        anything but `200` raises :class:`RecRegistryApiError` — a missing
+        community included (`404`; this route names no `code` for it and does
+        not declare it), so it is never read as a community with no areas.
+        Needs the registry's `read` action (`rec-registry.read`).
+        """
+        client = await self._get_client(token)
+        response = await self._send(
+            client,
+            get_community_admin_communities_community_key_get._get_kwargs(
+                community_key=community_key
+            ),
+        )
+        return self._community_answer(response, "read-community")
+
+    async def put_area(
+        self,
+        community_key: str,
+        area_key: str,
+        body: AreaUpsert | Mapping[str, Any],
+        *,
+        token: Optional[str] = None,
+    ) -> CommunityDetailSchema:
+        """Add or replace one area of a community, keeping the others.
+
+        Sends `PUT /admin/communities/{community_key}/areas/{area_key}` with
+        the body as given — `{name, boundary: {source, id}, topology: [id]}` —
+        and nothing added: the one-substation rule is the registry's, and it
+        is judged there. The node the area lists must already be in the
+        community's topology (:meth:`put_topology_node` first).
+
+        Answers the whole community. Anything but `200` raises
+        :class:`RecRegistryApiError`; branch on its `code`:
+        `invalid_area_boundary` (`422`), `community_not_found` (`404`);
+        `None` for a validation `422` or a missing grant (`403`). Needs
+        `rec-registry.community.write`.
+        """
+        payload = body if isinstance(body, AreaUpsert) else AreaUpsert.from_dict(body)
+        client = await self._get_client(token)
+        response = await self._send(
+            client,
+            _upsert_area._get_kwargs(
+                community_key=community_key, area_key=area_key, body=payload
+            ),
+        )
+        return self._community_answer(response, "put-area")
+
+    async def delete_area(
+        self,
+        community_key: str,
+        area_key: str,
+        *,
+        token: Optional[str] = None,
+    ) -> CommunityDetailSchema:
+        """Delete one area of a community, unless members still reference it.
+
+        Sends `DELETE /admin/communities/{community_key}/areas/{area_key}`
+        and answers the whole community. A refusal raises
+        :class:`RecRegistryApiError`: `area_in_use` (`409`, members reference
+        the area — the registry's sentence names how many, and the wrapper
+        does not parse it), `community_not_found` (`404`), and a `404` with no
+        code for an area the community does not have, which is not read as
+        "already deleted": whether that is success is the caller's decision.
+        Needs `rec-registry.community.write`.
+        """
+        client = await self._get_client(token)
+        response = await self._send(
+            client,
+            _delete_area._get_kwargs(community_key=community_key, area_key=area_key),
+        )
+        return self._community_answer(response, "delete-area")
+
+    async def rename_area(
+        self,
+        community_key: str,
+        area_key: str,
+        new_key: str,
+        *,
+        token: Optional[str] = None,
+    ) -> AreaRenamedSchema:
+        """Move one area to a new key, with the members that reference it.
+
+        Sends `POST /admin/communities/{community_key}/areas/{area_key}/rename`
+        with a body of only `{"new_key": new_key}`. The registry moves the
+        area as stored (name, boundary, topology) and every member of the
+        community whose `area` is `area_key`, of any status, in one write; the
+        wrapper sends nothing else and does not follow up with a `PUT` or a
+        `DELETE` of its own. This is how a template sync renames an area whose
+        substation the registry holds under another key: a `PUT` under the new
+        key is refused (one area per boundary) and the old key cannot be
+        deleted while members hold it.
+
+        Answers the generated :class:`AreaRenamedSchema` — `old_key`,
+        `new_key`, `members_moved` and the whole community after the rename.
+        Anything but `200` raises :class:`RecRegistryApiError`; branch on its
+        `code`: `invalid_area_key` (`422`, `new_key` is not an area key),
+        `area_not_found` (`404`), `area_key_taken` (`409`, `new_key` already
+        exists, the old key included), `community_not_found` (`404`); `None`
+        for a validation `422` or a missing grant (`403`). The key pattern is
+        the registry's and is not checked here. Needs
+        `rec-registry.community.write`.
+        """
+        client = await self._get_client(token)
+        response = await self._send(
+            client,
+            _rename_area._get_kwargs(
+                community_key=community_key,
+                area_key=area_key,
+                body=AreaRename(new_key=new_key),
+            ),
+        )
+        return _answer(response, AreaRenamedSchema, "rename-area")
+
+    async def put_topology_node(
+        self,
+        community_key: str,
+        node_id: str,
+        body: TopologyNodeIn | Mapping[str, Any],
+        *,
+        token: Optional[str] = None,
+    ) -> CommunityDetailSchema:
+        """Add or replace one topology node of a community, keeping the others.
+
+        Sends `PUT /admin/communities/{community_key}/topology/{node_id}` with
+        the body as given — `{id, type, name?, operator_id?, parent?}`. The
+        registry merges by `id` and refuses a body `id` that differs from the
+        path; the wrapper does not fill one from the other.
+
+        Answers the whole community. Anything but `200` raises
+        :class:`RecRegistryApiError`; branch on its `code`:
+        `invalid_area_boundary` (`422`, the write would change the `type` of
+        a node an area relies on), `community_not_found` (`404`); `None` for a
+        validation `422` (a body `id` that is not the path's, among others) or
+        a missing grant (`403`). Needs `rec-registry.community.write`.
+        """
+        payload = (
+            body if isinstance(body, TopologyNodeIn) else TopologyNodeIn.from_dict(body)
+        )
+        client = await self._get_client(token)
+        response = await self._send(
+            client,
+            _upsert_topology_node._get_kwargs(
+                community_key=community_key, node_id=node_id, body=payload
+            ),
+        )
+        return self._community_answer(response, "put-topology-node")
+
+    async def delete_topology_node(
+        self,
+        community_key: str,
+        node_id: str,
+        *,
+        token: Optional[str] = None,
+    ) -> CommunityDetailSchema:
+        """Delete one topology node, unless an area still lists it.
+
+        Sends `DELETE /admin/communities/{community_key}/topology/{node_id}`
+        and answers the whole community. A refusal raises
+        :class:`RecRegistryApiError`: `topology_node_in_use` (`409`, the
+        registry's sentence names the areas), `community_not_found` (`404`),
+        and a `404` with no code for a node the community does not have —
+        not read as "already deleted". Needs `rec-registry.community.write`.
+        """
+        client = await self._get_client(token)
+        response = await self._send(
+            client,
+            _delete_topology_node._get_kwargs(
+                community_key=community_key, node_id=node_id
+            ),
+        )
+        return self._community_answer(response, "delete-topology-node")
 
     async def lookup_assets_by_user_ids(
         self,

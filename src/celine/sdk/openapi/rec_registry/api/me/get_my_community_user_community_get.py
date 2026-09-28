@@ -5,6 +5,7 @@ import httpx
 
 from ... import errors
 from ...client import AuthenticatedClient, Client
+from ...models.error_response import ErrorResponse
 from ...models.user_community_detail import UserCommunityDetail
 from ...types import Response
 
@@ -18,11 +19,18 @@ def _get_kwargs() -> dict[str, Any]:
     return _kwargs
 
 
-def _parse_response(*, client: AuthenticatedClient | Client, response: httpx.Response) -> UserCommunityDetail | None:
+def _parse_response(
+    *, client: AuthenticatedClient | Client, response: httpx.Response
+) -> ErrorResponse | UserCommunityDetail | None:
     if response.status_code == 200:
         response_200 = UserCommunityDetail.from_dict(response.json())
 
         return response_200
+
+    if response.status_code == 403:
+        response_403 = ErrorResponse.from_dict(response.json())
+
+        return response_403
 
     if client.raise_on_unexpected_status:
         raise errors.UnexpectedStatus(response.status_code, response.content)
@@ -30,7 +38,9 @@ def _parse_response(*, client: AuthenticatedClient | Client, response: httpx.Res
         return None
 
 
-def _build_response(*, client: AuthenticatedClient | Client, response: httpx.Response) -> Response[UserCommunityDetail]:
+def _build_response(
+    *, client: AuthenticatedClient | Client, response: httpx.Response
+) -> Response[ErrorResponse | UserCommunityDetail]:
     return Response(
         status_code=HTTPStatus(response.status_code),
         content=response.content,
@@ -42,7 +52,7 @@ def _build_response(*, client: AuthenticatedClient | Client, response: httpx.Res
 def sync_detailed(
     *,
     client: AuthenticatedClient | Client,
-) -> Response[UserCommunityDetail]:
+) -> Response[ErrorResponse | UserCommunityDetail]:
     """Get My Community
 
      Get the community the current user belongs to.
@@ -54,7 +64,7 @@ def sync_detailed(
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Response[UserCommunityDetail]
+        Response[ErrorResponse | UserCommunityDetail]
     """
 
     kwargs = _get_kwargs()
@@ -69,7 +79,7 @@ def sync_detailed(
 def sync(
     *,
     client: AuthenticatedClient | Client,
-) -> UserCommunityDetail | None:
+) -> ErrorResponse | UserCommunityDetail | None:
     """Get My Community
 
      Get the community the current user belongs to.
@@ -81,7 +91,7 @@ def sync(
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        UserCommunityDetail
+        ErrorResponse | UserCommunityDetail
     """
 
     return sync_detailed(
@@ -92,7 +102,7 @@ def sync(
 async def asyncio_detailed(
     *,
     client: AuthenticatedClient | Client,
-) -> Response[UserCommunityDetail]:
+) -> Response[ErrorResponse | UserCommunityDetail]:
     """Get My Community
 
      Get the community the current user belongs to.
@@ -104,7 +114,7 @@ async def asyncio_detailed(
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Response[UserCommunityDetail]
+        Response[ErrorResponse | UserCommunityDetail]
     """
 
     kwargs = _get_kwargs()
@@ -117,7 +127,7 @@ async def asyncio_detailed(
 async def asyncio(
     *,
     client: AuthenticatedClient | Client,
-) -> UserCommunityDetail | None:
+) -> ErrorResponse | UserCommunityDetail | None:
     """Get My Community
 
      Get the community the current user belongs to.
@@ -129,7 +139,7 @@ async def asyncio(
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        UserCommunityDetail
+        ErrorResponse | UserCommunityDetail
     """
 
     return (

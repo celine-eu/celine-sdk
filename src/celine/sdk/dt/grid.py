@@ -12,7 +12,7 @@ from __future__ import annotations
 import logging
 from typing import Any, TYPE_CHECKING
 
-from celine.sdk.dt.util import unwrap, DTApiError
+from celine.sdk.dt.util import unwrap, DTApiError, log_refusal
 from celine.sdk.openapi.dt.types import UNSET
 
 from celine.sdk.openapi.dt.models import (
@@ -302,7 +302,7 @@ class GridClient:
         )
         data = unwrap(result)
         if isinstance(data, HTTPValidationError):
-            logger.warning(data.detail)
+            log_refusal(logger, f"fetcher {fetcher_id}", result, data)
             raise DTApiError("Validation error", 500)
         return data
 

@@ -1,60 +1,40 @@
 from __future__ import annotations
 
 from collections.abc import Mapping
-from typing import Any, TypeVar, cast
+from typing import Any, TypeVar
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
-
-from ..types import UNSET, Unset
 
 T = TypeVar("T", bound="PodListRequest")
 
 
 @_attrs_define
 class PodListRequest:
-    """
-    Attributes:
-        offer_id (str): Consent is purpose-scoped: somebody who agreed to a different offer has not agreed to this
-            handover.
-        recipient_ref (str):
-        agreement_ref (None | str | Unset):
-        purpose (list[str] | Unset):
+    """The offer, and nothing else.
+
+    ``recipient_ref`` was dropped (ADR-0010, amended 2026-09-25): the party the
+    offer's consent is read for comes from the offer. A caller still sending it
+    is not refused — unknown fields are ignored, like any other — so a body
+    written for the old contract keeps working, and names nobody.
+
+        Attributes:
+            offer_id (str): Consent is purpose-scoped: somebody who agreed to a different offer has not agreed to this one.
     """
 
     offer_id: str
-    recipient_ref: str
-    agreement_ref: None | str | Unset = UNSET
-    purpose: list[str] | Unset = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
         offer_id = self.offer_id
-
-        recipient_ref = self.recipient_ref
-
-        agreement_ref: None | str | Unset
-        if isinstance(self.agreement_ref, Unset):
-            agreement_ref = UNSET
-        else:
-            agreement_ref = self.agreement_ref
-
-        purpose: list[str] | Unset = UNSET
-        if not isinstance(self.purpose, Unset):
-            purpose = self.purpose
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update(
             {
                 "offer_id": offer_id,
-                "recipient_ref": recipient_ref,
             }
         )
-        if agreement_ref is not UNSET:
-            field_dict["agreement_ref"] = agreement_ref
-        if purpose is not UNSET:
-            field_dict["purpose"] = purpose
 
         return field_dict
 
@@ -63,24 +43,8 @@ class PodListRequest:
         d = dict(src_dict)
         offer_id = d.pop("offer_id")
 
-        recipient_ref = d.pop("recipient_ref")
-
-        def _parse_agreement_ref(data: object) -> None | str | Unset:
-            if data is None:
-                return data
-            if isinstance(data, Unset):
-                return data
-            return cast(None | str | Unset, data)
-
-        agreement_ref = _parse_agreement_ref(d.pop("agreement_ref", UNSET))
-
-        purpose = cast(list[str], d.pop("purpose", UNSET))
-
         pod_list_request = cls(
             offer_id=offer_id,
-            recipient_ref=recipient_ref,
-            agreement_ref=agreement_ref,
-            purpose=purpose,
         )
 
         pod_list_request.additional_properties = d

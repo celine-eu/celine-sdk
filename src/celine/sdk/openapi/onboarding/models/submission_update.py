@@ -11,9 +11,11 @@ from ..models.submission_update_locale_type_0 import SubmissionUpdateLocaleType0
 from ..types import UNSET, Unset
 
 if TYPE_CHECKING:
+    from ..models.presented_offer import PresentedOffer
     from ..models.submission_update_extra_data_type_0 import SubmissionUpdateExtraDataType0
     from ..models.submission_update_extracted_data_type_0 import SubmissionUpdateExtractedDataType0
     from ..models.submission_update_id_extracted_data_type_0 import SubmissionUpdateIdExtractedDataType0
+    from ..models.supply_address import SupplyAddress
 
 
 T = TypeVar("T", bound="SubmissionUpdate")
@@ -28,6 +30,7 @@ class SubmissionUpdate:
         data_sharing_consent_offer_ids (list[str] | None | Unset):
         data_sharing_consent_text_sha256 (None | str | Unset):
         data_sharing_consent_text_version (None | str | Unset):
+        data_sharing_offers_presented (list[PresentedOffer] | None | Unset):
         email (None | str | Unset):
         extra_data (None | SubmissionUpdateExtraDataType0 | Unset):
         extracted_data (None | SubmissionUpdateExtractedDataType0 | Unset):
@@ -42,6 +45,7 @@ class SubmissionUpdate:
         pod_code (None | str | Unset):
         status (None | SubmissionStatus | Unset):
         statute_consent (bool | None | Unset):
+        supply_address (None | SupplyAddress | Unset):
         supply_municipality (None | str | Unset):
     """
 
@@ -50,6 +54,7 @@ class SubmissionUpdate:
     data_sharing_consent_offer_ids: list[str] | None | Unset = UNSET
     data_sharing_consent_text_sha256: None | str | Unset = UNSET
     data_sharing_consent_text_version: None | str | Unset = UNSET
+    data_sharing_offers_presented: list[PresentedOffer] | None | Unset = UNSET
     email: None | str | Unset = UNSET
     extra_data: None | SubmissionUpdateExtraDataType0 | Unset = UNSET
     extracted_data: None | SubmissionUpdateExtractedDataType0 | Unset = UNSET
@@ -64,6 +69,7 @@ class SubmissionUpdate:
     pod_code: None | str | Unset = UNSET
     status: None | SubmissionStatus | Unset = UNSET
     statute_consent: bool | None | Unset = UNSET
+    supply_address: None | SupplyAddress | Unset = UNSET
     supply_municipality: None | str | Unset = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
@@ -71,6 +77,7 @@ class SubmissionUpdate:
         from ..models.submission_update_extra_data_type_0 import SubmissionUpdateExtraDataType0
         from ..models.submission_update_extracted_data_type_0 import SubmissionUpdateExtractedDataType0
         from ..models.submission_update_id_extracted_data_type_0 import SubmissionUpdateIdExtractedDataType0
+        from ..models.supply_address import SupplyAddress
 
         data_sharing_consent: bool | None | Unset
         if isinstance(self.data_sharing_consent, Unset):
@@ -104,6 +111,18 @@ class SubmissionUpdate:
             data_sharing_consent_text_version = UNSET
         else:
             data_sharing_consent_text_version = self.data_sharing_consent_text_version
+
+        data_sharing_offers_presented: list[dict[str, Any]] | None | Unset
+        if isinstance(self.data_sharing_offers_presented, Unset):
+            data_sharing_offers_presented = UNSET
+        elif isinstance(self.data_sharing_offers_presented, list):
+            data_sharing_offers_presented = []
+            for data_sharing_offers_presented_type_0_item_data in self.data_sharing_offers_presented:
+                data_sharing_offers_presented_type_0_item = data_sharing_offers_presented_type_0_item_data.to_dict()
+                data_sharing_offers_presented.append(data_sharing_offers_presented_type_0_item)
+
+        else:
+            data_sharing_offers_presented = self.data_sharing_offers_presented
 
         email: None | str | Unset
         if isinstance(self.email, Unset):
@@ -199,6 +218,14 @@ class SubmissionUpdate:
         else:
             statute_consent = self.statute_consent
 
+        supply_address: dict[str, Any] | None | Unset
+        if isinstance(self.supply_address, Unset):
+            supply_address = UNSET
+        elif isinstance(self.supply_address, SupplyAddress):
+            supply_address = self.supply_address.to_dict()
+        else:
+            supply_address = self.supply_address
+
         supply_municipality: None | str | Unset
         if isinstance(self.supply_municipality, Unset):
             supply_municipality = UNSET
@@ -218,6 +245,8 @@ class SubmissionUpdate:
             field_dict["data_sharing_consent_text_sha256"] = data_sharing_consent_text_sha256
         if data_sharing_consent_text_version is not UNSET:
             field_dict["data_sharing_consent_text_version"] = data_sharing_consent_text_version
+        if data_sharing_offers_presented is not UNSET:
+            field_dict["data_sharing_offers_presented"] = data_sharing_offers_presented
         if email is not UNSET:
             field_dict["email"] = email
         if extra_data is not UNSET:
@@ -246,6 +275,8 @@ class SubmissionUpdate:
             field_dict["status"] = status
         if statute_consent is not UNSET:
             field_dict["statute_consent"] = statute_consent
+        if supply_address is not UNSET:
+            field_dict["supply_address"] = supply_address
         if supply_municipality is not UNSET:
             field_dict["supply_municipality"] = supply_municipality
 
@@ -253,9 +284,11 @@ class SubmissionUpdate:
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
+        from ..models.presented_offer import PresentedOffer
         from ..models.submission_update_extra_data_type_0 import SubmissionUpdateExtraDataType0
         from ..models.submission_update_extracted_data_type_0 import SubmissionUpdateExtractedDataType0
         from ..models.submission_update_id_extracted_data_type_0 import SubmissionUpdateIdExtractedDataType0
+        from ..models.supply_address import SupplyAddress
 
         d = dict(src_dict)
 
@@ -316,6 +349,32 @@ class SubmissionUpdate:
 
         data_sharing_consent_text_version = _parse_data_sharing_consent_text_version(
             d.pop("data_sharing_consent_text_version", UNSET)
+        )
+
+        def _parse_data_sharing_offers_presented(data: object) -> list[PresentedOffer] | None | Unset:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            try:
+                if not isinstance(data, list):
+                    raise TypeError()
+                data_sharing_offers_presented_type_0 = []
+                _data_sharing_offers_presented_type_0 = data
+                for data_sharing_offers_presented_type_0_item_data in _data_sharing_offers_presented_type_0:
+                    data_sharing_offers_presented_type_0_item = PresentedOffer.from_dict(
+                        data_sharing_offers_presented_type_0_item_data
+                    )
+
+                    data_sharing_offers_presented_type_0.append(data_sharing_offers_presented_type_0_item)
+
+                return data_sharing_offers_presented_type_0
+            except (TypeError, ValueError, AttributeError, KeyError):
+                pass
+            return cast(list[PresentedOffer] | None | Unset, data)
+
+        data_sharing_offers_presented = _parse_data_sharing_offers_presented(
+            d.pop("data_sharing_offers_presented", UNSET)
         )
 
         def _parse_email(data: object) -> None | str | Unset:
@@ -484,6 +543,23 @@ class SubmissionUpdate:
 
         statute_consent = _parse_statute_consent(d.pop("statute_consent", UNSET))
 
+        def _parse_supply_address(data: object) -> None | SupplyAddress | Unset:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            try:
+                if not isinstance(data, dict):
+                    raise TypeError()
+                supply_address_type_0 = SupplyAddress.from_dict(data)
+
+                return supply_address_type_0
+            except (TypeError, ValueError, AttributeError, KeyError):
+                pass
+            return cast(None | SupplyAddress | Unset, data)
+
+        supply_address = _parse_supply_address(d.pop("supply_address", UNSET))
+
         def _parse_supply_municipality(data: object) -> None | str | Unset:
             if data is None:
                 return data
@@ -499,6 +575,7 @@ class SubmissionUpdate:
             data_sharing_consent_offer_ids=data_sharing_consent_offer_ids,
             data_sharing_consent_text_sha256=data_sharing_consent_text_sha256,
             data_sharing_consent_text_version=data_sharing_consent_text_version,
+            data_sharing_offers_presented=data_sharing_offers_presented,
             email=email,
             extra_data=extra_data,
             extracted_data=extracted_data,
@@ -513,6 +590,7 @@ class SubmissionUpdate:
             pod_code=pod_code,
             status=status,
             statute_consent=statute_consent,
+            supply_address=supply_address,
             supply_municipality=supply_municipality,
         )
 

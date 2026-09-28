@@ -9,7 +9,7 @@ from typing import TYPE_CHECKING, Any
 
 from celine.sdk.dt.community import unwrap
 
-from celine.sdk.dt.util import DTApiError
+from celine.sdk.dt.util import DTApiError, log_refusal
 from celine.sdk.openapi.dt.types import UNSET
 
 from celine.sdk.openapi.dt.models import (
@@ -60,7 +60,7 @@ class ParticipantClient:
         )
         data = unwrap(result)
         if isinstance(data, HTTPValidationError):
-            logger.warning(data.detail)
+            log_refusal(logger, "profile", result, data)
             raise DTApiError("Validation error", 500)
         return data
 
@@ -72,7 +72,7 @@ class ParticipantClient:
         )
         data = unwrap(result)
         if isinstance(data, HTTPValidationError):
-            logger.warning(data.detail)
+            log_refusal(logger, "assets", result, data)
             raise DTApiError("Validation error", 500)
         return data
 
@@ -84,7 +84,7 @@ class ParticipantClient:
         )
         data = unwrap(result)
         if isinstance(data, HTTPValidationError):
-            logger.warning(data.detail)
+            log_refusal(logger, "list_values", result, data)
             raise DTApiError("Validation error", 500)
         return data
 
@@ -92,19 +92,29 @@ class ParticipantClient:
         self,
         participant_id: str,
         fetcher_id: str,
-        payload: dict[str, Any] = {},
+        payload: dict[str, Any] | None = None,
         limit: int | None = None,
-        offset: int = 0,
+        offset: int | None = 0,
     ) -> FetchResultSchema:
-        """Fetch a value using a JSON payload (POST)."""
+        """Fetch a value using a JSON payload (POST).
+
+        The caller's ``payload`` is copied, never modified, and no payload
+        starts from a new empty dict: ``limit`` and ``offset`` go into the
+        copy, so nothing reaches the caller's dict or the next call. The
+        default ``offset`` of ``0`` is sent, as it always was.
+
+        A validation refusal raises :class:`DTApiError` and is logged with
+        its status and error types only (REQ-0160).
+        """
         client = await self._dt._get_client()
 
+        body_payload: dict[str, Any] = dict(payload or {})
         if limit is not None:
-            payload["limit"] = limit
+            body_payload["limit"] = limit
         if offset is not None:
-            payload["offset"] = offset
+            body_payload["offset"] = offset
 
-        body = ValuesRequestSchema(payload=GenericPayload.from_dict(payload))
+        body = ValuesRequestSchema(payload=GenericPayload.from_dict(body_payload))
         result = await _post_value.asyncio_detailed(
             participant_id=participant_id,
             fetcher_id=fetcher_id,
@@ -113,7 +123,7 @@ class ParticipantClient:
         )
         data = unwrap(result)
         if isinstance(data, HTTPValidationError):
-            logger.warning(data.detail)
+            log_refusal(logger, f"fetcher {fetcher_id}", result, data)
             raise DTApiError("Validation error", 500)
         return data
 
@@ -131,7 +141,7 @@ class ParticipantClient:
         )
         data = unwrap(result)
         if isinstance(data, HTTPValidationError):
-            logger.warning(data.detail)
+            log_refusal(logger, f"describe_value {fetcher_id}", result, data)
             raise DTApiError("Validation error", 500)
         return data
 
@@ -145,7 +155,7 @@ class ParticipantClient:
         )
         data = unwrap(result)
         if isinstance(data, HTTPValidationError):
-            logger.warning(data.detail)
+            log_refusal(logger, "list_simulations", result, data)
             raise DTApiError("Validation error", 500)
         return data
 
@@ -159,7 +169,7 @@ class ParticipantClient:
         )
         data = unwrap(result)
         if isinstance(data, HTTPValidationError):
-            logger.warning(data.detail)
+            log_refusal(logger, "list_ontology_specs", result, data)
             raise DTApiError("Validation error", 500)
         return data
 
@@ -189,11 +199,13 @@ class ParticipantClient:
         client = await self._dt._get_client()
 
         if payload:
+            # A copy: `limit` and `offset` never reach the caller's dict.
+            body_payload: dict[str, Any] = dict(payload)
             if limit is not None:
-                payload["limit"] = limit
+                body_payload["limit"] = limit
             if offset is not None:
-                payload["offset"] = offset
-            body = OntologyRequest(payload=Payload.from_dict(payload))
+                body_payload["offset"] = offset
+            body = OntologyRequest(payload=Payload.from_dict(body_payload))
             result = await _fetch_ontology_post.asyncio_detailed(
                 participant_id=participant_id,
                 spec_id=spec_id,
@@ -211,6 +223,6 @@ class ParticipantClient:
 
         data = unwrap(result)
         if isinstance(data, HTTPValidationError):
-            logger.warning(data.detail)
+            log_refusal(logger, f"ontology {spec_id}", result, data)
             raise DTApiError("Validation error", 500)
         return data

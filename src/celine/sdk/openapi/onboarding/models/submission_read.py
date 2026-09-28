@@ -10,11 +10,14 @@ from attrs import field as _attrs_field
 from dateutil.parser import isoparse
 
 from ..models.submission_status import SubmissionStatus
+from ..types import UNSET, Unset
 
 if TYPE_CHECKING:
+    from ..models.presented_offer import PresentedOffer
     from ..models.submission_read_extra_data_type_0 import SubmissionReadExtraDataType0
     from ..models.submission_read_extracted_data_type_0 import SubmissionReadExtractedDataType0
     from ..models.submission_read_id_extracted_data_type_0 import SubmissionReadIdExtractedDataType0
+    from ..models.submission_read_supply_address_type_0 import SubmissionReadSupplyAddressType0
 
 
 T = TypeVar("T", bound="SubmissionRead")
@@ -60,6 +63,8 @@ class SubmissionRead:
         statute_consent_version (None | str):
         supply_municipality (None | str):
         updated_at (datetime.datetime):
+        data_sharing_offers_presented (list[PresentedOffer] | None | Unset):
+        supply_address (None | SubmissionReadSupplyAddressType0 | Unset):
     """
 
     created_at: datetime.datetime
@@ -98,12 +103,15 @@ class SubmissionRead:
     statute_consent_version: None | str
     supply_municipality: None | str
     updated_at: datetime.datetime
+    data_sharing_offers_presented: list[PresentedOffer] | None | Unset = UNSET
+    supply_address: None | SubmissionReadSupplyAddressType0 | Unset = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
         from ..models.submission_read_extra_data_type_0 import SubmissionReadExtraDataType0
         from ..models.submission_read_extracted_data_type_0 import SubmissionReadExtractedDataType0
         from ..models.submission_read_id_extracted_data_type_0 import SubmissionReadIdExtractedDataType0
+        from ..models.submission_read_supply_address_type_0 import SubmissionReadSupplyAddressType0
 
         created_at = self.created_at.isoformat()
 
@@ -228,6 +236,26 @@ class SubmissionRead:
 
         updated_at = self.updated_at.isoformat()
 
+        data_sharing_offers_presented: list[dict[str, Any]] | None | Unset
+        if isinstance(self.data_sharing_offers_presented, Unset):
+            data_sharing_offers_presented = UNSET
+        elif isinstance(self.data_sharing_offers_presented, list):
+            data_sharing_offers_presented = []
+            for data_sharing_offers_presented_type_0_item_data in self.data_sharing_offers_presented:
+                data_sharing_offers_presented_type_0_item = data_sharing_offers_presented_type_0_item_data.to_dict()
+                data_sharing_offers_presented.append(data_sharing_offers_presented_type_0_item)
+
+        else:
+            data_sharing_offers_presented = self.data_sharing_offers_presented
+
+        supply_address: dict[str, Any] | None | Unset
+        if isinstance(self.supply_address, Unset):
+            supply_address = UNSET
+        elif isinstance(self.supply_address, SubmissionReadSupplyAddressType0):
+            supply_address = self.supply_address.to_dict()
+        else:
+            supply_address = self.supply_address
+
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update(
@@ -270,14 +298,20 @@ class SubmissionRead:
                 "updated_at": updated_at,
             }
         )
+        if data_sharing_offers_presented is not UNSET:
+            field_dict["data_sharing_offers_presented"] = data_sharing_offers_presented
+        if supply_address is not UNSET:
+            field_dict["supply_address"] = supply_address
 
         return field_dict
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
+        from ..models.presented_offer import PresentedOffer
         from ..models.submission_read_extra_data_type_0 import SubmissionReadExtraDataType0
         from ..models.submission_read_extracted_data_type_0 import SubmissionReadExtractedDataType0
         from ..models.submission_read_id_extracted_data_type_0 import SubmissionReadIdExtractedDataType0
+        from ..models.submission_read_supply_address_type_0 import SubmissionReadSupplyAddressType0
 
         d = dict(src_dict)
         created_at = isoparse(d.pop("created_at"))
@@ -543,6 +577,49 @@ class SubmissionRead:
 
         updated_at = isoparse(d.pop("updated_at"))
 
+        def _parse_data_sharing_offers_presented(data: object) -> list[PresentedOffer] | None | Unset:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            try:
+                if not isinstance(data, list):
+                    raise TypeError()
+                data_sharing_offers_presented_type_0 = []
+                _data_sharing_offers_presented_type_0 = data
+                for data_sharing_offers_presented_type_0_item_data in _data_sharing_offers_presented_type_0:
+                    data_sharing_offers_presented_type_0_item = PresentedOffer.from_dict(
+                        data_sharing_offers_presented_type_0_item_data
+                    )
+
+                    data_sharing_offers_presented_type_0.append(data_sharing_offers_presented_type_0_item)
+
+                return data_sharing_offers_presented_type_0
+            except (TypeError, ValueError, AttributeError, KeyError):
+                pass
+            return cast(list[PresentedOffer] | None | Unset, data)
+
+        data_sharing_offers_presented = _parse_data_sharing_offers_presented(
+            d.pop("data_sharing_offers_presented", UNSET)
+        )
+
+        def _parse_supply_address(data: object) -> None | SubmissionReadSupplyAddressType0 | Unset:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            try:
+                if not isinstance(data, dict):
+                    raise TypeError()
+                supply_address_type_0 = SubmissionReadSupplyAddressType0.from_dict(data)
+
+                return supply_address_type_0
+            except (TypeError, ValueError, AttributeError, KeyError):
+                pass
+            return cast(None | SubmissionReadSupplyAddressType0 | Unset, data)
+
+        supply_address = _parse_supply_address(d.pop("supply_address", UNSET))
+
         submission_read = cls(
             created_at=created_at,
             data_sharing_consent=data_sharing_consent,
@@ -580,6 +657,8 @@ class SubmissionRead:
             statute_consent_version=statute_consent_version,
             supply_municipality=supply_municipality,
             updated_at=updated_at,
+            data_sharing_offers_presented=data_sharing_offers_presented,
+            supply_address=supply_address,
         )
 
         submission_read.additional_properties = d

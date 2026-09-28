@@ -16,7 +16,10 @@ class RetryRequest:
     """
     Attributes:
         step (None | str | Unset): One step to re-run. Omit to re-run every step that is not already succeeded or
-            skipped.
+            skipped. Named, `keycloak_user` also re-runs a succeeded login whose invitation is `send_failed`, and
+            `dataspace_share` re-examines a succeeded consent step (or one skipped because the member declined on the form):
+            every connector holding the member's offers is brought to their newest decision, withdrawals included, and
+            nothing is written where they already agree.
     """
 
     step: None | str | Unset = UNSET

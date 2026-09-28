@@ -24,8 +24,9 @@ a promise to those repositories, and changing one is a platform change, not a lo
 | [Identity](identity.md) | `celine.sdk.auth` — token verification, claims, token providers |
 | [Policy evaluation](policy-evaluation.md) | `celine.sdk.policies` — bundle loading, decisions, decision cache |
 | [Messaging](messaging.md) | `celine.sdk.broker` — MQTT lifecycle, topics, dispatch |
-| [REC registry client](rec-registry-client.md) | `celine.sdk.rec_registry` — the batch asset lookups; the meter writes; the profile write (planned) |
-| [Onboarding client](onboarding-client.md) | `celine.sdk.onboarding` — the registry sync of a community's areas (planned) |
+| [REC registry client](rec-registry-client.md) | `celine.sdk.rec_registry` — the batch asset lookups; the meter writes; the profile write; the area and topology writes, the area rename and the community read; self-service refusals |
+| [Onboarding client](onboarding-client.md) | `celine.sdk.onboarding` — the registry sync of a community's areas |
+| [Digital Twin client](digital-twin-client.md) | `celine.sdk.dt` — no refusal detail in any log; no mutable defaults, the payload is the caller's |
 | [Spec management](spec-management.md) | the CLI, spec versioning, generated-client conversion |
 
 ## Identifiers
@@ -37,7 +38,7 @@ never written by hand. the companion's testing playbook states how.
 Numbers are allocated in blocks per document so a new requirement can be appended without
 renumbering: configuration `0001–0019`, identity `0020–0049`, policy evaluation
 `0050–0069`, messaging `0070–0099`, spec management `0100–0119`, REC registry client
-`0120–0139`, onboarding client `0140–0159`.
+`0120–0139`, onboarding client `0140–0159`, Digital Twin client `0160–0179`.
 
 ## What is deliberately not specified here
 

@@ -65,15 +65,17 @@ def sync_detailed(
 ) -> Response[EnablementRead | HTTPValidationError]:
     """Revoke Enablement
 
-     Undo enablement in reverse: credential, membership, registry, login.
+     Undo enablement: sharing grants, dataspace identity, login, registry member.
 
     Best-effort per step and recorded per step. A revocation that fails half way
     must leave a record of what is still out there — that record is the only way
     anybody finds the rest.
 
-    The standing sharing consent is deliberately **not** revoked here: withdrawal
-    is the data subject's own act, authenticated with their own credential, and
-    onboarding holds no credential to make it on their behalf.
+    Every standing grant the community collected for the member — from the form
+    or their sharing page, at every connector the manifest names — is withdrawn
+    first, as the community's own decision (`decided_by: collector`). While that
+    fails, the dataspace identity is kept (the withdrawal needs it); calling this
+    again is the retry.
 
     Args:
         rec_slug (str):
@@ -107,15 +109,17 @@ def sync(
 ) -> EnablementRead | HTTPValidationError | None:
     """Revoke Enablement
 
-     Undo enablement in reverse: credential, membership, registry, login.
+     Undo enablement: sharing grants, dataspace identity, login, registry member.
 
     Best-effort per step and recorded per step. A revocation that fails half way
     must leave a record of what is still out there — that record is the only way
     anybody finds the rest.
 
-    The standing sharing consent is deliberately **not** revoked here: withdrawal
-    is the data subject's own act, authenticated with their own credential, and
-    onboarding holds no credential to make it on their behalf.
+    Every standing grant the community collected for the member — from the form
+    or their sharing page, at every connector the manifest names — is withdrawn
+    first, as the community's own decision (`decided_by: collector`). While that
+    fails, the dataspace identity is kept (the withdrawal needs it); calling this
+    again is the retry.
 
     Args:
         rec_slug (str):
@@ -144,15 +148,17 @@ async def asyncio_detailed(
 ) -> Response[EnablementRead | HTTPValidationError]:
     """Revoke Enablement
 
-     Undo enablement in reverse: credential, membership, registry, login.
+     Undo enablement: sharing grants, dataspace identity, login, registry member.
 
     Best-effort per step and recorded per step. A revocation that fails half way
     must leave a record of what is still out there — that record is the only way
     anybody finds the rest.
 
-    The standing sharing consent is deliberately **not** revoked here: withdrawal
-    is the data subject's own act, authenticated with their own credential, and
-    onboarding holds no credential to make it on their behalf.
+    Every standing grant the community collected for the member — from the form
+    or their sharing page, at every connector the manifest names — is withdrawn
+    first, as the community's own decision (`decided_by: collector`). While that
+    fails, the dataspace identity is kept (the withdrawal needs it); calling this
+    again is the retry.
 
     Args:
         rec_slug (str):
@@ -184,15 +190,17 @@ async def asyncio(
 ) -> EnablementRead | HTTPValidationError | None:
     """Revoke Enablement
 
-     Undo enablement in reverse: credential, membership, registry, login.
+     Undo enablement: sharing grants, dataspace identity, login, registry member.
 
     Best-effort per step and recorded per step. A revocation that fails half way
     must leave a record of what is still out there — that record is the only way
     anybody finds the rest.
 
-    The standing sharing consent is deliberately **not** revoked here: withdrawal
-    is the data subject's own act, authenticated with their own credential, and
-    onboarding holds no credential to make it on their behalf.
+    Every standing grant the community collected for the member — from the form
+    or their sharing page, at every connector the manifest names — is withdrawn
+    first, as the community's own decision (`decided_by: collector`). While that
+    fails, the dataspace identity is kept (the withdrawal needs it); calling this
+    again is the retry.
 
     Args:
         rec_slug (str):

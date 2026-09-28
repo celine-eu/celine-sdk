@@ -114,6 +114,10 @@ def sync_detailed(
     An asset key longer than 128 characters is `422 asset_key_too_long`
     (REQ-0028).
 
+    `role` and `status` outside their sets are `422 invalid_role` /
+    `invalid_status`, and an `area` that is not a key of the community's
+    areas is `422 unknown_area` (REQ-0066).
+
     Args:
         community_key (str):
         body (MemberCreate): Create one member. `key` is minted from the community's own numbering
@@ -163,6 +167,10 @@ def sync(
     An asset key longer than 128 characters is `422 asset_key_too_long`
     (REQ-0028).
 
+    `role` and `status` outside their sets are `422 invalid_role` /
+    `invalid_status`, and an `area` that is not a key of the community's
+    areas is `422 unknown_area` (REQ-0066).
+
     Args:
         community_key (str):
         body (MemberCreate): Create one member. `key` is minted from the community's own numbering
@@ -206,6 +214,10 @@ async def asyncio_detailed(
     active member, in any community, holds one of their sensors (REQ-0069).
     An asset key longer than 128 characters is `422 asset_key_too_long`
     (REQ-0028).
+
+    `role` and `status` outside their sets are `422 invalid_role` /
+    `invalid_status`, and an `area` that is not a key of the community's
+    areas is `422 unknown_area` (REQ-0066).
 
     Args:
         community_key (str):
@@ -253,6 +265,10 @@ async def asyncio(
     active member, in any community, holds one of their sensors (REQ-0069).
     An asset key longer than 128 characters is `422 asset_key_too_long`
     (REQ-0028).
+
+    `role` and `status` outside their sets are `422 invalid_role` /
+    `invalid_status`, and an `area` that is not a key of the community's
+    areas is `422 unknown_area` (REQ-0066).
 
     Args:
         community_key (str):

@@ -129,6 +129,11 @@ def sync_detailed(
     sensors, and the whole patch is refused `409 sensor_held` when another
     active member holds one (REQ-0069).
 
+    `role` and `area` are still accepted here, for `members.write` holders,
+    and held to the same sets as on `PATCH …/profile`: `422 invalid_role`,
+    `invalid_status`, `unknown_area` (REQ-0066). A role change leaves the
+    member's assets as they are.
+
     Args:
         community_key (str):
         member_key (str):
@@ -195,6 +200,11 @@ def sync(
     sensors, and the whole patch is refused `409 sensor_held` when another
     active member holds one (REQ-0069).
 
+    `role` and `area` are still accepted here, for `members.write` holders,
+    and held to the same sets as on `PATCH …/profile`: `422 invalid_role`,
+    `invalid_status`, `unknown_area` (REQ-0066). A role change leaves the
+    member's assets as they are.
+
     Args:
         community_key (str):
         member_key (str):
@@ -255,6 +265,11 @@ async def asyncio_detailed(
     Setting `status: active` on a member that was not active re-checks its
     sensors, and the whole patch is refused `409 sensor_held` when another
     active member holds one (REQ-0069).
+
+    `role` and `area` are still accepted here, for `members.write` holders,
+    and held to the same sets as on `PATCH …/profile`: `422 invalid_role`,
+    `invalid_status`, `unknown_area` (REQ-0066). A role change leaves the
+    member's assets as they are.
 
     Args:
         community_key (str):
@@ -319,6 +334,11 @@ async def asyncio(
     Setting `status: active` on a member that was not active re-checks its
     sensors, and the whole patch is refused `409 sensor_held` when another
     active member holds one (REQ-0069).
+
+    `role` and `area` are still accepted here, for `members.write` holders,
+    and held to the same sets as on `PATCH …/profile`: `422 invalid_role`,
+    `invalid_status`, `unknown_area` (REQ-0066). A role change leaves the
+    member's assets as they are.
 
     Args:
         community_key (str):

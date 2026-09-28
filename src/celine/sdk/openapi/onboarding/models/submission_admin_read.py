@@ -13,9 +13,11 @@ from ..models.submission_status import SubmissionStatus
 from ..types import UNSET, Unset
 
 if TYPE_CHECKING:
+    from ..models.presented_offer import PresentedOffer
     from ..models.submission_admin_read_extra_data_type_0 import SubmissionAdminReadExtraDataType0
     from ..models.submission_admin_read_extracted_data_type_0 import SubmissionAdminReadExtractedDataType0
     from ..models.submission_admin_read_id_extracted_data_type_0 import SubmissionAdminReadIdExtractedDataType0
+    from ..models.submission_admin_read_supply_address_type_0 import SubmissionAdminReadSupplyAddressType0
     from ..models.verification_read import VerificationRead
 
 
@@ -68,7 +70,12 @@ class SubmissionAdminRead:
         supply_municipality (None | str):
         updated_at (datetime.datetime):
         data_sharing_issues (list[str] | Unset):
+        data_sharing_offers_presented (list[PresentedOffer] | None | Unset):
         phone_verification_waived (bool | Unset):  Default: False.
+        supply_address (None | SubmissionAdminReadSupplyAddressType0 | Unset):
+        supply_boundary_area (None | str | Unset):
+        supply_boundary_id (None | str | Unset):
+        supply_boundary_source (None | str | Unset):
         verification (None | Unset | VerificationRead):
     """
 
@@ -114,7 +121,12 @@ class SubmissionAdminRead:
     supply_municipality: None | str
     updated_at: datetime.datetime
     data_sharing_issues: list[str] | Unset = UNSET
+    data_sharing_offers_presented: list[PresentedOffer] | None | Unset = UNSET
     phone_verification_waived: bool | Unset = False
+    supply_address: None | SubmissionAdminReadSupplyAddressType0 | Unset = UNSET
+    supply_boundary_area: None | str | Unset = UNSET
+    supply_boundary_id: None | str | Unset = UNSET
+    supply_boundary_source: None | str | Unset = UNSET
     verification: None | Unset | VerificationRead = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
@@ -122,6 +134,7 @@ class SubmissionAdminRead:
         from ..models.submission_admin_read_extra_data_type_0 import SubmissionAdminReadExtraDataType0
         from ..models.submission_admin_read_extracted_data_type_0 import SubmissionAdminReadExtractedDataType0
         from ..models.submission_admin_read_id_extracted_data_type_0 import SubmissionAdminReadIdExtractedDataType0
+        from ..models.submission_admin_read_supply_address_type_0 import SubmissionAdminReadSupplyAddressType0
         from ..models.verification_read import VerificationRead
 
         consent_ip = self.consent_ip
@@ -268,7 +281,45 @@ class SubmissionAdminRead:
         if not isinstance(self.data_sharing_issues, Unset):
             data_sharing_issues = self.data_sharing_issues
 
+        data_sharing_offers_presented: list[dict[str, Any]] | None | Unset
+        if isinstance(self.data_sharing_offers_presented, Unset):
+            data_sharing_offers_presented = UNSET
+        elif isinstance(self.data_sharing_offers_presented, list):
+            data_sharing_offers_presented = []
+            for data_sharing_offers_presented_type_0_item_data in self.data_sharing_offers_presented:
+                data_sharing_offers_presented_type_0_item = data_sharing_offers_presented_type_0_item_data.to_dict()
+                data_sharing_offers_presented.append(data_sharing_offers_presented_type_0_item)
+
+        else:
+            data_sharing_offers_presented = self.data_sharing_offers_presented
+
         phone_verification_waived = self.phone_verification_waived
+
+        supply_address: dict[str, Any] | None | Unset
+        if isinstance(self.supply_address, Unset):
+            supply_address = UNSET
+        elif isinstance(self.supply_address, SubmissionAdminReadSupplyAddressType0):
+            supply_address = self.supply_address.to_dict()
+        else:
+            supply_address = self.supply_address
+
+        supply_boundary_area: None | str | Unset
+        if isinstance(self.supply_boundary_area, Unset):
+            supply_boundary_area = UNSET
+        else:
+            supply_boundary_area = self.supply_boundary_area
+
+        supply_boundary_id: None | str | Unset
+        if isinstance(self.supply_boundary_id, Unset):
+            supply_boundary_id = UNSET
+        else:
+            supply_boundary_id = self.supply_boundary_id
+
+        supply_boundary_source: None | str | Unset
+        if isinstance(self.supply_boundary_source, Unset):
+            supply_boundary_source = UNSET
+        else:
+            supply_boundary_source = self.supply_boundary_source
 
         verification: dict[str, Any] | None | Unset
         if isinstance(self.verification, Unset):
@@ -327,8 +378,18 @@ class SubmissionAdminRead:
         )
         if data_sharing_issues is not UNSET:
             field_dict["data_sharing_issues"] = data_sharing_issues
+        if data_sharing_offers_presented is not UNSET:
+            field_dict["data_sharing_offers_presented"] = data_sharing_offers_presented
         if phone_verification_waived is not UNSET:
             field_dict["phone_verification_waived"] = phone_verification_waived
+        if supply_address is not UNSET:
+            field_dict["supply_address"] = supply_address
+        if supply_boundary_area is not UNSET:
+            field_dict["supply_boundary_area"] = supply_boundary_area
+        if supply_boundary_id is not UNSET:
+            field_dict["supply_boundary_id"] = supply_boundary_id
+        if supply_boundary_source is not UNSET:
+            field_dict["supply_boundary_source"] = supply_boundary_source
         if verification is not UNSET:
             field_dict["verification"] = verification
 
@@ -336,9 +397,11 @@ class SubmissionAdminRead:
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
+        from ..models.presented_offer import PresentedOffer
         from ..models.submission_admin_read_extra_data_type_0 import SubmissionAdminReadExtraDataType0
         from ..models.submission_admin_read_extracted_data_type_0 import SubmissionAdminReadExtractedDataType0
         from ..models.submission_admin_read_id_extracted_data_type_0 import SubmissionAdminReadIdExtractedDataType0
+        from ..models.submission_admin_read_supply_address_type_0 import SubmissionAdminReadSupplyAddressType0
         from ..models.verification_read import VerificationRead
 
         d = dict(src_dict)
@@ -645,7 +708,77 @@ class SubmissionAdminRead:
 
         data_sharing_issues = cast(list[str], d.pop("data_sharing_issues", UNSET))
 
+        def _parse_data_sharing_offers_presented(data: object) -> list[PresentedOffer] | None | Unset:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            try:
+                if not isinstance(data, list):
+                    raise TypeError()
+                data_sharing_offers_presented_type_0 = []
+                _data_sharing_offers_presented_type_0 = data
+                for data_sharing_offers_presented_type_0_item_data in _data_sharing_offers_presented_type_0:
+                    data_sharing_offers_presented_type_0_item = PresentedOffer.from_dict(
+                        data_sharing_offers_presented_type_0_item_data
+                    )
+
+                    data_sharing_offers_presented_type_0.append(data_sharing_offers_presented_type_0_item)
+
+                return data_sharing_offers_presented_type_0
+            except (TypeError, ValueError, AttributeError, KeyError):
+                pass
+            return cast(list[PresentedOffer] | None | Unset, data)
+
+        data_sharing_offers_presented = _parse_data_sharing_offers_presented(
+            d.pop("data_sharing_offers_presented", UNSET)
+        )
+
         phone_verification_waived = d.pop("phone_verification_waived", UNSET)
+
+        def _parse_supply_address(data: object) -> None | SubmissionAdminReadSupplyAddressType0 | Unset:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            try:
+                if not isinstance(data, dict):
+                    raise TypeError()
+                supply_address_type_0 = SubmissionAdminReadSupplyAddressType0.from_dict(data)
+
+                return supply_address_type_0
+            except (TypeError, ValueError, AttributeError, KeyError):
+                pass
+            return cast(None | SubmissionAdminReadSupplyAddressType0 | Unset, data)
+
+        supply_address = _parse_supply_address(d.pop("supply_address", UNSET))
+
+        def _parse_supply_boundary_area(data: object) -> None | str | Unset:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            return cast(None | str | Unset, data)
+
+        supply_boundary_area = _parse_supply_boundary_area(d.pop("supply_boundary_area", UNSET))
+
+        def _parse_supply_boundary_id(data: object) -> None | str | Unset:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            return cast(None | str | Unset, data)
+
+        supply_boundary_id = _parse_supply_boundary_id(d.pop("supply_boundary_id", UNSET))
+
+        def _parse_supply_boundary_source(data: object) -> None | str | Unset:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            return cast(None | str | Unset, data)
+
+        supply_boundary_source = _parse_supply_boundary_source(d.pop("supply_boundary_source", UNSET))
 
         def _parse_verification(data: object) -> None | Unset | VerificationRead:
             if data is None:
@@ -707,7 +840,12 @@ class SubmissionAdminRead:
             supply_municipality=supply_municipality,
             updated_at=updated_at,
             data_sharing_issues=data_sharing_issues,
+            data_sharing_offers_presented=data_sharing_offers_presented,
             phone_verification_waived=phone_verification_waived,
+            supply_address=supply_address,
+            supply_boundary_area=supply_boundary_area,
+            supply_boundary_id=supply_boundary_id,
+            supply_boundary_source=supply_boundary_source,
             verification=verification,
         )
 

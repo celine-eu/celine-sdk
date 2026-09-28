@@ -17,21 +17,28 @@ T = TypeVar("T", bound="TopologyNode")
 
 @_attrs_define
 class TopologyNode:
-    """
-    Attributes:
-        id (str):
-        type_ (str):
-        area (TopologyNodeArea | Unset):
-        name (None | str | Unset):
-        operator (None | str | Unset):
-        parent (None | str | Unset):
+    """One grid topology node, named as the bundle names it (REQ-0072).
+
+    The fields are the bundle's `TopologyNodeIn` fields, under the same names:
+    `operator_id` (a key of the community's `operators`, since schema v0.5) and
+    `parent` (the id of the node above this one). Before 1.6.0 this model
+    answered `operator`, a v0.4 name nothing has stored since, so it was
+    always `null` while the stored `operator_id` was never returned.
+
+        Attributes:
+            id (str):
+            type_ (str):
+            area (TopologyNodeArea | Unset):
+            name (None | str | Unset):
+            operator_id (None | str | Unset):
+            parent (None | str | Unset):
     """
 
     id: str
     type_: str
     area: TopologyNodeArea | Unset = UNSET
     name: None | str | Unset = UNSET
-    operator: None | str | Unset = UNSET
+    operator_id: None | str | Unset = UNSET
     parent: None | str | Unset = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
@@ -50,11 +57,11 @@ class TopologyNode:
         else:
             name = self.name
 
-        operator: None | str | Unset
-        if isinstance(self.operator, Unset):
-            operator = UNSET
+        operator_id: None | str | Unset
+        if isinstance(self.operator_id, Unset):
+            operator_id = UNSET
         else:
-            operator = self.operator
+            operator_id = self.operator_id
 
         parent: None | str | Unset
         if isinstance(self.parent, Unset):
@@ -74,8 +81,8 @@ class TopologyNode:
             field_dict["area"] = area
         if name is not UNSET:
             field_dict["name"] = name
-        if operator is not UNSET:
-            field_dict["operator"] = operator
+        if operator_id is not UNSET:
+            field_dict["operator_id"] = operator_id
         if parent is not UNSET:
             field_dict["parent"] = parent
 
@@ -106,14 +113,14 @@ class TopologyNode:
 
         name = _parse_name(d.pop("name", UNSET))
 
-        def _parse_operator(data: object) -> None | str | Unset:
+        def _parse_operator_id(data: object) -> None | str | Unset:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
             return cast(None | str | Unset, data)
 
-        operator = _parse_operator(d.pop("operator", UNSET))
+        operator_id = _parse_operator_id(d.pop("operator_id", UNSET))
 
         def _parse_parent(data: object) -> None | str | Unset:
             if data is None:
@@ -129,7 +136,7 @@ class TopologyNode:
             type_=type_,
             area=area,
             name=name,
-            operator=operator,
+            operator_id=operator_id,
             parent=parent,
         )
 

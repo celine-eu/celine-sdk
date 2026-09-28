@@ -55,7 +55,10 @@ from celine.sdk.rec_registry.client import (
     MAX_BATCH_LOOKUP_IDS,
     RecRegistryAdminClient,
     RecRegistryUserClient,
+    AreaRenamedSchema,
     AssetDetailSchema,
+    CommunityDetailSchema,
+    MemberDetailSchema,
 )
 from celine.sdk.rec_registry.errors import RecRegistryApiError
 
@@ -63,6 +66,9 @@ __all__ = [
     "RecRegistryUserClient",
     "RecRegistryAdminClient",
     "RecRegistryApiError",
+    "AreaRenamedSchema",
     "AssetDetailSchema",
+    "CommunityDetailSchema",
+    "MemberDetailSchema",
     "MAX_BATCH_LOOKUP_IDS",
 ]

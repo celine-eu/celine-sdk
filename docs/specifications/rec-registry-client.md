@@ -8,10 +8,9 @@ What is stated here is only the part of that wrapper where a wrong answer is
 indistinguishable from a right one: the three **batch lookups**, whose empty list is a real
 answer the service gives on purpose. The rest of the wrapper — every single-id lookup, the
 writes, the user-scoped client — is not specified yet, except the **meter and profile
-writes** at the end of this page. The meter writes (REQ-0125–REQ-0127) are implemented;
-the profile write (REQ-0128) is planned
-([ADR-0002](../decisions/ADR-0002-requirements-may-land-ahead-of-the-code.md)) and not
-implemented.
+writes** (REQ-0125–REQ-0128), the **area and topology writes** of onboarding's template sync
+(REQ-0129–REQ-0131, REQ-0133), and how the **self-service reads** raise a registry refusal
+(REQ-0132), all at the end of this page.
 
 The service's own behaviour belongs to `rec-registry`, not here; where a requirement below
 mirrors one of its, the identifier is named so the two can be kept honest.
@@ -184,14 +183,132 @@ unchanged.
 
 ### REQ-0128 — the profile write sends only role and area, to the profile route
 
-**Status:** planned
-
-The profile write sends `PATCH /admin/communities/{community_key}/members/{member_key}/profile`
+The profile write (`RecRegistryAdminClient.patch_member_profile`) sends `PATCH /admin/communities/{community_key}/members/{member_key}/profile`
 with a body of **only** the keys the caller set, out of `role` and `area`. It has no parameter
 for any other member field, so it cannot send one, and an omitted key is omitted rather than
 sent as `null` (the same rule as REQ-0111). It answers the updated member as a schema, and a
-refusal raises under REQ-0127.
+refusal raises under REQ-0127 (`invalid_role` and `unknown_area` are `422`; a missing
+member or community is `404`). Called with neither key, it raises `ValueError` and sends
+nothing: the registry refuses an empty body with a validation `422` that carries no code, so
+there would be nothing to show. It passes the values as given — which roles a caller may set
+is that caller's rule (the dashboard's backend allows only `consumer` and `prosumer`), and the
+role and area sets are the registry's (`rec-registry` REQ-0066, REQ-0070).
 
 It never falls back to the general member `PATCH`: that route needs
 `rec-registry.members.write`, which the dashboard's backend is deliberately not granted,
 because it would let it rewrite a member's `user_id`, `did` and status.
+
+---
+
+## Areas and topology: the onboarding template sync
+
+Onboarding's templates are the source of truth for a community's areas, and onboarding
+writes them to the registry: each primary substation as one topology node, then the area
+that references it (`rec-registry` REQ-0067, REQ-0072). The sync and its drift check read
+the community first to know what is there. For them a refusal is a row in a report to an
+admin — an area that breaks the one-substation rule, an area members still use, a node an
+area still lists — so these helpers follow the raising helpers above rather than the
+undecoded writes: success is a schema, anything else raises `RecRegistryApiError` under
+REQ-0127, with the registry's `code` read from the raw body.
+
+The token is passed per call, as everywhere in this wrapper: onboarding requests its
+optional write scope (`rec-registry.community.write`) only for the writes, and its read with
+the default one. What is compared, created, pruned or refused is onboarding's to decide; the
+wrapper adds no step, retries nothing and deletes nothing it was not asked to.
+
+### REQ-0129 — the community read answers areas and topology, or raises
+
+The community read (`RecRegistryAdminClient.read_community`) sends
+`GET /admin/communities/{community_key}` and answers the generated `CommunityDetailSchema`:
+each area with its `boundary` (`source`, `id`) and `topology`, and each topology node with
+`id`, `type`, `name`, `operator_id` and `parent` — the names the registry reads and writes
+since 1.6.0. Anything but `200` raises `RecRegistryApiError`, including a missing community
+(`404`, which this route answers without a `code` and does not declare) and a missing grant
+(`403`), so a community that could not be read is never taken for one with no areas. An
+unreadable `200` raises too.
+
+`get_community`, which answers the undecoded response, is unchanged; its callers depend on
+that.
+
+### REQ-0130 — an area write sends one area and answers the community
+
+The area write (`RecRegistryAdminClient.put_area`) sends
+`PUT /admin/communities/{community_key}/areas/{area_key}` with the body the caller gives —
+`{name, boundary: {source, id}, topology: [id]}` — and nothing added. The area delete
+(`RecRegistryAdminClient.delete_area`) sends `DELETE` for one area key. Both answer the whole
+community as `CommunityDetailSchema`, as the registry does, so the caller sees the areas it
+did not touch.
+
+A refusal raises under REQ-0127: `invalid_area_boundary` (`422`) on the write,
+`area_in_use` (`409`) on the delete — whose sentence names the member count, which the
+wrapper keeps in `detail` and does not parse — and `community_not_found` (`404`). A `404`
+with no code for an area the community does not have is raised, not read as "already
+deleted": whether that is success is the caller's decision. The one-substation rule, and
+that the area's node must exist before the area, are the registry's; the wrapper checks
+neither.
+
+### REQ-0131 — a topology node write sends one node and answers the community
+
+The node write (`RecRegistryAdminClient.put_topology_node`) sends
+`PUT /admin/communities/{community_key}/topology/{node_id}` with the body the caller gives —
+`{id, type, name?, operator_id?, parent?}`. It does not fill the body's `id` from the path or
+the other way round: the registry refuses a mismatch with a validation `422`, and the wrapper
+lets that refusal through rather than hiding it. The node delete
+(`RecRegistryAdminClient.delete_topology_node`) sends `DELETE` for one node id. Both answer
+the whole community as `CommunityDetailSchema`.
+
+A refusal raises under REQ-0127: `invalid_area_boundary` (`422`, the write would change the
+`type` of a node an area relies on), `topology_node_in_use` (`409`, an area lists the node;
+the sentence names the areas), `community_not_found` (`404`), and a `404` with no code for a
+node the community does not have, which is not read as "already deleted".
+
+### REQ-0133 — an area rename sends only the new key and answers what moved
+
+The area rename (`RecRegistryAdminClient.rename_area`) sends
+`POST /admin/communities/{community_key}/areas/{area_key}/rename` with a body of **only**
+`{"new_key": <new key>}`, and answers the generated `AreaRenamedSchema`: `old_key`,
+`new_key`, `members_moved` and the whole community after the rename, as the registry answers
+it (`rec-registry` REQ-0079). It is one request: the wrapper does not follow it with an area
+`PUT` or `DELETE` of its own, and it does not check the key's pattern — both are the
+registry's. The registry moves the area as stored and every member of the community whose
+`area` is the old key, of any status, in one transaction; that is why a template sync uses
+it for an area whose substation the registry holds under another key, where a `PUT` under
+the new key is refused (one area per boundary) and the old key's `DELETE` is refused while
+members hold it.
+
+Anything but `200` raises under REQ-0127: `invalid_area_key` (`422`, the new key is not an
+area key), `area_not_found` (`404`), `area_key_taken` (`409`, the new key exists, the old key
+included), `community_not_found` (`404`); `code` is `None` for a validation `422`, a missing
+grant (`403`) or a body that is not JSON. An unreadable `200` raises too. It needs
+`rec-registry.community.write`.
+
+---
+
+## Self-service reads
+
+### REQ-0132 — a refused self-service read raises `RecRegistryApiError` with the code
+
+Since 1.6.0 the registry declares the `403` its self-service routes answer a caller who is
+no member — `{"detail": "You are not a member of any community", "code": "not_a_member"}`
+on `/user/community`, `/user/member`, `/user/assets`, `/user/assets/{asset_key}` and
+`/user/delivery-points` (`rec-registry` REQ-0073).
+
+Each of `RecRegistryUserClient.get_my_community`, `get_my_member`, `get_my_assets`,
+`get_my_asset` and `get_my_delivery_points` answers its schema on `200` and on anything else
+raises `RecRegistryApiError` under REQ-0127: `status_code`, the raw `body`, and the
+registry's `code` and `detail` read from the top level of the body — so a caller that tells
+"no member" apart does it with `exc.status_code == 403 and exc.code == "not_a_member"`, and
+a member owning nothing stays a `200` with no items. The response is read by the wrapper,
+never by the generated parse: that parse calls `response.json()` on every status the route
+declares, so a body that is not JSON on such a status (a proxy's page on the `403`, or on
+`/user/assets/{asset_key}`'s `422`) would fail there with a decode error. It raises
+`RecRegistryApiError` with `code` and `detail` of `None` instead. An undeclared status raises
+the same exception, never the generated `UnexpectedStatus`, and an unreadable `200` raises
+rather than answering `None`.
+
+This replaces the earlier contract, under which these reads raised the generated
+`UnexpectedStatus`. The consumers in the workspace other than dataset-api catch any
+exception around these reads. dataset-api's row filter, which denies rows on `not_a_member`
+and nothing else, calls the route itself today and is to move to `get_my_assets` and this
+exception's `code`.
+`get_me` is unaffected: the registry answers it `200` with no membership.

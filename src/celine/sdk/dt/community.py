@@ -10,7 +10,7 @@ from __future__ import annotations
 import logging
 from typing import Any, TYPE_CHECKING
 
-from celine.sdk.dt.util import unwrap, DTApiError
+from celine.sdk.dt.util import unwrap, DTApiError, log_refusal, validation_types
 
 from celine.sdk.openapi.dt.types import UNSET
 
@@ -46,6 +46,10 @@ if TYPE_CHECKING:
 logger = logging.getLogger(__name__)
 
 
+# Kept for anything that imported the old private name.
+_validation_types = validation_types
+
+
 class CommunityClient:
     """Async client for the Italian Energy Community DT domain.
 
@@ -61,7 +65,7 @@ class CommunityClient:
         result = await _info.asyncio_detailed(community_id=community_id, client=client)
         data = unwrap(result)
         if isinstance(data, HTTPValidationError):
-            logger.warning(data.detail)
+            log_refusal(logger, "info", result, data)
             raise DTApiError("Validation error", 500)
         return data
 
@@ -91,7 +95,7 @@ class CommunityClient:
         )
         data = unwrap(result)
         if isinstance(data, HTTPValidationError):
-            logger.warning(data.detail)
+            log_refusal(logger, "energy_balance", result, data)
             raise DTApiError("Validation error", 500)
         return data
 
@@ -103,7 +107,7 @@ class CommunityClient:
         )
         data = unwrap(result)
         if isinstance(data, HTTPValidationError):
-            logger.warning(data.detail)
+            log_refusal(logger, "list_values", result, data)
             raise DTApiError("Validation error", 500)
         return data
 
@@ -111,19 +115,30 @@ class CommunityClient:
         self,
         community_id: str,
         fetcher_id: str,
-        payload: dict[str, Any] = {},
+        payload: dict[str, Any] | None = None,
         limit: int | None = None,
         offset: int | None = None,
     ) -> FetchResultSchema:
-        """Fetch a value using a JSON payload (POST)."""
+        """Fetch a value using a JSON payload (POST).
+
+        The caller's ``payload`` is copied, never modified: ``limit`` and
+        ``offset`` go into the copy, so nothing leaks into the caller's dict or
+        into the next call.
+
+        A validation refusal (``422``) raises :class:`DTApiError` and is logged
+        with its status and error types only. The refusal's ``detail`` echoes
+        the offending input — for the boundary fetchers, a coordinate — so its
+        messages and inputs are never logged (REQ-0160).
+        """
         client = await self._dt._get_client()
 
+        body_payload: dict[str, Any] = dict(payload or {})
         if limit is not None:
-            payload["limit"] = limit
+            body_payload["limit"] = limit
         if offset is not None:
-            payload["offset"] = offset
+            body_payload["offset"] = offset
 
-        body = ValuesRequestSchema(payload=GenericPayload.from_dict(payload))
+        body = ValuesRequestSchema(payload=GenericPayload.from_dict(body_payload))
 
         result = await _post_value.asyncio_detailed(
             community_id=community_id,
@@ -133,7 +148,7 @@ class CommunityClient:
         )
         data = unwrap(result)
         if isinstance(data, HTTPValidationError):
-            logger.warning(data.detail)
+            log_refusal(logger, f"fetcher {fetcher_id}", result, data)
             raise DTApiError("Validation error", 500)
         return data
 
@@ -151,7 +166,7 @@ class CommunityClient:
         )
         data = unwrap(result)
         if isinstance(data, HTTPValidationError):
-            logger.warning(data.detail)
+            log_refusal(logger, f"describe_value {fetcher_id}", result, data)
             raise DTApiError("Validation error", 500)
         return data
 
@@ -165,7 +180,7 @@ class CommunityClient:
         )
         data = unwrap(result)
         if isinstance(data, HTTPValidationError):
-            logger.warning(data.detail)
+            log_refusal(logger, "list_simulations", result, data)
             raise DTApiError("Validation error", 500)
         return data
 
@@ -179,7 +194,7 @@ class CommunityClient:
         )
         data = unwrap(result)
         if isinstance(data, HTTPValidationError):
-            logger.warning(data.detail)
+            log_refusal(logger, "list_ontology_specs", result, data)
             raise DTApiError("Validation error", 500)
         return data
 
@@ -209,11 +224,13 @@ class CommunityClient:
         client = await self._dt._get_client()
 
         if payload:
+            # A copy: `limit` and `offset` never reach the caller's dict.
+            body_payload: dict[str, Any] = dict(payload)
             if limit is not None:
-                payload["limit"] = limit
+                body_payload["limit"] = limit
             if offset is not None:
-                payload["offset"] = offset
-            body = OntologyRequest(payload=Payload.from_dict(payload))
+                body_payload["offset"] = offset
+            body = OntologyRequest(payload=Payload.from_dict(body_payload))
             result = await _fetch_ontology_post.asyncio_detailed(
                 community_id=community_id,
                 spec_id=spec_id,
@@ -231,6 +248,6 @@ class CommunityClient:
 
         data = unwrap(result)
         if isinstance(data, HTTPValidationError):
-            logger.warning(data.detail)
+            log_refusal(logger, f"ontology {spec_id}", result, data)
             raise DTApiError("Validation error", 500)
         return data

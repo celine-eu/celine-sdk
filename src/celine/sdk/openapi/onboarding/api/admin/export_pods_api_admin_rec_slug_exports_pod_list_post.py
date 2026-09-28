@@ -70,15 +70,21 @@ def sync_detailed(
 ) -> Response[Any | HTTPValidationError]:
     """Export Pods
 
-     The supply points whose owners agreed, and nothing else.
+     The community's dated evidence for one offer, streamed as CSV.
 
-    A snapshot: somebody who withdraws stays on the recipient's copy until the
-    next run, so the re-export cadence *is* the revocation latency. The file's
+    Kept by the community and recorded as a disclosure nowhere (ADR-0010): which
+    supply points stood authorised, and which members had withdrawn, at
+    generation time. A snapshot — a later decision is not in it. The file's
     header says so.
 
     Args:
         rec_slug (str):
-        body (PodListRequest):
+        body (PodListRequest): The offer, and nothing else.
+
+            ``recipient_ref`` was dropped (ADR-0010, amended 2026-09-25): the party the
+            offer's consent is read for comes from the offer. A caller still sending it
+            is not refused — unknown fields are ignored, like any other — so a body
+            written for the old contract keeps working, and names nobody.
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
@@ -108,15 +114,21 @@ def sync(
 ) -> Any | HTTPValidationError | None:
     """Export Pods
 
-     The supply points whose owners agreed, and nothing else.
+     The community's dated evidence for one offer, streamed as CSV.
 
-    A snapshot: somebody who withdraws stays on the recipient's copy until the
-    next run, so the re-export cadence *is* the revocation latency. The file's
+    Kept by the community and recorded as a disclosure nowhere (ADR-0010): which
+    supply points stood authorised, and which members had withdrawn, at
+    generation time. A snapshot — a later decision is not in it. The file's
     header says so.
 
     Args:
         rec_slug (str):
-        body (PodListRequest):
+        body (PodListRequest): The offer, and nothing else.
+
+            ``recipient_ref`` was dropped (ADR-0010, amended 2026-09-25): the party the
+            offer's consent is read for comes from the offer. A caller still sending it
+            is not refused — unknown fields are ignored, like any other — so a body
+            written for the old contract keeps working, and names nobody.
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
@@ -141,15 +153,21 @@ async def asyncio_detailed(
 ) -> Response[Any | HTTPValidationError]:
     """Export Pods
 
-     The supply points whose owners agreed, and nothing else.
+     The community's dated evidence for one offer, streamed as CSV.
 
-    A snapshot: somebody who withdraws stays on the recipient's copy until the
-    next run, so the re-export cadence *is* the revocation latency. The file's
+    Kept by the community and recorded as a disclosure nowhere (ADR-0010): which
+    supply points stood authorised, and which members had withdrawn, at
+    generation time. A snapshot — a later decision is not in it. The file's
     header says so.
 
     Args:
         rec_slug (str):
-        body (PodListRequest):
+        body (PodListRequest): The offer, and nothing else.
+
+            ``recipient_ref`` was dropped (ADR-0010, amended 2026-09-25): the party the
+            offer's consent is read for comes from the offer. A caller still sending it
+            is not refused — unknown fields are ignored, like any other — so a body
+            written for the old contract keeps working, and names nobody.
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
@@ -177,15 +195,21 @@ async def asyncio(
 ) -> Any | HTTPValidationError | None:
     """Export Pods
 
-     The supply points whose owners agreed, and nothing else.
+     The community's dated evidence for one offer, streamed as CSV.
 
-    A snapshot: somebody who withdraws stays on the recipient's copy until the
-    next run, so the re-export cadence *is* the revocation latency. The file's
+    Kept by the community and recorded as a disclosure nowhere (ADR-0010): which
+    supply points stood authorised, and which members had withdrawn, at
+    generation time. A snapshot — a later decision is not in it. The file's
     header says so.
 
     Args:
         rec_slug (str):
-        body (PodListRequest):
+        body (PodListRequest): The offer, and nothing else.
+
+            ``recipient_ref`` was dropped (ADR-0010, amended 2026-09-25): the party the
+            offer's consent is read for comes from the offer. A caller still sending it
+            is not refused — unknown fields are ignored, like any other — so a body
+            written for the old contract keeps working, and names nobody.
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.

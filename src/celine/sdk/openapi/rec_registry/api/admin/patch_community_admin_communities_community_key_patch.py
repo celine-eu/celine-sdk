@@ -78,7 +78,9 @@ def sync_detailed(
 ) -> Response[CommunityDetail | ErrorResponse | HTTPValidationError]:
     """Patch Community
 
-     Update community metadata. Areas and topology have their own routes.
+     Update community metadata. Areas and topology have their own routes
+    (`…/areas/{key}`, `…/areas/{key}/rename`, `…/topology/{node_id}`), and
+    this never touches either.
 
     Args:
         community_key (str):
@@ -116,7 +118,9 @@ def sync(
 ) -> CommunityDetail | ErrorResponse | HTTPValidationError | None:
     """Patch Community
 
-     Update community metadata. Areas and topology have their own routes.
+     Update community metadata. Areas and topology have their own routes
+    (`…/areas/{key}`, `…/areas/{key}/rename`, `…/topology/{node_id}`), and
+    this never touches either.
 
     Args:
         community_key (str):
@@ -149,7 +153,9 @@ async def asyncio_detailed(
 ) -> Response[CommunityDetail | ErrorResponse | HTTPValidationError]:
     """Patch Community
 
-     Update community metadata. Areas and topology have their own routes.
+     Update community metadata. Areas and topology have their own routes
+    (`…/areas/{key}`, `…/areas/{key}/rename`, `…/topology/{node_id}`), and
+    this never touches either.
 
     Args:
         community_key (str):
@@ -185,7 +191,9 @@ async def asyncio(
 ) -> CommunityDetail | ErrorResponse | HTTPValidationError | None:
     """Patch Community
 
-     Update community metadata. Areas and topology have their own routes.
+     Update community metadata. Areas and topology have their own routes
+    (`…/areas/{key}`, `…/areas/{key}/rename`, `…/topology/{node_id}`), and
+    this never touches either.
 
     Args:
         community_key (str):

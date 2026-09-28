@@ -5,6 +5,7 @@ import httpx
 
 from ... import errors
 from ...client import AuthenticatedClient, Client
+from ...models.error_response import ErrorResponse
 from ...models.http_validation_error import HTTPValidationError
 from ...models.user_assets_response import UserAssetsResponse
 from ...types import UNSET, Response, Unset
@@ -36,11 +37,16 @@ def _get_kwargs(
 
 def _parse_response(
     *, client: AuthenticatedClient | Client, response: httpx.Response
-) -> HTTPValidationError | UserAssetsResponse | None:
+) -> ErrorResponse | HTTPValidationError | UserAssetsResponse | None:
     if response.status_code == 200:
         response_200 = UserAssetsResponse.from_dict(response.json())
 
         return response_200
+
+    if response.status_code == 403:
+        response_403 = ErrorResponse.from_dict(response.json())
+
+        return response_403
 
     if response.status_code == 422:
         response_422 = HTTPValidationError.from_dict(response.json())
@@ -55,7 +61,7 @@ def _parse_response(
 
 def _build_response(
     *, client: AuthenticatedClient | Client, response: httpx.Response
-) -> Response[HTTPValidationError | UserAssetsResponse]:
+) -> Response[ErrorResponse | HTTPValidationError | UserAssetsResponse]:
     return Response(
         status_code=HTTPStatus(response.status_code),
         content=response.content,
@@ -68,7 +74,7 @@ def sync_detailed(
     *,
     client: AuthenticatedClient | Client,
     asset_type: None | str | Unset = UNSET,
-) -> Response[HTTPValidationError | UserAssetsResponse]:
+) -> Response[ErrorResponse | HTTPValidationError | UserAssetsResponse]:
     """Get My Assets
 
      Get current user's assets.
@@ -83,7 +89,7 @@ def sync_detailed(
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Response[HTTPValidationError | UserAssetsResponse]
+        Response[ErrorResponse | HTTPValidationError | UserAssetsResponse]
     """
 
     kwargs = _get_kwargs(
@@ -101,7 +107,7 @@ def sync(
     *,
     client: AuthenticatedClient | Client,
     asset_type: None | str | Unset = UNSET,
-) -> HTTPValidationError | UserAssetsResponse | None:
+) -> ErrorResponse | HTTPValidationError | UserAssetsResponse | None:
     """Get My Assets
 
      Get current user's assets.
@@ -116,7 +122,7 @@ def sync(
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        HTTPValidationError | UserAssetsResponse
+        ErrorResponse | HTTPValidationError | UserAssetsResponse
     """
 
     return sync_detailed(
@@ -129,7 +135,7 @@ async def asyncio_detailed(
     *,
     client: AuthenticatedClient | Client,
     asset_type: None | str | Unset = UNSET,
-) -> Response[HTTPValidationError | UserAssetsResponse]:
+) -> Response[ErrorResponse | HTTPValidationError | UserAssetsResponse]:
     """Get My Assets
 
      Get current user's assets.
@@ -144,7 +150,7 @@ async def asyncio_detailed(
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Response[HTTPValidationError | UserAssetsResponse]
+        Response[ErrorResponse | HTTPValidationError | UserAssetsResponse]
     """
 
     kwargs = _get_kwargs(
@@ -160,7 +166,7 @@ async def asyncio(
     *,
     client: AuthenticatedClient | Client,
     asset_type: None | str | Unset = UNSET,
-) -> HTTPValidationError | UserAssetsResponse | None:
+) -> ErrorResponse | HTTPValidationError | UserAssetsResponse | None:
     """Get My Assets
 
      Get current user's assets.
@@ -175,7 +181,7 @@ async def asyncio(
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        HTTPValidationError | UserAssetsResponse
+        ErrorResponse | HTTPValidationError | UserAssetsResponse
     """
 
     return (

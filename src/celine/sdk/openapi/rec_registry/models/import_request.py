@@ -22,7 +22,7 @@ class ImportRequest:
     Attributes:
         bundle (RegistryBundleIn): Complete registry bundle for import.
 
-            Matches `schemas/community/v0.6/community.schema.json`.
+            Matches `schemas/community/v0.7/community.schema.json`.
         dry_run (bool | Unset):  Default: False.
         force (bool | Unset):  Default: False.
     """

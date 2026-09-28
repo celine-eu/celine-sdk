@@ -14,6 +14,8 @@ Two clients, for two ways of being authorised:
   holding `onboarding.members.invite` asks onboarding to send a registry member an
   invitation or a password reset, and forwards the manager whose press it is.
   Onboarding verifies both tokens, and refuses a call with no person behind it.
+  It also wraps the **registry sync** of a community's areas, which a realm
+  admin calls with their own token (`recs.write`, which no service holds).
 
 The rest of onboarding's admin surface is in the generated client for whoever
 needs it next.
@@ -30,6 +32,9 @@ from celine.sdk.auth import TokenProvider
 from celine.sdk.onboarding.errors import OnboardingApiError
 from celine.sdk.openapi.onboarding import AuthenticatedClient
 from celine.sdk.openapi.onboarding.api.admin import (
+    registry_sync_route_api_admin_recs_rec_slug_registry_sync_post as _registry_sync,
+)
+from celine.sdk.openapi.onboarding.api.admin import (
     send_member_invitation_api_admin_communities_community_members_member_key_invitation_post as _send_invitation,
 )
 from celine.sdk.openapi.onboarding.api.admin import (
@@ -45,6 +50,7 @@ from celine.sdk.openapi.onboarding.schemas import (
     DataSharingHistoryResponseSchema,
     DataSharingStatusResponseSchema,
     MemberEmailSentSchema,
+    RegistrySyncOutSchema,
 )
 from celine.sdk.utils.convert import to_schema
 
@@ -71,6 +77,17 @@ def _retry_after(res: Any, detail: Any) -> int | None:
         return int(value) if value is not None else None
     except (TypeError, ValueError):
         return None
+
+
+class _Unparsed:
+    """A raw response in the shape `_checked` reads, for a refusal the generated
+    parser cannot be trusted with."""
+
+    def __init__(self, response: httpx.Response):
+        self.status_code = response.status_code
+        self.content = response.content
+        self.headers = response.headers
+        self.parsed = None
 
 
 def _checked(res: Any, what: str) -> Any:
@@ -219,13 +236,14 @@ class OnboardingClient:
 
 
 class OnboardingAdminClient:
-    """Onboarding's delegated member emails: a service acting for a manager.
+    """Onboarding's delegated member emails, and a realm admin's registry sync.
 
     Covers:
     - POST /api/admin/communities/{community}/members/{member_key}/invitation
     - POST /api/admin/communities/{community}/members/{member_key}/password-reset
+    - POST /api/admin/recs/{rec_slug}/registry-sync   (see :meth:`registry_sync`)
 
-    Two tokens on every call. The service's own (`Authorization`, from the token
+    Two tokens on every member email. The service's own (`Authorization`, from the token
     provider, carrying `onboarding.members.invite`) and the manager's
     (`X-Acting-User-Token`, passed per call). There is no default for the second:
     each send follows one person's press, and a client that remembered a manager
@@ -253,6 +271,19 @@ class OnboardingAdminClient:
         self._timeout = httpx.Timeout(timeout)
         self._verify_ssl = verify_ssl
 
+    async def _service_token(self, token: Optional[str]) -> str:
+        """Priority: explicit > default > provider."""
+        if token is not None:
+            return token
+        if self._default_token is not None:
+            return self._default_token
+        if self._token_provider is not None:
+            return (await self._token_provider.get_token()).access_token
+        raise ValueError(
+            "No token provided. Pass token= parameter, set default_token, "
+            "or provide token_provider"
+        )
+
     async def _get_client(self, token: Optional[str], acting_token: str) -> AuthenticatedClient:
         """An authenticated client carrying both tokens.
 
@@ -262,17 +293,7 @@ class OnboardingAdminClient:
         """
         if not acting_token or not acting_token.strip():
             raise ValueError("acting_token is required: a member email follows a person's press")
-        if token is not None:
-            actual_token = token
-        elif self._default_token is not None:
-            actual_token = self._default_token
-        elif self._token_provider is not None:
-            actual_token = (await self._token_provider.get_token()).access_token
-        else:
-            raise ValueError(
-                "No token provided. Pass token= parameter, set default_token, "
-                "or provide token_provider"
-            )
+        actual_token = await self._service_token(token)
         return AuthenticatedClient(
             base_url=self._base_url,
             token=actual_token,
@@ -323,3 +344,57 @@ class OnboardingAdminClient:
             client=client,
         )
         return to_schema(_checked(res, "send_member_password_reset"), MemberEmailSentSchema)
+
+    async def registry_sync(
+        self,
+        rec_slug: str,
+        *,
+        dry_run: bool,
+        prune: bool = False,
+        token: Optional[str] = None,
+    ) -> RegistrySyncOutSchema:
+        """Push a REC's template areas to its registry community.
+
+        `POST /api/admin/recs/{rec_slug}/registry-sync?dry_run=&prune=`.
+
+        `dry_run` has **no default**: whether the registry is written is the
+        caller's statement on every call, never a default on either side of the
+        seam. `prune` is `False` unless set, as in onboarding, whose sync is
+        additive unless asked to remove. Both are always sent.
+
+        Onboarding authorises this with `recs.write`, held by realm admins only,
+        so `token` is normally the admin's own; a service token is refused `403`.
+        No acting-user header is sent.
+
+        The report comes back as onboarding wrote it — rows whose `outcome` is
+        `refused` included, and `ok` false when any was. A registry area moved to
+        the template's new key is one row, `outcome` `renamed`, with the old key
+        in `renamed_from` (onboarding 0.4.0). Every non-`200` raises
+        :class:`OnboardingApiError` with onboarding's `{"detail": {"code",
+        "message"}}` read into `code` and `detail`. Nothing is retried.
+        """
+        # A `None` would be dropped from the query by the generated client and
+        # leave onboarding to decide, which is exactly what this method must not do.
+        if not isinstance(dry_run, bool):
+            raise TypeError("dry_run must be True or False")
+        if not isinstance(prune, bool):
+            raise TypeError("prune must be True or False")
+        client = AuthenticatedClient(
+            base_url=self._base_url,
+            token=await self._service_token(token),
+            timeout=self._timeout,
+            verify_ssl=self._verify_ssl,
+            raise_on_unexpected_status=False,
+        )
+        # Sent through the generated request builder, and the status read before
+        # anything is parsed: the route declares `422` as FastAPI's validation
+        # list, so the generated parser crashes on onboarding's own
+        # `422 {"detail": {"code": "template_invalid", ...}}` instead of
+        # returning it.
+        response = await client.get_async_httpx_client().request(
+            **_registry_sync._get_kwargs(rec_slug, dry_run=dry_run, prune=prune)
+        )
+        if response.status_code != 200:
+            _checked(_Unparsed(response), "registry_sync")
+        res = _registry_sync._build_response(client=client, response=response)
+        return to_schema(_checked(res, "registry_sync"), RegistrySyncOutSchema)

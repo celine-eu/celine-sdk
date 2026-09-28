@@ -345,3 +345,234 @@ class TestMemberEmails:
 
         assert raised.value.detail == "grid-operations is disclosed under a contract"
         assert raised.value.code is None
+
+
+# --------------------------------------------------------------------------- #
+# The registry sync                                                           #
+# --------------------------------------------------------------------------- #
+
+def _item(key: str, outcome: str, **extra) -> dict:
+    return {"key": key, "boundary_id": "AC000E00001", "outcome": outcome, **extra}
+
+
+SYNC_REPORT = {
+    "rec": "example-rec",
+    "community": "example-rec",
+    "dry_run": True,
+    "prune": False,
+    "ok": False,
+    "setup": {"status": "not_run", "code": None, "reason": None, "members": None, "created": None},
+    "nodes": [_item("AC000E00001", "created")],
+    "areas": [
+        _item("north", "created"),
+        _item("south", "refused", code="boundary_held", reason="held by another area"),
+        _item("old", "undeclared", boundary_id=None, members=3),
+    ],
+    "summary": {"nodes": {"created": 1}, "areas": {"created": 1, "refused": 1, "undeclared": 1}},
+}
+
+
+class TestRegistrySync:
+    # @verifies REQ-0140
+    @pytest.mark.parametrize(
+        ("dry_run", "prune", "query"),
+        [
+            (True, False, {"dry_run": "true", "prune": "false"}),
+            (False, False, {"dry_run": "false", "prune": "false"}),
+            (False, True, {"dry_run": "false", "prune": "true"}),
+        ],
+    )
+    async def test_dry_run_and_prune_are_always_sent_as_chosen(
+        self, mock_http, dry_run, prune, query
+    ):
+        seen = mock_http(_answer(200, SYNC_REPORT))
+
+        await _admin(default_token="tok-admin").registry_sync(
+            "example-rec", dry_run=dry_run, prune=prune
+        )
+
+        request = seen[0]
+        assert request.method == "POST"
+        assert request.url.path == "/api/admin/recs/example-rec/registry-sync"
+        assert dict(request.url.params) == query
+        assert request.headers["authorization"] == "Bearer tok-admin"
+        assert ACTING_USER_HEADER not in request.headers
+
+    # @verifies REQ-0140
+    async def test_prune_is_false_unless_set(self, mock_http):
+        seen = mock_http(_answer(200, SYNC_REPORT))
+
+        await _admin(default_token="t").registry_sync("example-rec", dry_run=False)
+
+        assert seen[0].url.params["prune"] == "false"
+        assert seen[0].url.params["dry_run"] == "false"
+
+    # @verifies REQ-0140
+    async def test_dry_run_has_no_default(self, mock_http):
+        seen = mock_http(_answer(200, SYNC_REPORT))
+
+        with pytest.raises(TypeError):
+            await _admin(default_token="t").registry_sync("example-rec")  # type: ignore[call-arg]
+
+        assert seen == []
+
+    # @verifies REQ-0140
+    @pytest.mark.parametrize(
+        "kwargs", [{"dry_run": None}, {"dry_run": "false"}, {"dry_run": 0}, {"dry_run": True, "prune": None}]
+    )
+    async def test_a_value_that_would_drop_out_of_the_query_is_refused(self, mock_http, kwargs):
+        """The generated client drops `None` from the query, which would leave the
+        service's default to decide whether the registry is written."""
+        seen = mock_http(_answer(200, SYNC_REPORT))
+
+        with pytest.raises(TypeError):
+            await _admin(default_token="t").registry_sync("example-rec", **kwargs)
+
+        assert seen == []
+
+    # @verifies REQ-0140
+    async def test_the_report_is_passed_through_refusals_included(self, mock_http):
+        mock_http(_answer(200, SYNC_REPORT))
+
+        report = await _admin(default_token="t").registry_sync("example-rec", dry_run=True)
+
+        assert report.ok is False
+        assert report.dry_run is True
+        assert report.setup.status == "not_run"
+        assert [(a.key, a.outcome) for a in report.areas] == [
+            ("north", "created"),
+            ("south", "refused"),
+            ("old", "undeclared"),
+        ]
+        assert report.areas[1].code == "boundary_held"
+        assert type(report.areas[1].code) is str
+        assert report.areas[2].members == 3
+        assert report.nodes[0].key == "AC000E00001"
+        assert report.summary == {
+            "nodes": {"created": 1},
+            "areas": {"created": 1, "refused": 1, "undeclared": 1},
+        }
+
+    # @verifies REQ-0140
+    async def test_a_renamed_area_carries_the_key_it_was_renamed_from(self, mock_http):
+        """Onboarding 0.4.0 moves a registry area to the template's new key and
+        reports it once, as `renamed`; the old key is not reported as undeclared."""
+        report_body = {
+            **SYNC_REPORT,
+            "areas": [
+                _item("north", "renamed", renamed_from="old-north", members=2),
+                _item("south", "unchanged"),
+            ],
+            "summary": {"nodes": {"created": 1}, "areas": {"renamed": 1, "unchanged": 1}},
+        }
+        mock_http(_answer(200, report_body))
+
+        report = await _admin(default_token="t").registry_sync("example-rec", dry_run=True)
+
+        assert [(a.key, a.outcome, a.renamed_from) for a in report.areas] == [
+            ("north", "renamed", "old-north"),
+            ("south", "unchanged", None),
+        ]
+        assert report.areas[0].members == 2
+        assert report.summary["areas"] == {"renamed": 1, "unchanged": 1}
+
+    # @verifies REQ-0140
+    async def test_an_outcome_nobody_has_invented_yet_passes_through(self, mock_http):
+        report_body = {**SYNC_REPORT, "areas": [_item("north", "a_new_outcome", code="a_new_code")]}
+        mock_http(_answer(200, report_body))
+
+        report = await _admin(default_token="t").registry_sync("example-rec", dry_run=True)
+
+        assert report.areas[0].outcome == "a_new_outcome"
+        assert report.areas[0].code == "a_new_code"
+
+    # @verifies REQ-0140
+    @pytest.mark.parametrize(
+        ("status", "code"),
+        [
+            (403, "forbidden"),
+            (404, "community_not_found"),
+            (422, "template_invalid"),
+            (422, "template_not_syncable"),
+            (502, "registry_unavailable"),
+            (502, "registry_refused"),
+            (503, "boundaries_unavailable"),
+            (503, "registry_not_configured"),
+        ],
+    )
+    async def test_a_refusal_carries_onboardings_nested_code(self, mock_http, status, code):
+        mock_http(_answer(status, {"detail": {"code": code, "message": "English, for logs"}}))
+
+        with pytest.raises(OnboardingApiError) as raised:
+            await _admin(default_token="t").registry_sync("example-rec", dry_run=False)
+
+        assert raised.value.status_code == status
+        assert raised.value.code == code
+        assert type(raised.value.code) is str
+        assert raised.value.detail == "English, for logs"
+
+    # @verifies REQ-0140
+    async def test_the_registrys_flat_shape_is_not_reshaped(self, mock_http):
+        """`{"detail", "code"}` is the registry's (REQ-0127), not onboarding's: the
+        wrapper reads only onboarding's nested shape and invents no code."""
+        mock_http(_answer(409, {"detail": "area in use", "code": "area_in_use"}))
+
+        with pytest.raises(OnboardingApiError) as raised:
+            await _admin(default_token="t").registry_sync("example-rec", dry_run=False)
+
+        assert raised.value.status_code == 409
+        assert raised.value.code is None
+        assert raised.value.detail == "area in use"
+
+    # @verifies REQ-0140
+    async def test_a_gateway_page_raises_with_no_code(self, mock_http):
+        def handle(request: httpx.Request) -> httpx.Response:
+            return httpx.Response(502, content=b"<html>bad gateway</html>")
+
+        mock_http(handle)
+
+        with pytest.raises(OnboardingApiError) as raised:
+            await _admin(default_token="t").registry_sync("example-rec", dry_run=True)
+
+        assert raised.value.status_code == 502
+        assert raised.value.code is None
+
+    async def test_the_token_is_explicit_then_default_then_provider(self, mock_http):
+        seen = mock_http(_answer(200, SYNC_REPORT))
+        provider = _Provider()
+
+        await _admin(token_provider=provider).registry_sync("example-rec", dry_run=True)
+        await _admin(default_token="tok-default", token_provider=provider).registry_sync(
+            "example-rec", dry_run=True, token="tok-admin"
+        )
+
+        assert seen[0].headers["authorization"] == "Bearer tok-service"
+        assert seen[1].headers["authorization"] == "Bearer tok-admin"
+        assert provider.calls == 1
+
+    async def test_no_token_is_refused_before_any_request(self, mock_http):
+        seen = mock_http(_answer(200, SYNC_REPORT))
+
+        with pytest.raises(ValueError):
+            await _admin().registry_sync("example-rec", dry_run=True)
+
+        assert seen == []
+
+    async def test_the_rec_slug_is_escaped(self, mock_http):
+        seen = mock_http(_answer(200, SYNC_REPORT))
+
+        await _admin(default_token="t").registry_sync("a/b", dry_run=True)
+
+        assert seen[0].url.raw_path.startswith(b"/api/admin/recs/a%2Fb/registry-sync")
+
+    # @verifies REQ-0140
+    async def test_a_validation_list_is_still_a_refusal(self, mock_http):
+        mock_http(
+            _answer(422, {"detail": [{"loc": ["query", "dry_run"], "msg": "nope", "type": "bool_parsing"}]})
+        )
+
+        with pytest.raises(OnboardingApiError) as raised:
+            await _admin(default_token="t").registry_sync("example-rec", dry_run=True)
+
+        assert raised.value.status_code == 422
+        assert raised.value.code is None

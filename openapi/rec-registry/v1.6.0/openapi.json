@@ -3,6 +3,16 @@
     "schemas": {
       "Area": {
         "properties": {
+          "boundary": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/AreaBoundary"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
           "geometry": {
             "anyOf": [
               {
@@ -28,6 +38,13 @@
           "name": {
             "title": "Name",
             "type": "string"
+          },
+          "topology": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Topology",
+            "type": "array"
           }
         },
         "required": [
@@ -36,10 +53,57 @@
         "title": "Area",
         "type": "object"
       },
+      "AreaBoundary": {
+        "description": "The primary-substation boundary an area references (REQ-0067).",
+        "properties": {
+          "id": {
+            "title": "Id",
+            "type": "string"
+          },
+          "source": {
+            "title": "Source",
+            "type": "string"
+          }
+        },
+        "required": [
+          "source",
+          "id"
+        ],
+        "title": "AreaBoundary",
+        "type": "object"
+      },
+      "AreaBoundaryIn": {
+        "additionalProperties": false,
+        "description": "The primary-substation boundary an area references (REQ-0067, schema v0.7).\n\n`source` names the boundary dataset (`gse_cabine_primarie`), `id` the\nsubstation code within it (`cod_ac`). Both are plain strings so that a wrong\nvalue is refused with the code `invalid_area_boundary` rather than as a\nvalidation error (REQ-0073); the registry never checks `id` against the\ndataset, which it cannot read.",
+        "properties": {
+          "id": {
+            "description": "The substation code (`cod_ac`); equal to the id of the area's one `primary_substation` topology node. At most 64 characters; a longer one is refused with `invalid_area_boundary`.",
+            "maxLength": 64,
+            "title": "Id",
+            "type": "string"
+          },
+          "source": {
+            "description": "The boundary dataset: `gse_cabine_primarie`.",
+            "title": "Source",
+            "type": "string"
+          }
+        },
+        "required": [
+          "source",
+          "id"
+        ],
+        "title": "AreaBoundaryIn",
+        "type": "object"
+      },
       "AreaIn": {
         "additionalProperties": true,
-        "description": "Community area definition.",
+        "description": "Community area definition.\n\nOne primary substation (REQ-0067): `boundary` references it, and `topology`\nlists exactly one node \u2014 a `primary_substation` whose id is `boundary.id`.\n`boundary` is published as `AreaBoundaryIn` but accepts anything here, so\nthat an area with none, with a list of them or with a malformed one is\nrefused with `invalid_area_boundary` by the import's check rather than as a\nvalidation error at parse time (REQ-0073).",
         "properties": {
+          "boundary": {
+            "$ref": "#/components/schemas/AreaBoundaryIn",
+            "description": "The primary-substation boundary, `{source, id}`. Required.",
+            "title": "Boundary"
+          },
           "geometry": {
             "anyOf": [
               {
@@ -80,9 +144,59 @@
         "title": "AreaIn",
         "type": "object"
       },
-      "AreaUpsert": {
-        "description": "Create or replace one area of a community.",
+      "AreaRename": {
+        "additionalProperties": false,
+        "description": "Move an area to a new key, with its members (REQ-0079).\n\n`new_key` only; any other key is `422`. A key that is not an area key \u2014\nletters, digits, `-` and `_`, starting with a letter or digit, at most 128\ncharacters \u2014 is refused `422 invalid_area_key`.",
         "properties": {
+          "new_key": {
+            "description": "The key the area is moved to.",
+            "title": "New Key",
+            "type": "string"
+          }
+        },
+        "required": [
+          "new_key"
+        ],
+        "title": "AreaRename",
+        "type": "object"
+      },
+      "AreaRenamed": {
+        "description": "What a rename did (REQ-0079): the two keys, how many members moved, and\nthe whole community after it, so the caller can see the others are still\nthere.",
+        "properties": {
+          "community": {
+            "$ref": "#/components/schemas/CommunityDetail"
+          },
+          "members_moved": {
+            "description": "Members of the community, of any status, moved to `new_key`.",
+            "title": "Members Moved",
+            "type": "integer"
+          },
+          "new_key": {
+            "title": "New Key",
+            "type": "string"
+          },
+          "old_key": {
+            "title": "Old Key",
+            "type": "string"
+          }
+        },
+        "required": [
+          "old_key",
+          "new_key",
+          "members_moved",
+          "community"
+        ],
+        "title": "AreaRenamed",
+        "type": "object"
+      },
+      "AreaUpsert": {
+        "description": "Create or replace one area of a community.\n\nOne primary substation (REQ-0067): `boundary` references it and `topology`\nlists exactly one node id, `boundary.id`, a `primary_substation` node of\nthe community's topology. Anything else \u2014 no boundary, a list of them or a\nmalformed one included \u2014 is `422 invalid_area_boundary`; `boundary`\naccepts anything in the model only so that each of those is refused with\nthat code rather than as a validation error.",
+        "properties": {
+          "boundary": {
+            "$ref": "#/components/schemas/AreaBoundaryIn",
+            "description": "The primary-substation boundary, `{source, id}`. Required.",
+            "title": "Boundary"
+          },
           "geometry": {
             "anyOf": [
               {
@@ -110,6 +224,7 @@
             "type": "string"
           },
           "topology": {
+            "description": "Exactly one node id: `boundary.id`.",
             "items": {
               "type": "string"
             },
@@ -1242,7 +1357,15 @@
           "asset_key_too_long",
           "sensor_held",
           "area_in_use",
-          "invalid_status"
+          "invalid_status",
+          "invalid_role",
+          "unknown_area",
+          "invalid_area_boundary",
+          "topology_node_in_use",
+          "area_not_found",
+          "area_key_taken",
+          "invalid_area_key",
+          "not_a_member"
         ],
         "title": "ErrorCode",
         "type": "string"
@@ -2421,6 +2544,25 @@
         "title": "MemberPatch",
         "type": "object"
       },
+      "MemberProfilePatch": {
+        "additionalProperties": false,
+        "description": "A member's role and area, and nothing else (REQ-0070).\n\nAt least one of the two, and no other key: a body that could carry a\n`user_id` would hand the narrower `members.profile.write` grant the identity\nrewrite REQ-0022 exists to stop. Absent fields are left alone; neither may\nbe sent as `null`, since a member always has both.\n\nThe values are checked against their sets by the route, with a coded `422`\n(`invalid_role`, `unknown_area`; REQ-0066), not here \u2014 a validation error\nhere has no `code`.",
+        "minProperties": 1,
+        "properties": {
+          "area": {
+            "description": "A key of the community's `areas`.",
+            "title": "Area",
+            "type": "string"
+          },
+          "role": {
+            "description": "One of consumer, prosumer, producer, operator, admin.",
+            "title": "Role",
+            "type": "string"
+          }
+        },
+        "title": "MemberProfilePatch",
+        "type": "object"
+      },
       "MemberRef": {
         "properties": {
           "key": {
@@ -2958,7 +3100,7 @@
       },
       "RegistryBundleIn": {
         "additionalProperties": true,
-        "description": "Complete registry bundle for import.\n\nMatches `schemas/community/v0.6/community.schema.json`.",
+        "description": "Complete registry bundle for import.\n\nMatches `schemas/community/v0.7/community.schema.json`.",
         "properties": {
           "community": {
             "$ref": "#/components/schemas/CommunityIn"
@@ -2981,7 +3123,7 @@
             ]
           },
           "schema_version": {
-            "default": "0.6",
+            "default": "0.7",
             "title": "Schema Version",
             "type": "string"
           },
@@ -3162,6 +3304,7 @@
         "type": "object"
       },
       "TopologyNode": {
+        "description": "One grid topology node, named as the bundle names it (REQ-0072).\n\nThe fields are the bundle's `TopologyNodeIn` fields, under the same names:\n`operator_id` (a key of the community's `operators`, since schema v0.5) and\n`parent` (the id of the node above this one). Before 1.6.0 this model\nanswered `operator`, a v0.4 name nothing has stored since, so it was\nalways `null` while the stored `operator_id` was never returned.",
         "properties": {
           "area": {
             "additionalProperties": true,
@@ -3183,7 +3326,7 @@
             ],
             "title": "Name"
           },
-          "operator": {
+          "operator_id": {
             "anyOf": [
               {
                 "type": "string"
@@ -3192,7 +3335,7 @@
                 "type": "null"
               }
             ],
-            "title": "Operator"
+            "title": "Operator Id"
           },
           "parent": {
             "anyOf": [
@@ -3219,7 +3362,7 @@
       },
       "TopologyNodeIn": {
         "additionalProperties": true,
-        "description": "Grid topology node (substation, transformer, etc.).",
+        "description": "Grid topology node (substation, transformer, etc.).\n\nThe body of the topology node `PUT` too (REQ-0072), and the names every\nread answers (`TopologyNode`): `operator_id`, `parent`. Keys beyond these\nare accepted and not stored, on the import and on the `PUT` alike.",
         "properties": {
           "area": {
             "anyOf": [
@@ -3843,7 +3986,7 @@
     }
   },
   "info": {
-    "description": "Registry API for Renewable Energy Communities (bundle schema v0.6)",
+    "description": "Registry API for Renewable Energy Communities (bundle schema v0.7)",
     "title": "CELINE REC Registry API",
     "version": "1.6.0"
   },
@@ -3974,7 +4117,7 @@
         ]
       },
       "patch": {
-        "description": "Update community metadata. Areas and topology have their own routes.",
+        "description": "Update community metadata. Areas and topology have their own routes\n(`\u2026/areas/{key}`, `\u2026/areas/{key}/rename`, `\u2026/topology/{node_id}`), and\nthis never touches either.",
         "operationId": "patch_community_admin_communities__community_key__patch",
         "parameters": [
           {
@@ -4107,7 +4250,7 @@
         ]
       },
       "put": {
-        "description": "Add or replace one area, keeping the others.\n\nTopology assignments change more often than the community does, so this is a\nsub-resource rather than part of the community patch.",
+        "description": "Add or replace one area, keeping the others.\n\nTopology assignments change more often than the community does, so this is a\nsub-resource rather than part of the community patch.\n\n**An area is one primary substation** (REQ-0067): `boundary: {source, id}`\nwith `source` `gse_cabine_primarie`, and `topology` listing exactly one node\nid \u2014 `boundary.id`, a node of the community's topology whose `type` is\n`primary_substation`. No other area of the community may carry the same\n`boundary.id`. Anything else is `422 invalid_area_boundary` and changes\nnothing \u2014 including a node the community's topology does not hold yet,\nwhich has to be written first. Areas stored before the rule are not\nre-judged, except that the written area may not share their boundary id.",
         "operationId": "upsert_area_admin_communities__community_key__areas__area_key__put",
         "parameters": [
           {
@@ -4164,14 +4307,110 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
+                  "oneOf": [
+                    {
+                      "$ref": "#/components/schemas/ErrorResponse"
+                    },
+                    {
+                      "$ref": "#/components/schemas/HTTPValidationError"
+                    }
+                  ]
                 }
               }
             },
-            "description": "Validation Error"
+            "description": "Refused. Either a coded refusal (`ErrorResponse`, `code` names the rule, REQ-0073) or a request that failed validation (`HTTPValidationError`, `detail` is a list)."
           }
         },
         "summary": "Upsert Area",
+        "tags": [
+          "admin"
+        ]
+      }
+    },
+    "/admin/communities/{community_key}/areas/{area_key}/rename": {
+      "post": {
+        "description": "Move an area to a new key, with its members, in one write (REQ-0079).\n\nThe area \u2014 name, boundary, topology, as stored \u2014 is written under\n`new_key`, every member of the community whose `area` is `area_key`\n(active or not) is moved to `new_key`, and `area_key` is removed: one\ntransaction, under the community's row taken exclusively, so no reader\nsees both keys, or a member in an area that does not exist, or two areas\non one boundary (REQ-0067). Nothing else changes \u2014 not the other areas,\nnot the members' other fields, not their assets.\n\nThis is how an onboarding template sync renames an area whose substation\nthe registry already holds under another key: an area `PUT` under the new\nkey would be refused (one area per boundary), and the old key cannot be\ndeleted while members hold it.\n\nRefused, changing nothing: `422 invalid_area_key` for a `new_key` that is\nnot an area key; `404 area_not_found` for an `area_key` the community does\nnot have; `409 area_key_taken` for a `new_key` it already has. Derives\n`community.write`.",
+        "operationId": "rename_area_admin_communities__community_key__areas__area_key__rename_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "community_key",
+            "required": true,
+            "schema": {
+              "title": "Community Key",
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "area_key",
+            "required": true,
+            "schema": {
+              "title": "Area Key",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AreaRename"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AreaRenamed"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Refused; `code` names the rule (REQ-0073)."
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Refused; `code` names the rule (REQ-0073)."
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "oneOf": [
+                    {
+                      "$ref": "#/components/schemas/ErrorResponse"
+                    },
+                    {
+                      "$ref": "#/components/schemas/HTTPValidationError"
+                    }
+                  ]
+                }
+              }
+            },
+            "description": "Refused. Either a coded refusal (`ErrorResponse`, `code` names the rule, REQ-0073) or a request that failed validation (`HTTPValidationError`, `detail` is a list)."
+          }
+        },
+        "summary": "Rename Area",
         "tags": [
           "admin"
         ]
@@ -4678,7 +4917,7 @@
         ]
       },
       "post": {
-        "description": "Create one member.\n\nAnswers `409` when the key or `user_id` is already taken, naming the\nexisting key so a caller can switch to `PATCH`. It does not overwrite: the\ncaller asked to create, and silently updating somebody else's row is how a\nretry with a changed payload rewrites the wrong person.\n\nA concurrent create answers `409` too \u2014 the unique index refuses it, and the\nservice translates that back into the same conflict.\n\nAn `active` member created with meters is `409 sensor_held` when another\nactive member, in any community, holds one of their sensors (REQ-0069).\nAn asset key longer than 128 characters is `422 asset_key_too_long`\n(REQ-0028).",
+        "description": "Create one member.\n\nAnswers `409` when the key or `user_id` is already taken, naming the\nexisting key so a caller can switch to `PATCH`. It does not overwrite: the\ncaller asked to create, and silently updating somebody else's row is how a\nretry with a changed payload rewrites the wrong person.\n\nA concurrent create answers `409` too \u2014 the unique index refuses it, and the\nservice translates that back into the same conflict.\n\nAn `active` member created with meters is `409 sensor_held` when another\nactive member, in any community, holds one of their sensors (REQ-0069).\nAn asset key longer than 128 characters is `422 asset_key_too_long`\n(REQ-0028).\n\n`role` and `status` outside their sets are `422 invalid_role` /\n`invalid_status`, and an `area` that is not a key of the community's\nareas is `422 unknown_area` (REQ-0066).",
         "operationId": "create_member_admin_communities__community_key__members_post",
         "parameters": [
           {
@@ -4932,7 +5171,7 @@
         ]
       },
       "patch": {
-        "description": "Partially update a member. Absent fields are left alone.\n\nReassigning a `user_id` that belongs to somebody else is `409`, whether the\nclash was already committed or arrives concurrently.\n\n**This is also how a member's dataspace DID is written**, because the DID is\nminted a step after the member is registered \u2014 there is no separate route\nfor it, since a dedicated write would have to be added to\n`TestNoWriteReducesASibling` to earn nothing `PATCH` does not already do.\nIts clash check differs from the `user_id` one beside it in two ways, and\nboth matter:\n\n* **It is registry-wide.** `ix_member_did` is global, so the check cannot be\n  scoped to the community in the path.\n* **It names the holder only inside the addressed community.** Saying which\n  member of *another* community holds a DID would answer a question the\n  caller did not ask about people they were not addressing \u2014 the same\n  enumeration reasoning as REQ-0045.\n\nRe-sending a member the DID it already holds is a no-op success: onboarding\nwrites it from a retriable step, so the same write arriving twice must not\nbe a conflict.\n\nSetting `status: active` on a member that was not active re-checks its\nsensors, and the whole patch is refused `409 sensor_held` when another\nactive member holds one (REQ-0069).",
+        "description": "Partially update a member. Absent fields are left alone.\n\nReassigning a `user_id` that belongs to somebody else is `409`, whether the\nclash was already committed or arrives concurrently.\n\n**This is also how a member's dataspace DID is written**, because the DID is\nminted a step after the member is registered \u2014 there is no separate route\nfor it, since a dedicated write would have to be added to\n`TestNoWriteReducesASibling` to earn nothing `PATCH` does not already do.\nIts clash check differs from the `user_id` one beside it in two ways, and\nboth matter:\n\n* **It is registry-wide.** `ix_member_did` is global, so the check cannot be\n  scoped to the community in the path.\n* **It names the holder only inside the addressed community.** Saying which\n  member of *another* community holds a DID would answer a question the\n  caller did not ask about people they were not addressing \u2014 the same\n  enumeration reasoning as REQ-0045.\n\nRe-sending a member the DID it already holds is a no-op success: onboarding\nwrites it from a retriable step, so the same write arriving twice must not\nbe a conflict.\n\nSetting `status: active` on a member that was not active re-checks its\nsensors, and the whole patch is refused `409 sensor_held` when another\nactive member holds one (REQ-0069).\n\n`role` and `area` are still accepted here, for `members.write` holders,\nand held to the same sets as on `PATCH \u2026/profile`: `422 invalid_role`,\n`invalid_status`, `unknown_area` (REQ-0066). A role change leaves the\nmember's assets as they are.",
         "operationId": "patch_member_admin_communities__community_key__members__member_key__patch",
         "parameters": [
           {
@@ -5381,6 +5620,85 @@
         ]
       }
     },
+    "/admin/communities/{community_key}/members/{member_key}/profile": {
+      "patch": {
+        "description": "Correct a member's role and area, and nothing else (REQ-0070).\n\nThe body is `{role?, area?}`: at least one of the two, and no other key \u2014\nan empty body, an unknown key, `null`, or a key the general `PATCH`\naccepts (`user_id`, `did`, `status`, `name`, `extra`) is `422` and changes\nnothing. Absent fields are left alone.\n\nDerives `members.profile.write` (REQ-0063), which\n`rec-registry.members.profile.write`, `rec-registry.members.write` and\n`rec-registry.admin` satisfy (REQ-0064): a community dashboard can be\ngiven this and nothing more.\n\n`role` outside its set is `422 invalid_role`; an `area` that is not a key\nof the community's areas is `422 unknown_area` (REQ-0066). A role change\nleaves the member's assets as they are; the member's status is not\nlooked at.",
+        "operationId": "patch_member_profile_admin_communities__community_key__members__member_key__profile_patch",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "community_key",
+            "required": true,
+            "schema": {
+              "title": "Community Key",
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "member_key",
+            "required": true,
+            "schema": {
+              "title": "Member Key",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/MemberProfilePatch"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MemberDetail"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Refused; `code` names the rule (REQ-0073)."
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "oneOf": [
+                    {
+                      "$ref": "#/components/schemas/ErrorResponse"
+                    },
+                    {
+                      "$ref": "#/components/schemas/HTTPValidationError"
+                    }
+                  ]
+                }
+              }
+            },
+            "description": "Refused. Either a coded refusal (`ErrorResponse`, `code` names the rule, REQ-0073) or a request that failed validation (`HTTPValidationError`, `detail` is a list)."
+          }
+        },
+        "summary": "Patch Member Profile",
+        "tags": [
+          "admin"
+        ]
+      }
+    },
     "/admin/communities/{community_key}/members/{member_key}/status": {
       "post": {
         "description": "Move a member through the lifecycle explicitly.\n\nSeparate from `PATCH` because a status change is the transition an operator\nreasons about \u2014 and because it reads clearly in an audit log, which a\ngeneric field update does not.\n\nA move to `active` re-checks the member's sensors: when another active\nmember took one meanwhile it answers `409 sensor_held` and the status is\nleft as it was (REQ-0069).",
@@ -5604,6 +5922,155 @@
         ]
       }
     },
+    "/admin/communities/{community_key}/topology/{node_id}": {
+      "delete": {
+        "description": "Remove one topology node, unless something still references it (REQ-0072).\n\nA node an area lists is `409 topology_node_in_use`, naming the areas \u2014\nwhether or not those areas keep the one-substation rule \u2014 so the areas are\nchanged or deleted first. So is a node another node names as its\n`parent`, naming those nodes by id, so they are re-parented or deleted\nfirst. A node the community does not have is `404`.",
+        "operationId": "delete_topology_node_admin_communities__community_key__topology__node_id__delete",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "community_key",
+            "required": true,
+            "schema": {
+              "title": "Community Key",
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "node_id",
+            "required": true,
+            "schema": {
+              "title": "Node Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CommunityDetail"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Refused; `code` names the rule (REQ-0073)."
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Refused; `code` names the rule (REQ-0073)."
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Delete Topology Node",
+        "tags": [
+          "admin"
+        ]
+      },
+      "put": {
+        "description": "Add or replace one topology node, keeping the others (REQ-0072).\n\nNodes merge by `id`, as delivery points do: re-sending an existing id\nreplaces that node where it stands, and a new id is appended. The body is\nthe bundle's topology node \u2014 `id`, `type`, and optionally `name`,\n`operator_id`, `parent`, `area` \u2014 under the names every read answers;\nother keys are not stored. The body `id` must match the path, or `422`.\n\n**A node write never breaks an area that keeps the one-substation rule**\n(REQ-0067): changing the `type` of a node such an area lists away from\n`primary_substation` is `422 invalid_area_boundary` and changes nothing.\nThis is the route an onboarding template sync writes a community's\nsubstations through, before the areas that reference them.\n\nAnswers the whole community, so the caller can see the others are still\nthere.",
+        "operationId": "upsert_topology_node_admin_communities__community_key__topology__node_id__put",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "community_key",
+            "required": true,
+            "schema": {
+              "title": "Community Key",
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "node_id",
+            "required": true,
+            "schema": {
+              "title": "Node Id",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TopologyNodeIn"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CommunityDetail"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Refused; `code` names the rule (REQ-0073)."
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "oneOf": [
+                    {
+                      "$ref": "#/components/schemas/ErrorResponse"
+                    },
+                    {
+                      "$ref": "#/components/schemas/HTTPValidationError"
+                    }
+                  ]
+                }
+              }
+            },
+            "description": "Refused. Either a coded refusal (`ErrorResponse`, `code` names the rule, REQ-0073) or a request that failed validation (`HTTPValidationError`, `detail` is a list)."
+          }
+        },
+        "summary": "Upsert Topology Node",
+        "tags": [
+          "admin"
+        ]
+      }
+    },
     "/admin/export": {
       "get": {
         "description": "Export one or more communities to YAML format.\n\nPass `community` once per key to export specific communities.\nOmit `community` entirely to export all communities.\nReturns a multidocument YAML string (documents separated by `---`).",
@@ -5661,7 +6128,7 @@
     },
     "/admin/import": {
       "post": {
-        "description": "Replacement import of a REC registry bundle.\n\n- Deletes existing community (by community.id/key) with all related data\n- Creates new community with members and assets atomically\n- Returns counts of deleted and inserted entities\n\n**This is destructive.** Members now arrive at runtime through the member\nAPI, so re-importing a stale export is the most likely way to lose them.\nOverwriting an existing community therefore requires `force=true`, and\nanswers `409` without it, naming what would have been deleted.\n\nUse `dry_run=true` to see the effect first \u2014 that is the intended way to\ndecide whether `force` is warranted.\n\n**A bundle that breaks an invariant is refused whole**, before anything is\ndeleted: `422` with the invariant's `code` \u2014 `sensor_held`, one sensor held\nby two active members of the bundle, or by one of them and an active member\nof another community (REQ-0069); `asset_key_too_long`, an asset key over\n128 characters (REQ-0028). A dry run lists every such refusal in\n`refusals` instead. A body that fails validation is a `422` too, with\nFastAPI's list `detail`; the OpenAPI document declares both bodies.",
+        "description": "Replacement import of a REC registry bundle.\n\n- Deletes existing community (by community.id/key) with all related data\n- Creates new community with members and assets atomically\n- Returns counts of deleted and inserted entities\n\n**This is destructive.** Members now arrive at runtime through the member\nAPI, so re-importing a stale export is the most likely way to lose them.\nOverwriting an existing community therefore requires `force=true`, and\nanswers `409` without it, naming what would have been deleted.\n\nUse `dry_run=true` to see the effect first \u2014 that is the intended way to\ndecide whether `force` is warranted.\n\n**A bundle that breaks an invariant is refused whole**, before anything is\ndeleted: `422` with the invariant's `code` \u2014 `sensor_held`, one sensor held\nby two active members of the bundle, or by one of them and an active member\nof another community (REQ-0069); `asset_key_too_long`, an asset key over\n128 characters (REQ-0028); `invalid_role`, `invalid_status`,\n`unknown_area`, a member whose role or status is outside its set or whose\narea is not a key of the bundle's `community.areas` (REQ-0066);\n`invalid_area_boundary`, an area that is not one primary substation \u2014 one\nboundary, one `primary_substation` topology node with the boundary's id,\nno two areas on one boundary id (REQ-0067); a bundle written before schema\nv0.7 that has areas is refused so. A dry run\nlists every such refusal in `refusals` instead. A body that fails validation is a `422` too, with\nFastAPI's list `detail`; the OpenAPI document declares both bodies.",
         "operationId": "admin_import_admin_import_post",
         "requestBody": {
           "content": {
@@ -6203,6 +6670,16 @@
             },
             "description": "Successful Response"
           },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Refused; `code` names the rule (REQ-0073)."
+          },
           "422": {
             "content": {
               "application/json": {
@@ -6246,6 +6723,16 @@
             },
             "description": "Successful Response"
           },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Refused; `code` names the rule (REQ-0073)."
+          },
           "422": {
             "content": {
               "application/json": {
@@ -6277,6 +6764,16 @@
               }
             },
             "description": "Successful Response"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Refused; `code` names the rule (REQ-0073)."
           }
         },
         "summary": "Get My Community",
@@ -6299,6 +6796,16 @@
               }
             },
             "description": "Successful Response"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Refused; `code` names the rule (REQ-0073)."
           }
         },
         "summary": "Get My Delivery Points",
@@ -6321,6 +6828,16 @@
               }
             },
             "description": "Successful Response"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Refused; `code` names the rule (REQ-0073)."
           }
         },
         "summary": "Get My Member",

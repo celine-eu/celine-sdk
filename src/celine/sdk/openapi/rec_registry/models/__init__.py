@@ -1,9 +1,13 @@
 """Contains all the data models used in inputs/outputs"""
 
 from .area import Area
+from .area_boundary import AreaBoundary
+from .area_boundary_in import AreaBoundaryIn
 from .area_geometry_type_0 import AreaGeometryType0
 from .area_in import AreaIn
 from .area_in_geometry_type_0 import AreaInGeometryType0
+from .area_rename import AreaRename
+from .area_renamed import AreaRenamed
 from .area_upsert import AreaUpsert
 from .area_upsert_geometry_type_0 import AreaUpsertGeometryType0
 from .areas import Areas
@@ -80,6 +84,7 @@ from .member_in_community import MemberInCommunity
 from .member_list_item import MemberListItem
 from .member_patch import MemberPatch
 from .member_patch_extra_type_0 import MemberPatchExtraType0
+from .member_profile_patch import MemberProfilePatch
 from .member_ref import MemberRef
 from .member_status_change import MemberStatusChange
 from .members import Members
@@ -138,9 +143,13 @@ from .validation_error import ValidationError
 
 __all__ = (
     "Area",
+    "AreaBoundary",
+    "AreaBoundaryIn",
     "AreaGeometryType0",
     "AreaIn",
     "AreaInGeometryType0",
+    "AreaRename",
+    "AreaRenamed",
     "Areas",
     "AreaUpsert",
     "AreaUpsertGeometryType0",
@@ -217,6 +226,7 @@ __all__ = (
     "MemberListItem",
     "MemberPatch",
     "MemberPatchExtraType0",
+    "MemberProfilePatch",
     "MemberRef",
     "Members",
     "MemberStatusChange",
