@@ -2,6 +2,19 @@
 
 <!-- version list -->
 
+## v1.22.0 (2026-09-29)
+
+### Documentation
+
+- Update specs
+  ([`c27b4bc`](https://github.com/celine-eu/celine-sdk/commit/c27b4bc58659a05adb3a4cbc40463368222d95b2))
+
+### Features
+
+- Update onboarding api
+  ([`ec9e69d`](https://github.com/celine-eu/celine-sdk/commit/ec9e69d927c865a1a63d81c778fa9ebc8a0b0b98))
+
+
 ## v1.21.0 (2026-09-28)
 
 ### Features
