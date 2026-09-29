@@ -551,28 +551,6 @@
             "title": "Eligible",
             "type": "boolean"
           },
-          "lat": {
-            "anyOf": [
-              {
-                "type": "number"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Lat"
-          },
-          "lng": {
-            "anyOf": [
-              {
-                "type": "number"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Lng"
-          },
           "matched_rule": {
             "anyOf": [
               {
@@ -1709,6 +1687,17 @@
               }
             ],
             "title": "Supply Boundary Area"
+          },
+          "supply_boundary_area_name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Supply Boundary Area Name"
           },
           "supply_boundary_id": {
             "anyOf": [

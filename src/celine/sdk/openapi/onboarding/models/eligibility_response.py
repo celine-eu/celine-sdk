@@ -17,8 +17,6 @@ class EligibilityResponse:
     Attributes:
         eligible (bool):
         country_code (None | str | Unset):
-        lat (float | None | Unset):
-        lng (float | None | Unset):
         matched_rule (None | str | Unset):
         matched_value (None | str | Unset):
         municipality (None | str | Unset):
@@ -29,8 +27,6 @@ class EligibilityResponse:
 
     eligible: bool
     country_code: None | str | Unset = UNSET
-    lat: float | None | Unset = UNSET
-    lng: float | None | Unset = UNSET
     matched_rule: None | str | Unset = UNSET
     matched_value: None | str | Unset = UNSET
     municipality: None | str | Unset = UNSET
@@ -47,18 +43,6 @@ class EligibilityResponse:
             country_code = UNSET
         else:
             country_code = self.country_code
-
-        lat: float | None | Unset
-        if isinstance(self.lat, Unset):
-            lat = UNSET
-        else:
-            lat = self.lat
-
-        lng: float | None | Unset
-        if isinstance(self.lng, Unset):
-            lng = UNSET
-        else:
-            lng = self.lng
 
         matched_rule: None | str | Unset
         if isinstance(self.matched_rule, Unset):
@@ -105,10 +89,6 @@ class EligibilityResponse:
         )
         if country_code is not UNSET:
             field_dict["country_code"] = country_code
-        if lat is not UNSET:
-            field_dict["lat"] = lat
-        if lng is not UNSET:
-            field_dict["lng"] = lng
         if matched_rule is not UNSET:
             field_dict["matched_rule"] = matched_rule
         if matched_value is not UNSET:
@@ -137,24 +117,6 @@ class EligibilityResponse:
             return cast(None | str | Unset, data)
 
         country_code = _parse_country_code(d.pop("country_code", UNSET))
-
-        def _parse_lat(data: object) -> float | None | Unset:
-            if data is None:
-                return data
-            if isinstance(data, Unset):
-                return data
-            return cast(float | None | Unset, data)
-
-        lat = _parse_lat(d.pop("lat", UNSET))
-
-        def _parse_lng(data: object) -> float | None | Unset:
-            if data is None:
-                return data
-            if isinstance(data, Unset):
-                return data
-            return cast(float | None | Unset, data)
-
-        lng = _parse_lng(d.pop("lng", UNSET))
 
         def _parse_matched_rule(data: object) -> None | str | Unset:
             if data is None:
@@ -213,8 +175,6 @@ class EligibilityResponse:
         eligibility_response = cls(
             eligible=eligible,
             country_code=country_code,
-            lat=lat,
-            lng=lng,
             matched_rule=matched_rule,
             matched_value=matched_value,
             municipality=municipality,

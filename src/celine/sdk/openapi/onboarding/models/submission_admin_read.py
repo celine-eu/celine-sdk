@@ -74,6 +74,7 @@ class SubmissionAdminRead:
         phone_verification_waived (bool | Unset):  Default: False.
         supply_address (None | SubmissionAdminReadSupplyAddressType0 | Unset):
         supply_boundary_area (None | str | Unset):
+        supply_boundary_area_name (None | str | Unset):
         supply_boundary_id (None | str | Unset):
         supply_boundary_source (None | str | Unset):
         verification (None | Unset | VerificationRead):
@@ -125,6 +126,7 @@ class SubmissionAdminRead:
     phone_verification_waived: bool | Unset = False
     supply_address: None | SubmissionAdminReadSupplyAddressType0 | Unset = UNSET
     supply_boundary_area: None | str | Unset = UNSET
+    supply_boundary_area_name: None | str | Unset = UNSET
     supply_boundary_id: None | str | Unset = UNSET
     supply_boundary_source: None | str | Unset = UNSET
     verification: None | Unset | VerificationRead = UNSET
@@ -309,6 +311,12 @@ class SubmissionAdminRead:
         else:
             supply_boundary_area = self.supply_boundary_area
 
+        supply_boundary_area_name: None | str | Unset
+        if isinstance(self.supply_boundary_area_name, Unset):
+            supply_boundary_area_name = UNSET
+        else:
+            supply_boundary_area_name = self.supply_boundary_area_name
+
         supply_boundary_id: None | str | Unset
         if isinstance(self.supply_boundary_id, Unset):
             supply_boundary_id = UNSET
@@ -386,6 +394,8 @@ class SubmissionAdminRead:
             field_dict["supply_address"] = supply_address
         if supply_boundary_area is not UNSET:
             field_dict["supply_boundary_area"] = supply_boundary_area
+        if supply_boundary_area_name is not UNSET:
+            field_dict["supply_boundary_area_name"] = supply_boundary_area_name
         if supply_boundary_id is not UNSET:
             field_dict["supply_boundary_id"] = supply_boundary_id
         if supply_boundary_source is not UNSET:
@@ -762,6 +772,15 @@ class SubmissionAdminRead:
 
         supply_boundary_area = _parse_supply_boundary_area(d.pop("supply_boundary_area", UNSET))
 
+        def _parse_supply_boundary_area_name(data: object) -> None | str | Unset:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            return cast(None | str | Unset, data)
+
+        supply_boundary_area_name = _parse_supply_boundary_area_name(d.pop("supply_boundary_area_name", UNSET))
+
         def _parse_supply_boundary_id(data: object) -> None | str | Unset:
             if data is None:
                 return data
@@ -844,6 +863,7 @@ class SubmissionAdminRead:
             phone_verification_waived=phone_verification_waived,
             supply_address=supply_address,
             supply_boundary_area=supply_boundary_area,
+            supply_boundary_area_name=supply_boundary_area_name,
             supply_boundary_id=supply_boundary_id,
             supply_boundary_source=supply_boundary_source,
             verification=verification,
