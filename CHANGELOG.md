@@ -3,44 +3,20 @@
 ## Unreleased
 
 <!-- Hand-written ahead of the release. semantic-release inserts the next version
-     below the marker and leaves this section in place: remove it when releasing. -->
+     below the marker and leaves this section in place: remove it when releasing.
+     Entries shipped in v1.23.0 were removed from here; the `import_yaml` fix's code
+     shipped in v1.23.0 too, and `74d7e7e` added its tests. -->
 
 ### Features
 
-- Provisioning: `ProvisioningClient.update_participant(community, key, *, first_name=None,
-  last_name=None, email=None, token=None)` wraps `PATCH /participants/{community}/{key}`
-  (provisioning API 1.4.0). `None` leaves a field as it is; no field, or an empty string,
-  raises `ValueError` before the request. Answers `ParticipantUpdateResponseSchema`
-  (`changed`, `verification`, `email_verified`). Refusals are `ProvisioningApiError`
-  with `code`, including the new `409 email_taken`.
-- Regenerated `celine.sdk.openapi.provisioning` from the provisioning 1.4.0 spec
-  (`openapi/provisioning/v1.4.0/`): adds `ParticipantUpdate`,
-  `ParticipantUpdateResponse`, `UpdatedField`, `VerificationOutcome`; additive only.
-- REC registry: `RecRegistryAdminClient.put_member_name`, `put_member_role` and
-  `put_member_area` wrap the per-field routes `PUT …/members/{member_key}/name|role|area`
-  (rec-registry 1.7.0; REQ-0134). Each sends one key, answers `MemberDetailSchema`, and
-  raises `RecRegistryApiError` with the registry's `code`.
-- REC registry: `put_delivery_point(..., replaces=None)` and `delete_delivery_point(...)`,
-  raising with the registry's `code`: `409 delivery_point_held`, `409 delivery_point_linked`
-  (REQ-0135). Both answer `DeliveryPointsResponseSchema`, now exported from
-  `celine.sdk.rec_registry`. The undecoded `upsert_delivery_point` gains keyword-only
-  `replaces=None`, which sends `?replaces=` only when given. Existing calls are unchanged.
-- Regenerated `celine.sdk.openapi.rec_registry` from the rec-registry 1.7.0 spec
-  (`openapi/rec-registry/v1.7.0/`): adds `MemberNamePut`, `MemberRolePut`, `MemberAreaPut`,
-  the three per-field operations, `replaces` on the delivery-point upsert, a declared `409`
-  on the delivery-point routes, and `delivery_point_held` / `delivery_point_linked` in
-  `ErrorCode`. Additive only.
-
-### Bug Fixes
-
-- REC registry: `RecRegistryAdminClient.import_yaml` raised `TypeError` on every call: it
-  passed `body=` to the generated `admin_import_yaml` operation, which declares no request
-  body (the route reads the raw body itself). It now sends the YAML as the raw UTF-8 body
-  with `Content-Type: application/yaml`, and gains keyword-only `force=False`, sent as
-  `?force=` (the route answers `409` for an existing community without it). Anything but
-  `200` raises `RecRegistryApiError` with the registry's `code` (`422 sensor_held`,
-  `422 delivery_point_held`), or `code=None` for an uncoded `400`/`403`/`409`/`422`,
-  instead of the generated `UnexpectedStatus`.
+- REC registry: `RecRegistryAdminClient.list_duplicate_delivery_points(community_key, *,
+  token=None)` wraps `GET /admin/communities/{community_key}/delivery-points/duplicates`
+  (rec-registry 1.7.0; REQ-0136). Answers `DeliveryPointDuplicatesSchema` (now exported
+  from `celine.sdk.rec_registry`), the whole list in one call; anything but `200` raises
+  `RecRegistryApiError`, including the uncoded `404` for an unknown community.
+- Regenerated `celine.sdk.openapi.rec_registry`: the unreleased rec-registry 1.7.0 grew this
+  route, so `openapi/rec-registry/v1.7.0/` was updated in place (additive: the operation and
+  `DeliveryPointDuplicates`, `DuplicateDeliveryPoint`, `DuplicateHolder`).
 
 <!-- version list -->
 

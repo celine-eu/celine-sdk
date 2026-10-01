@@ -6,7 +6,8 @@ community read (`put_area`, `delete_area`, `put_topology_node`,
 `delete_topology_node`, `read_community`), the area rename (`rename_area`), the per-field member writes
 (`put_member_name`, `put_member_role`, `put_member_area`), the delivery-point
 writes (`put_delivery_point`, `delete_delivery_point`, `upsert_delivery_point`'s
-`replaces`) and the self-service refusals, which
+`replaces`), the duplicate delivery points read (`list_duplicate_delivery_points`)
+and the self-service refusals, which
 is what that document specifies. The seam is
 `mock_http`: the generated client builds its own `httpx.AsyncClient`, so the
 class is what gets replaced, and everything this repository owns — chunking, the
@@ -2002,4 +2003,113 @@ class TestImportingYaml:
 
         assert not isinstance(excinfo.value, UnexpectedStatus)
         assert excinfo.value.status_code == status
+        assert excinfo.value.code is None
+
+
+# ── Duplicate delivery points (REQ-0136) ────────────────────────────────────
+
+DUPLICATES_PATH = "/admin/communities/example-rec/delivery-points/duplicates"
+DUPLICATES = {
+    "community_key": "example-rec",
+    "items": [
+        {
+            "delivery_point": "it001e00000001",
+            "holders": [
+                {"member_key": "ex-00001", "id": "IT001E00000001"},
+                {"member_key": "ex-00002", "id": " it001e00000001"},
+            ],
+            "held_elsewhere": 0,
+            "active_holders": 2,
+        },
+        {
+            "delivery_point": "it001e00000002",
+            "holders": [{"member_key": "ex-00003", "id": "IT001E00000002"}],
+            "held_elsewhere": 1,
+            "active_holders": 2,
+        },
+    ],
+}
+
+
+class TestTheDuplicateDeliveryPoints:
+    # @verifies REQ-0136
+    async def test_one_get_on_the_community_route(self, mock_http):
+        seen = mock_http(_rows(DUPLICATES))
+
+        await _client().list_duplicate_delivery_points("example-rec", token="tok-read")
+
+        assert len(seen) == 1
+        assert seen[0].method == "GET"
+        assert seen[0].url.path == DUPLICATES_PATH
+        assert seen[0].url.query == b""
+        assert seen[0].headers["authorization"] == "Bearer tok-read"
+
+    # @verifies REQ-0136
+    async def test_it_answers_the_registrys_list_as_a_schema_unchanged(self, mock_http):
+        from celine.sdk.openapi.rec_registry.schemas import DeliveryPointDuplicatesSchema
+        from celine.sdk.rec_registry import DeliveryPointDuplicatesSchema as exported
+
+        mock_http(_rows(DUPLICATES))
+
+        answer = await _client().list_duplicate_delivery_points("example-rec")
+
+        assert exported is DeliveryPointDuplicatesSchema
+        assert type(answer) is DeliveryPointDuplicatesSchema
+        assert answer.model_dump() == DUPLICATES
+        # the compared form and each holder's own spelling both come through
+        first = answer.items[0]
+        assert first.delivery_point == "it001e00000001"
+        assert [h.id for h in first.holders] == ["IT001E00000001", " it001e00000001"]
+        assert answer.items[1].held_elsewhere == 1
+
+    # @verifies REQ-0136
+    async def test_no_duplicates_is_an_empty_list_not_a_refusal(self, mock_http):
+        mock_http(_rows({"community_key": "example-rec", "items": []}))
+
+        answer = await _client().list_duplicate_delivery_points("example-rec")
+
+        assert answer.items == []
+
+    # @verifies REQ-0136
+    # @verifies REQ-0127
+    async def test_a_missing_community_raises_and_is_never_no_duplicates(
+        self, mock_http
+    ):
+        mock_http(_status(404, {"detail": "Community not found"}))
+
+        with pytest.raises(RecRegistryApiError) as excinfo:
+            await _client().list_duplicate_delivery_points("nobody")
+
+        assert not isinstance(excinfo.value, UnexpectedStatus)
+        assert excinfo.value.status_code == 404
+        assert excinfo.value.code is None
+        assert excinfo.value.detail == "Community not found"
+
+    # @verifies REQ-0136
+    # @verifies REQ-0127
+    async def test_a_coded_refusal_carries_the_code(self, mock_http):
+        mock_http(_refusal(404, "refused", "community_not_found"))
+
+        with pytest.raises(RecRegistryApiError) as excinfo:
+            await _client().list_duplicate_delivery_points("example-rec")
+
+        assert excinfo.value.code == "community_not_found"
+
+    # @verifies REQ-0136
+    @pytest.mark.parametrize(
+        "respond",
+        [
+            _status(403, {"detail": "Forbidden"}),
+            _status(422, VALIDATION_ERROR),
+            _raw(502, b"<html>Bad gateway</html>"),
+            _raw(200, b"not json"),
+        ],
+    )
+    async def test_anything_else_raises_the_wrappers_error(self, mock_http, respond):
+        mock_http(respond)
+
+        with pytest.raises(RecRegistryApiError) as excinfo:
+            await _client().list_duplicate_delivery_points("example-rec")
+
+        assert not isinstance(excinfo.value, UnexpectedStatus)
         assert excinfo.value.code is None

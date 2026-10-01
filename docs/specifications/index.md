@@ -24,7 +24,7 @@ a promise to those repositories, and changing one is a platform change, not a lo
 | [Identity](identity.md) | `celine.sdk.auth` — token verification, claims, token providers |
 | [Policy evaluation](policy-evaluation.md) | `celine.sdk.policies` — bundle loading, decisions, decision cache |
 | [Messaging](messaging.md) | `celine.sdk.broker` — MQTT lifecycle, topics, dispatch |
-| [REC registry client](rec-registry-client.md) | `celine.sdk.rec_registry` — the batch asset lookups; the meter writes; the profile write; the area and topology writes, the area rename and the community read; the per-field member writes and the delivery-point writes; self-service refusals |
+| [REC registry client](rec-registry-client.md) | `celine.sdk.rec_registry` — the batch asset lookups; the meter writes; the profile write; the area and topology writes, the area rename and the community read; the per-field member writes, the delivery-point writes and the duplicate delivery points read; self-service refusals |
 | [Onboarding client](onboarding-client.md) | `celine.sdk.onboarding` — the registry sync of a community's areas |
 | [Digital Twin client](digital-twin-client.md) | `celine.sdk.dt` — no refusal detail in any log; no mutable defaults, the payload is the caller's |
 | [Spec management](spec-management.md) | the CLI, spec versioning, generated-client conversion |

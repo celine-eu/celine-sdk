@@ -44,12 +44,15 @@ from .context import Context
 from .deleted import Deleted
 from .deletion_report import DeletionReport
 from .delivery_point import DeliveryPoint
+from .delivery_point_duplicates import DeliveryPointDuplicates
 from .delivery_point_in import DeliveryPointIn
 from .delivery_point_lookup import DeliveryPointLookup
 from .delivery_point_with_owner import DeliveryPointWithOwner
 from .delivery_points_response import DeliveryPointsResponse
 from .device_in import DeviceIn
 from .dids_batch_request import DidsBatchRequest
+from .duplicate_delivery_point import DuplicateDeliveryPoint
+from .duplicate_holder import DuplicateHolder
 from .error_code import ErrorCode
 from .error_response import ErrorResponse
 from .ev_charger import EvCharger
@@ -189,12 +192,15 @@ __all__ = (
     "Deleted",
     "DeletionReport",
     "DeliveryPoint",
+    "DeliveryPointDuplicates",
     "DeliveryPointIn",
     "DeliveryPointLookup",
     "DeliveryPointsResponse",
     "DeliveryPointWithOwner",
     "DeviceIn",
     "DidsBatchRequest",
+    "DuplicateDeliveryPoint",
+    "DuplicateHolder",
     "ErrorCode",
     "ErrorResponse",
     "EvCharger",

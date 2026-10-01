@@ -10,7 +10,7 @@ answer the service gives on purpose. The rest of the wrapper — every single-id
 writes, the user-scoped client — is not specified yet, except the **meter and profile
 writes** (REQ-0125–REQ-0128), the **area and topology writes** of onboarding's template sync
 (REQ-0129–REQ-0131, REQ-0133), the **per-field member writes and the delivery-point
-writes** (REQ-0134, REQ-0135), and how the **self-service reads** raise a registry refusal
+writes** (REQ-0134, REQ-0135), the **duplicate delivery points read** (REQ-0136), and how the **self-service reads** raise a registry refusal
 (REQ-0132), all at the end of this page.
 
 The service's own behaviour belongs to `rec-registry`, not here; where a requirement below
@@ -322,6 +322,19 @@ member does not have. A `404` on delete is not read as "already removed".
 The undecoded `upsert_delivery_point` keeps its contract — it returns the response, `409`
 included — and gains the same keyword-only `replaces`, defaulting to `None`, which sends no
 query: an existing call sends exactly what it sent before.
+
+### REQ-0136 — the duplicate delivery points read answers the whole list, or raises
+
+`RecRegistryAdminClient.list_duplicate_delivery_points` sends
+`GET /admin/communities/{community_key}/delivery-points/duplicates` and answers the generated
+`DeliveryPointDuplicatesSchema` — `community_key` and `items`, each item with
+`delivery_point` (the registry's compared form, trimmed and lower-cased), `holders`
+(`member_key` and the stored `id`, this community only), `held_elsewhere` and
+`active_holders` — as the registry answers it (`rec-registry` REQ-0087). The route is not
+paginated, so the wrapper sends one request and adds no paging; it does not re-sort, filter
+or normalise. An empty `items` is an answer. Anything but `200` raises under REQ-0127,
+**including** the uncoded `404` for a community that does not exist, so a missing community
+is never read as one with no duplicates. It needs `rec-registry.read`.
 
 ---
 

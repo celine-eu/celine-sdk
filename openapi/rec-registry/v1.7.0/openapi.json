@@ -1016,6 +1016,27 @@
         "title": "DeliveryPoint",
         "type": "object"
       },
+      "DeliveryPointDuplicates": {
+        "description": "`GET \u2026/communities/{key}/delivery-points/duplicates` (REQ-0087).",
+        "properties": {
+          "community_key": {
+            "title": "Community Key",
+            "type": "string"
+          },
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/DuplicateDeliveryPoint"
+            },
+            "title": "Items",
+            "type": "array"
+          }
+        },
+        "required": [
+          "community_key"
+        ],
+        "title": "DeliveryPointDuplicates",
+        "type": "object"
+      },
       "DeliveryPointIn": {
         "additionalProperties": true,
         "description": "Physical delivery point (POD, CUPS, PRM, etc.).",
@@ -1253,6 +1274,62 @@
           "dids"
         ],
         "title": "DidsBatchRequest",
+        "type": "object"
+      },
+      "DuplicateDeliveryPoint": {
+        "description": "One delivery point of the community that more than one active member holds.",
+        "properties": {
+          "active_holders": {
+            "description": "Every active member holding it, here and elsewhere.",
+            "title": "Active Holders",
+            "type": "integer"
+          },
+          "delivery_point": {
+            "description": "The point in its compared form: trimmed and lower-cased, as the registry compares delivery points (REQ-0085).",
+            "title": "Delivery Point",
+            "type": "string"
+          },
+          "held_elsewhere": {
+            "description": "How many active members of other communities hold it. They are never named, nor their communities.",
+            "title": "Held Elsewhere",
+            "type": "integer"
+          },
+          "holders": {
+            "description": "This community's active holders, by member key, with their stored spelling.",
+            "items": {
+              "$ref": "#/components/schemas/DuplicateHolder"
+            },
+            "title": "Holders",
+            "type": "array"
+          }
+        },
+        "required": [
+          "delivery_point",
+          "holders",
+          "held_elsewhere",
+          "active_holders"
+        ],
+        "title": "DuplicateDeliveryPoint",
+        "type": "object"
+      },
+      "DuplicateHolder": {
+        "description": "An active member of the addressed community holding a shared point.",
+        "properties": {
+          "id": {
+            "description": "The delivery point as this member's row stores it.",
+            "title": "Id",
+            "type": "string"
+          },
+          "member_key": {
+            "title": "Member Key",
+            "type": "string"
+          }
+        },
+        "required": [
+          "member_key",
+          "id"
+        ],
+        "title": "DuplicateHolder",
         "type": "object"
       },
       "EVChargerAssetIn": {
@@ -4835,6 +4912,49 @@
           }
         },
         "summary": "Get Delivery Point By Id",
+        "tags": [
+          "admin"
+        ]
+      }
+    },
+    "/admin/communities/{community_key}/delivery-points/duplicates": {
+      "get": {
+        "description": "The community's delivery points that more than one active member holds (REQ-0087).\n\nFor each point an active member of this community holds and another\nactive member \u2014 here or in any other community \u2014 also holds: the point in\nits compared form (trimmed, lower-cased), this community's holders by\nmember key with the spelling each stored, how many active members of\nother communities hold it, and the total. Holders in other communities are\na count only: never their member, never their community (REQ-0085).\nMembers who are not `active` hold nothing.\n\nThe per-community view of `celine-rec-registry duplicate-delivery-points`\n(REQ-0086), for an operator console: these are the points the registry\nwill refuse to give, re-give or reactivate (`delivery_point_held`) until\nresolved. A read: `rec-registry.read`. Not paginated.",
+        "operationId": "list_duplicate_delivery_points_admin_communities__community_key__delivery_points_duplicates_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "community_key",
+            "required": true,
+            "schema": {
+              "title": "Community Key",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DeliveryPointDuplicates"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "List Duplicate Delivery Points",
         "tags": [
           "admin"
         ]

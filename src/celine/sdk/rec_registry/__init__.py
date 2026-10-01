@@ -58,6 +58,7 @@ from celine.sdk.rec_registry.client import (
     AreaRenamedSchema,
     AssetDetailSchema,
     CommunityDetailSchema,
+    DeliveryPointDuplicatesSchema,
     DeliveryPointsResponseSchema,
     MemberDetailSchema,
 )
@@ -70,6 +71,7 @@ __all__ = [
     "AreaRenamedSchema",
     "AssetDetailSchema",
     "CommunityDetailSchema",
+    "DeliveryPointDuplicatesSchema",
     "DeliveryPointsResponseSchema",
     "MemberDetailSchema",
     "MAX_BATCH_LOOKUP_IDS",

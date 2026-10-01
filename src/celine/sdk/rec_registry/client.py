@@ -85,6 +85,9 @@ from celine.sdk.openapi.rec_registry.api.admin import (
     upsert_delivery_point_admin_communities_community_key_members_member_key_delivery_points_point_id_put as _upsert_delivery_point,
 )
 from celine.sdk.openapi.rec_registry.api.admin import (
+    list_duplicate_delivery_points_admin_communities_community_key_delivery_points_duplicates_get as _list_duplicate_delivery_points,
+)
+from celine.sdk.openapi.rec_registry.api.admin import (
     remove_delivery_point_admin_communities_community_key_members_member_key_delivery_points_point_id_delete as _remove_delivery_point,
 )
 from celine.sdk.openapi.rec_registry.api.admin import (
@@ -141,6 +144,7 @@ from celine.sdk.openapi.rec_registry.schemas import (
     AreaRenamedSchema,
     AssetDetailSchema,
     CommunityDetailSchema,
+    DeliveryPointDuplicatesSchema,
     DeliveryPointLookupSchema,
     DeliveryPointsResponseSchema,
     GlobalAssetLookupSchema,
@@ -167,6 +171,7 @@ __all__ = [
     "AreaRenamedSchema",
     "AssetDetailSchema",
     "CommunityDetailSchema",
+    "DeliveryPointDuplicatesSchema",
     "DeliveryPointsResponseSchema",
     "MemberDetailSchema",
     "MAX_BATCH_LOOKUP_IDS",
@@ -1398,6 +1403,39 @@ class RecRegistryAdminClient:
         )
         return _answer(
             response, DeliveryPointsResponseSchema, "delete-delivery-point"
+        )
+
+    async def list_duplicate_delivery_points(
+        self, community_key: str, *, token: Optional[str] = None
+    ) -> DeliveryPointDuplicatesSchema:
+        """The community's delivery points that more than one active member holds.
+
+        Sends `GET /admin/communities/{community_key}/delivery-points/duplicates`
+        (registry 1.7.0+) and answers the generated
+        :class:`DeliveryPointDuplicatesSchema`: `community_key` and `items`,
+        sorted by `delivery_point` and not paginated, so one call is the whole
+        answer. Each item is a point in the registry's **compared form**
+        (trimmed, lower-cased), not as any member stored it; `holders` lists
+        this community's active holders with `member_key` and the `id` each
+        stored; `held_elsewhere` counts active holders in other communities,
+        who are never named; `active_holders` is the total. These are the
+        points the registry refuses to give, re-give or reactivate
+        (`delivery_point_held`) until resolved. No duplicates is `items` empty,
+        not a refusal.
+
+        Unlike the undecoded `list_*` reads above, anything but `200` raises
+        :class:`RecRegistryApiError` — including a `404` with no `code` for a
+        community that does not exist (the route does not declare it), so it
+        is never read as "no duplicates". `code` is `None` for a missing grant
+        (`403`) or a body that is not JSON. Needs `rec-registry.read`.
+        """
+        client = await self._get_client(token)
+        response = await self._send(
+            client,
+            _list_duplicate_delivery_points._get_kwargs(community_key=community_key),
+        )
+        return _answer(
+            response, DeliveryPointDuplicatesSchema, "list-duplicate-delivery-points"
         )
 
     # ── Areas and topology: the onboarding template sync ────────────────
