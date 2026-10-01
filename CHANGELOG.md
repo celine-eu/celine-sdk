@@ -33,6 +33,14 @@
 
 <!-- version list -->
 
+## v1.23.0 (2026-10-01)
+
+### Features
+
+- Wrap participant update, per-field member writes and delivery-point replace/delete
+  ([`82fedc0`](https://github.com/celine-eu/celine-sdk/commit/82fedc042ec5d86138fa42b79b98dddde56e488b))
+
+
 ## v1.22.0 (2026-09-29)
 
 ### Documentation
