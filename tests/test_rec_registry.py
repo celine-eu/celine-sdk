@@ -1894,3 +1894,112 @@ class TestTheDeliveryPointWrites:
 
         assert ErrorCode("delivery_point_held").value == "delivery_point_held"
         assert ErrorCode("delivery_point_linked").value == "delivery_point_linked"
+
+
+# ── YAML import ───────────────────────────────────────────────────────────────
+
+IMPORT_YAML = (
+    "community:\n  key: example-rec\n  name: Example REC\n"
+    "---\n"
+    "community:\n  key: example-rec-2\n  name: Example REC Two\n"
+)
+
+
+def _import_report(*keys: str, dry_run: bool = False) -> dict:
+    return {
+        "reports": [
+            {
+                "community_key": k,
+                "deleted": {},
+                "inserted": {"members": 1},
+                "warnings": [],
+                "refusals": [],
+            }
+            for k in keys
+        ],
+        "dry_run": dry_run,
+    }
+
+
+class TestImportingYaml:
+    async def test_the_yaml_is_the_raw_request_body(self, mock_http):
+        """The generated operation takes no `body`; passing one raised
+        `TypeError` before anything was sent. The route reads the raw body."""
+        seen = mock_http(_rows(_import_report("example-rec", "example-rec-2")))
+
+        report = await _client().import_yaml(IMPORT_YAML, token="tok-import")
+
+        assert len(seen) == 1
+        assert seen[0].method == "POST"
+        assert seen[0].url.path == "/admin/import/yaml"
+        assert seen[0].content == IMPORT_YAML.encode("utf-8")
+        assert seen[0].headers["content-type"] == "application/yaml"
+        assert seen[0].headers["authorization"] == "Bearer tok-import"
+        assert [r.community_key for r in report.reports] == [
+            "example-rec",
+            "example-rec-2",
+        ]
+
+    async def test_non_ascii_yaml_is_sent_as_utf8(self, mock_http):
+        seen = mock_http(_rows(_import_report("example-rec")))
+        text = "community:\n  key: example-rec\n  name: Comunità Esempio\n"
+
+        await _client().import_yaml(text)
+
+        assert seen[0].content.decode("utf-8") == text
+
+    async def test_by_default_it_is_neither_a_dry_run_nor_forced(self, mock_http):
+        seen = mock_http(_rows(_import_report("example-rec")))
+
+        await _client().import_yaml(IMPORT_YAML)
+
+        assert seen[0].url.params["dry_run"] == "false"
+        assert seen[0].url.params["force"] == "false"
+
+    async def test_dry_run_and_force_travel_as_the_query(self, mock_http):
+        seen = mock_http(_rows(_import_report("example-rec", dry_run=True)))
+
+        report = await _client().import_yaml(IMPORT_YAML, dry_run=True, force=True)
+
+        assert seen[0].url.params["dry_run"] == "true"
+        assert seen[0].url.params["force"] == "true"
+        assert report.dry_run is True
+
+    @pytest.mark.parametrize("code", ["sensor_held", "delivery_point_held"])
+    async def test_a_refused_bundle_raises_with_the_registrys_code(
+        self, mock_http, code
+    ):
+        mock_http(_refusal(422, "refused", code))
+
+        with pytest.raises(RecRegistryApiError) as excinfo:
+            await _client().import_yaml(IMPORT_YAML)
+
+        assert excinfo.value.status_code == 422
+        assert excinfo.value.code == code
+        assert excinfo.value.detail == "refused"
+        assert code in str(excinfo.value)
+        assert "import-yaml" in str(excinfo.value)
+
+    @pytest.mark.parametrize(
+        ("respond", "status"),
+        [
+            (_status(422, {"detail": "Document 0 validation error: ..."}), 422),
+            (_status(422, VALIDATION_ERROR), 422),
+            (_status(400, {"detail": "No YAML documents found in body"}), 400),
+            (_status(409, {"detail": "Community 'example-rec' exists"}), 409),
+            (_status(403, {"detail": "Forbidden"}), 403),
+            (_raw(502, b"<html>Bad gateway</html>"), 502),
+            (_raw(200, b"not json"), 200),
+        ],
+    )
+    async def test_anything_else_raises_the_wrappers_error_without_a_code(
+        self, mock_http, respond, status
+    ):
+        mock_http(respond)
+
+        with pytest.raises(RecRegistryApiError) as excinfo:
+            await _client().import_yaml(IMPORT_YAML)
+
+        assert not isinstance(excinfo.value, UnexpectedStatus)
+        assert excinfo.value.status_code == status
+        assert excinfo.value.code is None

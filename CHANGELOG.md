@@ -31,6 +31,17 @@
   on the delivery-point routes, and `delivery_point_held` / `delivery_point_linked` in
   `ErrorCode`. Additive only.
 
+### Bug Fixes
+
+- REC registry: `RecRegistryAdminClient.import_yaml` raised `TypeError` on every call: it
+  passed `body=` to the generated `admin_import_yaml` operation, which declares no request
+  body (the route reads the raw body itself). It now sends the YAML as the raw UTF-8 body
+  with `Content-Type: application/yaml`, and gains keyword-only `force=False`, sent as
+  `?force=` (the route answers `409` for an existing community without it). Anything but
+  `200` raises `RecRegistryApiError` with the registry's `code` (`422 sensor_held`,
+  `422 delivery_point_held`), or `code=None` for an uncoded `400`/`403`/`409`/`422`,
+  instead of the generated `UnexpectedStatus`.
+
 <!-- version list -->
 
 ## v1.23.0 (2026-10-01)
