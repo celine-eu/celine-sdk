@@ -55,18 +55,23 @@ from celine.sdk.openapi.provisioning.api.provisioning import (
     send_invitation_participants_community_key_invitation_post as _send_invitation,
 )
 from celine.sdk.openapi.provisioning.api.provisioning import (
+    update_participant_participants_community_key_patch as _update_participant,
+)
+from celine.sdk.openapi.provisioning.api.provisioning import (
     upsert_participant_participants_community_key_put as _upsert_participant,
 )
 from celine.sdk.openapi.provisioning.models import (
     InvitationIntent,
     InvitationRequest,
     Locale,
+    ParticipantUpdate,
     ParticipantUpsert,
 )
 from celine.sdk.openapi.provisioning.schemas import (
     DisableResponseSchema,
     InvitationResponseSchema,
     ParticipantResponseSchema,
+    ParticipantUpdateResponseSchema,
     ReconcileResponseSchema,
 )
 from celine.sdk.openapi.provisioning.types import UNSET, Response
@@ -87,6 +92,7 @@ class ProvisioningClient:
 
     Covers:
     - PUT  /participants/{community}/{key}             - ensure the account, optionally invite
+    - PATCH /participants/{community}/{key}            - correct names and address (1.4.0+)
     - POST /participants/{community}/{key}/invitation  - an invitation, or a reset, as named
     - POST /participants/{community}/{key}/disable     - revoke access
     - POST /reconcile/{community}                      - sweep a community
@@ -286,6 +292,77 @@ class ProvisioningClient:
         )
         return to_schema(
             self._check(res, "ensure_participant"), ParticipantResponseSchema
+        )
+
+    async def update_participant(
+        self,
+        community: str,
+        key: str,
+        *,
+        first_name: Optional[str] = None,
+        last_name: Optional[str] = None,
+        email: Optional[str] = None,
+        token: Optional[str] = None,
+    ) -> ParticipantUpdateResponseSchema:
+        """Correct a member's names or email address on their existing account.
+
+        Needs a provisioning service at API 1.4.0 or later; an older one has no
+        `PATCH` on this path and answers `405`, raised as
+        :class:`ProvisioningApiError` with no `code`.
+
+        **`None` means "leave it as it is"**, not "clear it": a field left at
+        `None` is not sent, and the service has no way to blank a name or an
+        address. At least one field must be given, and none may be the empty
+        string; either mistake raises `ValueError` before a request is made (the
+        service would answer `422`).
+
+        It never creates an account and never changes the `username` — the
+        answer's `username` is the one the account already had. `user_id` is the
+        Keycloak uuid, as on every other route.
+
+        `changed` lists the fields this call wrote, as enums (compare `.value`);
+        it is empty when every value given was already the account's, and then
+        nothing was written and nothing sent. That is not a failure.
+
+        An address change resets `email_verified` and emails a verification link
+        to the **new** address only; the same address, ignoring case, is not a
+        change. `verification` says what happened, an enum (compare `.value`):
+        `not_requested` (the address did not change), `sent`, or
+        `not_on_dev_list` (dev email mode: written, nothing sent).
+
+        Refusals arrive as :class:`ProvisioningApiError`; branch on its `code`:
+
+        - `401`: `missing_token`, `invalid_token`; `403`: `insufficient_scope`
+          (`provisioning.participants.write`, the same grant as the upsert);
+        - `404`: `community_not_found`, `member_not_found`, `account_not_found`;
+        - `409`: `account_disabled`, `email_taken` (another account holds the
+          address);
+        - `422`: the body failed validation; `code` is `None`;
+        - `502`: `send_failed` (Keycloak did not send the link; the account was
+          put back as it was, so a retry sends), `registry_unavailable`,
+          `provisioning_failed`.
+        """
+        given = {"first_name": first_name, "last_name": last_name, "email": email}
+        if all(value is None for value in given.values()):
+            raise ValueError("give at least one of first_name, last_name, email")
+        empty = [name for name, value in given.items() if value == ""]
+        if empty:
+            raise ValueError(f"{', '.join(empty)} must not be empty")
+
+        client = await self._get_client(token)
+        res = await self._request(
+            _update_participant,
+            community=community,
+            key=key,
+            client=client,
+            body=ParticipantUpdate(
+                first_name=first_name if first_name is not None else UNSET,
+                last_name=last_name if last_name is not None else UNSET,
+                email=email if email is not None else UNSET,
+            ),
+        )
+        return to_schema(
+            self._check(res, "update_participant"), ParticipantUpdateResponseSchema
         )
 
     async def send_invitation(

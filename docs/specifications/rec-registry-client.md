@@ -9,7 +9,8 @@ indistinguishable from a right one: the three **batch lookups**, whose empty lis
 answer the service gives on purpose. The rest of the wrapper — every single-id lookup, the
 writes, the user-scoped client — is not specified yet, except the **meter and profile
 writes** (REQ-0125–REQ-0128), the **area and topology writes** of onboarding's template sync
-(REQ-0129–REQ-0131, REQ-0133), and how the **self-service reads** raise a registry refusal
+(REQ-0129–REQ-0131, REQ-0133), the **per-field member writes and the delivery-point
+writes** (REQ-0134, REQ-0135), and how the **self-service reads** raise a registry refusal
 (REQ-0132), all at the end of this page.
 
 The service's own behaviour belongs to `rec-registry`, not here; where a requirement below
@@ -281,6 +282,46 @@ area key), `area_not_found` (`404`), `area_key_taken` (`409`, the new key exists
 included), `community_not_found` (`404`); `code` is `None` for a validation `422`, a missing
 grant (`403`) or a body that is not JSON. An unreadable `200` raises too. It needs
 `rec-registry.community.write`.
+
+---
+
+## Member fields and delivery points
+
+Since `rec-registry` 1.7.0 each of a member's name, role and area has its own route and its
+own action (`rec-registry` REQ-0081–REQ-0083), so a caller can be granted one field without
+the general member `PATCH`. A delivery point can be corrected in one write that also relinks
+the member's meters (`?replaces=`, `rec-registry` REQ-0084), and one active member at a time
+holds a point (`delivery_point_held`, `rec-registry` REQ-0085). Onboarding uses them when an
+operator corrects what a member declared; a refusal there is shown to the operator, so these
+follow the raising helpers above.
+
+### REQ-0134 — a per-field member write sends one key to its own route
+
+`RecRegistryAdminClient.put_member_name`, `put_member_role` and `put_member_area` send
+`PUT /admin/communities/{community_key}/members/{member_key}/name`, `/role` and `/area`
+respectively, with a body of **only** `{"name": …}`, `{"role": …}` or `{"area": …}`. None of
+them has a parameter for any other member field, and none falls back to the general member
+`PATCH` or to the profile route. Each answers the updated member as `MemberDetailSchema`, and
+anything but `200` raises under REQ-0127 (`invalid_role` and `unknown_area` are `422`; a
+missing member or community is `404`; `code` is `None` for a validation `422` or a missing
+grant). Values are passed as given; the role and area sets are the registry's.
+
+### REQ-0135 — a delivery-point write sends `replaces` only when given, and a refusal raises with the code
+
+`RecRegistryAdminClient.put_delivery_point` sends
+`PUT /admin/communities/{community_key}/members/{member_key}/delivery-points/{point_id}` with
+the body as given, and adds the query `replaces=<old>` **only** when the caller passed
+`replaces`; without it the request carries no query. `delete_delivery_point` sends `DELETE`
+on the same path. Both answer the member's delivery points after the write as
+`DeliveryPointsResponseSchema`, and anything but `200` raises under REQ-0127:
+`delivery_point_held` (`409`, another active member holds the point), `delivery_point_linked`
+(`409`, on delete, a meter of the member names the point), `member_not_found` or
+`community_not_found` (`404`), and a `404` with no `code` when `replaces` names a point the
+member does not have. A `404` on delete is not read as "already removed".
+
+The undecoded `upsert_delivery_point` keeps its contract — it returns the response, `409`
+included — and gains the same keyword-only `replaces`, defaulting to `None`, which sends no
+query: an existing call sends exactly what it sent before.
 
 ---
 

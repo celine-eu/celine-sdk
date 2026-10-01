@@ -75,6 +75,7 @@ from .location_in import LocationIn
 from .lookup_by_delivery_point_response import LookupByDeliveryPointResponse
 from .lookup_by_sensor_id_response import LookupBySensorIdResponse
 from .lookup_by_user_id_response import LookupByUserIdResponse
+from .member_area_put import MemberAreaPut
 from .member_create import MemberCreate
 from .member_create_extra_type_0 import MemberCreateExtraType0
 from .member_detail import MemberDetail
@@ -82,10 +83,12 @@ from .member_detail_extra import MemberDetailExtra
 from .member_in import MemberIn
 from .member_in_community import MemberInCommunity
 from .member_list_item import MemberListItem
+from .member_name_put import MemberNamePut
 from .member_patch import MemberPatch
 from .member_patch_extra_type_0 import MemberPatchExtraType0
 from .member_profile_patch import MemberProfilePatch
 from .member_ref import MemberRef
+from .member_role_put import MemberRolePut
 from .member_status_change import MemberStatusChange
 from .members import Members
 from .metadata_in import MetadataIn
@@ -217,6 +220,7 @@ __all__ = (
     "LookupByDeliveryPointResponse",
     "LookupBySensorIdResponse",
     "LookupByUserIdResponse",
+    "MemberAreaPut",
     "MemberCreate",
     "MemberCreateExtraType0",
     "MemberDetail",
@@ -224,10 +228,12 @@ __all__ = (
     "MemberIn",
     "MemberInCommunity",
     "MemberListItem",
+    "MemberNamePut",
     "MemberPatch",
     "MemberPatchExtraType0",
     "MemberProfilePatch",
     "MemberRef",
+    "MemberRolePut",
     "Members",
     "MemberStatusChange",
     "MetadataIn",

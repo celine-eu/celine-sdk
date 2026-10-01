@@ -13,9 +13,13 @@ from .invitation_response import InvitationResponse
 from .invitation_send_outcome import InvitationSendOutcome
 from .locale import Locale
 from .participant_response import ParticipantResponse
+from .participant_update import ParticipantUpdate
+from .participant_update_response import ParticipantUpdateResponse
 from .participant_upsert import ParticipantUpsert
 from .reconcile_response import ReconcileResponse
+from .updated_field import UpdatedField
 from .validation_error import ValidationError
+from .verification_outcome import VerificationOutcome
 
 __all__ = (
     "Context",
@@ -31,7 +35,11 @@ __all__ = (
     "InvitationSendOutcome",
     "Locale",
     "ParticipantResponse",
+    "ParticipantUpdate",
+    "ParticipantUpdateResponse",
     "ParticipantUpsert",
     "ReconcileResponse",
+    "UpdatedField",
     "ValidationError",
+    "VerificationOutcome",
 )

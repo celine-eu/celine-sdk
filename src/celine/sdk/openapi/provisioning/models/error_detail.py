@@ -25,8 +25,8 @@ class ErrorDetail:
         Attributes:
             code (str): Stable machine-readable reason: `missing_token`, `invalid_token`, `insufficient_scope`,
                 `community_not_found`, `member_not_found`, `account_not_found`, `account_disabled`, `has_password`,
-                `no_password`, `no_email`, `cooldown`, `reconcile_diverged`, `registry_unavailable`, `send_failed`,
-                `provisioning_failed`. New codes may be added: branch on the HTTP status for one you do not know.
+                `no_password`, `no_email`, `email_taken`, `cooldown`, `reconcile_diverged`, `registry_unavailable`,
+                `send_failed`, `provisioning_failed`. New codes may be added: branch on the HTTP status for one you do not know.
             message (str): A human sentence. Not a contract.
     """
 

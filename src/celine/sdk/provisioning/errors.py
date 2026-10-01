@@ -32,9 +32,12 @@ class ProvisioningApiError(RuntimeError):
       Only the last means the realm has no account for a member it knows.
     - `409` — `account_disabled`; on `send_invitation` also `has_password`
       (asked for an invitation), `no_password` (asked for a reset) and
-      `no_email`. Nothing was sent and no cooldown started.
-    - `422` — the request failed validation: no address on the upsert, or no
-      intent on the invitation. FastAPI's own body; `code` is `None`.
+      `no_email`. Nothing was sent and no cooldown started. On
+      `update_participant` also `email_taken`: another account holds the
+      address, and nothing was written.
+    - `422` — the request failed validation: no address on the upsert, no
+      intent on the invitation, an empty or unknown field on the update.
+      FastAPI's own body; `code` is `None`.
     - `429` — `cooldown`. :attr:`retry_after` is the seconds to wait.
     - `500` — `reconcile_diverged`, raised as :class:`ReconcileDivergence`.
     - `502` — `send_failed`, `registry_unavailable`, `provisioning_failed`.

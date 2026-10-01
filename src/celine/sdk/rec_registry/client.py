@@ -84,6 +84,18 @@ from celine.sdk.openapi.rec_registry.api.admin import (
 from celine.sdk.openapi.rec_registry.api.admin import (
     upsert_delivery_point_admin_communities_community_key_members_member_key_delivery_points_point_id_put as _upsert_delivery_point,
 )
+from celine.sdk.openapi.rec_registry.api.admin import (
+    remove_delivery_point_admin_communities_community_key_members_member_key_delivery_points_point_id_delete as _remove_delivery_point,
+)
+from celine.sdk.openapi.rec_registry.api.admin import (
+    put_member_name_admin_communities_community_key_members_member_key_name_put as _put_member_name,
+)
+from celine.sdk.openapi.rec_registry.api.admin import (
+    put_member_role_admin_communities_community_key_members_member_key_role_put as _put_member_role,
+)
+from celine.sdk.openapi.rec_registry.api.admin import (
+    put_member_area_admin_communities_community_key_members_member_key_area_put as _put_member_area,
+)
 from celine.sdk.openapi.rec_registry.api.me import (
     get_me_user_get,
     get_my_asset_user_assets_asset_key_get,
@@ -98,12 +110,14 @@ from celine.sdk.openapi.rec_registry.models import (
     AssetUpsert,
     DeletionReport,
     DeliveryPointIn,
-    ErrorResponse,
     HTTPValidationError,
+    MemberAreaPut,
     MemberCreate,
     MemberDetail,
+    MemberNamePut,
     MemberPatch,
     MemberProfilePatch,
+    MemberRolePut,
     MemberStatusChange,
     MultiImportReport,
     UserAssetsResponse,
@@ -153,6 +167,7 @@ __all__ = [
     "AreaRenamedSchema",
     "AssetDetailSchema",
     "CommunityDetailSchema",
+    "DeliveryPointsResponseSchema",
     "MemberDetailSchema",
     "MAX_BATCH_LOOKUP_IDS",
 ]
@@ -508,38 +523,51 @@ class RecRegistryAdminClient:
         yaml_content: str,
         *,
         dry_run: bool = False,
+        force: bool = False,
         token: Optional[str] = None,
     ) -> MultiImportReport:
         """Import one or more communities from a YAML string.
 
-        Accepts single or multidocument YAML (documents separated by ---).
-        Returns a report for each imported bundle.
+        Sends `POST /admin/import/yaml` with `yaml_content` as the raw request
+        body (UTF-8, `Content-Type: application/yaml`) and `dry_run` / `force`
+        as the query. Accepts single or multidocument YAML (documents separated
+        by ---). Returns a report for each imported bundle.
+
+        **Destructive** (the registry's replacement import): `force=True` is
+        what lets it delete and recreate a community that already exists;
+        without it such a community is refused with `409`.
+
+        Anything but `200` raises :class:`RecRegistryApiError`; branch on its
+        `code`. A bundle breaking an invariant is a `422` with the broken rule's
+        code — `sensor_held`, and since registry 1.7.0 `delivery_point_held`;
+        `None` for a document failing validation (`422`), a body that is not
+        YAML (`400`), an existing community without `force` (`409`) or a
+        missing grant (`403`).
         """
         client = await self._get_client(token)
-        res = await admin_import_yaml_admin_import_yaml_post.asyncio_detailed(
-            client=client,
-            body=yaml_content,
+        # The generated operation declares no request body (the route reads
+        # the raw body itself, so FastAPI documents none): its `asyncio_detailed`
+        # takes no `body` and cannot send the YAML. The query and path stay
+        # generated; the body is added here, and the response is read here
+        # rather than by the generated parse, which raises `UnexpectedStatus`
+        # on the undeclared `400`/`403`/`409`.
+        kwargs = admin_import_yaml_admin_import_yaml_post._get_kwargs(
             dry_run=dry_run,
+            force=force,
         )
-        # Since registry 1.6.0 the route's `422` is `oneOf` `ErrorResponse` (a
-        # bundle breaking an invariant, with its `code`) / `HTTPValidationError`
-        # (a body that failed validation). The generated parse tries
-        # `ErrorResponse` first and it accepts a validation body too (with no
-        # `code`), so which model came back says nothing: the code is read
-        # from the raw body. Both are refusals; neither is a report.
-        # `RecRegistryApiError` is an `Exception`, so a caller catching the
-        # bare `Exception` this used to raise still catches it.
-        if isinstance(res.parsed, (ErrorResponse, HTTPValidationError)):
-            code, detail = RecRegistryApiError.refusal_of(res.content)
+        kwargs["content"] = yaml_content.encode("utf-8")
+        kwargs["headers"] = {"Content-Type": "application/yaml"}
+        response = await self._send(client, kwargs)
+        if response.status_code != HTTPStatus.OK:
+            raise self._refused(response, "import-yaml")
+        try:
+            return MultiImportReport.from_dict(response.json())
+        except (ValueError, KeyError, TypeError) as exc:
             raise RecRegistryApiError(
-                f"import-yaml refused (status={int(res.status_code)})"
-                + (f" {code}" if code else ""),
-                status_code=int(res.status_code),
-                body=res.content,
-                code=code,
-                detail=detail,
-            )
-        return res.parsed
+                "import-yaml: rec-registry answered 200 with nothing readable",
+                status_code=response.status_code,
+                body=response.content,
+            ) from exc
 
     # List operations
     async def list_communities(
@@ -953,9 +981,20 @@ class RecRegistryAdminClient:
         point_id: str,
         body: DeliveryPointIn,
         *,
+        replaces: Optional[str] = None,
         token: Optional[str] = None,
     ) -> Any:
-        """Add or replace one supply point, keeping the member's others."""
+        """Add or replace one supply point, keeping the member's others.
+
+        `replaces` (registry 1.7.0+) sends `?replaces=<old>`: the registry adds
+        `point_id`, removes `old` and relinks the member's meters that named it,
+        in one transaction. Left at `None`, no query is sent and the call is the
+        plain upsert it always was.
+
+        Returns the undecoded response, `404` and `409` included. For a write
+        whose refusal is an answer to show someone, use
+        :meth:`put_delivery_point`.
+        """
         client = await self._get_client(token)
         return await _upsert_delivery_point.asyncio_detailed(
             community_key=community_key,
@@ -963,6 +1002,7 @@ class RecRegistryAdminClient:
             point_id=point_id,
             client=client,
             body=body,
+            replaces=UNSET if replaces is None else replaces,
         )
 
     async def upsert_asset(
@@ -1156,6 +1196,209 @@ class RecRegistryAdminClient:
                 status_code=response.status_code,
                 body=response.content,
             ) from exc
+
+    # ── One member field per route (registry 1.7.0+) ────────────────────
+    #
+    # `PUT …/members/{member_key}/name|role|area`: each carries one key and
+    # derives its own action, so a caller can be granted one field without the
+    # general member `PATCH` (`rec-registry.members.write`), which can rewrite
+    # a member's identity and status. Same shape as the raising writes above.
+
+    async def _put_member_field(
+        self,
+        operation: Any,
+        community_key: str,
+        member_key: str,
+        body: Any,
+        what: str,
+        token: Optional[str],
+    ) -> MemberDetailSchema:
+        client = await self._get_client(token)
+        response = await self._send(
+            client,
+            operation._get_kwargs(
+                community_key=community_key, member_key=member_key, body=body
+            ),
+        )
+        return _answer(response, MemberDetailSchema, what)
+
+    async def put_member_name(
+        self,
+        community_key: str,
+        member_key: str,
+        name: str,
+        *,
+        token: Optional[str] = None,
+    ) -> MemberDetailSchema:
+        """Set one member's name, and nothing else.
+
+        Sends `PUT /admin/communities/{community_key}/members/{member_key}/name`
+        with a body of only `{"name": name}`. Re-sending the name the member
+        already has is a success. Answers the updated member as the generated
+        :class:`MemberDetailSchema`.
+
+        Anything but `200` raises :class:`RecRegistryApiError`; branch on its
+        `code`: `member_not_found` or `community_not_found` (`404`); `None` for
+        a validation `422` (an empty or non-string name) or a missing grant
+        (`403`). Needs `rec-registry.members.name.write`
+        (`rec-registry.members.write` and `rec-registry.admin` also satisfy it).
+        """
+        return await self._put_member_field(
+            _put_member_name,
+            community_key,
+            member_key,
+            MemberNamePut(name=name),
+            "put-member-name",
+            token,
+        )
+
+    async def put_member_role(
+        self,
+        community_key: str,
+        member_key: str,
+        role: str,
+        *,
+        token: Optional[str] = None,
+    ) -> MemberDetailSchema:
+        """Set one member's role, and nothing else.
+
+        Sends `PUT /admin/communities/{community_key}/members/{member_key}/role`
+        with a body of only `{"role": role}`. The role set is the registry's and
+        is not checked here; which roles a caller may set is the caller's rule.
+        A role change leaves the member's assets as they are. Answers the
+        updated member as the generated :class:`MemberDetailSchema`.
+
+        Anything but `200` raises :class:`RecRegistryApiError`; branch on its
+        `code`: `invalid_role` (`422`), `member_not_found` or
+        `community_not_found` (`404`); `None` for a validation `422` or a
+        missing grant (`403`). Needs `rec-registry.members.role.write`
+        (`rec-registry.members.profile.write`, `rec-registry.members.write` and
+        `rec-registry.admin` also satisfy it).
+        """
+        return await self._put_member_field(
+            _put_member_role,
+            community_key,
+            member_key,
+            MemberRolePut(role=role),
+            "put-member-role",
+            token,
+        )
+
+    async def put_member_area(
+        self,
+        community_key: str,
+        member_key: str,
+        area: str,
+        *,
+        token: Optional[str] = None,
+    ) -> MemberDetailSchema:
+        """Set one member's area, and nothing else.
+
+        Sends `PUT /admin/communities/{community_key}/members/{member_key}/area`
+        with a body of only `{"area": area}`, a key of the community's areas.
+        Answers the updated member as the generated :class:`MemberDetailSchema`.
+
+        Anything but `200` raises :class:`RecRegistryApiError`; branch on its
+        `code`: `unknown_area` (`422`), `member_not_found` or
+        `community_not_found` (`404`); `None` for a validation `422` or a
+        missing grant (`403`). Needs `rec-registry.members.area.write`
+        (`rec-registry.members.profile.write`, `rec-registry.members.write` and
+        `rec-registry.admin` also satisfy it).
+        """
+        return await self._put_member_field(
+            _put_member_area,
+            community_key,
+            member_key,
+            MemberAreaPut(area=area),
+            "put-member-area",
+            token,
+        )
+
+    # ── Delivery points that raise with the registry's code ─────────────
+
+    async def put_delivery_point(
+        self,
+        community_key: str,
+        member_key: str,
+        point_id: str,
+        body: DeliveryPointIn | Mapping[str, Any],
+        *,
+        replaces: Optional[str] = None,
+        token: Optional[str] = None,
+    ) -> DeliveryPointsResponseSchema:
+        """Add or replace one supply point of one member, or correct one.
+
+        Sends `PUT /admin/communities/{community_key}/members/{member_key}/delivery-points/{point_id}`
+        with the body as given. With `replaces` (registry 1.7.0+) it adds
+        `?replaces=<old>`: in one transaction the registry adds `point_id`,
+        removes `old` (matched trimmed and case-insensitive) and relinks the
+        member's meters whose `pod` named `old` to `point_id`. A failure leaves
+        both points and every link as they were. Left at `None`, no query is
+        sent.
+
+        Answers the member's delivery points after the write as the generated
+        :class:`DeliveryPointsResponseSchema`.
+
+        Anything but `200` raises :class:`RecRegistryApiError`; branch on its
+        `code`: `delivery_point_held` (`409`, another active member, in any
+        community, holds the point; nothing changed), `member_not_found` or
+        `community_not_found` (`404`); a `404` with **no** code when `replaces`
+        names a point this member does not have; `None` for a validation `422`
+        or a missing grant (`403`). Needs
+        `rec-registry.members.delivery_points.write` with or without `replaces`
+        (`rec-registry.members.write` and `rec-registry.admin` also satisfy it).
+        """
+        payload = (
+            body if isinstance(body, DeliveryPointIn) else DeliveryPointIn.from_dict(body)
+        )
+        client = await self._get_client(token)
+        response = await self._send(
+            client,
+            _upsert_delivery_point._get_kwargs(
+                community_key=community_key,
+                member_key=member_key,
+                point_id=point_id,
+                body=payload,
+                replaces=UNSET if replaces is None else replaces,
+            ),
+        )
+        return _answer(response, DeliveryPointsResponseSchema, "put-delivery-point")
+
+    async def delete_delivery_point(
+        self,
+        community_key: str,
+        member_key: str,
+        point_id: str,
+        *,
+        token: Optional[str] = None,
+    ) -> DeliveryPointsResponseSchema:
+        """Remove one supply point of one member, keeping the others.
+
+        Sends `DELETE /admin/communities/{community_key}/members/{member_key}/delivery-points/{point_id}`
+        and answers the member's remaining delivery points as the generated
+        :class:`DeliveryPointsResponseSchema`.
+
+        Anything but `200` raises :class:`RecRegistryApiError`; branch on its
+        `code`: `delivery_point_linked` (`409`, one of the member's meters names
+        the point as its `pod`: correct it with :meth:`put_delivery_point` and
+        `replaces`, or detach the meter, first), `member_not_found` or
+        `community_not_found` (`404`). A `404` for a point the member does not
+        have is not read as "already removed": whether that is success is the
+        caller's decision. Needs `rec-registry.members.delivery_points.write`
+        (`rec-registry.members.write` and `rec-registry.admin` also satisfy it).
+        """
+        client = await self._get_client(token)
+        response = await self._send(
+            client,
+            _remove_delivery_point._get_kwargs(
+                community_key=community_key,
+                member_key=member_key,
+                point_id=point_id,
+            ),
+        )
+        return _answer(
+            response, DeliveryPointsResponseSchema, "delete-delivery-point"
+        )
 
     # ── Areas and topology: the onboarding template sync ────────────────
     #

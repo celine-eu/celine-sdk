@@ -58,6 +58,7 @@ from celine.sdk.rec_registry.client import (
     AreaRenamedSchema,
     AssetDetailSchema,
     CommunityDetailSchema,
+    DeliveryPointsResponseSchema,
     MemberDetailSchema,
 )
 from celine.sdk.rec_registry.errors import RecRegistryApiError
@@ -69,6 +70,7 @@ __all__ = [
     "AreaRenamedSchema",
     "AssetDetailSchema",
     "CommunityDetailSchema",
+    "DeliveryPointsResponseSchema",
     "MemberDetailSchema",
     "MAX_BATCH_LOOKUP_IDS",
 ]

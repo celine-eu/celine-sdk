@@ -110,7 +110,9 @@ def sync_detailed(
     service translates that back into the same conflict.
 
     An `active` member created with meters is `409 sensor_held` when another
-    active member, in any community, holds one of their sensors (REQ-0069).
+    active member, in any community, holds one of their sensors (REQ-0069),
+    and one created with delivery points is `409 delivery_point_held` when
+    another active member holds one of those (REQ-0085).
     An asset key longer than 128 characters is `422 asset_key_too_long`
     (REQ-0028).
 
@@ -163,7 +165,9 @@ def sync(
     service translates that back into the same conflict.
 
     An `active` member created with meters is `409 sensor_held` when another
-    active member, in any community, holds one of their sensors (REQ-0069).
+    active member, in any community, holds one of their sensors (REQ-0069),
+    and one created with delivery points is `409 delivery_point_held` when
+    another active member holds one of those (REQ-0085).
     An asset key longer than 128 characters is `422 asset_key_too_long`
     (REQ-0028).
 
@@ -211,7 +215,9 @@ async def asyncio_detailed(
     service translates that back into the same conflict.
 
     An `active` member created with meters is `409 sensor_held` when another
-    active member, in any community, holds one of their sensors (REQ-0069).
+    active member, in any community, holds one of their sensors (REQ-0069),
+    and one created with delivery points is `409 delivery_point_held` when
+    another active member holds one of those (REQ-0085).
     An asset key longer than 128 characters is `422 asset_key_too_long`
     (REQ-0028).
 
@@ -262,7 +268,9 @@ async def asyncio(
     service translates that back into the same conflict.
 
     An `active` member created with meters is `409 sensor_held` when another
-    active member, in any community, holds one of their sensors (REQ-0069).
+    active member, in any community, holds one of their sensors (REQ-0069),
+    and one created with delivery points is `409 delivery_point_held` when
+    another active member holds one of those (REQ-0085).
     An asset key longer than 128 characters is `422 asset_key_too_long`
     (REQ-0028).
 

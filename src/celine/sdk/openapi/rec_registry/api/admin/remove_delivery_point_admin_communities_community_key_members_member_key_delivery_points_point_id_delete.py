@@ -42,6 +42,11 @@ def _parse_response(
 
         return response_404
 
+    if response.status_code == 409:
+        response_409 = ErrorResponse.from_dict(response.json())
+
+        return response_409
+
     if response.status_code == 422:
         response_422 = HTTPValidationError.from_dict(response.json())
 
@@ -74,6 +79,10 @@ def sync_detailed(
     """Remove Delivery Point
 
      Remove one supply point, keeping the others.
+
+    Refused `409 delivery_point_linked` while one of the member's meters
+    names it as its `pod` (REQ-0084): correct it with `PUT …?replaces=`, or
+    detach the meter, first.
 
     Args:
         community_key (str):
@@ -112,6 +121,10 @@ def sync(
 
      Remove one supply point, keeping the others.
 
+    Refused `409 delivery_point_linked` while one of the member's meters
+    names it as its `pod` (REQ-0084): correct it with `PUT …?replaces=`, or
+    detach the meter, first.
+
     Args:
         community_key (str):
         member_key (str):
@@ -143,6 +156,10 @@ async def asyncio_detailed(
     """Remove Delivery Point
 
      Remove one supply point, keeping the others.
+
+    Refused `409 delivery_point_linked` while one of the member's meters
+    names it as its `pod` (REQ-0084): correct it with `PUT …?replaces=`, or
+    detach the meter, first.
 
     Args:
         community_key (str):
@@ -178,6 +195,10 @@ async def asyncio(
     """Remove Delivery Point
 
      Remove one supply point, keeping the others.
+
+    Refused `409 delivery_point_linked` while one of the member's meters
+    names it as its `pod` (REQ-0084): correct it with `PUT …?replaces=`, or
+    detach the meter, first.
 
     Args:
         community_key (str):

@@ -126,8 +126,9 @@ def sync_detailed(
     be a conflict.
 
     Setting `status: active` on a member that was not active re-checks its
-    sensors, and the whole patch is refused `409 sensor_held` when another
-    active member holds one (REQ-0069).
+    sensors and delivery points, and the whole patch is refused
+    `409 sensor_held` / `409 delivery_point_held` when another active member
+    holds one (REQ-0069, REQ-0085).
 
     `role` and `area` are still accepted here, for `members.write` holders,
     and held to the same sets as on `PATCH …/profile`: `422 invalid_role`,
@@ -197,8 +198,9 @@ def sync(
     be a conflict.
 
     Setting `status: active` on a member that was not active re-checks its
-    sensors, and the whole patch is refused `409 sensor_held` when another
-    active member holds one (REQ-0069).
+    sensors and delivery points, and the whole patch is refused
+    `409 sensor_held` / `409 delivery_point_held` when another active member
+    holds one (REQ-0069, REQ-0085).
 
     `role` and `area` are still accepted here, for `members.write` holders,
     and held to the same sets as on `PATCH …/profile`: `422 invalid_role`,
@@ -263,8 +265,9 @@ async def asyncio_detailed(
     be a conflict.
 
     Setting `status: active` on a member that was not active re-checks its
-    sensors, and the whole patch is refused `409 sensor_held` when another
-    active member holds one (REQ-0069).
+    sensors and delivery points, and the whole patch is refused
+    `409 sensor_held` / `409 delivery_point_held` when another active member
+    holds one (REQ-0069, REQ-0085).
 
     `role` and `area` are still accepted here, for `members.write` holders,
     and held to the same sets as on `PATCH …/profile`: `422 invalid_role`,
@@ -332,8 +335,9 @@ async def asyncio(
     be a conflict.
 
     Setting `status: active` on a member that was not active re-checks its
-    sensors, and the whole patch is refused `409 sensor_held` when another
-    active member holds one (REQ-0069).
+    sensors and delivery points, and the whole patch is refused
+    `409 sensor_held` / `409 delivery_point_held` when another active member
+    holds one (REQ-0069, REQ-0085).
 
     `role` and `area` are still accepted here, for `members.write` holders,
     and held to the same sets as on `PATCH …/profile`: `422 invalid_role`,

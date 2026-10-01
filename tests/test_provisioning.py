@@ -70,6 +70,16 @@ INVITED = {
     "actions": ["UPDATE_PASSWORD", "VERIFY_EMAIL"],
     "lifespan": 604800,
 }
+UPDATED = {
+    "user_id": "3f1c-uuid",
+    "username": "ex-00001",
+    "first_name": "A",
+    "last_name": "Person",
+    "email": "a.person@example.org",
+    "email_verified": False,
+    "changed": ["email"],
+    "verification": "sent",
+}
 DISABLED = {"user_id": "3f1c-uuid", "username": "ex-00001", "changed": True}
 SWEPT = {
     "community": "example-rec",
@@ -344,6 +354,208 @@ class TestTheInvitation:
     async def test_reset_password_is_gone(self):
         """It handed back a temporary password with no channel to deliver it."""
         assert not hasattr(ProvisioningClient, "reset_password")
+
+
+class TestCorrectingAParticipant:
+    async def test_the_route_is_a_patch_on_the_participant(self, mock_http):
+        seen = mock_http(_answer(200, UPDATED))
+
+        await _client().update_participant(
+            "example-rec", "ex-00001", email="a.person@example.org"
+        )
+
+        assert seen[0].method == "PATCH"
+        assert seen[0].url.path == "/participants/example-rec/ex-00001"
+        assert seen[0].headers.get_list("authorization") == ["Bearer tok-svc"]
+        assert seen[0].headers["content-type"] == "application/json"
+
+    async def test_only_the_fields_given_are_sent(self, mock_http):
+        """`None` is "leave it": the service forbids nothing more than it has to,
+        but a `null` it would read as "not given" is still not worth sending."""
+        seen = mock_http(_answer(200, {**UPDATED, "changed": ["last_name"]}))
+
+        await _client().update_participant("example-rec", "ex-00001", last_name="Person")
+
+        assert json.loads(seen[0].content) == {"last_name": "Person"}
+
+    async def test_all_three_travel_together(self, mock_http):
+        seen = mock_http(
+            _answer(200, {**UPDATED, "changed": ["first_name", "last_name", "email"]})
+        )
+
+        await _client().update_participant(
+            "example-rec",
+            "ex-00001",
+            first_name="A",
+            last_name="Person",
+            email="a.person@example.org",
+        )
+
+        assert json.loads(seen[0].content) == {
+            "first_name": "A",
+            "last_name": "Person",
+            "email": "a.person@example.org",
+        }
+
+    async def test_the_answer_comes_back_as_a_schema_with_enums(self, mock_http):
+        mock_http(_answer(200, UPDATED))
+
+        result = await _client().update_participant(
+            "example-rec", "ex-00001", email="a.person@example.org"
+        )
+
+        assert result.user_id == "3f1c-uuid"
+        assert result.username == "ex-00001"
+        assert result.email == "a.person@example.org"
+        assert result.email_verified is False
+        # enums, not strings: `.value` is the comparison that works
+        assert [field.value for field in result.changed] == ["email"]
+        assert result.verification.value == "sent"
+
+    async def test_nothing_changed_is_an_answer_not_a_failure(self, mock_http):
+        mock_http(
+            _answer(
+                200,
+                {
+                    **UPDATED,
+                    "email_verified": True,
+                    "changed": [],
+                    "verification": "not_requested",
+                },
+            )
+        )
+
+        result = await _client().update_participant(
+            "example-rec", "ex-00001", first_name="A"
+        )
+
+        assert result.changed == []
+        assert result.verification.value == "not_requested"
+
+    @pytest.mark.parametrize("verification", ["not_requested", "sent", "not_on_dev_list"])
+    async def test_the_answer_says_what_happened_to_the_verification(
+        self, mock_http, verification
+    ):
+        mock_http(_answer(200, {**UPDATED, "verification": verification}))
+
+        result = await _client().update_participant(
+            "example-rec", "ex-00001", email="a.person@example.org"
+        )
+
+        assert result.verification.value == verification
+
+    async def test_a_per_call_token_wins_over_the_default(self, mock_http):
+        seen = mock_http(_answer(200, UPDATED))
+
+        await _client().update_participant(
+            "example-rec", "ex-00001", first_name="A", token="tok-request"
+        )
+
+        assert seen[0].headers["authorization"] == "Bearer tok-request"
+
+    async def test_no_field_is_refused_before_the_request(self, mock_http):
+        """The service would answer `422`; an empty correction is a caller bug."""
+        seen = mock_http(_answer(200, UPDATED))
+
+        with pytest.raises(ValueError):
+            await _client().update_participant("example-rec", "ex-00001")
+
+        assert seen == []
+
+    @pytest.mark.parametrize("field", ["first_name", "last_name", "email"])
+    async def test_an_empty_string_is_refused_before_the_request(self, mock_http, field):
+        """`None` leaves a field alone; `""` would be a request to blank it,
+        which the service refuses `422`."""
+        seen = mock_http(_answer(200, UPDATED))
+
+        with pytest.raises(ValueError):
+            await _client().update_participant("example-rec", "ex-00001", **{field: ""})
+
+        assert seen == []
+
+    async def test_the_fields_are_keyword_only(self):
+        with pytest.raises(TypeError):
+            await _client().update_participant("example-rec", "ex-00001", "A")  # type: ignore[misc]
+
+    @pytest.mark.parametrize(
+        "status,code",
+        [
+            (401, "missing_token"),
+            (401, "invalid_token"),
+            (403, "insufficient_scope"),
+            (404, "community_not_found"),
+            (404, "member_not_found"),
+            (404, "account_not_found"),
+            (409, "account_disabled"),
+            (409, "email_taken"),
+            (502, "send_failed"),
+            (502, "registry_unavailable"),
+            (502, "provisioning_failed"),
+        ],
+    )
+    async def test_a_refused_update_raises_with_the_status_and_the_code(
+        self, mock_http, status, code
+    ):
+        mock_http(_answer(status, _refusal(code, "example-rec/ex-00001: refused")))
+
+        with pytest.raises(ProvisioningApiError) as excinfo:
+            await _client().update_participant(
+                "example-rec", "ex-00001", email="b.person@example.org"
+            )
+
+        error = excinfo.value
+        assert error.status_code == status
+        assert error.code == code
+        assert error.detail == {"code": code, "message": "example-rec/ex-00001: refused"}
+        assert "update_participant" in str(error)
+        assert "example-rec/ex-00001: refused" in str(error)
+
+    async def test_a_422_is_raised_without_a_code(self, mock_http):
+        mock_http(
+            _answer(
+                422,
+                {
+                    "detail": [
+                        {
+                            "loc": ["body", "username"],
+                            "msg": "Extra inputs are not permitted",
+                            "type": "extra_forbidden",
+                        }
+                    ]
+                },
+            )
+        )
+
+        with pytest.raises(ProvisioningApiError) as excinfo:
+            await _client().update_participant("example-rec", "ex-00001", first_name="A")
+
+        assert excinfo.value.status_code == 422
+        assert excinfo.value.code is None
+
+    async def test_an_older_service_without_the_route_raises_without_a_code(
+        self, mock_http
+    ):
+        """A pre-1.4.0 service has no PATCH on this path."""
+        mock_http(_answer(405, {"detail": "Method Not Allowed"}))
+
+        with pytest.raises(ProvisioningApiError) as excinfo:
+            await _client().update_participant("example-rec", "ex-00001", first_name="A")
+
+        assert excinfo.value.status_code == 405
+        assert excinfo.value.code is None
+        assert "Method Not Allowed" in str(excinfo.value)
+
+    async def test_an_html_error_page_does_not_crash_the_parse(self, mock_http):
+        def handle(request: httpx.Request) -> httpx.Response:
+            return httpx.Response(502, content=b"<html>bad gateway</html>")
+
+        mock_http(handle)
+
+        with pytest.raises(ProvisioningApiError) as excinfo:
+            await _client().update_participant("example-rec", "ex-00001", first_name="A")
+
+        assert excinfo.value.status_code == 502
+        assert excinfo.value.code is None
 
 
 class TestTheLifecycleCalls:

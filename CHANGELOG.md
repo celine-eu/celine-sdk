@@ -1,5 +1,36 @@
 # CHANGELOG
 
+## Unreleased
+
+<!-- Hand-written ahead of the release. semantic-release inserts the next version
+     below the marker and leaves this section in place: remove it when releasing. -->
+
+### Features
+
+- Provisioning: `ProvisioningClient.update_participant(community, key, *, first_name=None,
+  last_name=None, email=None, token=None)` wraps `PATCH /participants/{community}/{key}`
+  (provisioning API 1.4.0). `None` leaves a field as it is; no field, or an empty string,
+  raises `ValueError` before the request. Answers `ParticipantUpdateResponseSchema`
+  (`changed`, `verification`, `email_verified`). Refusals are `ProvisioningApiError`
+  with `code`, including the new `409 email_taken`.
+- Regenerated `celine.sdk.openapi.provisioning` from the provisioning 1.4.0 spec
+  (`openapi/provisioning/v1.4.0/`): adds `ParticipantUpdate`,
+  `ParticipantUpdateResponse`, `UpdatedField`, `VerificationOutcome`; additive only.
+- REC registry: `RecRegistryAdminClient.put_member_name`, `put_member_role` and
+  `put_member_area` wrap the per-field routes `PUT …/members/{member_key}/name|role|area`
+  (rec-registry 1.7.0; REQ-0134). Each sends one key, answers `MemberDetailSchema`, and
+  raises `RecRegistryApiError` with the registry's `code`.
+- REC registry: `put_delivery_point(..., replaces=None)` and `delete_delivery_point(...)`,
+  raising with the registry's `code`: `409 delivery_point_held`, `409 delivery_point_linked`
+  (REQ-0135). Both answer `DeliveryPointsResponseSchema`, now exported from
+  `celine.sdk.rec_registry`. The undecoded `upsert_delivery_point` gains keyword-only
+  `replaces=None`, which sends `?replaces=` only when given. Existing calls are unchanged.
+- Regenerated `celine.sdk.openapi.rec_registry` from the rec-registry 1.7.0 spec
+  (`openapi/rec-registry/v1.7.0/`): adds `MemberNamePut`, `MemberRolePut`, `MemberAreaPut`,
+  the three per-field operations, `replaces` on the delivery-point upsert, a declared `409`
+  on the delivery-point routes, and `delivery_point_held` / `delivery_point_linked` in
+  `ErrorCode`. Additive only.
+
 <!-- version list -->
 
 ## v1.22.0 (2026-09-29)

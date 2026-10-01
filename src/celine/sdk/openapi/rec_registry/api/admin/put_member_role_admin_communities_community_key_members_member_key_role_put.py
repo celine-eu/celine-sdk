@@ -9,7 +9,7 @@ from ...client import AuthenticatedClient, Client
 from ...models.error_response import ErrorResponse
 from ...models.http_validation_error import HTTPValidationError
 from ...models.member_detail import MemberDetail
-from ...models.member_status_change import MemberStatusChange
+from ...models.member_role_put import MemberRolePut
 from ...types import Response
 
 
@@ -17,13 +17,13 @@ def _get_kwargs(
     community_key: str,
     member_key: str,
     *,
-    body: MemberStatusChange,
+    body: MemberRolePut,
 ) -> dict[str, Any]:
     headers: dict[str, Any] = {}
 
     _kwargs: dict[str, Any] = {
-        "method": "post",
-        "url": "/admin/communities/{community_key}/members/{member_key}/status".format(
+        "method": "put",
+        "url": "/admin/communities/{community_key}/members/{member_key}/role".format(
             community_key=quote(str(community_key), safe=""),
             member_key=quote(str(member_key), safe=""),
         ),
@@ -49,11 +49,6 @@ def _parse_response(
         response_404 = ErrorResponse.from_dict(response.json())
 
         return response_404
-
-    if response.status_code == 409:
-        response_409 = ErrorResponse.from_dict(response.json())
-
-        return response_409
 
     if response.status_code == 422:
 
@@ -98,26 +93,27 @@ def sync_detailed(
     member_key: str,
     *,
     client: AuthenticatedClient | Client,
-    body: MemberStatusChange,
+    body: MemberRolePut,
 ) -> Response[ErrorResponse | ErrorResponse | HTTPValidationError | MemberDetail]:
-    """Change Member Status
+    """Put Member Role
 
-     Move a member through the lifecycle explicitly.
+     Set a member's role, and nothing else (REQ-0083).
 
-    Separate from `PATCH` because a status change is the transition an operator
-    reasons about — and because it reads clearly in an audit log, which a
-    generic field update does not.
-
-    A move to `active` re-checks the member's sensors and delivery points:
-    when another active member took one meanwhile it answers
-    `409 sensor_held` / `409 delivery_point_held` and the status is left as
-    it was (REQ-0069, REQ-0085).
+    The body is `{role}`, and no other key. A role outside the set is
+    `422 invalid_role`, as on the general `PATCH` (REQ-0066). Derives
+    `members.role.write` (REQ-0081), which `rec-registry.members.role.write`,
+    `rec-registry.members.profile.write`, `rec-registry.members.write` and
+    `rec-registry.admin` satisfy (REQ-0082). A role change leaves the
+    member's assets as they are.
 
     Args:
         community_key (str):
         member_key (str):
-        body (MemberStatusChange): Move a member through `pending → active → suspended →
-            inactive`.
+        body (MemberRolePut): A member's role, and nothing else (`PUT …/members/{key}/role`,
+            REQ-0083).
+
+            Checked against its set by the route, with the coded `422 invalid_role`
+            the general `PATCH` answers (REQ-0066), not here.
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
@@ -145,26 +141,27 @@ def sync(
     member_key: str,
     *,
     client: AuthenticatedClient | Client,
-    body: MemberStatusChange,
+    body: MemberRolePut,
 ) -> ErrorResponse | ErrorResponse | HTTPValidationError | MemberDetail | None:
-    """Change Member Status
+    """Put Member Role
 
-     Move a member through the lifecycle explicitly.
+     Set a member's role, and nothing else (REQ-0083).
 
-    Separate from `PATCH` because a status change is the transition an operator
-    reasons about — and because it reads clearly in an audit log, which a
-    generic field update does not.
-
-    A move to `active` re-checks the member's sensors and delivery points:
-    when another active member took one meanwhile it answers
-    `409 sensor_held` / `409 delivery_point_held` and the status is left as
-    it was (REQ-0069, REQ-0085).
+    The body is `{role}`, and no other key. A role outside the set is
+    `422 invalid_role`, as on the general `PATCH` (REQ-0066). Derives
+    `members.role.write` (REQ-0081), which `rec-registry.members.role.write`,
+    `rec-registry.members.profile.write`, `rec-registry.members.write` and
+    `rec-registry.admin` satisfy (REQ-0082). A role change leaves the
+    member's assets as they are.
 
     Args:
         community_key (str):
         member_key (str):
-        body (MemberStatusChange): Move a member through `pending → active → suspended →
-            inactive`.
+        body (MemberRolePut): A member's role, and nothing else (`PUT …/members/{key}/role`,
+            REQ-0083).
+
+            Checked against its set by the route, with the coded `422 invalid_role`
+            the general `PATCH` answers (REQ-0066), not here.
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
@@ -187,26 +184,27 @@ async def asyncio_detailed(
     member_key: str,
     *,
     client: AuthenticatedClient | Client,
-    body: MemberStatusChange,
+    body: MemberRolePut,
 ) -> Response[ErrorResponse | ErrorResponse | HTTPValidationError | MemberDetail]:
-    """Change Member Status
+    """Put Member Role
 
-     Move a member through the lifecycle explicitly.
+     Set a member's role, and nothing else (REQ-0083).
 
-    Separate from `PATCH` because a status change is the transition an operator
-    reasons about — and because it reads clearly in an audit log, which a
-    generic field update does not.
-
-    A move to `active` re-checks the member's sensors and delivery points:
-    when another active member took one meanwhile it answers
-    `409 sensor_held` / `409 delivery_point_held` and the status is left as
-    it was (REQ-0069, REQ-0085).
+    The body is `{role}`, and no other key. A role outside the set is
+    `422 invalid_role`, as on the general `PATCH` (REQ-0066). Derives
+    `members.role.write` (REQ-0081), which `rec-registry.members.role.write`,
+    `rec-registry.members.profile.write`, `rec-registry.members.write` and
+    `rec-registry.admin` satisfy (REQ-0082). A role change leaves the
+    member's assets as they are.
 
     Args:
         community_key (str):
         member_key (str):
-        body (MemberStatusChange): Move a member through `pending → active → suspended →
-            inactive`.
+        body (MemberRolePut): A member's role, and nothing else (`PUT …/members/{key}/role`,
+            REQ-0083).
+
+            Checked against its set by the route, with the coded `422 invalid_role`
+            the general `PATCH` answers (REQ-0066), not here.
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
@@ -232,26 +230,27 @@ async def asyncio(
     member_key: str,
     *,
     client: AuthenticatedClient | Client,
-    body: MemberStatusChange,
+    body: MemberRolePut,
 ) -> ErrorResponse | ErrorResponse | HTTPValidationError | MemberDetail | None:
-    """Change Member Status
+    """Put Member Role
 
-     Move a member through the lifecycle explicitly.
+     Set a member's role, and nothing else (REQ-0083).
 
-    Separate from `PATCH` because a status change is the transition an operator
-    reasons about — and because it reads clearly in an audit log, which a
-    generic field update does not.
-
-    A move to `active` re-checks the member's sensors and delivery points:
-    when another active member took one meanwhile it answers
-    `409 sensor_held` / `409 delivery_point_held` and the status is left as
-    it was (REQ-0069, REQ-0085).
+    The body is `{role}`, and no other key. A role outside the set is
+    `422 invalid_role`, as on the general `PATCH` (REQ-0066). Derives
+    `members.role.write` (REQ-0081), which `rec-registry.members.role.write`,
+    `rec-registry.members.profile.write`, `rec-registry.members.write` and
+    `rec-registry.admin` satisfy (REQ-0082). A role change leaves the
+    member's assets as they are.
 
     Args:
         community_key (str):
         member_key (str):
-        body (MemberStatusChange): Move a member through `pending → active → suspended →
-            inactive`.
+        body (MemberRolePut): A member's role, and nothing else (`PUT …/members/{key}/role`,
+            REQ-0083).
+
+            Checked against its set by the route, with the coded `422 invalid_role`
+            the general `PATCH` answers (REQ-0066), not here.
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.

@@ -3,8 +3,10 @@
 The batch asset lookups, the meter writes (`put_asset`, `delete_asset`), the
 profile write (`patch_member_profile`), the area and topology writes with the
 community read (`put_area`, `delete_area`, `put_topology_node`,
-`delete_topology_node`, `read_community`), the area rename (`rename_area`) and
-the self-service refusals, which
+`delete_topology_node`, `read_community`), the area rename (`rename_area`), the per-field member writes
+(`put_member_name`, `put_member_role`, `put_member_area`), the delivery-point
+writes (`put_delivery_point`, `delete_delivery_point`, `upsert_delivery_point`'s
+`replaces`) and the self-service refusals, which
 is what that document specifies. The seam is
 `mock_http`: the generated client builds its own `httpx.AsyncClient`, so the
 class is what gets replaced, and everything this repository owns — chunking, the
@@ -1599,3 +1601,296 @@ class TestASelfServiceRefusalRaisesTheWrappersError:
 
         assert ErrorCode("not_a_member").value == "not_a_member"
         assert ErrorCode("topology_node_in_use").value == "topology_node_in_use"
+
+
+# ── Member fields and delivery points (REQ-0134, REQ-0135) ──────────────────
+
+MEMBER_PATH = "/admin/communities/example-rec/members/ex-00001"
+POD_OLD = "IT001E00000001"
+POD_NEW = "IT001E00000002"
+POD_PATH = f"{MEMBER_PATH}/delivery-points/{POD_NEW}"
+
+FIELD_WRITES = [
+    ("put_member_name", "name", "Member Two"),
+    ("put_member_role", "role", "consumer"),
+    ("put_member_area", "area", "area-2"),
+]
+
+
+def _pod_body(point_id: str = POD_NEW) -> dict:
+    return {"id": point_id, "type": "pod"}
+
+
+def _points(*ids: str) -> dict:
+    return {
+        "delivery_points": [
+            {
+                "id": i,
+                "type": "pod",
+                "description": None,
+                "address": None,
+                "tariff": None,
+                "active": True,
+            }
+            for i in ids
+        ]
+    }
+
+
+class TestTheMemberFieldWrites:
+    # @verifies REQ-0134
+    @pytest.mark.parametrize(("method", "field", "value"), FIELD_WRITES)
+    async def test_one_key_goes_to_its_own_route(self, mock_http, method, field, value):
+        seen = mock_http(_rows(_member_detail()))
+
+        await getattr(_client(), method)(
+            "example-rec", "ex-00001", value, token="tok-field"
+        )
+
+        assert len(seen) == 1
+        assert seen[0].method == "PUT"
+        assert seen[0].url.path == f"{MEMBER_PATH}/{field}"
+        assert json.loads(seen[0].content) == {field: value}
+        assert seen[0].headers["authorization"] == "Bearer tok-field"
+
+    # @verifies REQ-0134
+    @pytest.mark.parametrize(("method", "field", "value"), FIELD_WRITES)
+    async def test_it_has_no_parameter_for_any_other_member_field(
+        self, method, field, value
+    ):
+        import inspect
+
+        params = set(inspect.signature(getattr(RecRegistryAdminClient, method)).parameters)
+
+        assert params == {"self", "community_key", "member_key", field, "token"}
+
+    # @verifies REQ-0134
+    @pytest.mark.parametrize(("method", "field", "value"), FIELD_WRITES)
+    async def test_it_answers_the_updated_member_as_a_schema(
+        self, mock_http, method, field, value
+    ):
+        from celine.sdk.rec_registry import MemberDetailSchema
+
+        mock_http(_rows({**_member_detail(), "name": "Member Two"}))
+
+        member = await getattr(_client(), method)("example-rec", "ex-00001", value)
+
+        assert type(member) is MemberDetailSchema
+        assert member.key == "ex-00001"
+
+    # @verifies REQ-0134
+    # @verifies REQ-0127
+    @pytest.mark.parametrize(
+        ("method", "status", "code"),
+        [
+            ("put_member_role", 422, "invalid_role"),
+            ("put_member_area", 422, "unknown_area"),
+            ("put_member_name", 404, "member_not_found"),
+            ("put_member_area", 404, "community_not_found"),
+        ],
+    )
+    async def test_a_refusal_raises_with_the_registrys_code(
+        self, mock_http, method, status, code
+    ):
+        mock_http(_refusal(status, "refused", code))
+
+        with pytest.raises(RecRegistryApiError) as excinfo:
+            await getattr(_client(), method)("example-rec", "ex-00001", "x")
+
+        assert excinfo.value.status_code == status
+        assert excinfo.value.code == code
+        assert excinfo.value.detail == "refused"
+
+    # @verifies REQ-0134
+    # @verifies REQ-0127
+    @pytest.mark.parametrize(
+        "respond",
+        [
+            _status(422, VALIDATION_ERROR),
+            _status(403, {"detail": "Forbidden"}),
+            _raw(502, b"<html>Bad gateway</html>"),
+        ],
+    )
+    @pytest.mark.parametrize(("method", "field", "value"), FIELD_WRITES)
+    async def test_a_refusal_that_names_no_code_raises_with_none(
+        self, mock_http, respond, method, field, value
+    ):
+        mock_http(respond)
+
+        with pytest.raises(RecRegistryApiError) as excinfo:
+            await getattr(_client(), method)("example-rec", "ex-00001", value)
+
+        assert not isinstance(excinfo.value, UnexpectedStatus)
+        assert excinfo.value.code is None
+
+
+class TestTheDeliveryPointWrites:
+    # @verifies REQ-0135
+    async def test_without_replaces_no_query_is_sent(self, mock_http):
+        seen = mock_http(_rows(_points(POD_OLD, POD_NEW)))
+
+        await _client().put_delivery_point(
+            "example-rec", "ex-00001", POD_NEW, _pod_body(), token="tok-dp"
+        )
+
+        assert seen[0].method == "PUT"
+        assert seen[0].url.path == POD_PATH
+        assert seen[0].url.query == b""
+        assert json.loads(seen[0].content) == _pod_body()
+        assert seen[0].headers["authorization"] == "Bearer tok-dp"
+
+    # @verifies REQ-0135
+    async def test_replaces_travels_as_the_query(self, mock_http):
+        from celine.sdk.rec_registry import DeliveryPointsResponseSchema
+
+        seen = mock_http(_rows(_points(POD_NEW)))
+
+        points = await _client().put_delivery_point(
+            "example-rec", "ex-00001", POD_NEW, _pod_body(), replaces=POD_OLD
+        )
+
+        assert seen[0].url.path == POD_PATH
+        assert seen[0].url.params["replaces"] == POD_OLD
+        assert type(points) is DeliveryPointsResponseSchema
+        assert [p.id for p in points.delivery_points] == [POD_NEW]
+
+    # @verifies REQ-0135
+    async def test_the_undecoded_upsert_is_unchanged_without_replaces(self, mock_http):
+        seen = mock_http(_rows(_points(POD_NEW)))
+        from celine.sdk.openapi.rec_registry.models import DeliveryPointIn
+
+        response = await _client().upsert_delivery_point(
+            "example-rec", "ex-00001", POD_NEW, DeliveryPointIn.from_dict(_pod_body())
+        )
+
+        assert int(response.status_code) == 200
+        assert seen[0].url.query == b""
+
+    # @verifies REQ-0135
+    async def test_the_undecoded_upsert_carries_replaces_and_does_not_raise(
+        self, mock_http
+    ):
+        seen = mock_http(
+            _refusal(409, "held by another member", "delivery_point_held")
+        )
+        from celine.sdk.openapi.rec_registry.models import DeliveryPointIn
+
+        response = await _client().upsert_delivery_point(
+            "example-rec",
+            "ex-00001",
+            POD_NEW,
+            DeliveryPointIn.from_dict(_pod_body()),
+            replaces=POD_OLD,
+        )
+
+        assert seen[0].url.params["replaces"] == POD_OLD
+        assert int(response.status_code) == 409
+        assert RecRegistryApiError.refusal_of(response.content)[0] == "delivery_point_held"
+
+    # @verifies REQ-0135
+    async def test_delete_sends_delete_and_answers_what_is_left(self, mock_http):
+        seen = mock_http(_rows(_points(POD_OLD)))
+
+        points = await _client().delete_delivery_point(
+            "example-rec", "ex-00001", POD_NEW, token="tok-dp"
+        )
+
+        assert seen[0].method == "DELETE"
+        assert seen[0].url.path == POD_PATH
+        assert seen[0].headers["authorization"] == "Bearer tok-dp"
+        assert [p.id for p in points.delivery_points] == [POD_OLD]
+
+    # @verifies REQ-0135
+    # @verifies REQ-0127
+    @pytest.mark.parametrize(
+        ("method", "status", "code"),
+        [
+            ("put", 409, "delivery_point_held"),
+            ("put", 404, "member_not_found"),
+            ("put", 404, "community_not_found"),
+            ("delete", 409, "delivery_point_linked"),
+            ("delete", 404, "member_not_found"),
+        ],
+    )
+    async def test_a_refusal_raises_with_the_registrys_code(
+        self, mock_http, method, status, code
+    ):
+        mock_http(_refusal(status, "refused", code))
+
+        with pytest.raises(RecRegistryApiError) as excinfo:
+            if method == "put":
+                await _client().put_delivery_point(
+                    "example-rec", "ex-00001", POD_NEW, _pod_body(), replaces=POD_OLD
+                )
+            else:
+                await _client().delete_delivery_point("example-rec", "ex-00001", POD_NEW)
+
+        assert excinfo.value.status_code == status
+        assert excinfo.value.code == code
+        assert excinfo.value.detail == "refused"
+        assert code in str(excinfo.value)
+
+    # @verifies REQ-0135
+    async def test_replacing_a_point_the_member_lacks_is_an_uncoded_404(
+        self, mock_http
+    ):
+        mock_http(_status(404, {"detail": f"Delivery point '{POD_OLD}' not found"}))
+
+        with pytest.raises(RecRegistryApiError) as excinfo:
+            await _client().put_delivery_point(
+                "example-rec", "ex-00001", POD_NEW, _pod_body(), replaces=POD_OLD
+            )
+
+        assert excinfo.value.status_code == 404
+        assert excinfo.value.code is None
+        assert "not found" in str(excinfo.value)
+
+    # @verifies REQ-0135
+    @pytest.mark.parametrize(
+        "respond",
+        [
+            _status(422, VALIDATION_ERROR),
+            _status(403, {"detail": "Forbidden"}),
+            _raw(502, b"<html>Bad gateway</html>"),
+            _raw(200, b"not json"),
+        ],
+    )
+    @pytest.mark.parametrize("method", ["put", "delete"])
+    async def test_anything_else_raises_the_wrappers_error(
+        self, mock_http, respond, method
+    ):
+        mock_http(respond)
+
+        with pytest.raises(RecRegistryApiError) as excinfo:
+            if method == "put":
+                await _client().put_delivery_point(
+                    "example-rec", "ex-00001", POD_NEW, _pod_body()
+                )
+            else:
+                await _client().delete_delivery_point("example-rec", "ex-00001", POD_NEW)
+
+        assert not isinstance(excinfo.value, UnexpectedStatus)
+        assert excinfo.value.code is None
+
+    # @verifies REQ-0135
+    async def test_a_body_given_as_a_mapping_is_sent_as_given(self, mock_http):
+        seen = mock_http(_rows(_points(POD_NEW)))
+
+        await _client().put_delivery_point(
+            "example-rec",
+            "ex-00001",
+            POD_NEW,
+            {"id": POD_NEW, "type": "pod", "tariff": "D2"},
+        )
+
+        assert json.loads(seen[0].content) == {
+            "id": POD_NEW,
+            "type": "pod",
+            "tariff": "D2",
+        }
+
+    async def test_the_generated_vocabulary_names_the_new_codes(self):
+        from celine.sdk.openapi.rec_registry.models import ErrorCode
+
+        assert ErrorCode("delivery_point_held").value == "delivery_point_held"
+        assert ErrorCode("delivery_point_linked").value == "delivery_point_linked"

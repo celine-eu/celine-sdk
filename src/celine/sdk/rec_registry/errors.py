@@ -20,7 +20,9 @@ class RecRegistryApiError(RuntimeError):
     **Branch on :attr:`code`, never on the text.** The registry answers a
     refusal it has named as a flat ``{"detail": "<sentence>", "code": "<code>"}``
     (its error-code vocabulary: `sensor_held`, `asset_key_taken`,
-    `member_not_found`, ...). `code` is that string, read from the top level of
+    `member_not_found`, and since registry 1.7.0 `delivery_point_held` —
+    `409` on a delivery-point write, a create or a reactivation, `422` on an
+    import — and `delivery_point_linked`, `409` on a delivery-point delete). `code` is that string, read from the top level of
     the body, and `None` for a refusal that names none — a validation error, a
     body that is not JSON, a proxy's page. It is a plain string, not an enum, so
     ``exc.code == "sensor_held"`` is a real comparison and a code added to the

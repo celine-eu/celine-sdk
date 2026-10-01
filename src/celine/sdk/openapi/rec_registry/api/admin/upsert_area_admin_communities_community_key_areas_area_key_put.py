@@ -111,6 +111,12 @@ def sync_detailed(
     which has to be written first. Areas stored before the rule are not
     re-judged, except that the written area may not share their boundary id.
 
+    **The key is an area key** — letters, digits, `-` and `_`, starting with a
+    letter or digit, at most 128 characters, what a rename accepts — or the
+    write is `422 invalid_area_key` and changes nothing. An area stored under
+    another key is read as stored; a rename moves it onto one that keeps the
+    rule.
+
     Args:
         community_key (str):
         area_key (str):
@@ -167,6 +173,12 @@ def sync(
     which has to be written first. Areas stored before the rule are not
     re-judged, except that the written area may not share their boundary id.
 
+    **The key is an area key** — letters, digits, `-` and `_`, starting with a
+    letter or digit, at most 128 characters, what a rename accepts — or the
+    write is `422 invalid_area_key` and changes nothing. An area stored under
+    another key is read as stored; a rename moves it onto one that keeps the
+    rule.
+
     Args:
         community_key (str):
         area_key (str):
@@ -217,6 +229,12 @@ async def asyncio_detailed(
     nothing — including a node the community's topology does not hold yet,
     which has to be written first. Areas stored before the rule are not
     re-judged, except that the written area may not share their boundary id.
+
+    **The key is an area key** — letters, digits, `-` and `_`, starting with a
+    letter or digit, at most 128 characters, what a rename accepts — or the
+    write is `422 invalid_area_key` and changes nothing. An area stored under
+    another key is read as stored; a rename moves it onto one that keeps the
+    rule.
 
     Args:
         community_key (str):
@@ -271,6 +289,12 @@ async def asyncio(
     nothing — including a node the community's topology does not hold yet,
     which has to be written first. Areas stored before the rule are not
     re-judged, except that the written area may not share their boundary id.
+
+    **The key is an area key** — letters, digits, `-` and `_`, starting with a
+    letter or digit, at most 128 characters, what a rename accepts — or the
+    write is `422 invalid_area_key` and changes nothing. An area stored under
+    another key is read as stored; a rename moves it onto one that keeps the
+    rule.
 
     Args:
         community_key (str):

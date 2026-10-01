@@ -9,6 +9,8 @@ class ErrorCode(str, Enum):
     ASSET_KEY_TOO_LONG = "asset_key_too_long"
     ASSET_NOT_FOUND = "asset_not_found"
     COMMUNITY_NOT_FOUND = "community_not_found"
+    DELIVERY_POINT_HELD = "delivery_point_held"
+    DELIVERY_POINT_LINKED = "delivery_point_linked"
     DID_TAKEN = "did_taken"
     INVALID_AREA_BOUNDARY = "invalid_area_boundary"
     INVALID_AREA_KEY = "invalid_area_key"
