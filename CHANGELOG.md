@@ -20,6 +20,19 @@
 
 <!-- version list -->
 
+## v1.24.0 (2026-10-01)
+
+### Bug Fixes
+
+- Correct yaml import
+  ([`74d7e7e`](https://github.com/celine-eu/celine-sdk/commit/74d7e7eea936a2e71ee5d25d7c5e7e94083302ec))
+
+### Features
+
+- List community shared delivery points
+  ([`9bacb6f`](https://github.com/celine-eu/celine-sdk/commit/9bacb6f00b6afd1f691992db0d70a9af579cb037))
+
+
 ## v1.23.0 (2026-10-01)
 
 ### Features
