@@ -17,7 +17,18 @@ from celine.sdk.auth.jwt import (
 # ---------------------------------------------------------------------------
 
 
+@pytest.mark.filterwarnings("ignore::DeprecationWarning")
 class TestExtractGroups:
+    # @verifies REQ-0030
+    def test_calling_it_warns_that_it_is_unsafe_for_authorization(self):
+        with pytest.warns(DeprecationWarning, match="realm_groups"):
+            extract_groups({"groups": ["/admins"]})
+
+    # @verifies REQ-0030
+    def test_a_service_account_check_does_not_warn(self, recwarn):
+        is_service_account({"groups": ["/viewers"], "preferred_username": "alice"})
+        assert not [w for w in recwarn if issubclass(w.category, DeprecationWarning)]
+
     # @verifies REQ-0030
     def test_empty_claims(self):
         assert extract_groups({}) == []

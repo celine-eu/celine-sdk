@@ -9,6 +9,24 @@
 
 ### Features
 
+- `celine.sdk.posture` (REQ-0180–0183): the platform's one deployment-posture rule. Signal
+  `CELINE_ENV`, then `ENVIRONMENT`, then a caller's legacy names; **only `dev` relaxes**,
+  unset or any other value is hardened. `PostureGuard` collects a service's development
+  defaults (dev database password, client secret equal to the client id, the SDK's own
+  issuer/JWKS defaults, dev switches) and raises `InsecureConfiguration` once, listing all
+  of them, outside `dev`. Every service adopting it needs this release.
+
+### Deprecations
+
+- `extract_groups` warns (`DeprecationWarning`): it merges realm and organization groups,
+  which made a community's `admins` a platform administrator in dataset-api (NIS2 R1).
+  Behaviour is unchanged; authorize with `realm_groups` / `organization_groups` instead.
+
+### Security
+
+- `pyjwt>=2.14` (GHSA-ffc3-869f-jxw9, GHSA-9v7f-9g4p-ffgj); lock: pyjwt 2.15.1,
+  cryptography 50.0.2, urllib3 2.8.0.
+
 - REC registry: `RecRegistryAdminClient.list_duplicate_delivery_points(community_key, *,
   token=None)` wraps `GET /admin/communities/{community_key}/delivery-points/duplicates`
   (rec-registry 1.7.0; REQ-0136). Answers `DeliveryPointDuplicatesSchema` (now exported

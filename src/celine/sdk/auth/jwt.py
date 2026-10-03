@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+import warnings
+
 from dataclasses import dataclass, field
 from functools import lru_cache
 import logging
@@ -106,10 +108,30 @@ def organization_aliases(claims: dict) -> list[str]:
 def extract_groups(claims: dict) -> list[str]:
     """Extract user groups from both realm-level and org-level claims.
 
+    .. deprecated::
+        **Do not authorize on this.** It merges the realm's groups with every
+        organization's, so an ``admins`` group held inside one community reads
+        as a platform ``admins`` and a ``managers`` badge in community A
+        satisfies a check about community B. That is how one community's
+        operator could read every community's data in dataset-api (NIS2 R1).
+        Use :func:`realm_groups` for platform roles and
+        :func:`organization_groups` for a role inside one organization.
+
     Realm groups come from the top-level ``groups`` claim.
     Org groups come from ``organization.<alias>.groups``.
     Returns a deduplicated flat list with leading slashes stripped.
     """
+    warnings.warn(
+        "extract_groups merges realm and organization groups and is unsafe for "
+        "authorization; use realm_groups() / organization_groups()",
+        DeprecationWarning,
+        stacklevel=2,
+    )
+    return _merged_groups(claims)
+
+
+def _merged_groups(claims: dict) -> list[str]:
+    """The merge behind :func:`extract_groups`, without the warning."""
     raw: list[str] = []
 
     realm = claims.get("groups")
@@ -174,7 +196,8 @@ def is_service_account(claims: dict) -> bool:
     # Human indicators → not a service account
     if claims.get("email"):
         return False
-    if extract_groups(claims):
+    # Any group at all marks a human; which level it is held at does not matter.
+    if _merged_groups(claims):
         return False
     if preferred_username and not preferred_username.startswith("service-account-"):
         return False

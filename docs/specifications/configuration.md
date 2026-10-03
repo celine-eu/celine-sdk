@@ -32,7 +32,8 @@ for MQTT, `./policies` for the Rego bundle).
 
 **These defaults are permissive, not safe.** They point at a development environment and no
 audience is required (REQ-0026). A deployment that sets nothing is not protected by these
-values; it is merely pointed somewhere harmless.
+values; it is merely pointed somewhere harmless. `celine.sdk.posture` is what refuses them outside development
+(REQ-0180, REQ-0183).
 
 ### REQ-0004 — the OIDC settings carry both what is needed to obtain a token and what is needed to verify one
 

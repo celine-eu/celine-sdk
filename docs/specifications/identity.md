@@ -91,6 +91,13 @@ raising.
 communities, flattening lets a badge held in one community satisfy a check about another;
 such a service must read the two levels apart and not call this function.
 
+**Deprecated (2026-10-03): calling it emits a `DeprecationWarning`.** Its behaviour is
+unchanged so that no consumer's authorization moves silently on an SDK release; the
+consumers are migrated one by one to REQ-0041's readers. The merge turned a community's
+own `admins` into dataset-api's platform administrator (NIS2 R1). Never authorize on it.
+`is_service_account` still uses the merge internally, as a "is there a human" signal, and
+does not warn.
+
 ### REQ-0031 — a service account is distinguished from a user
 
 `is_service_account` treats a `preferred_username` beginning `service-account-` as
