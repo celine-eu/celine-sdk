@@ -21,6 +21,7 @@ class OidcClientCredentialsProvider(TokenProvider):
         verify_ssl: bool = True,
     ):
         super().__init__()
+        self._base_url = base_url
         self._discovery = OidcDiscoveryClient(base_url, timeout, verify_ssl=verify_ssl)
         self._client_id = client_id
         self._client_secret = client_secret
@@ -28,6 +29,26 @@ class OidcClientCredentialsProvider(TokenProvider):
         self._timeout = timeout
         self._token: AccessToken | None = None
         self._verify_ssl = verify_ssl
+
+    def with_scope(self, scope: str) -> "OidcClientCredentialsProvider":
+        """A separate provider for the same client whose tokens also request `scope`.
+
+        Separate on purpose: its tokens are not this provider's tokens. The MQTT
+        broker uses it so that only a token asked for the broker carries the
+        broker's audience (an optional scope), and the tokens this client sends
+        over HTTP never do.
+        """
+        requested = (self._scope or "").split()
+        if scope not in requested:
+            requested.append(scope)
+        return OidcClientCredentialsProvider(
+            base_url=self._base_url,
+            client_id=self._client_id,
+            client_secret=self._client_secret,
+            scope=" ".join(requested),
+            timeout=self._timeout,
+            verify_ssl=self._verify_ssl,
+        )
 
     async def get_token(self) -> AccessToken:
         if self._token and self._token.is_valid():

@@ -88,6 +88,15 @@ cached token is still considered valid and no renewal happens.
 
 A failure to obtain a token is retried, not fatal.
 
+### REQ-0091 — a broker token is requested for the broker
+
+Given an `OidcClientCredentialsProvider`, the broker authenticates with a separate provider
+for the same client whose token also requests `MqttConfig.token_scope` (default `mqtt`). In
+the CELINE realm that optional scope adds the audience the broker's auth backend requires
+(celine-policies REQ-0017), so the tokens the same client sends over HTTP do not carry it
+and cannot be replayed to the broker. The caller's provider is not modified. Any other
+provider, or `token_scope` `None`/`""`, is used as given.
+
 ### REQ-0083 — deliberate teardown never triggers a reconnect
 
 The listen task requests a reconnect when it ends abnormally — that is how a dropped

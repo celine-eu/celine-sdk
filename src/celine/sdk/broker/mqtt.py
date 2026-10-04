@@ -38,6 +38,7 @@ from uuid import uuid4
 
 import aiomqtt
 
+from celine.sdk.auth.oidc import OidcClientCredentialsProvider
 from celine.sdk.auth.provider import TokenProvider
 from celine.sdk.broker.contracts import (
     BrokerBase,
@@ -74,6 +75,11 @@ class MqttConfig:
     topic_prefix: str = ""
     token_refresh_margin: float = 30.0
     connect_timeout: float = 10.0  # seconds; aiomqtt has no default timeout
+    # The scope a broker token is requested with. In the CELINE realm `mqtt` is an
+    # optional scope that adds the audience the broker's auth backend requires, so
+    # only a token asked for the broker is accepted there. Applied to an
+    # `OidcClientCredentialsProvider`; None or "" uses the provider as given.
+    token_scope: str | None = "mqtt"
 
     def __post_init__(self) -> None:
         if self.client_id is None:
@@ -128,6 +134,8 @@ class MqttBroker(BrokerBase):
                     setattr(config, k, v)
 
         self._config = config
+        if config.token_scope and isinstance(token_provider, OidcClientCredentialsProvider):
+            token_provider = token_provider.with_scope(config.token_scope)
         self._token_provider = token_provider
 
         # Source of truth for subscriptions — never cleared on reconnect.
