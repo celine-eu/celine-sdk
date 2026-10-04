@@ -8,24 +8,26 @@ import httpx
 from ... import errors
 from ...client import AuthenticatedClient, Client
 from ...models.http_validation_error import HTTPValidationError
-from ...models.submission_admin_read import SubmissionAdminRead
-from ...models.submission_update import SubmissionUpdate
+from ...models.revision_read import RevisionRead
+from ...models.revision_retry_request import RevisionRetryRequest
 from ...types import Response
 
 
 def _get_kwargs(
     rec_slug: str,
     submission_id: UUID,
+    revision_id: UUID,
     *,
-    body: SubmissionUpdate,
+    body: RevisionRetryRequest,
 ) -> dict[str, Any]:
     headers: dict[str, Any] = {}
 
     _kwargs: dict[str, Any] = {
-        "method": "patch",
-        "url": "/api/admin/{rec_slug}/submissions/{submission_id}".format(
+        "method": "post",
+        "url": "/api/admin/{rec_slug}/submissions/{submission_id}/revisions/{revision_id}/retry".format(
             rec_slug=quote(str(rec_slug), safe=""),
             submission_id=quote(str(submission_id), safe=""),
+            revision_id=quote(str(revision_id), safe=""),
         ),
     }
 
@@ -39,9 +41,9 @@ def _get_kwargs(
 
 def _parse_response(
     *, client: AuthenticatedClient | Client, response: httpx.Response
-) -> HTTPValidationError | SubmissionAdminRead | None:
+) -> HTTPValidationError | RevisionRead | None:
     if response.status_code == 200:
-        response_200 = SubmissionAdminRead.from_dict(response.json())
+        response_200 = RevisionRead.from_dict(response.json())
 
         return response_200
 
@@ -58,7 +60,7 @@ def _parse_response(
 
 def _build_response(
     *, client: AuthenticatedClient | Client, response: httpx.Response
-) -> Response[HTTPValidationError | SubmissionAdminRead]:
+) -> Response[HTTPValidationError | RevisionRead]:
     return Response(
         status_code=HTTPStatus(response.status_code),
         content=response.content,
@@ -70,40 +72,36 @@ def _build_response(
 def sync_detailed(
     rec_slug: str,
     submission_id: UUID,
+    revision_id: UUID,
     *,
     client: AuthenticatedClient | Client,
-    body: SubmissionUpdate,
-) -> Response[HTTPValidationError | SubmissionAdminRead]:
-    """Update Submission
+    body: RevisionRetryRequest,
+) -> Response[HTTPValidationError | RevisionRead]:
+    """Retry Revision
 
-     Edit fields, and — for now — drive the state machine.
+     Re-run a revision's unfinished propagation steps, or one named step.
 
-    409 for the POD, first name, last name, email, fiscal code or supply address
-    once the submission is submitted: those are corrected by revision.
-
-    A payload carrying `status` additionally requires `submissions.review`: an
-    editor may edit other fields, but approving somebody provisions a
-    login, a registry member and a dataspace identity, which is a different
-    decision. The transition moves to its own endpoint in B2, where it can also
-    carry a rejection reason; the extra check is here so the distinction is
-    enforced now rather than after the restructure.
+    404 for a revision that is not this submission's; 409 for one recorded before
+    approval, which has nothing to propagate.
 
     Args:
         rec_slug (str):
         submission_id (UUID):
-        body (SubmissionUpdate):
+        revision_id (UUID):
+        body (RevisionRetryRequest):
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Response[HTTPValidationError | SubmissionAdminRead]
+        Response[HTTPValidationError | RevisionRead]
     """
 
     kwargs = _get_kwargs(
         rec_slug=rec_slug,
         submission_id=submission_id,
+        revision_id=revision_id,
         body=body,
     )
 
@@ -117,40 +115,36 @@ def sync_detailed(
 def sync(
     rec_slug: str,
     submission_id: UUID,
+    revision_id: UUID,
     *,
     client: AuthenticatedClient | Client,
-    body: SubmissionUpdate,
-) -> HTTPValidationError | SubmissionAdminRead | None:
-    """Update Submission
+    body: RevisionRetryRequest,
+) -> HTTPValidationError | RevisionRead | None:
+    """Retry Revision
 
-     Edit fields, and — for now — drive the state machine.
+     Re-run a revision's unfinished propagation steps, or one named step.
 
-    409 for the POD, first name, last name, email, fiscal code or supply address
-    once the submission is submitted: those are corrected by revision.
-
-    A payload carrying `status` additionally requires `submissions.review`: an
-    editor may edit other fields, but approving somebody provisions a
-    login, a registry member and a dataspace identity, which is a different
-    decision. The transition moves to its own endpoint in B2, where it can also
-    carry a rejection reason; the extra check is here so the distinction is
-    enforced now rather than after the restructure.
+    404 for a revision that is not this submission's; 409 for one recorded before
+    approval, which has nothing to propagate.
 
     Args:
         rec_slug (str):
         submission_id (UUID):
-        body (SubmissionUpdate):
+        revision_id (UUID):
+        body (RevisionRetryRequest):
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        HTTPValidationError | SubmissionAdminRead
+        HTTPValidationError | RevisionRead
     """
 
     return sync_detailed(
         rec_slug=rec_slug,
         submission_id=submission_id,
+        revision_id=revision_id,
         client=client,
         body=body,
     ).parsed
@@ -159,40 +153,36 @@ def sync(
 async def asyncio_detailed(
     rec_slug: str,
     submission_id: UUID,
+    revision_id: UUID,
     *,
     client: AuthenticatedClient | Client,
-    body: SubmissionUpdate,
-) -> Response[HTTPValidationError | SubmissionAdminRead]:
-    """Update Submission
+    body: RevisionRetryRequest,
+) -> Response[HTTPValidationError | RevisionRead]:
+    """Retry Revision
 
-     Edit fields, and — for now — drive the state machine.
+     Re-run a revision's unfinished propagation steps, or one named step.
 
-    409 for the POD, first name, last name, email, fiscal code or supply address
-    once the submission is submitted: those are corrected by revision.
-
-    A payload carrying `status` additionally requires `submissions.review`: an
-    editor may edit other fields, but approving somebody provisions a
-    login, a registry member and a dataspace identity, which is a different
-    decision. The transition moves to its own endpoint in B2, where it can also
-    carry a rejection reason; the extra check is here so the distinction is
-    enforced now rather than after the restructure.
+    404 for a revision that is not this submission's; 409 for one recorded before
+    approval, which has nothing to propagate.
 
     Args:
         rec_slug (str):
         submission_id (UUID):
-        body (SubmissionUpdate):
+        revision_id (UUID):
+        body (RevisionRetryRequest):
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Response[HTTPValidationError | SubmissionAdminRead]
+        Response[HTTPValidationError | RevisionRead]
     """
 
     kwargs = _get_kwargs(
         rec_slug=rec_slug,
         submission_id=submission_id,
+        revision_id=revision_id,
         body=body,
     )
 
@@ -204,41 +194,37 @@ async def asyncio_detailed(
 async def asyncio(
     rec_slug: str,
     submission_id: UUID,
+    revision_id: UUID,
     *,
     client: AuthenticatedClient | Client,
-    body: SubmissionUpdate,
-) -> HTTPValidationError | SubmissionAdminRead | None:
-    """Update Submission
+    body: RevisionRetryRequest,
+) -> HTTPValidationError | RevisionRead | None:
+    """Retry Revision
 
-     Edit fields, and — for now — drive the state machine.
+     Re-run a revision's unfinished propagation steps, or one named step.
 
-    409 for the POD, first name, last name, email, fiscal code or supply address
-    once the submission is submitted: those are corrected by revision.
-
-    A payload carrying `status` additionally requires `submissions.review`: an
-    editor may edit other fields, but approving somebody provisions a
-    login, a registry member and a dataspace identity, which is a different
-    decision. The transition moves to its own endpoint in B2, where it can also
-    carry a rejection reason; the extra check is here so the distinction is
-    enforced now rather than after the restructure.
+    404 for a revision that is not this submission's; 409 for one recorded before
+    approval, which has nothing to propagate.
 
     Args:
         rec_slug (str):
         submission_id (UUID):
-        body (SubmissionUpdate):
+        revision_id (UUID):
+        body (RevisionRetryRequest):
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        HTTPValidationError | SubmissionAdminRead
+        HTTPValidationError | RevisionRead
     """
 
     return (
         await asyncio_detailed(
             rec_slug=rec_slug,
             submission_id=submission_id,
+            revision_id=revision_id,
             client=client,
             body=body,
         )

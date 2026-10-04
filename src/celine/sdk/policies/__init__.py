@@ -34,7 +34,8 @@ Example usage:
         subject=Subject(
             id="user-123",
             type=SubjectType.USER,
-            groups=["engineering"],
+            roles=["platform-admin"],  # realm roles: realm_roles(claims)
+            groups=["viewers"],  # one organization's groups: organization_groups(claims, alias)
             scopes=["dataset.read"]
         ),
         resource=Resource(

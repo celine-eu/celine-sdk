@@ -50,7 +50,11 @@ request path.
 
 ### REQ-0056 — the input document has one fixed shape
 
-`subject`, `resource`, `action`, `environment`. Enum values are serialised as their string
+`subject`, `resource`, `action`, `environment`. A subject is `id`, `type`, `roles`,
+`groups`, `scopes` and `claims`, always all six: `roles` is the platform level (realm roles,
+REQ-0042) and `groups` the organization level, each passed through as given and never
+merged, so `"platform-admin" in input.subject.roles` is how a policy reads the platform
+grant. Enum values are serialised as their string
 values, so a policy matches `"user"` and not `"SubjectType.USER"`. An anonymous request is
 `subject: null` rather than a missing key, so a policy can test for it.
 
@@ -86,7 +90,9 @@ stands on its own.
 ### REQ-0059 — decisions are cached on the semantic content of the request
 
 The key is a hash of subject, resource and action, scoped by policy package. Two identical
-requests hit; a request differing in any of them misses.
+requests hit; a request differing in any of them misses — including one that differs only
+in `subject.roles`, so a decision taken for a caller without `platform-admin` is never
+served to one with it, or the reverse.
 
 ### REQ-0060 — volatile environment fields are excluded from the key
 

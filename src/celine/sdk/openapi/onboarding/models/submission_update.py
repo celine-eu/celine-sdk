@@ -31,6 +31,7 @@ class SubmissionUpdate:
         data_sharing_consent_text_sha256 (None | str | Unset):
         data_sharing_consent_text_version (None | str | Unset):
         data_sharing_offers_presented (list[PresentedOffer] | None | Unset):
+        declared_existing_member (bool | None | Unset):
         email (None | str | Unset):
         extra_data (None | SubmissionUpdateExtraDataType0 | Unset):
         extracted_data (None | SubmissionUpdateExtractedDataType0 | Unset):
@@ -55,6 +56,7 @@ class SubmissionUpdate:
     data_sharing_consent_text_sha256: None | str | Unset = UNSET
     data_sharing_consent_text_version: None | str | Unset = UNSET
     data_sharing_offers_presented: list[PresentedOffer] | None | Unset = UNSET
+    declared_existing_member: bool | None | Unset = UNSET
     email: None | str | Unset = UNSET
     extra_data: None | SubmissionUpdateExtraDataType0 | Unset = UNSET
     extracted_data: None | SubmissionUpdateExtractedDataType0 | Unset = UNSET
@@ -123,6 +125,12 @@ class SubmissionUpdate:
 
         else:
             data_sharing_offers_presented = self.data_sharing_offers_presented
+
+        declared_existing_member: bool | None | Unset
+        if isinstance(self.declared_existing_member, Unset):
+            declared_existing_member = UNSET
+        else:
+            declared_existing_member = self.declared_existing_member
 
         email: None | str | Unset
         if isinstance(self.email, Unset):
@@ -247,6 +255,8 @@ class SubmissionUpdate:
             field_dict["data_sharing_consent_text_version"] = data_sharing_consent_text_version
         if data_sharing_offers_presented is not UNSET:
             field_dict["data_sharing_offers_presented"] = data_sharing_offers_presented
+        if declared_existing_member is not UNSET:
+            field_dict["declared_existing_member"] = declared_existing_member
         if email is not UNSET:
             field_dict["email"] = email
         if extra_data is not UNSET:
@@ -376,6 +386,15 @@ class SubmissionUpdate:
         data_sharing_offers_presented = _parse_data_sharing_offers_presented(
             d.pop("data_sharing_offers_presented", UNSET)
         )
+
+        def _parse_declared_existing_member(data: object) -> bool | None | Unset:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            return cast(bool | None | Unset, data)
+
+        declared_existing_member = _parse_declared_existing_member(d.pop("declared_existing_member", UNSET))
 
         def _parse_email(data: object) -> None | str | Unset:
             if data is None:
@@ -576,6 +595,7 @@ class SubmissionUpdate:
             data_sharing_consent_text_sha256=data_sharing_consent_text_sha256,
             data_sharing_consent_text_version=data_sharing_consent_text_version,
             data_sharing_offers_presented=data_sharing_offers_presented,
+            declared_existing_member=declared_existing_member,
             email=email,
             extra_data=extra_data,
             extracted_data=extracted_data,

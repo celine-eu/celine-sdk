@@ -1,135 +1,19 @@
-"""Tests for celine.sdk.auth.jwt — group readers, organization parsing, subject type."""
+"""Tests for celine.sdk.auth.jwt — the two levels of grant, organization parsing, subject type."""
 
 import pytest
 
+import celine.sdk.auth as auth_pkg
+import celine.sdk.auth.jwt as jwt_module
 from celine.sdk.auth.jwt import (
+    PLATFORM_ADMIN_ROLE,
+    Grants,
     Organization,
-    extract_groups,
+    is_platform_admin,
     is_service_account,
     organization_aliases,
     organization_groups,
-    realm_groups,
+    realm_roles,
 )
-
-
-# ---------------------------------------------------------------------------
-# extract_groups
-# ---------------------------------------------------------------------------
-
-
-@pytest.mark.filterwarnings("ignore::DeprecationWarning")
-class TestExtractGroups:
-    # @verifies REQ-0030
-    def test_calling_it_warns_that_it_is_unsafe_for_authorization(self):
-        with pytest.warns(DeprecationWarning, match="realm_groups"):
-            extract_groups({"groups": ["/admins"]})
-
-    # @verifies REQ-0030
-    def test_a_service_account_check_does_not_warn(self, recwarn):
-        is_service_account({"groups": ["/viewers"], "preferred_username": "alice"})
-        assert not [w for w in recwarn if issubclass(w.category, DeprecationWarning)]
-
-    # @verifies REQ-0030
-    def test_empty_claims(self):
-        assert extract_groups({}) == []
-
-    # @verifies REQ-0030
-    def test_realm_groups_only(self):
-        claims = {"groups": ["/admins", "/viewers"]}
-        assert extract_groups(claims) == ["admins", "viewers"]
-
-    # @verifies REQ-0030
-    def test_org_groups_only(self):
-        claims = {
-            "organization": {
-                "example_rec": {
-                    "type": ["rec"],
-                    "groups": ["/viewers"],
-                }
-            }
-        }
-        assert extract_groups(claims) == ["viewers"]
-
-    # @verifies REQ-0030
-    def test_multiple_orgs(self):
-        claims = {
-            "organization": {
-                "rec_a": {"type": ["rec"], "groups": ["/viewers"]},
-                "rec_b": {"type": ["rec"], "groups": ["/managers"]},
-            }
-        }
-        result = extract_groups(claims)
-        assert "viewers" in result
-        assert "managers" in result
-
-    # @verifies REQ-0030
-    def test_realm_and_org_merged(self):
-        claims = {
-            "groups": ["/admins"],
-            "organization": {
-                "rec_a": {"type": ["rec"], "groups": ["/viewers"]},
-            },
-        }
-        result = extract_groups(claims)
-        assert result == ["admins", "viewers"]
-
-    # @verifies REQ-0030
-    def test_deduplication(self):
-        claims = {
-            "groups": ["/viewers"],
-            "organization": {
-                "rec_a": {"groups": ["/viewers"]},
-            },
-        }
-        result = extract_groups(claims)
-        assert result == ["viewers"]
-
-    # @verifies REQ-0030
-    def test_slash_stripping(self):
-        claims = {"groups": ["/admins", "viewers", "///editors"]}
-        result = extract_groups(claims)
-        assert result == ["admins", "viewers", "editors"]
-
-    # @verifies REQ-0030
-    def test_non_list_groups_ignored(self):
-        claims = {"groups": "not-a-list"}
-        assert extract_groups(claims) == []
-
-    # @verifies REQ-0030
-    def test_non_string_entries_skipped(self):
-        claims = {"groups": ["/viewers", 42, None, "/admins"]}
-        assert extract_groups(claims) == ["viewers", "admins"]
-
-    # @verifies REQ-0030
-    def test_org_without_groups_key(self):
-        claims = {
-            "organization": {
-                "rec_a": {"type": ["rec"]},
-            }
-        }
-        assert extract_groups(claims) == []
-
-    # @verifies REQ-0030
-    def test_org_non_dict_data_ignored(self):
-        claims = {"organization": {"rec_a": "not-a-dict"}}
-        assert extract_groups(claims) == []
-
-    # @verifies REQ-0030
-    def test_real_token_structure(self):
-        """Token structure from a Keycloak oauth2-proxy user."""
-        claims = {
-            "sub": "1e891aa0-4a9b-4a46-a4ea-d49e7011311c",
-            "scope": "openid organization:* email groups profile",
-            "email": "ah-00003@celine.localhost",
-            "preferred_username": "ah-00003",
-            "organization": {
-                "example_rec": {
-                    "type": ["rec"],
-                    "groups": ["/viewers"],
-                }
-            },
-        }
-        assert extract_groups(claims) == ["viewers"]
 
 
 # ---------------------------------------------------------------------------
@@ -331,43 +215,255 @@ class TestOrganizationClaim:
         assert org.groups == []
 
 
-class TestRealmAndOrganizationGroups:
-    CLAIMS = {
-        "groups": ["/viewers", "viewers"],
+class TestTwoLevelsOfGrant:
+    """REQ-0042: a platform grant is the realm role `platform-admin`; an organization's
+    groups count only inside that organization; a realm group grants nothing.
+
+    The `REAL_*` claim sets copy the shapes Keycloak 26.7.3 issued through
+    `oauth2_proxy` (scope `openid email profile organization:*`) on the local celine
+    realm, 2026-10-03, with organization aliases replaced by generic ones.
+    """
+
+    # Today's dev `admin`: realm group `/admins` written twice (the `groups` scope
+    # mapper with the full path, the client-level mapper without), realm role `admin`
+    # through that group, and `admins` inside several organizations.
+    REAL_REALM_GROUP_ADMIN = {
+        "jti": "onrtro:1c7a",
+        "azp": "oauth2_proxy",
+        "sid": "8f1e",
+        "sub": "11111111-1111-1111-1111-111111111111",
+        "preferred_username": "admin",
+        "email": "admin@celine.localhost",
+        "groups": ["/admins", "admins"],
+        "realm_access": {"roles": ["admin"]},
         "organization": {
-            "rec-a": {"type": ["rec"], "groups": ["/managers"]},
-            "rec-b": {"type": ["rec"], "groups": ["/participants"]},
+            "example_rec": {"type": ["rec"], "groups": ["/admins"]},
+            "example_dso": {"type": ["dso"], "groups": ["/admins"]},
+            "example-dso": {
+                "type": ["dso"],
+                "groups": ["/connector.consent.holder.read", "/connector.provider.read"],
+            },
         },
     }
 
-    # @verifies REQ-0041
-    def test_realm_groups_exclude_organization_groups(self):
-        assert realm_groups(self.CLAIMS) == ["viewers"]
+    # An organization-only user (dev `e2e-mgr`): no `groups` claim at all, Keycloak's
+    # default realm roles.
+    REAL_ORG_MANAGER = {
+        "jti": "onrtro:2d8b",
+        "azp": "oauth2_proxy",
+        "sid": "9a2f",
+        "sub": "22222222-2222-2222-2222-222222222222",
+        "preferred_username": "e2e-mgr",
+        "email": "e2e-mgr@example.test",
+        "realm_access": {
+            "roles": ["default-roles-celine", "offline_access", "uma_authorization"]
+        },
+        "organization": {"example-rec": {"type": ["rec"], "groups": ["/managers"]}},
+    }
 
-    # @verifies REQ-0041
+    # An organization's own `admins`, no realm group, default realm roles.
+    ORG_ADMIN = {
+        "sub": "33333333-3333-3333-3333-333333333333",
+        "email": "rec-admin@example.test",
+        "realm_access": {
+            "roles": ["default-roles-celine", "offline_access", "uma_authorization"]
+        },
+        "organization": {"example-rec": {"type": ["rec"], "groups": ["/admins"]}},
+    }
+
+    # The target shape: the realm role, and organization groups beside it.
+    PLATFORM_ADMIN = {
+        "sub": "44444444-4444-4444-4444-444444444444",
+        "email": "platform@example.test",
+        "realm_access": {
+            "roles": [
+                "default-roles-celine",
+                "platform-admin",
+                "offline_access",
+                "uma_authorization",
+            ]
+        },
+        "organization": {"example-rec": {"type": ["rec"], "groups": ["/viewers"]}},
+    }
+
+    # @verifies REQ-0042
+    def test_the_platform_role_is_named_platform_admin(self):
+        assert PLATFORM_ADMIN_ROLE == "platform-admin"
+
+    # @verifies REQ-0042
+    def test_a_platform_admin_role_holder_is_a_platform_admin(self):
+        assert is_platform_admin(self.PLATFORM_ADMIN) is True
+        grants = Grants.from_claims(self.PLATFORM_ADMIN)
+        assert grants.is_platform_admin is True
+        assert PLATFORM_ADMIN_ROLE in grants.platform
+
+    # @verifies REQ-0042
+    def test_an_organizations_admins_member_is_not_a_platform_admin(self):
+        assert is_platform_admin(self.ORG_ADMIN) is False
+        grants = Grants.from_claims(self.ORG_ADMIN)
+        assert grants.is_platform_admin is False
+        assert grants.in_org("example-rec") == frozenset({"admins"})
+        assert "admins" not in grants.platform
+
+    # @verifies REQ-0042
+    def test_todays_realm_group_admin_is_not_a_platform_admin(self):
+        """`/admins` and `admins` in `groups`, realm role `admin`: none of it is the grant."""
+        claims = self.REAL_REALM_GROUP_ADMIN
+        assert is_platform_admin(claims) is False
+        grants = Grants.from_claims(claims)
+        assert grants.platform == frozenset({"admin"})
+        assert not grants.is_platform_admin
+
+    # @verifies REQ-0042
+    @pytest.mark.parametrize(
+        "groups",
+        [["/admins"], ["admins"], ["/admins", "admins"], ["/platform-admin"], ["platform-admin"]],
+    )
+    def test_a_realm_group_grants_nothing(self, groups):
+        claims = {"sub": "u", "groups": groups}
+        assert is_platform_admin(claims) is False
+        assert realm_roles(claims) == []
+        grants = Grants.from_claims(claims)
+        assert grants.platform == frozenset()
+        assert grants.aliases == []
+
+    # @verifies REQ-0042
+    def test_an_organization_group_named_platform_admin_is_not_the_role(self):
+        claims = {"organization": {"example-rec": {"groups": ["/platform-admin"]}}}
+        assert is_platform_admin(claims) is False
+        assert Grants.from_claims(claims).in_org("example-rec") == frozenset(
+            {"platform-admin"}
+        )
+
+    # @verifies REQ-0042
+    def test_a_role_anywhere_but_realm_access_is_not_a_platform_grant(self):
+        claims = {
+            "roles": ["platform-admin"],
+            "resource_access": {"some-client": {"roles": ["platform-admin"]}},
+            "groups": ["platform-admin"],  # what a microprofile-jwt mapper writes
+        }
+        assert realm_roles(claims) == []
+        assert is_platform_admin(claims) is False
+
+    # @verifies REQ-0042
+    @pytest.mark.parametrize(
+        "claims",
+        [
+            {},
+            {"realm_access": None},
+            {"realm_access": "platform-admin"},
+            {"realm_access": ["platform-admin"]},
+            {"realm_access": {}},
+            {"realm_access": {"roles": "platform-admin"}},
+            {"realm_access": {"roles": None}},
+            {"realm_access": {"roles": [42, None, ""]}},
+        ],
+    )
+    def test_a_missing_or_malformed_realm_access_yields_no_roles(self, claims):
+        assert realm_roles(claims) == []
+        assert is_platform_admin(claims) is False
+        assert Grants.from_claims(claims).platform == frozenset()
+
+    # @verifies REQ-0042
+    def test_realm_roles_are_deduplicated_in_order_skipping_non_strings(self):
+        claims = {"realm_access": {"roles": ["a", 1, "platform-admin", "a", None]}}
+        assert realm_roles(claims) == ["a", "platform-admin"]
+
+    # @verifies REQ-0042
     def test_organization_groups_are_scoped_to_one_alias(self):
-        assert organization_groups(self.CLAIMS, "rec-a") == ["managers"]
-        assert organization_groups(self.CLAIMS, "rec-b") == ["participants"]
-        assert organization_groups(self.CLAIMS, "rec-c") == []
+        claims = self.REAL_REALM_GROUP_ADMIN
+        assert organization_groups(claims, "example_rec") == ["admins"]
+        assert organization_groups(claims, "example-dso") == [
+            "connector.consent.holder.read",
+            "connector.provider.read",
+        ]
+        assert organization_groups(claims, "example-rec") == []
+        grants = Grants.from_claims(self.REAL_ORG_MANAGER)
+        assert grants.in_org("example-rec") == frozenset({"managers"})
+        assert grants.in_org("example_rec") == frozenset()
 
-    # @verifies REQ-0041
-    def test_extract_groups_still_merges_the_two_levels(self):
-        """The contrast REQ-0041 exists for, asserted rather than described.
+    # @verifies REQ-0042
+    def test_an_organization_path_is_not_read_as_a_realm_path(self):
+        """Organization group paths are `/admins`, the same string as the realm group."""
+        claims = {"organization": {"example-rec": {"groups": ["/admins"]}}}
+        assert realm_roles(claims) == []
+        assert Grants.from_claims(claims).platform == frozenset()
 
-        `managers` is held in rec-a only. A multi-tenant caller asking about
-        rec-b must not see it, and `extract_groups` shows it regardless.
-        """
-        assert "managers" in extract_groups(self.CLAIMS)
-        assert "managers" not in organization_groups(self.CLAIMS, "rec-b")
+    # @verifies REQ-0042
+    def test_grants_offer_no_flat_list_and_cannot_be_changed(self):
+        grants = Grants.from_claims(self.REAL_REALM_GROUP_ADMIN)
+        assert grants.aliases == ["example-dso", "example_dso", "example_rec"]
+        with pytest.raises(TypeError):
+            grants.organizations["example-rec"] = frozenset({"admins"})  # type: ignore[index]
+        public = {n for n in dir(grants) if not n.startswith("_")}
+        assert public == {
+            "aliases",
+            "from_claims",
+            "in_org",
+            "is_platform_admin",
+            "organizations",
+            "platform",
+        }
 
-    # @verifies REQ-0041
+    # @verifies REQ-0042
+    def test_grants_of_unusable_claims_are_empty(self):
+        for claims in ({}, {"organization": "nope"}, {"organization": {"x": "nope"}}):
+            grants = Grants.from_claims(claims)
+            assert grants.platform == frozenset()
+            assert grants.in_org("x") == frozenset()
+        assert Grants.from_claims(None).platform == frozenset()  # type: ignore[arg-type]
+
+    # @verifies REQ-0042
     def test_organization_aliases_are_sorted(self):
-        assert organization_aliases(self.CLAIMS) == ["rec-a", "rec-b"]
+        assert organization_aliases(self.REAL_REALM_GROUP_ADMIN) == [
+            "example-dso",
+            "example_dso",
+            "example_rec",
+        ]
+        assert organization_aliases({}) == []
+        assert organization_aliases({"organization": "nope"}) == []
 
-    # @verifies REQ-0041
+    # @verifies REQ-0042
     def test_claims_of_the_wrong_shape_are_tolerated(self):
-        assert realm_groups({}) == []
-        assert realm_groups({"groups": "managers"}) == []
         assert organization_groups({"organization": "nope"}, "rec-a") == []
         assert organization_groups({"organization": {"rec-a": "nope"}}, "rec-a") == []
-        assert organization_aliases({}) == []
+        assert organization_groups({"organization": {"rec-a": {"groups": "x"}}}, "rec-a") == []
+
+    # @verifies REQ-0042
+    @pytest.mark.parametrize("module", [jwt_module, auth_pkg])
+    @pytest.mark.parametrize("name", ["extract_groups", "realm_groups", "_merged_groups"])
+    def test_the_level_merging_readers_are_gone(self, module, name):
+        assert not hasattr(module, name)
+
+    # @verifies REQ-0042
+    @pytest.mark.parametrize(
+        "name",
+        [
+            "PLATFORM_ADMIN_ROLE",
+            "Grants",
+            "is_platform_admin",
+            "realm_roles",
+            "organization_groups",
+            "organization_aliases",
+        ],
+    )
+    def test_the_readers_are_exported_by_the_auth_package(self, name):
+        assert name in auth_pkg.__all__
+        assert getattr(auth_pkg, name) is getattr(jwt_module, name)
+
+    # @verifies REQ-0031
+    def test_an_organization_only_user_is_still_a_user(self):
+        stripped = {k: v for k, v in self.REAL_ORG_MANAGER.items() if k not in (
+            "email", "preferred_username")}
+        assert is_service_account(stripped) is False
+
+    # @verifies REQ-0031
+    def test_realm_roles_alone_do_not_make_a_human(self):
+        """A client-credentials token can carry default realm roles; that is not a person."""
+        claims = {
+            "jti": "trrtcc:9d3d",
+            "azp": "svc-example",
+            "sub": "s",
+            "realm_access": {"roles": ["default-roles-celine", "offline_access"]},
+        }
+        assert is_service_account(claims) is True

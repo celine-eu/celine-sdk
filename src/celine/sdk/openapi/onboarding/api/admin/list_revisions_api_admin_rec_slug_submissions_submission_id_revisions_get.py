@@ -1,24 +1,36 @@
 from http import HTTPStatus
 from typing import Any
 from urllib.parse import quote
+from uuid import UUID
 
 import httpx
 
 from ... import errors
 from ...client import AuthenticatedClient, Client
 from ...models.http_validation_error import HTTPValidationError
-from ...models.registry_drift_out import RegistryDriftOut
-from ...types import Response
+from ...models.revision_read import RevisionRead
+from ...types import UNSET, Response, Unset
 
 
 def _get_kwargs(
     rec_slug: str,
+    submission_id: UUID,
+    *,
+    reveal: bool | Unset = False,
 ) -> dict[str, Any]:
+    params: dict[str, Any] = {}
+
+    params["reveal"] = reveal
+
+    params = {k: v for k, v in params.items() if v is not UNSET and v is not None}
+
     _kwargs: dict[str, Any] = {
         "method": "get",
-        "url": "/api/admin/recs/{rec_slug}/registry-drift".format(
+        "url": "/api/admin/{rec_slug}/submissions/{submission_id}/revisions".format(
             rec_slug=quote(str(rec_slug), safe=""),
+            submission_id=quote(str(submission_id), safe=""),
         ),
+        "params": params,
     }
 
     return _kwargs
@@ -26,9 +38,14 @@ def _get_kwargs(
 
 def _parse_response(
     *, client: AuthenticatedClient | Client, response: httpx.Response
-) -> HTTPValidationError | RegistryDriftOut | None:
+) -> HTTPValidationError | list[RevisionRead] | None:
     if response.status_code == 200:
-        response_200 = RegistryDriftOut.from_dict(response.json())
+        response_200 = []
+        _response_200 = response.json()
+        for response_200_item_data in _response_200:
+            response_200_item = RevisionRead.from_dict(response_200_item_data)
+
+            response_200.append(response_200_item)
 
         return response_200
 
@@ -45,7 +62,7 @@ def _parse_response(
 
 def _build_response(
     *, client: AuthenticatedClient | Client, response: httpx.Response
-) -> Response[HTTPValidationError | RegistryDriftOut]:
+) -> Response[HTTPValidationError | list[RevisionRead]]:
     return Response(
         status_code=HTTPStatus(response.status_code),
         content=response.content,
@@ -56,32 +73,33 @@ def _build_response(
 
 def sync_detailed(
     rec_slug: str,
+    submission_id: UUID,
     *,
     client: AuthenticatedClient | Client,
-) -> Response[HTTPValidationError | RegistryDriftOut]:
-    """Registry Drift Route
+    reveal: bool | Unset = False,
+) -> Response[HTTPValidationError | list[RevisionRead]]:
+    """List Revisions
 
-     Whether the registry's areas and topology match this REC's template.
-
-    `recs.drift`: the `platform-admin` role, and that REC's own `managers` and
-    `admins` (D55); not its editors or viewers, and no service account.
-
-    Reads the registry community with this service's own `rec-registry.read`;
-    writes nothing and asks the Digital Twin nothing.
+     Every revision, oldest first; per field, the last is in force.
 
     Args:
         rec_slug (str):
+        submission_id (UUID):
+        reveal (bool | Unset): Unmask the POD and fiscal code values. Requires
+            `submissions.reveal`, and is recorded in the audit trail. Default: False.
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Response[HTTPValidationError | RegistryDriftOut]
+        Response[HTTPValidationError | list[RevisionRead]]
     """
 
     kwargs = _get_kwargs(
         rec_slug=rec_slug,
+        submission_id=submission_id,
+        reveal=reveal,
     )
 
     response = client.get_httpx_client().request(
@@ -93,64 +111,66 @@ def sync_detailed(
 
 def sync(
     rec_slug: str,
+    submission_id: UUID,
     *,
     client: AuthenticatedClient | Client,
-) -> HTTPValidationError | RegistryDriftOut | None:
-    """Registry Drift Route
+    reveal: bool | Unset = False,
+) -> HTTPValidationError | list[RevisionRead] | None:
+    """List Revisions
 
-     Whether the registry's areas and topology match this REC's template.
-
-    `recs.drift`: the `platform-admin` role, and that REC's own `managers` and
-    `admins` (D55); not its editors or viewers, and no service account.
-
-    Reads the registry community with this service's own `rec-registry.read`;
-    writes nothing and asks the Digital Twin nothing.
+     Every revision, oldest first; per field, the last is in force.
 
     Args:
         rec_slug (str):
+        submission_id (UUID):
+        reveal (bool | Unset): Unmask the POD and fiscal code values. Requires
+            `submissions.reveal`, and is recorded in the audit trail. Default: False.
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        HTTPValidationError | RegistryDriftOut
+        HTTPValidationError | list[RevisionRead]
     """
 
     return sync_detailed(
         rec_slug=rec_slug,
+        submission_id=submission_id,
         client=client,
+        reveal=reveal,
     ).parsed
 
 
 async def asyncio_detailed(
     rec_slug: str,
+    submission_id: UUID,
     *,
     client: AuthenticatedClient | Client,
-) -> Response[HTTPValidationError | RegistryDriftOut]:
-    """Registry Drift Route
+    reveal: bool | Unset = False,
+) -> Response[HTTPValidationError | list[RevisionRead]]:
+    """List Revisions
 
-     Whether the registry's areas and topology match this REC's template.
-
-    `recs.drift`: the `platform-admin` role, and that REC's own `managers` and
-    `admins` (D55); not its editors or viewers, and no service account.
-
-    Reads the registry community with this service's own `rec-registry.read`;
-    writes nothing and asks the Digital Twin nothing.
+     Every revision, oldest first; per field, the last is in force.
 
     Args:
         rec_slug (str):
+        submission_id (UUID):
+        reveal (bool | Unset): Unmask the POD and fiscal code values. Requires
+            `submissions.reveal`, and is recorded in the audit trail. Default: False.
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Response[HTTPValidationError | RegistryDriftOut]
+        Response[HTTPValidationError | list[RevisionRead]]
     """
 
     kwargs = _get_kwargs(
         rec_slug=rec_slug,
+        submission_id=submission_id,
+        reveal=reveal,
     )
 
     response = await client.get_async_httpx_client().request(**kwargs)
@@ -160,33 +180,34 @@ async def asyncio_detailed(
 
 async def asyncio(
     rec_slug: str,
+    submission_id: UUID,
     *,
     client: AuthenticatedClient | Client,
-) -> HTTPValidationError | RegistryDriftOut | None:
-    """Registry Drift Route
+    reveal: bool | Unset = False,
+) -> HTTPValidationError | list[RevisionRead] | None:
+    """List Revisions
 
-     Whether the registry's areas and topology match this REC's template.
-
-    `recs.drift`: the `platform-admin` role, and that REC's own `managers` and
-    `admins` (D55); not its editors or viewers, and no service account.
-
-    Reads the registry community with this service's own `rec-registry.read`;
-    writes nothing and asks the Digital Twin nothing.
+     Every revision, oldest first; per field, the last is in force.
 
     Args:
         rec_slug (str):
+        submission_id (UUID):
+        reveal (bool | Unset): Unmask the POD and fiscal code values. Requires
+            `submissions.reveal`, and is recorded in the audit trail. Default: False.
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        HTTPValidationError | RegistryDriftOut
+        HTTPValidationError | list[RevisionRead]
     """
 
     return (
         await asyncio_detailed(
             rec_slug=rec_slug,
+            submission_id=submission_id,
             client=client,
+            reveal=reveal,
         )
     ).parsed

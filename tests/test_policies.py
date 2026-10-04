@@ -13,6 +13,7 @@ import threading
 
 import pytest
 
+from celine.sdk.auth import PLATFORM_ADMIN_ROLE, organization_groups, realm_roles
 from celine.sdk.policies import (
     Action,
     CachedPolicyEngine,
@@ -67,6 +68,35 @@ package celine.test.stringy
 import rego.v1
 
 allow := "yes"
+"""
+
+# The platform level as a policy reads it, and a policy that (wrongly) looks for the
+# role among the groups: the second must never match, because the engine never puts a
+# realm role into `groups`.
+PLATFORM_REGO = """
+package celine.test.platform
+
+import rego.v1
+
+default allow := false
+
+allow if {
+	"platform-admin" in input.subject.roles
+}
+
+reason := "platform administrator" if allow
+"""
+
+ROLE_IN_GROUPS_REGO = """
+package celine.test.role_in_groups
+
+import rego.v1
+
+default allow := false
+
+allow if {
+	"platform-admin" in input.subject.groups
+}
 """
 
 TEST_REGO = """
@@ -212,6 +242,15 @@ class TestDecisions:
             )
         )
         assert set(built) == {"subject", "resource", "action", "environment"}
+        assert set(built["subject"]) == {
+            "id",
+            "type",
+            "roles",
+            "groups",
+            "scopes",
+            "claims",
+        }
+        assert built["subject"]["roles"] == []  # no roles given: an empty list, not absent
         assert built["subject"]["type"] == "service"  # the value, not the enum repr
         assert built["resource"]["type"] == "dataset"
         assert built["action"] == {"name": "read", "context": {}}
@@ -232,7 +271,7 @@ class TestDecisions:
     def test_the_anonymous_subject_is_a_subject(self):
         anon = Subject.anonymous()
         assert (anon.id, anon.type) == ("anonymous", SubjectType.ANONYMOUS)
-        assert anon.groups == [] and anon.scopes == []
+        assert anon.roles == [] and anon.groups == [] and anon.scopes == []
 
     # @verifies REQ-0057
     def test_a_user_is_allowed_by_group(self, engine):
@@ -313,6 +352,117 @@ class TestDecisions:
             t.join()
         assert not errors
         assert results == [True] * 4
+
+
+# ---------------------------------------------------------------------------
+# The two levels in the input document
+# ---------------------------------------------------------------------------
+
+# A token as the local realm issues it for an organization admin who is also a
+# platform administrator, still carrying a retired realm group.
+_CLAIMS = {
+    "sub": "u-1",
+    "realm_access": {"roles": [PLATFORM_ADMIN_ROLE, "offline_access"]},
+    "groups": ["/admins"],
+    "organization": {"example-rec": {"groups": ["/admins"]}},
+}
+
+
+def _subject_from(claims: dict, alias: str = "example-rec") -> Subject:
+    return Subject(
+        id=claims["sub"],
+        type=SubjectType.USER,
+        roles=realm_roles(claims),
+        groups=organization_groups(claims, alias),
+    )
+
+
+@pytest.fixture
+def roles_engine(tmp_path) -> PolicyEngine:
+    directory = tmp_path / "roles-policies"
+    directory.mkdir()
+    (directory / "platform.rego").write_text(PLATFORM_REGO)
+    (directory / "role_in_groups.rego").write_text(ROLE_IN_GROUPS_REGO)
+    e = PolicyEngine(directory)
+    e.load()
+    return e
+
+
+class TestPlatformRoles:
+    """REQ-0042 / REQ-0056: the platform level reaches a policy as
+    `input.subject.roles`, the organization level as `input.subject.groups`, and
+    the engine never moves one into the other.
+    """
+
+    # @verifies REQ-0042
+    # @verifies REQ-0056
+    def test_platform_admin_in_roles_is_visible_to_a_policy(self, roles_engine):
+        decision = roles_engine.evaluate_decision(
+            "celine.test.platform", _input(subject=_subject_from(_CLAIMS))
+        )
+        assert decision.allowed
+        assert decision.reason == "platform administrator"
+
+    # @verifies REQ-0042
+    def test_an_organization_admins_group_is_not_the_platform_role(self, roles_engine):
+        claims = {**_CLAIMS, "realm_access": {"roles": ["offline_access"]}}
+        subject = _subject_from(claims)
+        assert subject.groups == ["admins"]
+        decision = roles_engine.evaluate_decision(
+            "celine.test.platform", _input(subject=subject)
+        )
+        assert not decision.allowed
+
+    # @verifies REQ-0042
+    def test_a_realm_group_named_like_the_role_grants_nothing(self, roles_engine):
+        """`platform-admin` in the realm `groups` claim (a microprofile-jwt style
+        mapper, or a stray realm group) is not the role."""
+        claims = {"sub": "u-2", "groups": [PLATFORM_ADMIN_ROLE, "/admins"]}
+        subject = _subject_from(claims)
+        assert subject.roles == [] and subject.groups == []
+        assert not roles_engine.evaluate_decision(
+            "celine.test.platform", _input(subject=subject)
+        ).allowed
+
+    # @verifies REQ-0042
+    # @verifies REQ-0056
+    def test_groups_never_carry_realm_roles(self, roles_engine):
+        built = roles_engine.build_input_dict(_input(subject=_subject_from(_CLAIMS)))
+        assert built["subject"]["roles"] == [PLATFORM_ADMIN_ROLE, "offline_access"]
+        assert built["subject"]["groups"] == ["admins"]
+        assert PLATFORM_ADMIN_ROLE not in built["subject"]["groups"]
+        # ...and a policy looking for the role among the groups never finds it.
+        assert not roles_engine.evaluate_decision(
+            "celine.test.role_in_groups", _input(subject=_subject_from(_CLAIMS))
+        ).allowed
+
+    # @verifies REQ-0042
+    # @verifies REQ-0056
+    def test_roles_are_never_derived_from_groups(self, roles_engine):
+        """A group passed in `groups` stays a group: the engine does not promote it."""
+        subject = Subject(id="u-3", type=SubjectType.USER, groups=[PLATFORM_ADMIN_ROLE])
+        built = roles_engine.build_input_dict(_input(subject=subject))
+        assert built["subject"]["roles"] == []
+        assert not roles_engine.evaluate_decision(
+            "celine.test.platform", _input(subject=subject)
+        ).allowed
+
+    # @verifies REQ-0059
+    def test_a_cached_denial_is_not_served_to_a_platform_admin(self, roles_engine):
+        """Requests differing only in `roles` are different cache keys."""
+        cached = CachedPolicyEngine(roles_engine)
+        without = Subject(id="u-1", type=SubjectType.USER, groups=["admins"])
+        with_role = without.model_copy(update={"roles": [PLATFORM_ADMIN_ROLE]})
+        assert not cached.evaluate_decision(
+            "celine.test.platform", _input(subject=without)
+        ).allowed
+        second = cached.evaluate_decision(
+            "celine.test.platform", _input(subject=with_role)
+        )
+        assert second.allowed and second.cached is False
+        # ...and the reverse: a cached allow is not served to a caller without it.
+        third = cached.evaluate_decision("celine.test.platform", _input(subject=without))
+        assert not third.allowed and third.cached is True
 
 
 # ---------------------------------------------------------------------------

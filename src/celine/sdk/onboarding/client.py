@@ -236,7 +236,7 @@ class OnboardingClient:
 
 
 class OnboardingAdminClient:
-    """Onboarding's delegated member emails, and a realm admin's registry sync.
+    """Onboarding's delegated member emails, and a platform administrator's registry sync.
 
     Covers:
     - POST /api/admin/communities/{community}/members/{member_key}/invitation
@@ -362,8 +362,8 @@ class OnboardingAdminClient:
         seam. `prune` is `False` unless set, as in onboarding, whose sync is
         additive unless asked to remove. Both are always sent.
 
-        Onboarding authorises this with `recs.write`, held by realm admins only,
-        so `token` is normally the admin's own; a service token is refused `403`.
+        Onboarding authorises this with `recs.write`, held only by the realm role
+        `platform-admin`, so `token` is normally that administrator's own; a service token is refused `403`.
         No acting-user header is sent.
 
         The report comes back as onboarding wrote it — rows whose `outcome` is

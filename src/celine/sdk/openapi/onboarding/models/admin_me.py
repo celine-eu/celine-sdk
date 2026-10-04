@@ -21,8 +21,8 @@ class AdminMe:
         locale (None | str):
         name (None | str):
         organizations (list[str]):
+        platform_roles (list[str]):
         preferred_username (None | str):
-        realm_groups (list[str]):
         recs (list[RecAccess]):
         sub (str):
         subject_type (str):
@@ -32,8 +32,8 @@ class AdminMe:
     locale: None | str
     name: None | str
     organizations: list[str]
+    platform_roles: list[str]
     preferred_username: None | str
-    realm_groups: list[str]
     recs: list[RecAccess]
     sub: str
     subject_type: str
@@ -51,10 +51,10 @@ class AdminMe:
 
         organizations = self.organizations
 
+        platform_roles = self.platform_roles
+
         preferred_username: None | str
         preferred_username = self.preferred_username
-
-        realm_groups = self.realm_groups
 
         recs = []
         for recs_item_data in self.recs:
@@ -73,8 +73,8 @@ class AdminMe:
                 "locale": locale,
                 "name": name,
                 "organizations": organizations,
+                "platform_roles": platform_roles,
                 "preferred_username": preferred_username,
-                "realm_groups": realm_groups,
                 "recs": recs,
                 "sub": sub,
                 "subject_type": subject_type,
@@ -112,14 +112,14 @@ class AdminMe:
 
         organizations = cast(list[str], d.pop("organizations"))
 
+        platform_roles = cast(list[str], d.pop("platform_roles"))
+
         def _parse_preferred_username(data: object) -> None | str:
             if data is None:
                 return data
             return cast(None | str, data)
 
         preferred_username = _parse_preferred_username(d.pop("preferred_username"))
-
-        realm_groups = cast(list[str], d.pop("realm_groups"))
 
         recs = []
         _recs = d.pop("recs")
@@ -137,8 +137,8 @@ class AdminMe:
             locale=locale,
             name=name,
             organizations=organizations,
+            platform_roles=platform_roles,
             preferred_username=preferred_username,
-            realm_groups=realm_groups,
             recs=recs,
             sub=sub,
             subject_type=subject_type,

@@ -80,24 +80,6 @@ a string; `attributes` are normalised so every value is a list, whatever the cla
 `organization_aliases`, `get_organization(alias)` and `is_member_of(alias)` read them. An
 unparseable or absent claim yields no memberships rather than an error.
 
-### REQ-0030 — groups are read from both the realm level and the organization level
-
-`extract_groups` merges the top-level `groups` claim with every
-`organization.<alias>.groups` into one deduplicated list, leading slashes stripped,
-first-seen order preserved. Non-list claims and non-string entries are skipped rather than
-raising.
-
-**Merging is correct only for a single-tenant service.** For a service acting for several
-communities, flattening lets a badge held in one community satisfy a check about another;
-such a service must read the two levels apart and not call this function.
-
-**Deprecated (2026-10-03): calling it emits a `DeprecationWarning`.** Its behaviour is
-unchanged so that no consumer's authorization moves silently on an SDK release; the
-consumers are migrated one by one to REQ-0041's readers. The merge turned a community's
-own `admins` into dataset-api's platform administrator (NIS2 R1). Never authorize on it.
-`is_service_account` still uses the merge internally, as a "is there a human" signal, and
-does not warn.
-
 ### REQ-0031 — a service account is distinguished from a user
 
 `is_service_account` treats a `preferred_username` beginning `service-account-` as
@@ -109,13 +91,19 @@ no email is a service, and so is a token whose Keycloak grant marker (the `jti` 
 built-in `service_account` scope issues such tokens with neither `preferred_username` nor
 `client_id`.
 
-The platform authorises services by scope and users by group membership; this is the
-function that decides which of the two a caller is.
+"Any group" means a group at either level, realm or organization. It is a signal that a
+person is behind the token, **not a grant**: a realm group present in a token classifies it
+as a user's and authorises nothing (REQ-0042). Classifying by group errs towards "user",
+which is the safe direction — a user is never authorised by scope.
+
+The platform authorises services by scope and users by their platform role and organization
+groups (REQ-0042); this is the function that decides which of the two a caller is.
 
 ### REQ-0032 — claims are reachable by name, role and scope
 
-`get_claim`, `has_role` (a list or a bare string), `has_scope` (a space-separated string or
-a list), `display_name` (name, then username, then email, then `user-<sub>`), `get_username`
+`get_claim`, `has_role` (a realm role, read from `realm_access.roles` as REQ-0042 states;
+until 2.0.0 it read a top-level `roles` claim, which no Keycloak mapper on the platform
+emits), `has_scope` (a space-separated string or a list), `display_name` (name, then username, then email, then `user-<sub>`), `get_username`
 (username, else `user-<sub>`) and `to_dict`. Each tolerates the claim being absent or of the
 wrong shape, because the claim set is the identity provider's to change.
 
@@ -138,17 +126,46 @@ are then an empty value rather than an error.
 Keycloak's own organization mapper emits the flattened shape; the nested one is what a
 differently configured mapper produces, and both must parse.
 
-### REQ-0041 — realm groups and organization groups can be read apart
+### REQ-0042 — a platform grant comes only from the realm role `platform-admin`; an organization's groups count only inside that organization
 
-`realm_groups(claims)` returns the top-level `groups` claim alone.
-`organization_groups(claims, alias)` returns one organization's groups alone.
-`organization_aliases(claims)` returns every alias, sorted. All three normalise as
-REQ-0030 does and tolerate a claim of the wrong shape.
+There are exactly two levels of authority in a token, and nothing in this package merges
+them:
 
-These exist because REQ-0030's merge is unsafe for a multi-tenant service, and a service
-that must not merge should not have to re-implement the reading. A caller authorising
-`(subject, action, tenant)` uses these; a single-tenant caller asking "is this user a
-viewer?" uses `extract_groups`.
+- **Platform.** `realm_roles(claims)` reads `realm_access.roles` and nothing else: not a
+  top-level `roles` claim, not `resource_access.<client>.roles`, not `groups`. The one
+  platform-wide grant is the realm role `PLATFORM_ADMIN_ROLE` (`"platform-admin"`), and
+  `is_platform_admin(claims)` is true exactly when that role is among them. A missing or
+  malformed `realm_access` yields no roles and is not an error.
+- **Organization.** `organization_groups(claims, alias)` reads
+  `organization.<alias>.groups` for that one alias, leading slashes stripped. A group held in
+  one organization is never visible through another alias, and is never a platform grant,
+  whatever it is called — an organization's `admins` is not a platform administrator.
+
+A **realm group grants nothing.** The top-level `groups` claim (`/admins`, `admins`, …) is not
+read by any authorization helper; a token that still carries one is treated exactly as if it
+did not.
+
+`Grants.from_claims(claims)` (also `JwtUser.grants`) is the structured reader for callers that
+need both levels: `.platform` holds the realm roles, `.in_org(alias)` one organization's
+groups, `.is_platform_admin` the platform check. It offers no flat list of both levels.
+`JwtUser.realm_roles`, `JwtUser.is_platform_admin` and `JwtUser.has_role(role)` read the same
+realm roles.
+
+**In a policy decision** the two levels stay in two fields of `celine.sdk.policies.Subject`:
+`roles` (the realm roles, filled from `realm_roles`) reaches Rego as `input.subject.roles`,
+and `groups` (one organization's groups) as `input.subject.groups`. A policy checks the
+platform grant as `"platform-admin" in input.subject.roles`. The engine never copies a role
+into `groups` or a group into `roles`, and a subject built without roles has an empty list,
+never a missing key (REQ-0056).
+
+`organization_aliases(claims)` returns every alias the caller is a member of, sorted. Every
+reader tolerates a claim of the wrong shape and answers empty.
+
+**Removed in the same change (breaking):** `extract_groups`, which merged the realm `groups`
+claim with every organization's groups (formerly REQ-0030, deprecated 2026-10-03 after it made
+a community's own `admins` dataset-api's platform administrator, NIS2 R1), and
+`realm_groups`, which read the realm `groups` claim as a platform grant (formerly REQ-0041).
+Realm groups are no longer a platform mechanism at all; the platform level is the realm role.
 
 ## Obtaining a token
 

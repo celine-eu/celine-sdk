@@ -12,8 +12,8 @@ whether the registry is written.
 
 The service's own behaviour belongs to `onboarding`: the template as the source of truth for
 a community's areas, what the sync creates, changes, leaves alone and refuses, the "set up
-community" step that precedes it, and the `recs.write` capability, held by realm admins only,
-that authorises it. It is named here only so the two can be kept honest.
+community" step that precedes it, and the `recs.write` capability, held only by a platform administrator (the realm role
+`platform-admin`; no organisation group grants it), that authorises it. It is named here only so the two can be kept honest.
 
 ---
 
@@ -28,8 +28,8 @@ default on either side of the seam. `prune` is `false` unless the caller sets it
 service, whose sync is additive unless asked to remove. A value that is not a `bool` for
 either is refused with `TypeError` before any request, because the generated client drops a
 `None` from the query and the service's default would then decide. The call carries the
-caller's token (a realm admin's, since onboarding grants `recs.write` to no service) and no
-acting-user header.
+caller's token (a `platform-admin` holder's, since onboarding grants `recs.write` to no service
+and to no organisation group) and no acting-user header.
 
 It answers onboarding's report — what would be, or was, created, changed, left alone and
 refused, and (from onboarding 0.4.0) renamed, with the key a renamed area came from in

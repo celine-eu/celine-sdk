@@ -190,6 +190,9 @@ class PolicyEngine:
             result["subject"] = {
                 "id": policy_input.subject.id,
                 "type": policy_input.subject.type.value,
+                # The two levels stay apart: the platform level (realm roles) in
+                # `roles`, the organization level in `groups` (REQ-0042, REQ-0056).
+                "roles": policy_input.subject.roles,
                 "groups": policy_input.subject.groups,
                 "scopes": policy_input.subject.scopes,
                 "claims": policy_input.subject.claims,

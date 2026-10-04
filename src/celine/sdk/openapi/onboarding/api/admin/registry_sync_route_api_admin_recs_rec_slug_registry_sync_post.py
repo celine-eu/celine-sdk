@@ -77,7 +77,7 @@ def sync_detailed(
 
      Push this REC's template areas to its registry community.
 
-    Realm-level `admins` only (`recs.write`); no service account holds it. A dry
+    The `platform-admin` role only (`recs.write`); no service account holds it. A dry
     run writes nothing — not to the registry, not to the provisioning service —
     and answers the plan. A real run first sets the community up through the
     provisioning reconcile, whose failure is reported and does not stop the
@@ -121,7 +121,7 @@ def sync(
 
      Push this REC's template areas to its registry community.
 
-    Realm-level `admins` only (`recs.write`); no service account holds it. A dry
+    The `platform-admin` role only (`recs.write`); no service account holds it. A dry
     run writes nothing — not to the registry, not to the provisioning service —
     and answers the plan. A real run first sets the community up through the
     provisioning reconcile, whose failure is reported and does not stop the
@@ -160,7 +160,7 @@ async def asyncio_detailed(
 
      Push this REC's template areas to its registry community.
 
-    Realm-level `admins` only (`recs.write`); no service account holds it. A dry
+    The `platform-admin` role only (`recs.write`); no service account holds it. A dry
     run writes nothing — not to the registry, not to the provisioning service —
     and answers the plan. A real run first sets the community up through the
     provisioning reconcile, whose failure is reported and does not stop the
@@ -202,7 +202,7 @@ async def asyncio(
 
      Push this REC's template areas to its registry community.
 
-    Realm-level `admins` only (`recs.write`); no service account holds it. A dry
+    The `platform-admin` role only (`recs.write`); no service account holds it. A dry
     run writes nothing — not to the registry, not to the provisioning service —
     and answers the plan. A real run first sets the community up through the
     provisioning reconcile, whose failure is reported and does not stop the

@@ -65,6 +65,13 @@ class SubmissionCreatedRead:
         supply_municipality (None | str):
         updated_at (datetime.datetime):
         data_sharing_offers_presented (list[PresentedOffer] | None | Unset):
+        declared_existing_member (bool | Unset):  Default: False.
+        gdpr_consent_sha256 (None | str | Unset):
+        gdpr_consent_url (None | str | Unset):
+        policy_consent_sha256 (None | str | Unset):
+        policy_consent_url (None | str | Unset):
+        statute_consent_sha256 (None | str | Unset):
+        statute_consent_url (None | str | Unset):
         supply_address (None | SubmissionCreatedReadSupplyAddressType0 | Unset):
     """
 
@@ -106,6 +113,13 @@ class SubmissionCreatedRead:
     supply_municipality: None | str
     updated_at: datetime.datetime
     data_sharing_offers_presented: list[PresentedOffer] | None | Unset = UNSET
+    declared_existing_member: bool | Unset = False
+    gdpr_consent_sha256: None | str | Unset = UNSET
+    gdpr_consent_url: None | str | Unset = UNSET
+    policy_consent_sha256: None | str | Unset = UNSET
+    policy_consent_url: None | str | Unset = UNSET
+    statute_consent_sha256: None | str | Unset = UNSET
+    statute_consent_url: None | str | Unset = UNSET
     supply_address: None | SubmissionCreatedReadSupplyAddressType0 | Unset = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
@@ -252,6 +266,44 @@ class SubmissionCreatedRead:
         else:
             data_sharing_offers_presented = self.data_sharing_offers_presented
 
+        declared_existing_member = self.declared_existing_member
+
+        gdpr_consent_sha256: None | str | Unset
+        if isinstance(self.gdpr_consent_sha256, Unset):
+            gdpr_consent_sha256 = UNSET
+        else:
+            gdpr_consent_sha256 = self.gdpr_consent_sha256
+
+        gdpr_consent_url: None | str | Unset
+        if isinstance(self.gdpr_consent_url, Unset):
+            gdpr_consent_url = UNSET
+        else:
+            gdpr_consent_url = self.gdpr_consent_url
+
+        policy_consent_sha256: None | str | Unset
+        if isinstance(self.policy_consent_sha256, Unset):
+            policy_consent_sha256 = UNSET
+        else:
+            policy_consent_sha256 = self.policy_consent_sha256
+
+        policy_consent_url: None | str | Unset
+        if isinstance(self.policy_consent_url, Unset):
+            policy_consent_url = UNSET
+        else:
+            policy_consent_url = self.policy_consent_url
+
+        statute_consent_sha256: None | str | Unset
+        if isinstance(self.statute_consent_sha256, Unset):
+            statute_consent_sha256 = UNSET
+        else:
+            statute_consent_sha256 = self.statute_consent_sha256
+
+        statute_consent_url: None | str | Unset
+        if isinstance(self.statute_consent_url, Unset):
+            statute_consent_url = UNSET
+        else:
+            statute_consent_url = self.statute_consent_url
+
         supply_address: dict[str, Any] | None | Unset
         if isinstance(self.supply_address, Unset):
             supply_address = UNSET
@@ -305,6 +357,20 @@ class SubmissionCreatedRead:
         )
         if data_sharing_offers_presented is not UNSET:
             field_dict["data_sharing_offers_presented"] = data_sharing_offers_presented
+        if declared_existing_member is not UNSET:
+            field_dict["declared_existing_member"] = declared_existing_member
+        if gdpr_consent_sha256 is not UNSET:
+            field_dict["gdpr_consent_sha256"] = gdpr_consent_sha256
+        if gdpr_consent_url is not UNSET:
+            field_dict["gdpr_consent_url"] = gdpr_consent_url
+        if policy_consent_sha256 is not UNSET:
+            field_dict["policy_consent_sha256"] = policy_consent_sha256
+        if policy_consent_url is not UNSET:
+            field_dict["policy_consent_url"] = policy_consent_url
+        if statute_consent_sha256 is not UNSET:
+            field_dict["statute_consent_sha256"] = statute_consent_sha256
+        if statute_consent_url is not UNSET:
+            field_dict["statute_consent_url"] = statute_consent_url
         if supply_address is not UNSET:
             field_dict["supply_address"] = supply_address
 
@@ -610,6 +676,62 @@ class SubmissionCreatedRead:
             d.pop("data_sharing_offers_presented", UNSET)
         )
 
+        declared_existing_member = d.pop("declared_existing_member", UNSET)
+
+        def _parse_gdpr_consent_sha256(data: object) -> None | str | Unset:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            return cast(None | str | Unset, data)
+
+        gdpr_consent_sha256 = _parse_gdpr_consent_sha256(d.pop("gdpr_consent_sha256", UNSET))
+
+        def _parse_gdpr_consent_url(data: object) -> None | str | Unset:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            return cast(None | str | Unset, data)
+
+        gdpr_consent_url = _parse_gdpr_consent_url(d.pop("gdpr_consent_url", UNSET))
+
+        def _parse_policy_consent_sha256(data: object) -> None | str | Unset:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            return cast(None | str | Unset, data)
+
+        policy_consent_sha256 = _parse_policy_consent_sha256(d.pop("policy_consent_sha256", UNSET))
+
+        def _parse_policy_consent_url(data: object) -> None | str | Unset:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            return cast(None | str | Unset, data)
+
+        policy_consent_url = _parse_policy_consent_url(d.pop("policy_consent_url", UNSET))
+
+        def _parse_statute_consent_sha256(data: object) -> None | str | Unset:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            return cast(None | str | Unset, data)
+
+        statute_consent_sha256 = _parse_statute_consent_sha256(d.pop("statute_consent_sha256", UNSET))
+
+        def _parse_statute_consent_url(data: object) -> None | str | Unset:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            return cast(None | str | Unset, data)
+
+        statute_consent_url = _parse_statute_consent_url(d.pop("statute_consent_url", UNSET))
+
         def _parse_supply_address(data: object) -> None | SubmissionCreatedReadSupplyAddressType0 | Unset:
             if data is None:
                 return data
@@ -666,6 +788,13 @@ class SubmissionCreatedRead:
             supply_municipality=supply_municipality,
             updated_at=updated_at,
             data_sharing_offers_presented=data_sharing_offers_presented,
+            declared_existing_member=declared_existing_member,
+            gdpr_consent_sha256=gdpr_consent_sha256,
+            gdpr_consent_url=gdpr_consent_url,
+            policy_consent_sha256=policy_consent_sha256,
+            policy_consent_url=policy_consent_url,
+            statute_consent_sha256=statute_consent_sha256,
+            statute_consent_url=statute_consent_url,
             supply_address=supply_address,
         )
 

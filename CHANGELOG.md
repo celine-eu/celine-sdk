@@ -16,11 +16,37 @@
   issuer/JWKS defaults, dev switches) and raises `InsecureConfiguration` once, listing all
   of them, outside `dev`. Every service adopting it needs this release.
 
-### Deprecations
+### Breaking changes
 
-- `extract_groups` warns (`DeprecationWarning`): it merges realm and organization groups,
-  which made a community's `admins` a platform administrator in dataset-api (NIS2 R1).
-  Behaviour is unchanged; authorize with `realm_groups` / `organization_groups` instead.
+- **A platform grant is the realm role `platform-admin`; realm groups grant nothing**
+  (REQ-0042). New in `celine.sdk.auth`: `PLATFORM_ADMIN_ROLE`, `realm_roles(claims)` (reads
+  `realm_access.roles` only), `is_platform_admin(claims)`, and `Grants` (`.platform`,
+  `.in_org(alias)`, `.is_platform_admin`, `.aliases`), plus `JwtUser.realm_roles`,
+  `JwtUser.is_platform_admin` and `JwtUser.grants`. `organization_groups(claims, alias)` and
+  `organization_aliases(claims)` stay.
+- **Removed `extract_groups` and `realm_groups`.** The first merged the realm `groups` claim
+  with every organization's groups, which made a community's `admins` a platform
+  administrator in dataset-api (NIS2 R1); the second read realm groups as platform grants.
+  Migrate platform checks to `is_platform_admin` and organization checks to
+  `organization_groups` / `Grants.in_org` for the organization the request is about.
+- **`celine.sdk.policies.Subject` has `roles: list[str]`** (default empty), and the engine
+  emits it as `input.subject.roles` (REQ-0042, REQ-0056). Fill it with
+  `realm_roles(user.claims)`; Rego checks `"platform-admin" in input.subject.roles`. The
+  subject document now always has six keys. Services that added `roles` themselves (a
+  `Subject` subclass, a `_build_input` override, or setting `["subject"]["roles"]` on the
+  built dict) keep working and can drop the workaround.
+- **Regenerated `celine.sdk.openapi.onboarding`: `AdminMe.realm_groups` is now
+  `AdminMe.platform_roles`** (the caller's realm roles; `GET /api/admin/me`), generated from
+  the new snapshot `openapi/onboarding/v0.5.0/` (onboarding `info.version` 0.5.0);
+  `openapi/onboarding/v0.4.0/` is unchanged from its release. Also new at 0.5.0 (additive):
+  submission revisions (list, record, and `POST …/revisions/{revision_id}/retry` with its own
+  body `RevisionRetryRequest`), shared delivery points, `declared_existing_member` and the
+  consent document URLs and hashes on the submission models, and every `ConsentCreate` field
+  now optional. `RetryRequest` stays the enablement retry's body. The generator's numbered
+  `schemas.LocaleSchema2` is now `LocaleSchema3` (no consumer in the workspace names either).
+- **`JwtUser.has_role(role)` reads realm roles** (`realm_access.roles`) and lost its
+  `claim_key` argument; it used to read a top-level `roles` claim, which no platform mapper
+  emits. Use `get_claim` for any other claim.
 
 ### Security
 

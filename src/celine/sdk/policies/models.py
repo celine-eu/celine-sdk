@@ -18,10 +18,29 @@ class SubjectType(str, Enum):
 class Subject(BaseModel):
     """Represents the authenticated principal.
 
-    Users are typically authorized via group hierarchy, while service clients are typically
-    authorized via OAuth scopes. For user tokens, the `scopes` field still carries the
-    client scopes granted to the requesting client, enabling safe intersection between
-    user privileges and client privileges.
+    Users are authorized on two levels only, and the two never share a field:
+
+    - ``roles`` is the **platform** level: the caller's Keycloak realm roles, read with
+      :func:`celine.sdk.auth.realm_roles` (``realm_access.roles`` and nothing else). The
+      realm role ``platform-admin`` is the one platform-wide grant, and a policy tests it
+      as ``"platform-admin" in input.subject.roles``.
+    - ``groups`` is the **organization** level: the groups held inside the one
+      organization the decision is about (:func:`celine.sdk.auth.organization_groups`).
+      A realm group grants nothing and does not belong here, and a realm role never goes
+      into ``groups``.
+
+    Service clients are typically authorized via OAuth scopes. For user tokens, the
+    ``scopes`` field still carries the client scopes granted to the requesting client,
+    enabling safe intersection between user privileges and client privileges.
+
+    Example::
+
+        Subject(
+            id=user.sub,
+            type=SubjectType.USER,
+            roles=realm_roles(user.claims),
+            groups=organization_groups(user.claims, alias),
+        )
     """
 
     id: str = Field(
@@ -29,7 +48,20 @@ class Subject(BaseModel):
         description="Subject identifier (sub claim for users, client id for services)",
     )
     type: SubjectType = Field(..., description="User, service, or anonymous")
-    groups: list[str] = Field(default_factory=list, description="Group memberships")
+    roles: list[str] = Field(
+        default_factory=list,
+        description=(
+            "Realm roles (`realm_access.roles`): the platform level. "
+            "`platform-admin` is the one platform-wide grant. Never groups."
+        ),
+    )
+    groups: list[str] = Field(
+        default_factory=list,
+        description=(
+            "Groups held inside the organization the decision is about. "
+            "Never a realm group, never a realm role."
+        ),
+    )
     scopes: list[str] = Field(
         default_factory=list,
         description="OAuth scopes granted to the requesting client",

@@ -37,13 +37,22 @@ from .phone_verify_request import PhoneVerifyRequest
 from .phone_verify_status import PhoneVerifyStatus
 from .pod_list_request import PodListRequest
 from .presented_offer import PresentedOffer
+from .propagation_step import PropagationStep
 from .rec_access import RecAccess
 from .rec_stats import RecStats
 from .registry_drift_out import RegistryDriftOut
 from .registry_sync_out import RegistrySyncOut
 from .response_reload_templates_api_admin_recs_reload_post import ResponseReloadTemplatesApiAdminRecsReloadPost
 from .retry_request import RetryRequest
+from .revision_create import RevisionCreate
+from .revision_create_field import RevisionCreateField
+from .revision_read import RevisionRead
+from .revision_retry_request import RevisionRetryRequest
+from .revision_step_read import RevisionStepRead
 from .setup_step_out import SetupStepOut
+from .shared_delivery_point import SharedDeliveryPoint
+from .shared_delivery_points_read import SharedDeliveryPointsRead
+from .shared_holder import SharedHolder
 from .sharing_state import SharingState
 from .step_read import StepRead
 from .submission_admin_read import SubmissionAdminRead
@@ -113,13 +122,22 @@ __all__ = (
     "PhoneVerifyStatus",
     "PodListRequest",
     "PresentedOffer",
+    "PropagationStep",
     "RecAccess",
     "RecStats",
     "RegistryDriftOut",
     "RegistrySyncOut",
     "ResponseReloadTemplatesApiAdminRecsReloadPost",
     "RetryRequest",
+    "RevisionCreate",
+    "RevisionCreateField",
+    "RevisionRead",
+    "RevisionRetryRequest",
+    "RevisionStepRead",
     "SetupStepOut",
+    "SharedDeliveryPoint",
+    "SharedDeliveryPointsRead",
+    "SharedHolder",
     "SharingState",
     "StepRead",
     "SubmissionAdminRead",

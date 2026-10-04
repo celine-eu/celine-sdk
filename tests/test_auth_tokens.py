@@ -206,12 +206,76 @@ class TestOrganizations:
 
 class TestClaimHelpers:
     # @verifies REQ-0032
-    def test_roles_read_a_list_or_a_bare_string(self, oidc, make_token):
-        user = JwtUser.from_token(make_token({"roles": ["admin", "reader"]}), oidc)
+    # @verifies REQ-0042
+    def test_roles_are_realm_roles(self, oidc, make_token):
+        user = JwtUser.from_token(
+            make_token({"realm_access": {"roles": ["admin", "reader"]}}), oidc
+        )
         assert user.has_role("admin") and not user.has_role("writer")
-        single = JwtUser.from_token(make_token({"roles": "admin"}), oidc)
-        assert single.has_role("admin") and not single.has_role("reader")
-        assert not JwtUser.from_token(make_token({"roles": 42}), oidc).has_role("admin")
+        assert user.realm_roles == ["admin", "reader"]
+        # A top-level `roles` claim is not where Keycloak puts realm roles.
+        top = JwtUser.from_token(make_token({"roles": ["admin"]}), oidc)
+        assert not top.has_role("admin")
+        assert not JwtUser.from_token(
+            make_token({"realm_access": {"roles": 42}}), oidc
+        ).has_role("admin")
+
+
+class TestTwoLevelsOfGrantOnAVerifiedToken:
+    """REQ-0042 through `JwtUser`, on really signed tokens shaped like the local realm's."""
+
+    # @verifies REQ-0042
+    def test_a_platform_admin_role_holder_is_a_platform_admin(self, oidc, make_token):
+        token = make_token(
+            {
+                "email": "platform@example.test",
+                "realm_access": {"roles": ["default-roles-celine", "platform-admin"]},
+                "organization": {"example-rec": {"type": ["rec"], "groups": ["/viewers"]}},
+            }
+        )
+        user = JwtUser.from_token(token, oidc)
+        assert user.is_platform_admin is True
+        assert user.has_role("platform-admin")
+        assert user.grants.is_platform_admin
+        assert user.grants.in_org("example-rec") == frozenset({"viewers"})
+
+    # @verifies REQ-0042
+    def test_an_organizations_admins_member_is_not_a_platform_admin(self, oidc, make_token):
+        token = make_token(
+            {
+                "email": "rec-admin@example.test",
+                "realm_access": {"roles": ["default-roles-celine", "offline_access"]},
+                "organization": {"example-rec": {"type": ["rec"], "groups": ["/admins"]}},
+            }
+        )
+        user = JwtUser.from_token(token, oidc)
+        assert user.is_platform_admin is False
+        assert not user.has_role("platform-admin")
+        assert user.grants.in_org("example-rec") == frozenset({"admins"})
+        assert user.grants.in_org("example-dso") == frozenset()
+        assert user.get_organization("example-rec").groups == ["admins"]
+
+    # @verifies REQ-0042
+    def test_a_realm_group_in_the_token_grants_nothing(self, oidc, make_token):
+        """Today's dev `admin` shape: `/admins` twice and the legacy realm role `admin`."""
+        token = make_token(
+            {
+                "email": "admin@celine.localhost",
+                "groups": ["/admins", "admins"],
+                "realm_access": {"roles": ["admin"]},
+            }
+        )
+        user = JwtUser.from_token(token, oidc)
+        assert user.is_platform_admin is False
+        assert user.grants.platform == frozenset({"admin"})
+        assert user.grants.aliases == []
+
+    # @verifies REQ-0042
+    def test_no_realm_access_means_no_roles(self, oidc, make_token):
+        user = JwtUser.from_token(make_token({"email": "a@example.test"}), oidc)
+        assert user.realm_roles == []
+        assert user.is_platform_admin is False
+        assert user.grants.platform == frozenset()
 
     # @verifies REQ-0032
     def test_scopes_read_a_space_separated_string_or_a_list(self, oidc, make_token):

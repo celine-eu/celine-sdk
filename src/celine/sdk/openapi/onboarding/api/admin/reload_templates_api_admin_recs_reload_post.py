@@ -51,8 +51,8 @@ def sync_detailed(
 
      Force a manifest cache refresh.
 
-    Deployment-wide, so it belongs to no community — only a realm-level operator
-    (or a scoped service account) satisfies it. Gated on `recs.read` rather than a
+    Deployment-wide, so it belongs to no community — only a platform admin (or a
+    scoped service account) satisfies it. Gated on `recs.read` rather than a
     write capability because the cache refreshes itself on a 5-second TTL anyway;
     this only makes an operator stop waiting.
 
@@ -84,8 +84,8 @@ def sync(
 
      Force a manifest cache refresh.
 
-    Deployment-wide, so it belongs to no community — only a realm-level operator
-    (or a scoped service account) satisfies it. Gated on `recs.read` rather than a
+    Deployment-wide, so it belongs to no community — only a platform admin (or a
+    scoped service account) satisfies it. Gated on `recs.read` rather than a
     write capability because the cache refreshes itself on a 5-second TTL anyway;
     this only makes an operator stop waiting.
 
@@ -113,8 +113,8 @@ async def asyncio_detailed(
 
      Force a manifest cache refresh.
 
-    Deployment-wide, so it belongs to no community — only a realm-level operator
-    (or a scoped service account) satisfies it. Gated on `recs.read` rather than a
+    Deployment-wide, so it belongs to no community — only a platform admin (or a
+    scoped service account) satisfies it. Gated on `recs.read` rather than a
     write capability because the cache refreshes itself on a 5-second TTL anyway;
     this only makes an operator stop waiting.
 
@@ -144,8 +144,8 @@ async def asyncio(
 
      Force a manifest cache refresh.
 
-    Deployment-wide, so it belongs to no community — only a realm-level operator
-    (or a scoped service account) satisfies it. Gated on `recs.read` rather than a
+    Deployment-wide, so it belongs to no community — only a platform admin (or a
+    scoped service account) satisfies it. Gated on `recs.read` rather than a
     write capability because the cache refreshes itself on a 5-second TTL anyway;
     this only makes an operator stop waiting.
 

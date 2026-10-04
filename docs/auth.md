@@ -33,34 +33,66 @@ server.
 affect `from_token`; they feed `get_expected_audiences()`, for callers doing their own
 validation.
 
-## Groups and subject type
+## Platform roles and organization groups
 
-CELINE uses two group models depending on how the user was provisioned:
+A token carries authority at exactly two levels, and the SDK never merges them:
 
-| Source | JWT claim | Example |
-|---|---|---|
-| **Realm-level** (platform admins) | `groups` | `["/admins"]` |
-| **Org-level** (REC participants) | `organization.<alias>.groups` | `{"example_rec": {"groups": ["/viewers"]}}` |
+| Level | JWT claim | Example | Valid |
+|---|---|---|---|
+| **Platform** | `realm_access.roles` | `{"roles": ["platform-admin", …]}` | everywhere |
+| **Organization** | `organization.<alias>.groups` | `{"example_rec": {"groups": ["/admins"]}}` | inside `example_rec` only |
 
-**Use `extract_groups()`** to read groups; it merges both sources into a flat, deduplicated
-list with leading slashes stripped:
+The only platform-wide grant is the realm **role** `platform-admin` (`PLATFORM_ADMIN_ROLE`).
+An organization's `admins` group is that organization's administrator and nothing more.
+**Realm groups** (the top-level `groups` claim, `/admins` and friends) are not a platform
+mechanism: no helper reads them, and a token that still carries one gains nothing from it.
+Neither does a top-level `roles` claim or a client role in `resource_access`.
 
 ```python
-from celine.sdk.auth.jwt import extract_groups
+from celine.sdk.auth import Grants, is_platform_admin, organization_groups
 
-groups = extract_groups(user.claims)   # ["viewers"] for either source
+if is_platform_admin(user.claims):            # or user.is_platform_admin
+    ...
+groups = organization_groups(user.claims, "example_rec")   # ["admins"]
+
+grants = user.grants                          # Grants.from_claims(user.claims)
+grants.platform                               # frozenset({"platform-admin", ...})
+grants.in_org("example_rec")                  # frozenset({"admins"})
+grants.in_org("example_dso")                  # frozenset() — not a member
 ```
 
-Do not use `claims.get("groups")` directly — it only returns realm-level groups and misses
-org-level memberships.
+`user.has_role(name)` reads a realm role too. There is deliberately no function returning
+both levels as one list: `extract_groups` did, and a community's own `admins` became a
+platform administrator through it. It and `realm_groups` were removed in 2.0.0.
 
-> **A service acting for several communities must not use `extract_groups()`.** Flattening
-> the two levels lets a badge held in one community satisfy a check about another. Read
-> `claims["groups"]` and `claims["organization"][alias]["groups"]` apart instead.
+### In a policy decision
+
+`celine.sdk.policies.Subject` keeps the two levels in two fields, and the engine passes both
+to Rego unchanged: `roles` becomes `input.subject.roles`, `groups` becomes
+`input.subject.groups`. Fill `roles` from `realm_roles` and `groups` from the one
+organization the request is about; never put a role into `groups` or a group into `roles`.
+
+```python
+from celine.sdk.auth import organization_groups, realm_roles
+from celine.sdk.policies import Subject, SubjectType
+
+subject = Subject(
+    id=user.sub,
+    type=SubjectType.SERVICE if user.is_service_account else SubjectType.USER,
+    roles=realm_roles(user.claims),                         # or user.realm_roles
+    groups=organization_groups(user.claims, "example_rec"),
+)
+```
+
+```rego
+allow if "platform-admin" in input.subject.roles     # the platform administrator
+allow if "admins" in input.subject.groups            # this organization's admins
+```
 
 **Service vs. user** is `is_service_account()`: `preferred_username` starting
-`service-account-` (Keycloak's convention) or `gty=client-credentials`; an email, any group
-or any other username marks a human.
+`service-account-` (Keycloak's convention), `gty=client-credentials`, or Keycloak's
+client-credentials `jti` marker; an email, any group at either level, or any other username
+marks a human. A group here only classifies the token, it grants nothing.
 
 ```python
 from celine.sdk.auth.jwt import is_service_account
@@ -68,7 +100,7 @@ from celine.sdk.auth.jwt import is_service_account
 if is_service_account(user.claims):
     ...  # authorize by scope
 else:
-    ...  # authorize by group membership
+    ...  # authorize by platform role and organization groups
 ```
 
 ## Organizations

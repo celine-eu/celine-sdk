@@ -2,13 +2,12 @@
 
 from __future__ import annotations
 
-import warnings
-
 from dataclasses import dataclass, field
 from functools import lru_cache
 import logging
 import re
-from typing import Any, Optional
+from types import MappingProxyType
+from typing import Any, Mapping, Optional
 import time
 
 import jwt
@@ -24,16 +23,24 @@ from celine.sdk.settings.models import OidcSettings
 
 __all__ = [
     "AccessToken",
+    "Grants",
     "JwtUser",
     "Organization",
-    "extract_groups",
+    "PLATFORM_ADMIN_ROLE",
     "get_expected_audiences",
+    "is_platform_admin",
     "is_service_account",
     "normalize_groups",
     "organization_aliases",
     "organization_groups",
-    "realm_groups",
+    "realm_roles",
 ]
+
+
+#: The one platform-wide grant: a Keycloak **realm role**, read from
+#: ``realm_access.roles``. No organization group can carry it, because organization
+#: groups arrive under ``organization.<alias>.groups`` and are never read as roles.
+PLATFORM_ADMIN_ROLE = "platform-admin"
 
 
 logger = logging.getLogger(__name__)
@@ -67,26 +74,49 @@ def normalize_groups(values: Any) -> list[str]:
     return out
 
 
-def realm_groups(claims: dict) -> list[str]:
-    """Groups from the top-level ``groups`` claim — realm level **only**.
+def realm_roles(claims: dict) -> list[str]:
+    """The caller's Keycloak realm roles, from ``realm_access.roles`` only.
 
-    Deliberately not `extract_groups`, which merges realm groups with every
-    organization's groups into one flat list. That is the right answer for a
-    service asking "is this user a viewer?", and the wrong one for a service
-    deciding *which tenant* an action applies to: a realm group is a
-    platform-wide grant, so merging lets a ``managers`` badge held inside
-    organization A satisfy a realm-level check and authorise an action on
-    organization B. A caller that authorises per organization must read the two
-    levels apart, with this and `organization_groups`.
+    The platform level of authority. Deliberately **not** read from:
+
+    - the top-level ``groups`` claim — realm groups are not a platform mechanism, and a
+      realm group still present in a token grants nothing;
+    - a top-level ``roles`` claim, or ``groups`` filled by a ``microprofile-jwt`` style
+      mapper — another mapper's copy, which a realm can add without anyone noticing;
+    - ``resource_access.<client>.roles`` — a role on an unrelated client that happens to
+      share a name would otherwise become a platform grant.
+
+    Deduplicated, order preserved; anything of the wrong shape is ignored.
     """
-    return normalize_groups(claims.get("groups"))
+    access = claims.get("realm_access")
+    if not isinstance(access, dict):
+        return []
+    roles = access.get("roles")
+    if not isinstance(roles, (list, tuple)):
+        return []
+    out: list[str] = []
+    for role in roles:
+        if isinstance(role, str) and role and role not in out:
+            out.append(role)
+    return out
+
+
+def is_platform_admin(claims: dict) -> bool:
+    """True exactly when the caller holds the realm role :data:`PLATFORM_ADMIN_ROLE`.
+
+    An organization's ``admins`` group is **not** a platform administrator, whatever
+    organization it is held in, and neither is a realm group named ``admins``.
+    """
+    return PLATFORM_ADMIN_ROLE in realm_roles(claims)
 
 
 def organization_groups(claims: dict, alias: str) -> list[str]:
     """Groups the caller holds inside one specific organization.
 
-    Read from the raw claim rather than `JwtUser.organizations` because the
-    per-organization ``groups`` key is what carries a tenant-scoped role.
+    Valid only for that organization: a group held in organization A says nothing
+    about organization B, and nothing about the platform. Read from the raw claim
+    rather than `JwtUser.organizations` because the per-organization ``groups`` key
+    is what carries a tenant-scoped role.
     """
     orgs = claims.get("organization")
     if not isinstance(orgs, dict):
@@ -105,57 +135,60 @@ def organization_aliases(claims: dict) -> list[str]:
     return sorted(str(alias) for alias in orgs)
 
 
-def extract_groups(claims: dict) -> list[str]:
-    """Extract user groups from both realm-level and org-level claims.
+@dataclass(frozen=True)
+class Grants:
+    """What a token grants, at its two levels, kept apart.
 
-    .. deprecated::
-        **Do not authorize on this.** It merges the realm's groups with every
-        organization's, so an ``admins`` group held inside one community reads
-        as a platform ``admins`` and a ``managers`` badge in community A
-        satisfies a check about community B. That is how one community's
-        operator could read every community's data in dataset-api (NIS2 R1).
-        Use :func:`realm_groups` for platform roles and
-        :func:`organization_groups` for a role inside one organization.
+    - ``platform``: the realm roles (:func:`realm_roles`). Platform-wide.
+    - ``in_org(alias)``: the groups held inside one organization
+      (:func:`organization_groups`). Valid for that organization only.
 
-    Realm groups come from the top-level ``groups`` claim.
-    Org groups come from ``organization.<alias>.groups``.
-    Returns a deduplicated flat list with leading slashes stripped.
+    There is intentionally no accessor returning both levels as one list: a flat list
+    is how a community's own ``admins`` once read as the platform's. Realm groups
+    (the top-level ``groups`` claim) are not read at all.
     """
-    warnings.warn(
-        "extract_groups merges realm and organization groups and is unsafe for "
-        "authorization; use realm_groups() / organization_groups()",
-        DeprecationWarning,
-        stacklevel=2,
+
+    platform: frozenset[str] = frozenset()
+    organizations: Mapping[str, frozenset[str]] = field(
+        default_factory=lambda: MappingProxyType({}), hash=False
     )
-    return _merged_groups(claims)
+
+    @classmethod
+    def from_claims(cls, claims: dict) -> "Grants":
+        claims = claims if isinstance(claims, dict) else {}
+        return cls(
+            platform=frozenset(realm_roles(claims)),
+            organizations=MappingProxyType(
+                {
+                    alias: frozenset(organization_groups(claims, alias))
+                    for alias in organization_aliases(claims)
+                }
+            ),
+        )
+
+    @property
+    def is_platform_admin(self) -> bool:
+        return PLATFORM_ADMIN_ROLE in self.platform
+
+    @property
+    def aliases(self) -> list[str]:
+        """Every organization the caller is a member of, sorted."""
+        return sorted(self.organizations)
+
+    def in_org(self, alias: str) -> frozenset[str]:
+        """The groups held inside *alias*; empty when not a member."""
+        return self.organizations.get(alias, frozenset())
 
 
-def _merged_groups(claims: dict) -> list[str]:
-    """The merge behind :func:`extract_groups`, without the warning."""
-    raw: list[str] = []
+def _holds_any_group(claims: dict) -> bool:
+    """Whether the token carries any group, at either level.
 
-    realm = claims.get("groups")
-    if isinstance(realm, list):
-        raw.extend(realm)
-
-    orgs = claims.get("organization")
-    if isinstance(orgs, dict):
-        for org_data in orgs.values():
-            if isinstance(org_data, dict):
-                org_groups = org_data.get("groups")
-                if isinstance(org_groups, list):
-                    raw.extend(org_groups)
-
-    seen: set[str] = set()
-    result: list[str] = []
-    for g in raw:
-        if not isinstance(g, str):
-            continue
-        normalized = g.lstrip("/")
-        if normalized and normalized not in seen:
-            seen.add(normalized)
-            result.append(normalized)
-    return result
+    A signal that a person is behind the token, for :func:`is_service_account` only.
+    It is not a grant and nothing authorises on it.
+    """
+    if normalize_groups(claims.get("groups")):
+        return True
+    return any(organization_groups(claims, a) for a in organization_aliases(claims))
 
 
 #: Keycloak 26 prefixes a token's `jti` with how it was issued: two letters for the
@@ -197,7 +230,8 @@ def is_service_account(claims: dict) -> bool:
     if claims.get("email"):
         return False
     # Any group at all marks a human; which level it is held at does not matter.
-    if _merged_groups(claims):
+    # This classifies, it does not grant: a realm group authorises nothing.
+    if _holds_any_group(claims):
         return False
     if preferred_username and not preferred_username.startswith("service-account-"):
         return False
@@ -277,9 +311,9 @@ class Organization:
 
     ``alias`` is the KC organization alias (used directly as the DT network ID, and
     as the REC registry's community key). ``id`` is the organization's KC UUID.
-    ``groups`` are the groups the caller holds **inside this organization** — a
-    tenant-scoped role, which is not the same thing as a realm group; see
-    `realm_groups`.
+    ``groups`` are the groups the caller holds **inside this organization** — valid
+    for this organization only, and never a platform grant: the platform level is
+    the realm role :data:`PLATFORM_ADMIN_ROLE` (see :class:`Grants`).
     """
 
     alias: str
@@ -492,14 +526,27 @@ class JwtUser:
         """Get a custom claim value."""
         return self.claims.get(key, default)
 
-    def has_role(self, role: str, claim_key: str = "roles") -> bool:
-        """Check if user has a specific role."""
-        roles = self.get_claim(claim_key, [])
-        if isinstance(roles, list):
-            return role in roles
-        if isinstance(roles, str):
-            return role == roles
-        return False
+    @property
+    def realm_roles(self) -> list[str]:
+        """The caller's realm roles (``realm_access.roles``); see :func:`realm_roles`."""
+        return realm_roles(self.claims or {})
+
+    @property
+    def is_platform_admin(self) -> bool:
+        """True exactly when the caller holds the realm role ``platform-admin``."""
+        return is_platform_admin(self.claims or {})
+
+    @property
+    def grants(self) -> Grants:
+        """Platform roles and per-organization groups, kept apart; see :class:`Grants`."""
+        return Grants.from_claims(self.claims or {})
+
+    def has_role(self, role: str) -> bool:
+        """Whether the caller holds the realm role *role* (``realm_access.roles``).
+
+        Not a top-level ``roles`` claim, not a client role and not a group.
+        """
+        return role in self.realm_roles
 
     def has_scope(self, scope: str, claim_key: str = "scope") -> bool:
         """Check if token has a specific scope."""

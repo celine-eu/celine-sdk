@@ -22,6 +22,7 @@ def _get_kwargs(
     ref: None | str | Unset = UNSET,
     created_from: datetime.datetime | None | Unset = UNSET,
     created_to: datetime.datetime | None | Unset = UNSET,
+    declared_existing_member: bool | None | Unset = UNSET,
 ) -> dict[str, Any]:
     params: dict[str, Any] = {}
 
@@ -62,6 +63,13 @@ def _get_kwargs(
     else:
         json_created_to = created_to
     params["created_to"] = json_created_to
+
+    json_declared_existing_member: bool | None | Unset
+    if isinstance(declared_existing_member, Unset):
+        json_declared_existing_member = UNSET
+    else:
+        json_declared_existing_member = declared_existing_member
+    params["declared_existing_member"] = json_declared_existing_member
 
     params = {k: v for k, v in params.items() if v is not UNSET and v is not None}
 
@@ -121,6 +129,7 @@ def sync_detailed(
     ref: None | str | Unset = UNSET,
     created_from: datetime.datetime | None | Unset = UNSET,
     created_to: datetime.datetime | None | Unset = UNSET,
+    declared_existing_member: bool | None | Unset = UNSET,
 ) -> Response[HTTPValidationError | list[SubmissionAdminRead]]:
     """List Submissions
 
@@ -139,6 +148,8 @@ def sync_detailed(
             ciphertext to match against.
         created_from (datetime.datetime | None | Unset):
         created_to (datetime.datetime | None | Unset):
+        declared_existing_member (bool | None | Unset): Only applicants who declared (true) or did
+            not declare (false) they are already members (REQ-0025).
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
@@ -156,6 +167,7 @@ def sync_detailed(
         ref=ref,
         created_from=created_from,
         created_to=created_to,
+        declared_existing_member=declared_existing_member,
     )
 
     response = client.get_httpx_client().request(
@@ -175,6 +187,7 @@ def sync(
     ref: None | str | Unset = UNSET,
     created_from: datetime.datetime | None | Unset = UNSET,
     created_to: datetime.datetime | None | Unset = UNSET,
+    declared_existing_member: bool | None | Unset = UNSET,
 ) -> HTTPValidationError | list[SubmissionAdminRead] | None:
     """List Submissions
 
@@ -193,6 +206,8 @@ def sync(
             ciphertext to match against.
         created_from (datetime.datetime | None | Unset):
         created_to (datetime.datetime | None | Unset):
+        declared_existing_member (bool | None | Unset): Only applicants who declared (true) or did
+            not declare (false) they are already members (REQ-0025).
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
@@ -211,6 +226,7 @@ def sync(
         ref=ref,
         created_from=created_from,
         created_to=created_to,
+        declared_existing_member=declared_existing_member,
     ).parsed
 
 
@@ -224,6 +240,7 @@ async def asyncio_detailed(
     ref: None | str | Unset = UNSET,
     created_from: datetime.datetime | None | Unset = UNSET,
     created_to: datetime.datetime | None | Unset = UNSET,
+    declared_existing_member: bool | None | Unset = UNSET,
 ) -> Response[HTTPValidationError | list[SubmissionAdminRead]]:
     """List Submissions
 
@@ -242,6 +259,8 @@ async def asyncio_detailed(
             ciphertext to match against.
         created_from (datetime.datetime | None | Unset):
         created_to (datetime.datetime | None | Unset):
+        declared_existing_member (bool | None | Unset): Only applicants who declared (true) or did
+            not declare (false) they are already members (REQ-0025).
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
@@ -259,6 +278,7 @@ async def asyncio_detailed(
         ref=ref,
         created_from=created_from,
         created_to=created_to,
+        declared_existing_member=declared_existing_member,
     )
 
     response = await client.get_async_httpx_client().request(**kwargs)
@@ -276,6 +296,7 @@ async def asyncio(
     ref: None | str | Unset = UNSET,
     created_from: datetime.datetime | None | Unset = UNSET,
     created_to: datetime.datetime | None | Unset = UNSET,
+    declared_existing_member: bool | None | Unset = UNSET,
 ) -> HTTPValidationError | list[SubmissionAdminRead] | None:
     """List Submissions
 
@@ -294,6 +315,8 @@ async def asyncio(
             ciphertext to match against.
         created_from (datetime.datetime | None | Unset):
         created_to (datetime.datetime | None | Unset):
+        declared_existing_member (bool | None | Unset): Only applicants who declared (true) or did
+            not declare (false) they are already members (REQ-0025).
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
@@ -313,5 +336,6 @@ async def asyncio(
             ref=ref,
             created_from=created_from,
             created_to=created_to,
+            declared_existing_member=declared_existing_member,
         )
     ).parsed

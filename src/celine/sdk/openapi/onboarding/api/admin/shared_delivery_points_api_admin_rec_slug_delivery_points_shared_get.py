@@ -7,18 +7,27 @@ import httpx
 from ... import errors
 from ...client import AuthenticatedClient, Client
 from ...models.http_validation_error import HTTPValidationError
-from ...models.registry_drift_out import RegistryDriftOut
-from ...types import Response
+from ...models.shared_delivery_points_read import SharedDeliveryPointsRead
+from ...types import UNSET, Response, Unset
 
 
 def _get_kwargs(
     rec_slug: str,
+    *,
+    reveal: bool | Unset = False,
 ) -> dict[str, Any]:
+    params: dict[str, Any] = {}
+
+    params["reveal"] = reveal
+
+    params = {k: v for k, v in params.items() if v is not UNSET and v is not None}
+
     _kwargs: dict[str, Any] = {
         "method": "get",
-        "url": "/api/admin/recs/{rec_slug}/registry-drift".format(
+        "url": "/api/admin/{rec_slug}/delivery-points/shared".format(
             rec_slug=quote(str(rec_slug), safe=""),
         ),
+        "params": params,
     }
 
     return _kwargs
@@ -26,9 +35,9 @@ def _get_kwargs(
 
 def _parse_response(
     *, client: AuthenticatedClient | Client, response: httpx.Response
-) -> HTTPValidationError | RegistryDriftOut | None:
+) -> HTTPValidationError | SharedDeliveryPointsRead | None:
     if response.status_code == 200:
-        response_200 = RegistryDriftOut.from_dict(response.json())
+        response_200 = SharedDeliveryPointsRead.from_dict(response.json())
 
         return response_200
 
@@ -45,7 +54,7 @@ def _parse_response(
 
 def _build_response(
     *, client: AuthenticatedClient | Client, response: httpx.Response
-) -> Response[HTTPValidationError | RegistryDriftOut]:
+) -> Response[HTTPValidationError | SharedDeliveryPointsRead]:
     return Response(
         status_code=HTTPStatus(response.status_code),
         content=response.content,
@@ -58,30 +67,32 @@ def sync_detailed(
     rec_slug: str,
     *,
     client: AuthenticatedClient | Client,
-) -> Response[HTTPValidationError | RegistryDriftOut]:
-    """Registry Drift Route
+    reveal: bool | Unset = False,
+) -> Response[HTTPValidationError | SharedDeliveryPointsRead]:
+    """Shared Delivery Points
 
-     Whether the registry's areas and topology match this REC's template.
+     PODs that more than one active member holds, this community's holders first.
 
-    `recs.drift`: the `platform-admin` role, and that REC's own `managers` and
-    `admins` (D55); not its editors or viewers, and no service account.
-
-    Reads the registry community with this service's own `rec-registry.read`;
-    writes nothing and asks the Digital Twin nothing.
+    409 when this community has no registry to ask; 404 when the registry holds no
+    community for it; 502 for another registry refusal; 503 when it cannot be
+    reached.
 
     Args:
         rec_slug (str):
+        reveal (bool | Unset): Unmask the PODs. Requires `submissions.reveal`, and is recorded in
+            the audit trail. Default: False.
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Response[HTTPValidationError | RegistryDriftOut]
+        Response[HTTPValidationError | SharedDeliveryPointsRead]
     """
 
     kwargs = _get_kwargs(
         rec_slug=rec_slug,
+        reveal=reveal,
     )
 
     response = client.get_httpx_client().request(
@@ -95,31 +106,33 @@ def sync(
     rec_slug: str,
     *,
     client: AuthenticatedClient | Client,
-) -> HTTPValidationError | RegistryDriftOut | None:
-    """Registry Drift Route
+    reveal: bool | Unset = False,
+) -> HTTPValidationError | SharedDeliveryPointsRead | None:
+    """Shared Delivery Points
 
-     Whether the registry's areas and topology match this REC's template.
+     PODs that more than one active member holds, this community's holders first.
 
-    `recs.drift`: the `platform-admin` role, and that REC's own `managers` and
-    `admins` (D55); not its editors or viewers, and no service account.
-
-    Reads the registry community with this service's own `rec-registry.read`;
-    writes nothing and asks the Digital Twin nothing.
+    409 when this community has no registry to ask; 404 when the registry holds no
+    community for it; 502 for another registry refusal; 503 when it cannot be
+    reached.
 
     Args:
         rec_slug (str):
+        reveal (bool | Unset): Unmask the PODs. Requires `submissions.reveal`, and is recorded in
+            the audit trail. Default: False.
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        HTTPValidationError | RegistryDriftOut
+        HTTPValidationError | SharedDeliveryPointsRead
     """
 
     return sync_detailed(
         rec_slug=rec_slug,
         client=client,
+        reveal=reveal,
     ).parsed
 
 
@@ -127,30 +140,32 @@ async def asyncio_detailed(
     rec_slug: str,
     *,
     client: AuthenticatedClient | Client,
-) -> Response[HTTPValidationError | RegistryDriftOut]:
-    """Registry Drift Route
+    reveal: bool | Unset = False,
+) -> Response[HTTPValidationError | SharedDeliveryPointsRead]:
+    """Shared Delivery Points
 
-     Whether the registry's areas and topology match this REC's template.
+     PODs that more than one active member holds, this community's holders first.
 
-    `recs.drift`: the `platform-admin` role, and that REC's own `managers` and
-    `admins` (D55); not its editors or viewers, and no service account.
-
-    Reads the registry community with this service's own `rec-registry.read`;
-    writes nothing and asks the Digital Twin nothing.
+    409 when this community has no registry to ask; 404 when the registry holds no
+    community for it; 502 for another registry refusal; 503 when it cannot be
+    reached.
 
     Args:
         rec_slug (str):
+        reveal (bool | Unset): Unmask the PODs. Requires `submissions.reveal`, and is recorded in
+            the audit trail. Default: False.
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Response[HTTPValidationError | RegistryDriftOut]
+        Response[HTTPValidationError | SharedDeliveryPointsRead]
     """
 
     kwargs = _get_kwargs(
         rec_slug=rec_slug,
+        reveal=reveal,
     )
 
     response = await client.get_async_httpx_client().request(**kwargs)
@@ -162,31 +177,33 @@ async def asyncio(
     rec_slug: str,
     *,
     client: AuthenticatedClient | Client,
-) -> HTTPValidationError | RegistryDriftOut | None:
-    """Registry Drift Route
+    reveal: bool | Unset = False,
+) -> HTTPValidationError | SharedDeliveryPointsRead | None:
+    """Shared Delivery Points
 
-     Whether the registry's areas and topology match this REC's template.
+     PODs that more than one active member holds, this community's holders first.
 
-    `recs.drift`: the `platform-admin` role, and that REC's own `managers` and
-    `admins` (D55); not its editors or viewers, and no service account.
-
-    Reads the registry community with this service's own `rec-registry.read`;
-    writes nothing and asks the Digital Twin nothing.
+    409 when this community has no registry to ask; 404 when the registry holds no
+    community for it; 502 for another registry refusal; 503 when it cannot be
+    reached.
 
     Args:
         rec_slug (str):
+        reveal (bool | Unset): Unmask the PODs. Requires `submissions.reveal`, and is recorded in
+            the audit trail. Default: False.
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        HTTPValidationError | RegistryDriftOut
+        HTTPValidationError | SharedDeliveryPointsRead
     """
 
     return (
         await asyncio_detailed(
             rec_slug=rec_slug,
             client=client,
+            reveal=reveal,
         )
     ).parsed
