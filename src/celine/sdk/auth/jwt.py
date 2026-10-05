@@ -26,6 +26,7 @@ __all__ = [
     "Grants",
     "JwtUser",
     "Organization",
+    "ALLOWED_JWT_ALGORITHMS",
     "PLATFORM_ADMIN_ROLE",
     "get_expected_audiences",
     "is_platform_admin",
@@ -44,6 +45,12 @@ PLATFORM_ADMIN_ROLE = "platform-admin"
 
 
 logger = logging.getLogger(__name__)
+
+#: The signature algorithms a token may be verified with: asymmetric only, as
+#: published in a Keycloak JWKS (RSA keys sign ``RS256``, EC P-256 keys ``ES256``).
+#: A caller may narrow this set, never widen it. ``HS*`` and ``none`` are never
+#: accepted — a JWKS publishes no shared secret to verify them against.
+ALLOWED_JWT_ALGORITHMS: tuple[str, ...] = ("RS256", "ES256")
 
 
 @lru_cache(maxsize=8)
@@ -412,7 +419,8 @@ class JwtUser:
             jwks_uri: JWKS URI for signature verification
             audience: Expected audience claim
             issuer: Expected issuer claim
-            algorithms: Allowed algorithms (default: ["RS256", "HS256"])
+            algorithms: Narrows the allowed algorithms; anything outside
+                ``ALLOWED_JWT_ALGORITHMS`` is ignored (default: all of it)
 
         Returns:
             JwtUser instance with structured claims
@@ -437,8 +445,16 @@ class JwtUser:
         if "bearer" in token.lower():
             token = token.split(" ")[1]
 
-        if algorithms is None:
-            algorithms = ["RS256", "HS256", "ES256"]
+        allowed = [
+            a
+            for a in (algorithms if algorithms is not None else ALLOWED_JWT_ALGORITHMS)
+            if a in ALLOWED_JWT_ALGORITHMS
+        ]
+        if not allowed:
+            raise ValueError(
+                f"No allowed JWT algorithm in {algorithms!r}; "
+                f"supported: {list(ALLOWED_JWT_ALGORITHMS)}"
+            )
 
         # Verified decode with signature check (reuse cached client to avoid per-request JWKS fetch)
         jwks_client = _get_jwks_client(oidc.jwks_uri)
@@ -449,15 +465,27 @@ class JwtUser:
             logger.warning(f"Failed to fetch signing key from {oidc.jwks_uri}: {e}")
             raise
 
+        # The algorithm is the published key's, never the token header's: a key
+        # verifies with exactly the algorithm the JWKS assigns it, and only if that
+        # algorithm is allowed. (PyJWK derives it from `alg`, or from `kty`/`crv`.)
+        key_algorithm = getattr(signing_key, "algorithm_name", None)
+        if key_algorithm is not None:
+            if key_algorithm not in allowed:
+                raise jwt.InvalidAlgorithmError(
+                    f"Signing key algorithm {key_algorithm} is not allowed"
+                )
+            allowed = [key_algorithm]
+
         try:
             payload = jwt.decode(
                 token,
                 signing_key.key,
-                algorithms=algorithms,
+                algorithms=allowed,
                 audience=oidc.audience,
                 issuer=oidc.base_url,
                 leeway=30,
                 options={
+                    "require": ["exp"],
                     "verify_exp": True,
                     "verify_aud": True if oidc.audience is not None else False,
                     "verify_nbf": True,

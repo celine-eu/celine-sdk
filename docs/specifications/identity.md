@@ -13,7 +13,7 @@ decides whether a token is genuine. A permissive change here is permissive every
 `exp`, `nbf` and `iss`. There is no unverified decode path in the public surface: a caller
 holding a token and settings either gets a verified `JwtUser` or an exception.
 
-`RS256`, `HS256` and `ES256` are accepted unless the caller names a narrower set.
+Which signature algorithms are accepted is REQ-0043.
 
 ### REQ-0021 — signing keys come from the configured JWKS URI, over a client cached per URI
 
@@ -66,6 +66,19 @@ it, so `allowed_audiences` and `include_client_id_as_audience` have no effect on
 
 `None`, `""` or whitespace raises `ValueError` without touching the JWKS endpoint. An
 unauthenticated request must not be able to cause an outbound fetch.
+
+### REQ-0043 — the signature algorithm comes from an asymmetric allow-list and the published key, and `exp` is required
+
+`ALLOWED_JWT_ALGORITHMS` is `RS256` and `ES256` — what a Keycloak key set publishes for its
+RSA and EC P-256 signing keys. A caller's `algorithms` may narrow that set, never widen it:
+names outside it are ignored, and a set that leaves nothing raises `ValueError`. `HS*` and
+`none` are never accepted, since a key set has no shared secret to verify them against.
+
+The algorithm is the signing key's, as the key set assigns it (`alg`, or derived from
+`kty`/`crv`), never the one the token's header names. A key whose algorithm is outside the
+allowed set verifies nothing.
+
+A token without `exp` is refused: a token that never expires is not one this platform issues.
 
 ---
 

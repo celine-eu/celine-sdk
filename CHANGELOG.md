@@ -16,6 +16,14 @@
   issuer/JWKS defaults, dev switches) and raises `InsecureConfiguration` once, listing all
   of them, outside `dev`. Every service adopting it needs this release.
 
+- **JWT algorithms are pinned** (REQ-0043). `JwtUser.from_token` accepts `RS256` and `ES256`
+  only (`ALLOWED_JWT_ALGORITHMS`); the algorithm is the published key's, not the token
+  header's; `exp` is required. `HS256` is no longer in the default set — a Keycloak key set
+  never published a key to verify it. A caller's `algorithms` can only narrow the set.
+- **No request URL with its query string in the logs** (REQ-0013). The `httpx` logger is held
+  at `WARNING` (it logged every outbound URL at `INFO`, `?email=` included), and its records
+  lose the query string if a service raises it again.
+
 ### Breaking changes
 
 - **A platform grant is the realm role `platform-admin`; realm groups grant nothing**

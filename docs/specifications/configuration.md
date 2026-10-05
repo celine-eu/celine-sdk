@@ -83,3 +83,11 @@ looping.
 the decision-cache knobs `policies_cache_enabled`, `policies_cache_ttl`,
 `policies_cache_maxsize`. They configure the engine in [Policy evaluation](policy-evaluation.md);
 nothing here reaches a policy service over the network.
+
+### REQ-0013 — no outbound request URL reaches a log with its query string
+
+Importing `celine.sdk` configures logging from `LOG_LEVEL`, and holds the `httpx` and
+`httpcore` loggers at `WARNING` whatever that level is: `httpx` otherwise logs every request
+URL at `INFO`, and query strings carry emails and ids. A service that raises `httpx` again
+still gets the scheme, host and path of each request, never its query string or fragment.
+No SDK log line carries a token or an `Authorization` header.
