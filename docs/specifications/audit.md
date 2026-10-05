@@ -44,8 +44,11 @@ held at `INFO` whatever `LOG_LEVEL` says: quieting a service does not switch its
 
 `audit_route(action, user=…, resource=…)` is a FastAPI dependency for a route or a router.
 `user` is the service's own dependency returning the verified caller (FastAPI resolves it
-once per request); without it `request.state.user` is read. `resource` names the path
-parameter holding the identifier, or is a callable `(request) -> id`.
+once per request). Without it, or when it returns `None`, the caller is
+`request.state.user` as it stands when the request ends: a middleware, an auth dependency
+declared after this one, or the handler may set it, and the route needs no extra
+dependency. `resource` names the path parameter holding the identifier, or is a callable
+`(request) -> id`.
 
 | The handler | Record |
 |---|---|
@@ -57,3 +60,18 @@ parameter holding the identifier, or is a callable `(request) -> id`.
 The exception is re-raised unchanged. A request the `user` dependency itself refuses is
 not recorded (there is no verified caller to name), nor is a refusal *returned* as a
 response rather than raised: the service calls `audit_denied` there.
+
+A refusal raised by an auth dependency declared *after* `audit_route` is recorded as
+`denied`, with no caller when none was verified.
+
+### REQ-0193 — a record names the route outside a matched Starlette route
+
+`audit_access` and `audit_denied` take the request as `request=`: a Starlette / FastAPI
+request, or a Flask request inside its request context, whose matched URL rule under the
+script root (`/dashboard/<int:pk>`) is the route. With no matched route or rule, `route`
+is `null`.
+
+Both also take `method=` and `route=`. Each, when given, wins over the request's value:
+a middleware refusing before routing passes the route template it guards. `method` is
+upper-cased, and `route` is cleaned like every string field (REQ-0191) — it is a
+template, never the raw path.

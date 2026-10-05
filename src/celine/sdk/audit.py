@@ -39,6 +39,14 @@ Explicit calls::
     audit_access("dataset.read", caller=user, resource=dataset_id, request=request)
     audit_denied("dataset.read", caller=user, resource=dataset_id, reason="not_member")
 
+    # A middleware refusing before routing names the route template it guards:
+    audit_denied("commitments.export", caller=user, reason="not_service",
+                 request=request, route="/commitments/export")
+
+    # Flask: the request (inside its context) gives the method and the URL rule.
+    from flask import request
+    audit_access("dashboard.read", caller=claims, resource=pk, request=request)
+
 Per route, recording the outcome of the handler::
 
     from celine.sdk.audit import audit_route
@@ -48,6 +56,9 @@ Per route, recording the outcome of the handler::
         dependencies=[Depends(audit_route("dataset.read", user=get_current_user,
                                           resource="dataset_id"))],
     )
+
+Without ``user=`` the caller is ``request.state.user`` as it stands when the
+request ends, so the route's own auth dependency may set it after this one ran.
 
 The audit logger is held at ``INFO`` whatever ``LOG_LEVEL`` says: lowering the
 application's verbosity must not switch the audit trail off.
@@ -169,18 +180,33 @@ def caller_fields(caller: Any) -> dict[str, Any]:
     }
 
 
-def request_fields(request: Any) -> dict[str, Any]:
-    """``method``, ``route``, ``request_id`` and ``trace_id`` of a Starlette request.
+def _route_template(request: Any) -> str | None:
+    scope = getattr(request, "scope", None)
+    if isinstance(scope, Mapping):
+        # Starlette / FastAPI: the matched route, under the mount's root path.
+        route = scope.get("route")
+        template = getattr(route, "path_format", None) or getattr(route, "path", None)
+        return (scope.get("root_path") or "") + template if template else None
+    # Flask / Werkzeug: the matched URL rule, under the application's script root.
+    rule = getattr(getattr(request, "url_rule", None), "rule", None)
+    if isinstance(rule, str) and rule:
+        return (getattr(request, "script_root", None) or "") + rule
+    return None
 
-    The route is the matched template; before routing (or with no route) it is
+
+def request_fields(request: Any) -> dict[str, Any]:
+    """``method``, ``route``, ``request_id`` and ``trace_id`` of a request.
+
+    ``request`` is a Starlette / FastAPI request or a Flask request (inside its
+    request context). The route is the matched template (``/datasets/{dataset_id}``)
+    or Flask rule (``/dashboard/<int:pk>``); before routing (or with no route) it is
     ``None`` rather than the raw path, which may carry identifiers of people.
     """
     if request is None:
         return {"method": None, "route": None, "request_id": None, "trace_id": None}
-    scope = getattr(request, "scope", {}) or {}
-    route = scope.get("route")
-    template = getattr(route, "path_format", None) or getattr(route, "path", None)
-    root = scope.get("root_path") or ""
+    scope = getattr(request, "scope", None)
+    scope = scope if isinstance(scope, Mapping) else {}
+    template = _route_template(request)
     headers = getattr(request, "headers", {}) or {}
 
     request_id = headers.get("x-request-id") or headers.get("x-correlation-id")
@@ -194,7 +220,7 @@ def request_fields(request: Any) -> dict[str, Any]:
 
     return {
         "method": _clean(scope.get("method") or getattr(request, "method", None)),
-        "route": _clean(root + template) if template else None,
+        "route": _clean(template),
         "request_id": request_id,
         "trace_id": trace_id,
     }
@@ -210,6 +236,8 @@ def _emit(
     reason: str | None,
     service: str | None,
     request: Any,
+    method: str | None,
+    route: str | None,
     request_id: str | None,
     trace_id: str | None,
 ) -> dict[str, Any]:
@@ -224,6 +252,10 @@ def _emit(
         "reason": _clean(reason),
         "ts": datetime.now(timezone.utc).isoformat(timespec="milliseconds"),
     }
+    if method is not None:
+        record["method"] = _clean(method.upper())
+    if route is not None:
+        record["route"] = _clean(route)
     if request_id is not None:
         record["request_id"] = request_id if _REQUEST_ID.match(request_id) else None
     if trace_id is not None:
@@ -244,10 +276,19 @@ def audit_access(
     reason: str | None = None,
     service: str | None = None,
     request: Any = None,
+    method: str | None = None,
+    route: str | None = None,
     request_id: str | None = None,
     trace_id: str | None = None,
 ) -> dict[str, Any]:
-    """Record that ``caller`` performed ``action`` on ``resource``. Returns the record."""
+    """Record that ``caller`` performed ``action`` on ``resource``. Returns the record.
+
+    ``request`` fills ``method``, ``route``, ``request_id`` and ``trace_id``
+    (``request_fields``). ``method=`` and ``route=`` set those two where the
+    request cannot: a middleware refusing before routing knows the method but
+    has no matched route, and passes the route *template* it protects. Each
+    explicit value wins over the request's.
+    """
     return _emit(
         ACCESS,
         action,
@@ -257,6 +298,8 @@ def audit_access(
         reason=reason,
         service=service,
         request=request,
+        method=method,
+        route=route,
         request_id=request_id,
         trace_id=trace_id,
     )
@@ -270,13 +313,15 @@ def audit_denied(
     reason: str | None = None,
     service: str | None = None,
     request: Any = None,
+    method: str | None = None,
+    route: str | None = None,
     request_id: str | None = None,
     trace_id: str | None = None,
 ) -> dict[str, Any]:
     """Record that ``caller`` was refused ``action``, at ``WARNING``. Returns the record.
 
     ``reason`` is a short code, not a message: it must not repeat what the
-    caller sent.
+    caller sent. ``request``, ``method=`` and ``route=`` as for ``audit_access``.
     """
     return _emit(
         DENIED,
@@ -287,12 +332,21 @@ def audit_denied(
         reason=reason,
         service=service,
         request=request,
+        method=method,
+        route=route,
         request_id=request_id,
         trace_id=trace_id,
     )
 
 
 ResourceSpec = str | Callable[[Any], Any] | None
+
+
+def _caller_at_exit(request: Any, caller: Any) -> Any:
+    """The ``user`` dependency's caller, else whatever ``request.state.user`` holds now."""
+    if caller is not None:
+        return caller
+    return getattr(getattr(request, "state", None), "user", None)
 
 
 def _resource_of(request: Any, resource: ResourceSpec) -> Any:
@@ -314,8 +368,10 @@ def audit_route(
 
     - ``user``: the service's own dependency returning the verified caller
       (``JwtUser`` or similar). FastAPI caches it per request, so the token is
-      verified once. ``None`` reads ``request.state.user``, for services whose
-      middleware sets it.
+      verified once. Optional: without it (or when it returns ``None``) the
+      caller is ``request.state.user``, read when the request *ends* — so a
+      middleware, a route's own auth dependency or the handler may set it
+      after this dependency has run.
     - ``resource``: the name of the path parameter holding the identifier, or a
       callable ``(request) -> id``.
 
@@ -336,11 +392,11 @@ def audit_route(
         return None
 
     async def dependency(request: Request, caller: Any = Depends(user or _no_user)):  # noqa: B008
-        who = caller if user is not None else getattr(request.state, "user", None)
         target = _resource_of(request, resource)
         try:
             yield
         except HTTPException as exc:
+            who = _caller_at_exit(request, caller)
             if exc.status_code in (401, 403):
                 audit_denied(
                     action,
@@ -364,7 +420,7 @@ def audit_route(
         except Exception as exc:
             audit_access(
                 action,
-                caller=who,
+                caller=_caller_at_exit(request, caller),
                 resource=target,
                 outcome=ERROR,
                 reason=type(exc).__name__,
@@ -375,7 +431,7 @@ def audit_route(
         else:
             audit_access(
                 action,
-                caller=who,
+                caller=_caller_at_exit(request, caller),
                 resource=target,
                 service=service,
                 request=request,

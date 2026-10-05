@@ -24,6 +24,11 @@
   `pseudonymise`, and `audit_route`, a FastAPI dependency recording each request of a route
   it is attached to (`denied` for a raised 401/403). FastAPI is imported only by
   `audit_route`; it joins the `test` group, not the dependencies.
+- `celine.sdk.audit` (REQ-0192, REQ-0193): `audit_route` without `user=` reads
+  `request.state.user` when the request ends, so an auth dependency declared after it, a
+  middleware or the handler names the caller. `audit_access` / `audit_denied` take
+  `method=` and `route=` (explicit values win over the request's), and accept a Flask
+  request: its URL rule is the route. Existing calls and the record shape are unchanged.
 
 - **JWT algorithms are pinned** (REQ-0043). `JwtUser.from_token` accepts `RS256` and `ES256`
   only (`ALLOWED_JWT_ALGORITHMS`); the algorithm is the published key's, not the token

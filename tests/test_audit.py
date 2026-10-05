@@ -276,3 +276,155 @@ class TestTheRouteDependency:
         client.get("/datasets/ds-1", headers=headers)
         [line] = records()
         assert line["request_id"] is None and line["trace_id"] is None
+
+
+def build_state_app() -> FastAPI:
+    """``audit_route`` without ``user=``, on a router whose auth dependency comes later."""
+
+    def require_user(request: Request) -> JwtUser:
+        if request.headers.get("authorization") != "Bearer ok":
+            raise HTTPException(401, "Missing authentication token")
+        user = jwt_user(USER_CLAIMS)
+        request.state.user = user
+        return user
+
+    def no_user() -> None:
+        return None
+
+    app = FastAPI()
+    router = APIRouter(
+        prefix="/twins/{twin_id}",
+        dependencies=[Depends(audit_route("twin.read", resource="twin_id")), Depends(require_user)],
+    )
+
+    @router.get("/values")
+    def values(twin_id: str):
+        if twin_id == "closed":
+            raise HTTPException(403, "refused")
+        if twin_id == "missing":
+            raise HTTPException(404, "not found")
+        return {"id": twin_id}
+
+    @app.get(
+        "/late/{item_id}",
+        dependencies=[Depends(audit_route("item.read", user=no_user, resource="item_id"))],
+    )
+    def late(request: Request, item_id: str):
+        request.state.user = jwt_user(SERVICE_CLAIMS)
+        return {"id": item_id}
+
+    app.include_router(router)
+    return app
+
+
+class TestTheCallerIsReadWhenTheRequestEnds:
+    @pytest.fixture
+    def state_client(self):
+        return TestClient(build_state_app(), raise_server_exceptions=False)
+
+    # @verifies REQ-0192
+    @pytest.mark.parametrize(("twin", "status", "event", "outcome"), [
+        ("tw-1", 200, "access", "allowed"),
+        ("closed", 403, "denied", "denied"),
+        ("missing", 404, "access", "error"),
+    ])
+    def test_a_later_auth_dependency_names_the_caller(
+        self, state_client, records, twin, status, event, outcome
+    ):
+        assert state_client.get(f"/twins/{twin}/values", headers=AUTH).status_code == status
+        [line] = records()
+        assert (line["event"], line["outcome"]) == (event, outcome)
+        assert line["sub"] == USER_SUB and line["client_id"] == "svc-example-webapp"
+        assert line["resource"] == twin
+        assert line["route"] == "/twins/{twin_id}/values"
+
+    # @verifies REQ-0192
+    def test_a_refusal_by_the_later_auth_dependency_is_denied_without_a_caller(
+        self, state_client, records
+    ):
+        assert state_client.get("/twins/tw-1/values").status_code == 401
+        [line] = records()
+        assert (line["event"], line["reason"]) == ("denied", "http 401")
+        assert line["sub"] is None
+
+    # @verifies REQ-0192
+    def test_a_user_dependency_returning_none_falls_back_to_the_request_state(
+        self, state_client, records
+    ):
+        assert state_client.get("/late/it-1").status_code == 200
+        [line] = records()
+        assert line["sub"] == SVC_SUB and line["service_account"] is True
+
+
+class _Rule:
+    def __init__(self, rule: str):
+        self.rule = rule
+
+
+class FlaskLikeRequest:
+    """The attributes ``request_fields`` reads from a Flask / Werkzeug request."""
+
+    def __init__(self, rule: str | None, headers: dict | None = None):
+        self.method = "GET"
+        self.url_rule = _Rule(rule) if rule else None
+        self.script_root = "/app"
+        self.path = "/app/dashboard/ex-00001"
+        self.headers = headers or {}
+
+
+def starlette_request_before_routing(path: str = "/commitments/export") -> Request:
+    return Request({
+        "type": "http",
+        "method": "POST",
+        "path": path,
+        "root_path": "",
+        "query_string": b"",
+        "headers": [(b"x-request-id", b"req-7")],
+    })
+
+
+class TestMethodAndRouteOutsideAMatchedRoute:
+    # @verifies REQ-0193
+    def test_a_middleware_denial_names_the_route_it_guards(self, records):
+        request = starlette_request_before_routing()
+        audit_denied(
+            "commitments.export", reason="not_service", request=request,
+            route="/commitments/export",
+        )
+        [line] = records()
+        assert line["route"] == "/commitments/export"
+        assert line["method"] == "POST"
+        assert line["request_id"] == "req-7"
+
+    # @verifies REQ-0193
+    def test_explicit_method_and_route_win_without_a_request(self, records):
+        audit_access("dashboard.read", method="get", route="/dashboard/<int:pk>")
+        audit_denied("dashboard.read", method="GET", route="/dashboard/<int:pk>", reason="x")
+        assert [(r["method"], r["route"]) for r in records()] == [
+            ("GET", "/dashboard/<int:pk>"),
+            ("GET", "/dashboard/<int:pk>"),
+        ]
+
+    # @verifies REQ-0193
+    def test_a_route_override_is_cleaned_like_every_field(self, records):
+        audit_access("x", route="/a\n/person@example.org")
+        [line] = records()
+        assert "\n" not in line["route"] and "person@example.org" not in line["route"]
+
+    # @verifies REQ-0193
+    def test_a_flask_request_gives_its_url_rule(self, records):
+        request = FlaskLikeRequest(
+            "/dashboard/<int:pk>",
+            headers={"x-request-id": "req-9"},
+        )
+        audit_access("dashboard.read", caller=USER_CLAIMS, resource="12", request=request)
+        [line] = records()
+        assert (line["method"], line["route"]) == ("GET", "/app/dashboard/<int:pk>")
+        assert line["request_id"] == "req-9"
+        assert "ex-00001" not in json.dumps(line)
+
+    # @verifies REQ-0193
+    def test_a_flask_request_with_no_matched_rule_has_no_route(self, records):
+        audit_denied("dashboard.read", reason="csrf", request=FlaskLikeRequest(None))
+        [line] = records()
+        assert line["route"] is None and line["method"] == "GET"
