@@ -108,6 +108,15 @@ in `raw_payload`. A handler that raises is logged and counted; the other handler
 `publish_event(event)` publishes a Pydantic model, deriving the topic from `event.type` and
 `event.payload.community_id` when no topic is given.
 
+## Topics
+
+A topic names a service, a resource and at most a community or a run:
+`celine/<service>/<resource>/…`. **It never carries a person** — no user id, DID, email,
+member key, meter or sensor id. Topics are visible to the broker, its access-control service and
+their logs, which record a refused topic as it is; whoever a message concerns belongs in the
+payload. Address one person by publishing on a shared topic with the recipient in the payload,
+and let the subscriber pick its own messages.
+
 ## Contracts
 
 `contracts.py` defines the transport-independent surface: the `Broker` protocol and
