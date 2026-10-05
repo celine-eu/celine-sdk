@@ -60,6 +60,16 @@ Per route, recording the outcome of the handler::
 Without ``user=`` the caller is ``request.state.user`` as it stands when the
 request ends, so the route's own auth dependency may set it after this one ran.
 
+A gate that knows *why* it refuses notes a reason code before it raises (or
+returns its refusal); ``audit_route`` records that reason, as ``denied``,
+whatever the status — a 404 that hides an entity the caller may not see too::
+
+    from celine.sdk.audit import note_reason
+
+    if not owns(user, entity_id):
+        note_reason(request, "not_owner")
+        raise HTTPException(404, "not found")
+
 The audit logger is held at ``INFO`` whatever ``LOG_LEVEL`` says: lowering the
 application's verbosity must not switch the audit trail off.
 """
@@ -86,6 +96,10 @@ DENIED = "denied"
 
 ALLOWED = "allowed"
 ERROR = "error"
+
+#: The ``request.state`` attribute ``note_reason`` sets and ``audit_route`` reads:
+#: an ``(outcome, reason)`` pair.
+AUDIT_NOTE_ATTR = "audit_note"
 
 FIELDS: tuple[str, ...] = (
     "event",
@@ -357,6 +371,36 @@ def _resource_of(request: Any, resource: ResourceSpec) -> Any:
     return (getattr(request, "path_params", None) or {}).get(resource)
 
 
+def note_reason(request: Any, reason: str, *, outcome: str = DENIED) -> None:
+    """Note why ``request`` is refused (or failed), for ``audit_route`` to record.
+
+    ``reason`` is a short code (``not_owner``), never the caller's input.
+    ``outcome`` is ``denied`` (the default) or ``error``. When the request ends
+    with a returned response or a raised ``HTTPException``, the noted outcome
+    and reason replace the ones the status would give; the last note wins. An
+    exception other than ``HTTPException`` is still recorded as an ``error``
+    named by its class.
+    """
+    if outcome not in (DENIED, ERROR):
+        raise ValueError(f"note_reason outcome must be {DENIED!r} or {ERROR!r}")
+    setattr(request.state, AUDIT_NOTE_ATTR, (outcome, reason))
+
+
+def _noted(request: Any) -> tuple[str, str] | None:
+    note = getattr(getattr(request, "state", None), AUDIT_NOTE_ATTR, None)
+    if isinstance(note, tuple) and len(note) == 2 and note[0] in (DENIED, ERROR):
+        return note
+    return None
+
+
+def _record_note(action: str, note: tuple[str, str], **fields: Any) -> None:
+    outcome, reason = note
+    if outcome == DENIED:
+        audit_denied(action, reason=reason, **fields)
+    else:
+        audit_access(action, outcome=ERROR, reason=reason, **fields)
+
+
 def audit_route(
     action: str,
     *,
@@ -379,7 +423,11 @@ def audit_route(
     401 or 403 records ``denied`` with ``reason="http <status>"``; any other
     ``HTTPException`` or error records ``access``/``error``. The exception is
     re-raised unchanged. A refusal *returned* as a response rather than raised
-    is not seen: call ``audit_denied`` there.
+    is not seen unless the gate called ``note_reason``.
+
+    A reason noted with ``note_reason`` takes precedence: the request ending
+    with a response or an ``HTTPException`` is recorded with the noted outcome
+    and reason.
 
     Use it as ``dependencies=[Depends(audit_route(...))]`` on a route or a
     router. A refusal raised by a *sibling* dependency resolved before this one
@@ -397,7 +445,17 @@ def audit_route(
             yield
         except HTTPException as exc:
             who = _caller_at_exit(request, caller)
-            if exc.status_code in (401, 403):
+            note = _noted(request)
+            if note is not None:
+                _record_note(
+                    action,
+                    note,
+                    caller=who,
+                    resource=target,
+                    service=service,
+                    request=request,
+                )
+            elif exc.status_code in (401, 403):
                 audit_denied(
                     action,
                     caller=who,
@@ -429,13 +487,25 @@ def audit_route(
             )
             raise
         else:
-            audit_access(
-                action,
-                caller=_caller_at_exit(request, caller),
-                resource=target,
-                service=service,
-                request=request,
-            )
+            who = _caller_at_exit(request, caller)
+            note = _noted(request)
+            if note is not None:
+                _record_note(
+                    action,
+                    note,
+                    caller=who,
+                    resource=target,
+                    service=service,
+                    request=request,
+                )
+            else:
+                audit_access(
+                    action,
+                    caller=who,
+                    resource=target,
+                    service=service,
+                    request=request,
+                )
 
     return dependency
 
@@ -444,6 +514,7 @@ __all__ = [
     "ACCESS",
     "ALLOWED",
     "AUDIT_LOGGER",
+    "AUDIT_NOTE_ATTR",
     "DENIED",
     "ERROR",
     "FIELDS",
@@ -453,6 +524,7 @@ __all__ = [
     "audit_route",
     "caller_fields",
     "configure_audit",
+    "note_reason",
     "pseudonymise",
     "request_fields",
 ]

@@ -75,3 +75,24 @@ Both also take `method=` and `route=`. Each, when given, wins over the request's
 a middleware refusing before routing passes the route template it guards. `method` is
 upper-cased, and `route` is cleaned like every string field (REQ-0191) — it is a
 template, never the raw path.
+
+### REQ-0194 — a gate names its own reason
+
+A gate that refuses for a reason of its own calls `note_reason(request, reason)` before it
+raises, or before it returns its refusal as a response. It sets
+`request.state.audit_note` (`AUDIT_NOTE_ATTR`) to the pair `(outcome, reason)`; `outcome`
+is `denied` (the default) or `error`, anything else is a `ValueError`. `reason` is a short
+code, never what the caller sent. The last note of a request wins.
+
+When the request ends, `audit_route` (REQ-0192) records the noted outcome and reason in
+place of the ones the status gives:
+
+| The request ends with | No note | A note `(denied, r)` |
+|---|---|---|
+| a returned response | `access`, `allowed` | `denied`, `reason = r` |
+| `HTTPException` 401 or 403 | `denied`, `http <status>` | `denied`, `reason = r` |
+| another `HTTPException` (a 404 that hides an entity) | `access`, `error`, `http <status>` | `denied`, `reason = r` |
+| any other exception | `access`, `error`, `<exception class>` | unchanged |
+
+A note `(error, r)` records `access`, `error`, `reason = r` in the same places. The caller,
+resource and route are read as REQ-0192 says; the record shape (REQ-0190) is unchanged.

@@ -29,6 +29,11 @@
   middleware or the handler names the caller. `audit_access` / `audit_denied` take
   `method=` and `route=` (explicit values win over the request's), and accept a Flask
   request: its URL rule is the route. Existing calls and the record shape are unchanged.
+- `celine.sdk.audit` (REQ-0194): `note_reason(request, reason, *, outcome="denied")` lets a
+  gate name its refusal. `audit_route` records the noted reason and outcome in place of the
+  status-derived ones when the request ends with a response or an `HTTPException` — a 404
+  that hides an entity is recorded as `denied` with the gate's code. Unhandled exceptions
+  stay `error`; the record shape is unchanged.
 
 - **JWT algorithms are pinned** (REQ-0043). `JwtUser.from_token` accepts `RS256` and `ES256`
   only (`ALLOWED_JWT_ALGORITHMS`); the algorithm is the published key's, not the token

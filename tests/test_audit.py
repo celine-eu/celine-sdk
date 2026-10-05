@@ -7,6 +7,7 @@ import logging
 
 import pytest
 from fastapi import APIRouter, Depends, FastAPI, HTTPException, Request
+from fastapi.responses import JSONResponse
 from fastapi.testclient import TestClient
 
 from celine.sdk import audit
@@ -18,6 +19,7 @@ from celine.sdk.audit import (
     audit_route,
     caller_fields,
     configure_audit,
+    note_reason,
     pseudonymise,
 )
 from celine.sdk.auth import JwtUser
@@ -428,3 +430,85 @@ class TestMethodAndRouteOutsideAMatchedRoute:
         audit_denied("dashboard.read", reason="csrf", request=FlaskLikeRequest(None))
         [line] = records()
         assert line["route"] is None and line["method"] == "GET"
+
+
+def build_noted_app() -> FastAPI:
+    """Gates that name their refusal with ``note_reason``; the caller comes from a later gate."""
+
+    def require_user(request: Request) -> JwtUser:
+        if request.headers.get("authorization") != "Bearer ok":
+            note_reason(request, "no_token")
+            raise HTTPException(401, "Authentication required")
+        user = jwt_user(USER_CLAIMS)
+        request.state.user = user
+        return user
+
+    app = FastAPI()
+    router = APIRouter(
+        prefix="/twins/{twin_id}",
+        dependencies=[Depends(audit_route("twin.read", resource="twin_id")), Depends(require_user)],
+    )
+
+    @router.get("/values")
+    def values(request: Request, twin_id: str):
+        if twin_id == "hidden":
+            note_reason(request, "not_owner")
+            raise HTTPException(404, "not found")
+        if twin_id == "refused":
+            note_reason(request, "first")
+            note_reason(request, "fetch_refused")
+            raise HTTPException(403, "refused")
+        if twin_id == "returned":
+            note_reason(request, "not_owner")
+            return JSONResponse({"detail": "refused"}, status_code=403)
+        if twin_id == "faulty":
+            note_reason(request, "upstream_unavailable", outcome="error")
+            raise HTTPException(503, "unavailable")
+        if twin_id == "broken":
+            note_reason(request, "not_owner")
+            raise RuntimeError("boom")
+        return {"id": twin_id}
+
+    app.include_router(router)
+    return app
+
+
+class TestAGateNamesItsReason:
+    @pytest.fixture
+    def noted_client(self):
+        return TestClient(build_noted_app(), raise_server_exceptions=False)
+
+    # @verifies REQ-0194
+    @pytest.mark.parametrize(("twin", "status", "event", "outcome", "reason"), [
+        ("hidden", 404, "denied", "denied", "not_owner"),
+        ("refused", 403, "denied", "denied", "fetch_refused"),
+        ("returned", 403, "denied", "denied", "not_owner"),
+        ("faulty", 503, "access", "error", "upstream_unavailable"),
+        ("broken", 500, "access", "error", "RuntimeError"),
+        ("tw-1", 200, "access", "allowed", None),
+    ])
+    def test_the_noted_reason_wins_over_the_status(
+        self, noted_client, records, twin, status, event, outcome, reason
+    ):
+        assert noted_client.get(f"/twins/{twin}/values", headers=AUTH).status_code == status
+        [line] = records()
+        assert (line["event"], line["outcome"], line["reason"]) == (event, outcome, reason)
+        assert line["sub"] == USER_SUB and line["resource"] == twin
+        assert line["route"] == "/twins/{twin_id}/values"
+        assert list(line) == list(FIELDS)
+
+    # @verifies REQ-0194
+    def test_a_gate_refusing_before_the_caller_is_known_records_its_reason(
+        self, noted_client, records
+    ):
+        assert noted_client.get("/twins/tw-1/values").status_code == 401
+        [line] = records()
+        assert (line["event"], line["reason"], line["sub"]) == ("denied", "no_token", None)
+
+    # @verifies REQ-0194
+    def test_only_denied_or_error_can_be_noted(self):
+        request = starlette_request_before_routing()
+        with pytest.raises(ValueError):
+            note_reason(request, "fine", outcome="allowed")
+        note_reason(request, "not_owner")
+        assert request.state.audit_note == ("denied", "not_owner")
