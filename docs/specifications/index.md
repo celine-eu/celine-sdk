@@ -27,7 +27,8 @@ a promise to those repositories, and changing one is a platform change, not a lo
 | [REC registry client](rec-registry-client.md) | `celine.sdk.rec_registry` — the batch asset lookups; the meter writes; the profile write; the area and topology writes, the area rename and the community read; the per-field member writes, the delivery-point writes and the duplicate delivery points read; self-service refusals |
 | [Onboarding client](onboarding-client.md) | `celine.sdk.onboarding` — the registry sync of a community's areas |
 | [Digital Twin client](digital-twin-client.md) | `celine.sdk.dt` — no refusal detail in any log; no mutable defaults, the payload is the caller's |
-| [Deployment posture](posture.md) | `celine.sdk.posture` — the `dev`-only relaxation and the startup guard |
+| [Deployment posture](posture.md) | `celine.sdk.posture` — the `dev`-only relaxation, the startup guard and the API documentation switch |
+| [Access audit](audit.md) | `celine.sdk.audit` — one record of who read what and who was refused, without personal data |
 | [Spec management](spec-management.md) | the CLI, spec versioning, generated-client conversion |
 
 ## Identifiers
@@ -39,7 +40,7 @@ never written by hand. the companion's testing playbook states how.
 Numbers are allocated in blocks per document so a new requirement can be appended without
 renumbering: configuration `0001–0019`, identity `0020–0049`, policy evaluation
 `0050–0069`, messaging `0070–0099`, spec management `0100–0119`, REC registry client
-`0120–0139`, onboarding client `0140–0159`, Digital Twin client `0160–0179`, deployment posture `0180–0189`.
+`0120–0139`, onboarding client `0140–0159`, Digital Twin client `0160–0179`, deployment posture `0180–0189`, access audit `0190–0209`.
 
 ## What is deliberately not specified here
 

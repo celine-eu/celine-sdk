@@ -65,6 +65,12 @@ UNIVERSAL_WEAK_VALUES = frozenset(
 )
 
 
+#: Opt-in for the interactive API documentation outside dev (REQ-0184).
+PUBLIC_DOCS_VAR = "CELINE_PUBLIC_DOCS"
+
+_TRUE = frozenset({"1", "true", "yes", "on"})
+
+
 class InsecureConfiguration(RuntimeError):
     """Raised at startup when a hardened environment still carries dev settings."""
 
@@ -106,6 +112,43 @@ def database_password(url: str | None) -> str | None:
     except ValueError:
         return None
     return unquote(password) if password is not None else None
+
+
+def docs_urls(
+    *,
+    docs_url: str | None = "/docs",
+    redoc_url: str | None = "/redoc",
+    openapi_url: str | None = "/openapi.json",
+    env: str | None = None,
+    legacy: Iterable[str] = (),
+) -> dict[str, str | None]:
+    """The ``FastAPI(...)`` keyword arguments for the API documentation routes.
+
+    In dev the service's own paths are returned unchanged. Anywhere else all
+    three are ``None`` — FastAPI then mounts no Swagger UI, no ReDoc and no
+    ``openapi.json`` — unless ``CELINE_PUBLIC_DOCS`` is ``true`` (also ``1``,
+    ``yes``, ``on``). Unset, empty or any other value keeps them off.
+
+    Usage::
+
+        app = FastAPI(
+            title="...",
+            **docs_urls(
+                docs_url="/api/docs",
+                redoc_url="/api/redoc",
+                openapi_url="/api/openapi.json",
+            ),
+        )
+    """
+    paths = {"docs_url": docs_url, "redoc_url": redoc_url, "openapi_url": openapi_url}
+    current = (env if env is not None else current_env(*legacy)).strip().lower()
+    if current == DEV:
+        return paths
+    opt_in = os.environ.get(PUBLIC_DOCS_VAR, "").strip().lower()
+    if opt_in in _TRUE:
+        log.info("API docs served outside dev (%s=%s)", PUBLIC_DOCS_VAR, opt_in)
+        return paths
+    return {name: None for name in paths}
 
 
 @dataclass(frozen=True)
@@ -279,12 +322,14 @@ __all__ = [
     "DEV_DATABASE_PASSWORDS",
     "ENV_VARS",
     "InsecureConfiguration",
+    "PUBLIC_DOCS_VAR",
     "PostureGuard",
     "UNIVERSAL_WEAK_VALUES",
     "Violation",
     "current_env",
     "database_password",
     "describe",
+    "docs_urls",
     "is_dev",
     "is_hardened",
 ]

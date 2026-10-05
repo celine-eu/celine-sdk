@@ -15,6 +15,15 @@
   defaults (dev database password, client secret equal to the client id, the SDK's own
   issuer/JWKS defaults, dev switches) and raises `InsecureConfiguration` once, listing all
   of them, outside `dev`. Every service adopting it needs this release.
+- `celine.sdk.posture.docs_urls` (REQ-0184): the `docs_url`, `redoc_url` and `openapi_url`
+  keyword arguments for `FastAPI(...)`. The service's own paths in `dev`; `None` elsewhere
+  unless `CELINE_PUBLIC_DOCS=true`.
+- `celine.sdk.audit` (REQ-0190–0192): one access-audit record for every service, a JSON line
+  on the `celine.audit` logger — caller by `sub` and client id only, action, route template,
+  resource id, outcome, reason, request and trace id. `audit_access`, `audit_denied`,
+  `pseudonymise`, and `audit_route`, a FastAPI dependency recording each request of a route
+  it is attached to (`denied` for a raised 401/403). FastAPI is imported only by
+  `audit_route`; it joins the `test` group, not the dependencies.
 
 - **JWT algorithms are pinned** (REQ-0043). `JwtUser.from_token` accepts `RS256` and `ES256`
   only (`ALLOWED_JWT_ALGORITHMS`); the algorithm is the published key's, not the token

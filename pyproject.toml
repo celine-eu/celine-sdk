@@ -51,6 +51,9 @@ ignore = ["W002"]
 # so kept `requires-python` artificially high. Markers rather than removal: the
 # tools stay available wherever they can run.
 test = [
+    # `celine.sdk.audit.audit_route` is a FastAPI dependency; the SDK does not
+    # depend on FastAPI, every service using it already does.
+    "fastapi>=0.115",
     "pytest>=9.0.2",
     "pytest-asyncio>=1.3.0",
 ]

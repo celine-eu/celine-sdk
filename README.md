@@ -17,6 +17,8 @@ Shared SDK for the CELINE platform. Provides OIDC authentication, MQTT broker ab
 | `celine.sdk.rec_registry` | REC registry client helpers (`RecRegistryUserClient`, `RecRegistryAdminClient`): the batch lookups; a member's meter (`put_asset`, `delete_asset`) and role and area (`patch_member_profile`); a community's areas and topology (`read_community`, `put_area`, `delete_area`, `rename_area`, `put_topology_node`, `delete_topology_node`). A refusal raises `RecRegistryApiError` with the registry's `code` (`sensor_held`, `unknown_area`, `not_a_member`, …) beside `status_code` and `detail` |
 | `celine.sdk.flexibility` | Flexibility service client helpers |
 | `celine.sdk.ai_assistant` | AI assistant client helpers |
+| `celine.sdk.posture` | The deployment posture: only `CELINE_ENV=dev` relaxes; `PostureGuard` refuses development settings elsewhere; `docs_urls` turns the API documentation off outside dev |
+| `celine.sdk.audit` | Access audit on the `celine.audit` logger: `audit_access`, `audit_denied`, and the per-route FastAPI dependency `audit_route` |
 
 `celine.sdk.clients`, `celine.sdk.utils` and `celine.sdk.cli` are internal: they support
 the modules above and the spec-management CLI, and are not part of the public surface.

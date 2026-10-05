@@ -41,3 +41,12 @@ never raises. A deployment learns every missing value in one cycle.
 the value is the SDK's default rather than one set by the environment or by code, and,
 with `require_audience=True`, an unset audience. TLS on the issuer is a deployment property
 and is not checked: a prod-like local run names the local realm explicitly and passes.
+
+### REQ-0184 — the API documentation is off outside dev unless opted in
+
+`docs_urls(docs_url=…, redoc_url=…, openapi_url=…)` returns the three `FastAPI(...)` keyword
+arguments. In `dev` they are the service's own paths, unchanged — a service mounting its
+documentation under `/api/docs` passes those paths. Anywhere else all three are `None`, so
+FastAPI serves no Swagger UI, no ReDoc and no `openapi.json`, unless `CELINE_PUBLIC_DOCS`
+is `true` (`1`, `yes`, `on`). Unset, empty or any other value keeps them off: a deployment
+that wants its API description public says so.

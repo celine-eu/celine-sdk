@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import logging
+from typing import ClassVar
 
 import pytest
 
@@ -11,6 +12,7 @@ from celine.sdk.posture import (
     PostureGuard,
     current_env,
     database_password,
+    docs_urls,
     is_dev,
     is_hardened,
 )
@@ -184,3 +186,62 @@ class TestExplicitOidc:
         guard = PostureGuard("svc", env="prod")
         guard.require_explicit_oidc(OidcSettings(audience="svc-x"), require_audience=True)
         assert guard.violations == []
+
+
+class TestDocsUrls:
+    API: ClassVar[dict] = {"docs_url": "/api/docs", "redoc_url": "/api/redoc", "openapi_url": "/api/openapi.json"}
+    OFF: ClassVar[dict] = {"docs_url": None, "redoc_url": None, "openapi_url": None}
+
+    @pytest.fixture(autouse=True)
+    def no_opt_in(self, monkeypatch):
+        monkeypatch.delenv("CELINE_PUBLIC_DOCS", raising=False)
+
+    # @verifies REQ-0184
+    def test_dev_keeps_the_services_own_paths(self, monkeypatch):
+        monkeypatch.setenv("CELINE_ENV", "dev")
+        assert docs_urls(**self.API) == self.API
+        assert docs_urls() == {
+            "docs_url": "/docs",
+            "redoc_url": "/redoc",
+            "openapi_url": "/openapi.json",
+        }
+
+    # @verifies REQ-0184
+    @pytest.mark.parametrize("env", ["", "prod", "staging", "test", "development"])
+    def test_outside_dev_all_three_are_off(self, monkeypatch, env):
+        monkeypatch.setenv("CELINE_ENV", env)
+        assert docs_urls(**self.API) == self.OFF
+        assert docs_urls() == self.OFF
+
+    # @verifies REQ-0184
+    @pytest.mark.parametrize("value", ["true", "TRUE", "1", "yes", "on"])
+    def test_an_explicit_opt_in_serves_them(self, monkeypatch, value):
+        monkeypatch.setenv("CELINE_PUBLIC_DOCS", value)
+        assert docs_urls(**self.API, env="prod") == self.API
+
+    # @verifies REQ-0184
+    @pytest.mark.parametrize("value", ["", "false", "0", "no", "ture", "enabled"])
+    def test_anything_else_keeps_them_off(self, monkeypatch, value):
+        monkeypatch.setenv("CELINE_PUBLIC_DOCS", value)
+        assert docs_urls(**self.API, env="prod") == self.OFF
+
+    # @verifies REQ-0184
+    def test_a_legacy_env_name_is_honoured(self, monkeypatch):
+        monkeypatch.setenv("APP_ENV", "dev")
+        assert docs_urls(**self.API) == self.OFF
+        assert docs_urls(**self.API, legacy=("APP_ENV",)) == self.API
+
+    # @verifies REQ-0184
+    def test_fastapi_serves_nothing_when_off(self, monkeypatch):
+        from fastapi import FastAPI
+        from fastapi.testclient import TestClient
+
+        monkeypatch.setenv("CELINE_ENV", "prod")
+        client = TestClient(FastAPI(**docs_urls(**self.API)))
+        for path in self.API.values():
+            assert client.get(path).status_code == 404
+
+        monkeypatch.setenv("CELINE_ENV", "dev")
+        client = TestClient(FastAPI(**docs_urls(**self.API)))
+        for path in self.API.values():
+            assert client.get(path).status_code == 200
