@@ -91,6 +91,31 @@
 
 <!-- version list -->
 
+## v1.25.0 (2026-10-05)
+
+### Bug Fixes
+
+- Pin jwt algorithms, keep query strings out of httpx logs
+  ([`7c49ce3`](https://github.com/celine-eu/celine-sdk/commit/7c49ce3f4537678d766d706ea7881767199ae41b))
+
+### Features
+
+- Add docs gating and access audit helpers
+  ([`7a2b03b`](https://github.com/celine-eu/celine-sdk/commit/7a2b03b511ce5e106b479c6a78027319fbddf9f6))
+
+- Let a gate name its refusal for audit_route with note_reason
+  ([`50bf0c5`](https://github.com/celine-eu/celine-sdk/commit/50bf0c5773cab08f9a3b7a5881e7902b20349dcc))
+
+- Read the audit caller at request end, take method and route overrides and flask requests
+  ([`cbc741b`](https://github.com/celine-eu/celine-sdk/commit/cbc741b457fdc1abcca5aa3b5074eeab85279c73))
+
+- Read the audit caller at request end, take method and route overrides and flask requests
+  ([`d5d446a`](https://github.com/celine-eu/celine-sdk/commit/d5d446a5a81bb8a26f6d05ef48fa8f66d4b41e29))
+
+- Request the broker scope for mqtt tokens
+  ([`1f06f9e`](https://github.com/celine-eu/celine-sdk/commit/1f06f9e760fa083fd5423169c47a172b729f3f68))
+
+
 ## v1.24.0 (2026-10-01)
 
 ### Bug Fixes
