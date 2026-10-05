@@ -91,6 +91,14 @@
 
 <!-- version list -->
 
+## v2.0.0 (2026-10-05)
+
+### Features
+
+- Release 2.0
+  ([`fd825d5`](https://github.com/celine-eu/celine-sdk/commit/fd825d5847b2746e712052382da9244fdb72c1fb))
+
+
 ## v1.25.0 (2026-10-05)
 
 ### Bug Fixes
