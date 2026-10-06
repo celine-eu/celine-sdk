@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from pydantic import Field
+from pydantic import Field, field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
@@ -44,6 +44,20 @@ class OidcSettings(BaseSettings):
         default=True,
         description="If true, also accept CELINE_OIDC_CLIENT_ID as an audience.",
     )
+
+    @field_validator("audience", "allowed_audiences", mode="before")
+    @classmethod
+    def _empty_audience_is_unset(cls, value: object) -> object:
+        """An empty audience is no audience (REQ-0026).
+
+        Compose files pass `CELINE_OIDC_AUDIENCE: ${CELINE_OIDC_AUDIENCE:-}`, so
+        "not configured" arrives as `""`. Kept as a string, it switched audience
+        verification on against an audience no token carries, and every token was
+        refused with "Audience doesn't match".
+        """
+        if isinstance(value, str) and not value.strip():
+            return None
+        return value
 
 
 class MqttSettings(BaseSettings):

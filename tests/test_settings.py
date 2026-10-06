@@ -212,10 +212,10 @@ class TestInterpolation:
         """The literal `${VAR}` reaching a URL or a credential is the failure this
         prevents: it would be sent, logged, and read as configuration.
         """
-        monkeypatch.delenv("MY_AUD", raising=False)
+        monkeypatch.delenv("MY_CLIENT", raising=False)
         cfg = tmp_path / "c.yaml"
-        cfg.write_text("oidc:\n  audience: ${MY_AUD}\n")
-        assert load_settings(cfg).oidc.audience == ""
+        cfg.write_text("oidc:\n  client_id: ${MY_CLIENT}\n")
+        assert load_settings(cfg).oidc.client_id == ""
 
     # @verifies REQ-0010
     def test_interpolation_reaches_nested_values(self, monkeypatch, tmp_path):

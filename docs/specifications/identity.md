@@ -51,6 +51,10 @@ With `OidcSettings.audience` set, `aud` must contain it. With it unset, **audien
 validation is skipped entirely** — a permissive default, and the reason a service that never
 declares an audience is not checking one.
 
+**An empty or blank audience is unset.** `CELINE_OIDC_AUDIENCE=` (as a compose file's
+`${CELINE_OIDC_AUDIENCE:-}` passes it) skips validation exactly as an absent variable does;
+it never means "`aud` must contain the empty string", which no token satisfies.
+
 `get_expected_audiences()` composes `audience` with `client_id` (when
 `include_client_id_as_audience` is on) and returns `None` when there is nothing to check.
 It is a helper **for callers that build their own validation**; `from_token` does not use

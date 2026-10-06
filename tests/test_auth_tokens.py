@@ -125,6 +125,21 @@ class TestAudience:
         assert user.aud == "someone-elses-api"
 
     # @verifies REQ-0026
+    @pytest.mark.parametrize("empty", ["", "   "])
+    def test_an_empty_audience_from_the_environment_is_unset(
+        self, monkeypatch, make_token, empty
+    ):
+        """`${CELINE_OIDC_AUDIENCE:-}` in a compose file arrives as an empty string.
+        It used to switch verification on against `""` and refuse every token.
+        """
+        monkeypatch.setenv("CELINE_OIDC_AUDIENCE", empty)
+        oidc = OidcSettings(base_url=ISSUER, jwks_uri="https://x/jwks")
+        assert oidc.audience is None
+        assert get_expected_audiences(oidc) is None
+        user = JwtUser.from_token(make_token({"aud": "svc-mqtt"}), oidc)
+        assert user.aud == "svc-mqtt"
+
+    # @verifies REQ-0026
     def test_expected_audiences_is_none_when_nothing_is_configured(self):
         assert get_expected_audiences(OidcSettings()) is None
 
