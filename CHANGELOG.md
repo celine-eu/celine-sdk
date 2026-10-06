@@ -2,6 +2,19 @@
 
 <!-- version list -->
 
+## v2.0.1 (2026-10-06)
+
+### Bug Fixes
+
+- An empty CELINE_OIDC_AUDIENCE is no audience, not one no token carries
+  ([`4a69a66`](https://github.com/celine-eu/celine-sdk/commit/4a69a665f35876470444c7100c5992f46437334f))
+
+### Documentation
+
+- Update changelog
+  ([`ce348d3`](https://github.com/celine-eu/celine-sdk/commit/ce348d3d0924b525fa0c76b3b040a1d4c84eb92b))
+
+
 ## v2.0.0 (2026-10-05)
 
 ### Features
