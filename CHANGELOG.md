@@ -1,13 +1,20 @@
 # CHANGELOG
 
-## Unreleased
+<!-- version list -->
 
-<!-- Hand-written ahead of the release. semantic-release inserts the next version
-     below the marker and leaves this section in place: remove it when releasing.
-     Entries shipped in v1.23.0 were removed from here; the `import_yaml` fix's code
-     shipped in v1.23.0 too, and `74d7e7e` added its tests. -->
+## v2.0.0 (2026-10-05)
 
 ### Features
+
+- Release 2.0
+  ([`fd825d5`](https://github.com/celine-eu/celine-sdk/commit/fd825d5847b2746e712052382da9244fdb72c1fb))
+
+
+### Release notes
+
+Written ahead of the release; covers everything since v1.24.0, v1.25.0 included.
+
+#### Features
 
 - `celine.sdk.posture` (REQ-0180–0183): the platform's one deployment-posture rule. Signal
   `CELINE_ENV`, then `ENVIRONMENT`, then a caller's legacy names; **only `dev` relaxes**,
@@ -43,7 +50,7 @@
   at `WARNING` (it logged every outbound URL at `INFO`, `?email=` included), and its records
   lose the query string if a service raises it again.
 
-### Breaking changes
+#### Breaking changes
 
 - **A platform grant is the realm role `platform-admin`; realm groups grant nothing**
   (REQ-0042). New in `celine.sdk.auth`: `PLATFORM_ADMIN_ROLE`, `realm_roles(claims)` (reads
@@ -75,7 +82,7 @@
   `claim_key` argument; it used to read a top-level `roles` claim, which no platform mapper
   emits. Use `get_claim` for any other claim.
 
-### Security
+#### Security
 
 - `pyjwt>=2.14` (GHSA-ffc3-869f-jxw9, GHSA-9v7f-9g4p-ffgj); lock: pyjwt 2.15.1,
   cryptography 50.0.2, urllib3 2.8.0.
@@ -89,17 +96,12 @@
   route, so `openapi/rec-registry/v1.7.0/` was updated in place (additive: the operation and
   `DeliveryPointDuplicates`, `DuplicateDeliveryPoint`, `DuplicateHolder`).
 
-<!-- version list -->
-
-## v2.0.0 (2026-10-05)
-
-### Features
-
-- Release 2.0
-  ([`fd825d5`](https://github.com/celine-eu/celine-sdk/commit/fd825d5847b2746e712052382da9244fdb72c1fb))
-
 
 ## v1.25.0 (2026-10-05)
+
+**Yanked from PyPI (2026-10-06).** Breaking despite the minor version: this release already
+removes `extract_groups` and `realm_groups` (`de3ba5c`; see v2.0.0's breaking changes). Use
+2.0.0, or stay on 1.24.0.
 
 ### Bug Fixes
 
