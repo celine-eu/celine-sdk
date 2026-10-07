@@ -208,13 +208,6 @@ EVERY_METHOD = [
     ("grid", "risks", (SECRET_ID,), {"dates": ["2026-01-01"]}),
     ("grid", "risks_now", (SECRET_ID,), {}),
     ("grid", "trendline", (SECRET_ID,), {"date_from": "a", "date_to": "b"}),
-    ("grid", "wind_map", (SECRET_ID,), {}),
-    ("grid", "wind_bosco", (SECRET_ID,), {}),
-    ("grid", "wind_alert_distribution", (SECRET_ID,), {}),
-    ("grid", "wind_trend", (SECRET_ID,), {}),
-    ("grid", "heat_map", (SECRET_ID,), {}),
-    ("grid", "heat_alert_distribution", (SECRET_ID,), {}),
-    ("grid", "heat_trend", (SECRET_ID,), {}),
     ("grid", "substations_map", (SECRET_ID,), {}),
     ("grid", "summary", (SECRET_ID,), {}),
 ]
@@ -343,3 +336,24 @@ class TestNoMutableDefaults:
             "dates": ["2026-01-01"],
             "limit": 9,
         }
+
+
+LEGACY_GRID = ("wind_map", "wind_bosco", "wind_alert_distribution", "wind_trend",
+               "heat_map", "heat_alert_distribution", "heat_trend")
+
+
+@pytest.mark.parametrize("name", LEGACY_GRID)
+def test_the_grid_client_has_no_wind_or_heat_method(name):
+    """The Digital Twin no longer serves the routes these called."""
+    # @verifies REQ-0161
+    assert not hasattr(GridClient, name)
+
+
+def test_the_grid_module_imports_no_wind_or_heat_operation():
+    # @verifies REQ-0161
+    import inspect
+
+    import celine.sdk.dt.grid as grid
+
+    source = inspect.getsource(grid)
+    assert "it_grid_wind_" not in source and "it_grid_heat_" not in source

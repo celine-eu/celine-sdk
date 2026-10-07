@@ -26,7 +26,7 @@ a promise to those repositories, and changing one is a platform change, not a lo
 | [Messaging](messaging.md) | `celine.sdk.broker` — MQTT lifecycle, topics, dispatch |
 | [REC registry client](rec-registry-client.md) | `celine.sdk.rec_registry` — the batch asset lookups; the meter writes; the profile write; the area and topology writes, the area rename and the community read; the per-field member writes, the delivery-point writes and the duplicate delivery points read; self-service refusals |
 | [Onboarding client](onboarding-client.md) | `celine.sdk.onboarding` — the registry sync of a community's areas |
-| [Digital Twin client](digital-twin-client.md) | `celine.sdk.dt` — no refusal detail in any log; no mutable defaults, the payload is the caller's |
+| [Digital Twin client](digital-twin-client.md) | `celine.sdk.dt` — no refusal detail in any log; no mutable defaults, the payload is the caller's; no legacy grid wind/heat calls |
 | [Deployment posture](posture.md) | `celine.sdk.posture` — the `dev`-only relaxation, the startup guard and the API documentation switch |
 | [Access audit](audit.md) | `celine.sdk.audit` — one record of who read what and who was refused, without personal data |
 | [Spec management](spec-management.md) | the CLI, spec versioning, generated-client conversion |
