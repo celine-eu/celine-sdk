@@ -61,7 +61,7 @@ def sync_detailed(
 ) -> Response[HTTPValidationError | ResponseItGridItGridSubstationsMap]:
     """Substations Map
 
-     GeoJSON FeatureCollection of all secondary substations.
+     GeoJSON FeatureCollection of the network's secondary substations.
 
     Args:
         network_id (str):
@@ -92,7 +92,7 @@ def sync(
 ) -> HTTPValidationError | ResponseItGridItGridSubstationsMap | None:
     """Substations Map
 
-     GeoJSON FeatureCollection of all secondary substations.
+     GeoJSON FeatureCollection of the network's secondary substations.
 
     Args:
         network_id (str):
@@ -118,7 +118,7 @@ async def asyncio_detailed(
 ) -> Response[HTTPValidationError | ResponseItGridItGridSubstationsMap]:
     """Substations Map
 
-     GeoJSON FeatureCollection of all secondary substations.
+     GeoJSON FeatureCollection of the network's secondary substations.
 
     Args:
         network_id (str):
@@ -147,7 +147,7 @@ async def asyncio(
 ) -> HTTPValidationError | ResponseItGridItGridSubstationsMap | None:
     """Substations Map
 
-     GeoJSON FeatureCollection of all secondary substations.
+     GeoJSON FeatureCollection of the network's secondary substations.
 
     Args:
         network_id (str):

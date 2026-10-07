@@ -6,28 +6,52 @@ from typing import Any, TypeVar
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
 
-T = TypeVar("T", bound="ItGridHeatAlertDistributionResponse200Item")
+T = TypeVar("T", bound="AreaBoundarySchema")
 
 
 @_attrs_define
-class ItGridHeatAlertDistributionResponse200Item:
-    """ """
+class AreaBoundarySchema:
+    """The primary-substation boundary an area references (REQ-0067).
 
+    Attributes:
+        id (str):
+        source (str):
+    """
+
+    id: str
+    source: str
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
+        id = self.id
+
+        source = self.source
+
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
+        field_dict.update(
+            {
+                "id": id,
+                "source": source,
+            }
+        )
 
         return field_dict
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
         d = dict(src_dict)
-        it_grid_heat_alert_distribution_response_200_item = cls()
+        id = d.pop("id")
 
-        it_grid_heat_alert_distribution_response_200_item.additional_properties = d
-        return it_grid_heat_alert_distribution_response_200_item
+        source = d.pop("source")
+
+        area_boundary_schema = cls(
+            id=id,
+            source=source,
+        )
+
+        area_boundary_schema.additional_properties = d
+        return area_boundary_schema
 
     @property
     def additional_keys(self) -> list[str]:

@@ -1,8 +1,37 @@
 {
   "components": {
     "schemas": {
+      "AreaBoundarySchema": {
+        "description": "The primary-substation boundary an area references (REQ-0067).",
+        "properties": {
+          "id": {
+            "title": "Id",
+            "type": "string"
+          },
+          "source": {
+            "title": "Source",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "source"
+        ],
+        "title": "AreaBoundarySchema",
+        "type": "object"
+      },
       "AreaSchema": {
         "properties": {
+          "boundary": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/AreaBoundarySchema"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
           "geometry": {
             "anyOf": [
               {
@@ -28,6 +57,20 @@
           "name": {
             "title": "Name",
             "type": "string"
+          },
+          "topology": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Topology"
           }
         },
         "required": [
@@ -331,6 +374,7 @@
         "type": "object"
       },
       "TopologyNodeSchema": {
+        "description": "One grid topology node, named as the bundle names it (REQ-0072).\n\nThe fields are the bundle's `TopologyNodeIn` fields, under the same names:\n`operator_id` (a key of the community's `operators`, since schema v0.5) and\n`parent` (the id of the node above this one). Before 1.6.0 this model\nanswered `operator`, a v0.4 name nothing has stored since, so it was\nalways `null` while the stored `operator_id` was never returned.",
         "properties": {
           "area": {
             "anyOf": [
@@ -359,7 +403,7 @@
             ],
             "title": "Name"
           },
-          "operator": {
+          "operator_id": {
             "anyOf": [
               {
                 "type": "string"
@@ -368,7 +412,7 @@
                 "type": "null"
               }
             ],
-            "title": "Operator"
+            "title": "Operator Id"
           },
           "parent": {
             "anyOf": [
@@ -702,6 +746,17 @@
             ],
             "title": "Delivery Points"
           },
+          "did": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Did"
+          },
           "extra": {
             "anyOf": [
               {
@@ -757,6 +812,17 @@
           "area": {
             "title": "Area",
             "type": "string"
+          },
+          "did": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Did"
           },
           "key": {
             "title": "Key",
@@ -875,6 +941,13 @@
       },
       "ValidationError": {
         "properties": {
+          "ctx": {
+            "title": "Context",
+            "type": "object"
+          },
+          "input": {
+            "title": "Input"
+          },
           "loc": {
             "items": {
               "anyOf": [
@@ -1657,321 +1730,6 @@
         "summary": "List Domains"
       }
     },
-    "/grid/{network_id}/heat/alert-distribution": {
-      "get": {
-        "description": "COUNT of line-segment events per risk_level for heat (underground cables).",
-        "operationId": "it_grid__heat_alert_distribution",
-        "parameters": [
-          {
-            "in": "path",
-            "name": "network_id",
-            "required": true,
-            "schema": {
-              "title": "Network Id",
-              "type": "string"
-            }
-          },
-          {
-            "in": "query",
-            "name": "dates",
-            "required": false,
-            "schema": {
-              "anyOf": [
-                {
-                  "items": {
-                    "type": "string"
-                  },
-                  "type": "array"
-                },
-                {
-                  "type": "null"
-                }
-              ],
-              "title": "Dates"
-            }
-          },
-          {
-            "in": "query",
-            "name": "operational_unit",
-            "required": false,
-            "schema": {
-              "anyOf": [
-                {
-                  "items": {
-                    "type": "string"
-                  },
-                  "type": "array"
-                },
-                {
-                  "type": "null"
-                }
-              ],
-              "title": "Operational Unit"
-            }
-          },
-          {
-            "in": "query",
-            "name": "line_name",
-            "required": false,
-            "schema": {
-              "anyOf": [
-                {
-                  "items": {
-                    "type": "string"
-                  },
-                  "type": "array"
-                },
-                {
-                  "type": "null"
-                }
-              ],
-              "title": "Line Name"
-            }
-          },
-          {
-            "in": "query",
-            "name": "substation_name",
-            "required": false,
-            "schema": {
-              "anyOf": [
-                {
-                  "items": {
-                    "type": "string"
-                  },
-                  "type": "array"
-                },
-                {
-                  "type": "null"
-                }
-              ],
-              "title": "Substation Name"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "items": {
-                    "additionalProperties": true,
-                    "type": "object"
-                  },
-                  "title": "Response It Grid  Heat Alert Distribution",
-                  "type": "array"
-                }
-              }
-            },
-            "description": "Successful Response"
-          },
-          "422": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
-                }
-              }
-            },
-            "description": "Validation Error"
-          }
-        },
-        "summary": "Heat Alert Distribution",
-        "tags": [
-          "it-grid",
-          "it-grid"
-        ]
-      }
-    },
-    "/grid/{network_id}/heat/map": {
-      "get": {
-        "description": "GeoJSON FeatureCollection of underground MT cable segments coloured by heat risk.",
-        "operationId": "it_grid__heat_map",
-        "parameters": [
-          {
-            "in": "path",
-            "name": "network_id",
-            "required": true,
-            "schema": {
-              "title": "Network Id",
-              "type": "string"
-            }
-          },
-          {
-            "in": "query",
-            "name": "dates",
-            "required": false,
-            "schema": {
-              "anyOf": [
-                {
-                  "items": {
-                    "type": "string"
-                  },
-                  "type": "array"
-                },
-                {
-                  "type": "null"
-                }
-              ],
-              "title": "Dates"
-            }
-          },
-          {
-            "in": "query",
-            "name": "operational_unit",
-            "required": false,
-            "schema": {
-              "anyOf": [
-                {
-                  "items": {
-                    "type": "string"
-                  },
-                  "type": "array"
-                },
-                {
-                  "type": "null"
-                }
-              ],
-              "title": "Operational Unit"
-            }
-          },
-          {
-            "in": "query",
-            "name": "line_name",
-            "required": false,
-            "schema": {
-              "anyOf": [
-                {
-                  "items": {
-                    "type": "string"
-                  },
-                  "type": "array"
-                },
-                {
-                  "type": "null"
-                }
-              ],
-              "title": "Line Name"
-            }
-          },
-          {
-            "in": "query",
-            "name": "substation_name",
-            "required": false,
-            "schema": {
-              "anyOf": [
-                {
-                  "items": {
-                    "type": "string"
-                  },
-                  "type": "array"
-                },
-                {
-                  "type": "null"
-                }
-              ],
-              "title": "Substation Name"
-            }
-          },
-          {
-            "in": "query",
-            "name": "risk_level",
-            "required": false,
-            "schema": {
-              "anyOf": [
-                {
-                  "items": {
-                    "type": "string"
-                  },
-                  "type": "array"
-                },
-                {
-                  "type": "null"
-                }
-              ],
-              "title": "Risk Level"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "additionalProperties": true,
-                  "title": "Response It Grid  Heat Map",
-                  "type": "object"
-                }
-              }
-            },
-            "description": "Successful Response"
-          },
-          "422": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
-                }
-              }
-            },
-            "description": "Validation Error"
-          }
-        },
-        "summary": "Heat Map",
-        "tags": [
-          "it-grid",
-          "it-grid"
-        ]
-      }
-    },
-    "/grid/{network_id}/heat/trend": {
-      "get": {
-        "description": "Daily MAX(temp_max_c) over the rolling window now\u22123d \u2192 now+2d.",
-        "operationId": "it_grid__heat_trend",
-        "parameters": [
-          {
-            "in": "path",
-            "name": "network_id",
-            "required": true,
-            "schema": {
-              "title": "Network Id",
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "items": {
-                    "additionalProperties": true,
-                    "type": "object"
-                  },
-                  "title": "Response It Grid  Heat Trend",
-                  "type": "array"
-                }
-              }
-            },
-            "description": "Successful Response"
-          },
-          "422": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
-                }
-              }
-            },
-            "description": "Validation Error"
-          }
-        },
-        "summary": "Heat Trend",
-        "tags": [
-          "it-grid",
-          "it-grid"
-        ]
-      }
-    },
     "/grid/{network_id}/info": {
       "get": {
         "operationId": "it_grid__get_info",
@@ -2253,7 +2011,7 @@
     },
     "/grid/{network_id}/substations/map": {
       "get": {
-        "description": "GeoJSON FeatureCollection of all secondary substations.",
+        "description": "GeoJSON FeatureCollection of the network's secondary substations.",
         "operationId": "it_grid__it_grid_substations_map",
         "parameters": [
           {
@@ -2576,443 +2334,6 @@
         },
         "summary": "Describe Value",
         "tags": [
-          "it-grid"
-        ]
-      }
-    },
-    "/grid/{network_id}/wind/alert-distribution": {
-      "get": {
-        "description": "COUNT of line-segment events per risk_level for wind (overhead lines).",
-        "operationId": "it_grid__wind_alert_distribution",
-        "parameters": [
-          {
-            "in": "path",
-            "name": "network_id",
-            "required": true,
-            "schema": {
-              "title": "Network Id",
-              "type": "string"
-            }
-          },
-          {
-            "in": "query",
-            "name": "dates",
-            "required": false,
-            "schema": {
-              "anyOf": [
-                {
-                  "items": {
-                    "type": "string"
-                  },
-                  "type": "array"
-                },
-                {
-                  "type": "null"
-                }
-              ],
-              "title": "Dates"
-            }
-          },
-          {
-            "in": "query",
-            "name": "operational_unit",
-            "required": false,
-            "schema": {
-              "anyOf": [
-                {
-                  "items": {
-                    "type": "string"
-                  },
-                  "type": "array"
-                },
-                {
-                  "type": "null"
-                }
-              ],
-              "title": "Operational Unit"
-            }
-          },
-          {
-            "in": "query",
-            "name": "line_name",
-            "required": false,
-            "schema": {
-              "anyOf": [
-                {
-                  "items": {
-                    "type": "string"
-                  },
-                  "type": "array"
-                },
-                {
-                  "type": "null"
-                }
-              ],
-              "title": "Line Name"
-            }
-          },
-          {
-            "in": "query",
-            "name": "substation_name",
-            "required": false,
-            "schema": {
-              "anyOf": [
-                {
-                  "items": {
-                    "type": "string"
-                  },
-                  "type": "array"
-                },
-                {
-                  "type": "null"
-                }
-              ],
-              "title": "Substation Name"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "items": {
-                    "additionalProperties": true,
-                    "type": "object"
-                  },
-                  "title": "Response It Grid  Wind Alert Distribution",
-                  "type": "array"
-                }
-              }
-            },
-            "description": "Successful Response"
-          },
-          "422": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
-                }
-              }
-            },
-            "description": "Validation Error"
-          }
-        },
-        "summary": "Wind Alert Distribution",
-        "tags": [
-          "it-grid",
-          "it-grid"
-        ]
-      }
-    },
-    "/grid/{network_id}/wind/bosco": {
-      "get": {
-        "description": "GeoJSON FeatureCollection of overhead segments in vegetated zones, coloured by wind risk.",
-        "operationId": "it_grid__wind_bosco",
-        "parameters": [
-          {
-            "in": "path",
-            "name": "network_id",
-            "required": true,
-            "schema": {
-              "title": "Network Id",
-              "type": "string"
-            }
-          },
-          {
-            "in": "query",
-            "name": "dates",
-            "required": false,
-            "schema": {
-              "anyOf": [
-                {
-                  "items": {
-                    "type": "string"
-                  },
-                  "type": "array"
-                },
-                {
-                  "type": "null"
-                }
-              ],
-              "title": "Dates"
-            }
-          },
-          {
-            "in": "query",
-            "name": "operational_unit",
-            "required": false,
-            "schema": {
-              "anyOf": [
-                {
-                  "items": {
-                    "type": "string"
-                  },
-                  "type": "array"
-                },
-                {
-                  "type": "null"
-                }
-              ],
-              "title": "Operational Unit"
-            }
-          },
-          {
-            "in": "query",
-            "name": "line_name",
-            "required": false,
-            "schema": {
-              "anyOf": [
-                {
-                  "items": {
-                    "type": "string"
-                  },
-                  "type": "array"
-                },
-                {
-                  "type": "null"
-                }
-              ],
-              "title": "Line Name"
-            }
-          },
-          {
-            "in": "query",
-            "name": "substation_name",
-            "required": false,
-            "schema": {
-              "anyOf": [
-                {
-                  "items": {
-                    "type": "string"
-                  },
-                  "type": "array"
-                },
-                {
-                  "type": "null"
-                }
-              ],
-              "title": "Substation Name"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "additionalProperties": true,
-                  "title": "Response It Grid  Wind Bosco",
-                  "type": "object"
-                }
-              }
-            },
-            "description": "Successful Response"
-          },
-          "422": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
-                }
-              }
-            },
-            "description": "Validation Error"
-          }
-        },
-        "summary": "Wind Bosco",
-        "tags": [
-          "it-grid",
-          "it-grid"
-        ]
-      }
-    },
-    "/grid/{network_id}/wind/map": {
-      "get": {
-        "description": "GeoJSON FeatureCollection of overhead MT line segments coloured by wind risk.",
-        "operationId": "it_grid__wind_map",
-        "parameters": [
-          {
-            "in": "path",
-            "name": "network_id",
-            "required": true,
-            "schema": {
-              "title": "Network Id",
-              "type": "string"
-            }
-          },
-          {
-            "in": "query",
-            "name": "dates",
-            "required": false,
-            "schema": {
-              "anyOf": [
-                {
-                  "items": {
-                    "type": "string"
-                  },
-                  "type": "array"
-                },
-                {
-                  "type": "null"
-                }
-              ],
-              "title": "Dates"
-            }
-          },
-          {
-            "in": "query",
-            "name": "operational_unit",
-            "required": false,
-            "schema": {
-              "anyOf": [
-                {
-                  "items": {
-                    "type": "string"
-                  },
-                  "type": "array"
-                },
-                {
-                  "type": "null"
-                }
-              ],
-              "title": "Operational Unit"
-            }
-          },
-          {
-            "in": "query",
-            "name": "line_name",
-            "required": false,
-            "schema": {
-              "anyOf": [
-                {
-                  "items": {
-                    "type": "string"
-                  },
-                  "type": "array"
-                },
-                {
-                  "type": "null"
-                }
-              ],
-              "title": "Line Name"
-            }
-          },
-          {
-            "in": "query",
-            "name": "substation_name",
-            "required": false,
-            "schema": {
-              "anyOf": [
-                {
-                  "items": {
-                    "type": "string"
-                  },
-                  "type": "array"
-                },
-                {
-                  "type": "null"
-                }
-              ],
-              "title": "Substation Name"
-            }
-          },
-          {
-            "in": "query",
-            "name": "risk_level",
-            "required": false,
-            "schema": {
-              "anyOf": [
-                {
-                  "items": {
-                    "type": "string"
-                  },
-                  "type": "array"
-                },
-                {
-                  "type": "null"
-                }
-              ],
-              "title": "Risk Level"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "additionalProperties": true,
-                  "title": "Response It Grid  Wind Map",
-                  "type": "object"
-                }
-              }
-            },
-            "description": "Successful Response"
-          },
-          "422": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
-                }
-              }
-            },
-            "description": "Validation Error"
-          }
-        },
-        "summary": "Wind Map",
-        "tags": [
-          "it-grid",
-          "it-grid"
-        ]
-      }
-    },
-    "/grid/{network_id}/wind/trend": {
-      "get": {
-        "description": "Daily MAX(gust_excess) over the rolling window now\u22121d \u2192 now+2d.",
-        "operationId": "it_grid__wind_trend",
-        "parameters": [
-          {
-            "in": "path",
-            "name": "network_id",
-            "required": true,
-            "schema": {
-              "title": "Network Id",
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "items": {
-                    "additionalProperties": true,
-                    "type": "object"
-                  },
-                  "title": "Response It Grid  Wind Trend",
-                  "type": "array"
-                }
-              }
-            },
-            "description": "Successful Response"
-          },
-          "422": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
-                }
-              }
-            },
-            "description": "Validation Error"
-          }
-        },
-        "summary": "Wind Trend",
-        "tags": [
-          "it-grid",
           "it-grid"
         ]
       }

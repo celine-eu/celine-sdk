@@ -27,6 +27,7 @@ class UserMemberDetailSchema:
         status (str):
         created_at (None | str | Unset):
         delivery_points (list[DeliveryPointSchema] | None | Unset):
+        did (None | str | Unset):
         extra (None | Unset | UserMemberDetailSchemaExtraType0):
         updated_at (None | str | Unset):
     """
@@ -38,6 +39,7 @@ class UserMemberDetailSchema:
     status: str
     created_at: None | str | Unset = UNSET
     delivery_points: list[DeliveryPointSchema] | None | Unset = UNSET
+    did: None | str | Unset = UNSET
     extra: None | Unset | UserMemberDetailSchemaExtraType0 = UNSET
     updated_at: None | str | Unset = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
@@ -73,6 +75,12 @@ class UserMemberDetailSchema:
         else:
             delivery_points = self.delivery_points
 
+        did: None | str | Unset
+        if isinstance(self.did, Unset):
+            did = UNSET
+        else:
+            did = self.did
+
         extra: dict[str, Any] | None | Unset
         if isinstance(self.extra, Unset):
             extra = UNSET
@@ -102,6 +110,8 @@ class UserMemberDetailSchema:
             field_dict["created_at"] = created_at
         if delivery_points is not UNSET:
             field_dict["delivery_points"] = delivery_points
+        if did is not UNSET:
+            field_dict["did"] = did
         if extra is not UNSET:
             field_dict["extra"] = extra
         if updated_at is not UNSET:
@@ -156,6 +166,15 @@ class UserMemberDetailSchema:
 
         delivery_points = _parse_delivery_points(d.pop("delivery_points", UNSET))
 
+        def _parse_did(data: object) -> None | str | Unset:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            return cast(None | str | Unset, data)
+
+        did = _parse_did(d.pop("did", UNSET))
+
         def _parse_extra(data: object) -> None | Unset | UserMemberDetailSchemaExtraType0:
             if data is None:
                 return data
@@ -190,6 +209,7 @@ class UserMemberDetailSchema:
             status=status,
             created_at=created_at,
             delivery_points=delivery_points,
+            did=did,
             extra=extra,
             updated_at=updated_at,
         )
