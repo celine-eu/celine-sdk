@@ -2,6 +2,19 @@
 
 <!-- version list -->
 
+## v2.1.0 (2026-10-11)
+
+### Chores
+
+- Regenerate the digital-twin client
+  ([`81fa59e`](https://github.com/celine-eu/celine-sdk/commit/81fa59e19885842d88e565f9f6495d8ba7ea624f))
+
+### Features
+
+- GridClient drops the legacy wind and heat calls
+  ([`6d6340c`](https://github.com/celine-eu/celine-sdk/commit/6d6340c26b26a8b5b8c13fbcdb1377c127637055))
+
+
 ## v2.0.1 (2026-10-06)
 
 ### Bug Fixes
