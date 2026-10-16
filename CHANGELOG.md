@@ -2,6 +2,14 @@
 
 <!-- version list -->
 
+## v2.1.1 (2026-10-16)
+
+### Bug Fixes
+
+- Normalize CELINE_POLICIES_* env
+  ([`8fbd5d5`](https://github.com/celine-eu/celine-sdk/commit/8fbd5d5304785aefcc9cc5edecf60bd626164d7a))
+
+
 ## v2.1.0 (2026-10-11)
 
 ### Chores
