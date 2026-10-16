@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from pydantic import Field, field_validator
+from pydantic import AliasChoices, Field, field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
@@ -80,25 +80,49 @@ class MqttSettings(BaseSettings):
     token_refresh_margin: float = 30.0
 
 
-class PoliciesSettings(BaseSettings):
-    """Policy engine settings."""
+def _policies_env(name: str) -> AliasChoices:
+    """``CELINE_POLICIES_<NAME>``, then the doubled spelling it replaced.
 
-    model_config = SettingsConfigDict(env_prefix="CELINE_POLICIES_", extra="ignore")
+    The prefix and the field name both say ``policies``, so pydantic's own
+    rule made the variable ``CELINE_POLICIES_POLICIES_DIR``. The infra chart,
+    ``mqtt_auth`` and every hand-written ``.env`` said ``CELINE_POLICIES_DIR``,
+    which no service built on this class read. The short name is the one; the
+    doubled one is still accepted so a deployment that learned it keeps working.
+    """
+    return AliasChoices(f"CELINE_POLICIES_{name}", f"CELINE_POLICIES_POLICIES_{name}")
+
+
+class PoliciesSettings(BaseSettings):
+    """Policy engine settings: ``CELINE_POLICIES_DIR``, ``_DATA_DIR``, ``_CACHE_*``."""
+
+    model_config = SettingsConfigDict(
+        env_prefix="CELINE_POLICIES_", extra="ignore", populate_by_name=True
+    )
 
     policies_dir: Path = Field(
         default=Path("./policies"),
+        validation_alias=_policies_env("DIR"),
         description="Directory containing .rego policy files",
     )
     policies_data_dir: Path | None = Field(
         default=None,
+        validation_alias=_policies_env("DATA_DIR"),
         description="Optional directory containing policy data JSON files",
     )
     policies_cache_enabled: bool = Field(
-        default=True, description="Enable in-memory decision caching"
+        default=True,
+        validation_alias=_policies_env("CACHE_ENABLED"),
+        description="Enable in-memory decision caching",
     )
-    policies_cache_ttl: int = Field(default=300, description="Cache TTL in seconds")
+    policies_cache_ttl: int = Field(
+        default=300,
+        validation_alias=_policies_env("CACHE_TTL"),
+        description="Cache TTL in seconds",
+    )
     policies_cache_maxsize: int = Field(
-        default=10000, description="Maximum cache entries"
+        default=10000,
+        validation_alias=_policies_env("CACHE_MAXSIZE"),
+        description="Maximum cache entries",
     )
 
 

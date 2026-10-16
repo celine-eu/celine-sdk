@@ -44,11 +44,41 @@ class TestEnvironmentPrefixes:
     # @verifies REQ-0001
     # @verifies REQ-0012
     def test_policies_reads_its_own_prefix(self, monkeypatch):
-        monkeypatch.setenv("CELINE_POLICIES_POLICIES_DIR", "/srv/policies")
-        monkeypatch.setenv("CELINE_POLICIES_POLICIES_CACHE_TTL", "60")
+        monkeypatch.setenv("CELINE_POLICIES_DIR", "/srv/policies")
+        monkeypatch.setenv("CELINE_POLICIES_DATA_DIR", "/srv/data")
+        monkeypatch.setenv("CELINE_POLICIES_CACHE_ENABLED", "false")
+        monkeypatch.setenv("CELINE_POLICIES_CACHE_TTL", "60")
+        monkeypatch.setenv("CELINE_POLICIES_CACHE_MAXSIZE", "7")
         s = PoliciesSettings()
         assert s.policies_dir == Path("/srv/policies")
+        assert s.policies_data_dir == Path("/srv/data")
+        assert s.policies_cache_enabled is False
         assert s.policies_cache_ttl == 60
+        assert s.policies_cache_maxsize == 7
+
+    # @verifies REQ-0012
+    def test_policies_still_reads_the_doubled_spelling(self, monkeypatch):
+        monkeypatch.setenv("CELINE_POLICIES_POLICIES_DIR", "/srv/old")
+        monkeypatch.setenv("CELINE_POLICIES_POLICIES_CACHE_TTL", "60")
+        s = PoliciesSettings()
+        assert s.policies_dir == Path("/srv/old")
+        assert s.policies_cache_ttl == 60
+
+    # @verifies REQ-0012
+    def test_policies_short_spelling_wins_over_the_doubled_one(self, monkeypatch):
+        monkeypatch.setenv("CELINE_POLICIES_DIR", "/srv/new")
+        monkeypatch.setenv("CELINE_POLICIES_POLICIES_DIR", "/srv/old")
+        assert PoliciesSettings().policies_dir == Path("/srv/new")
+
+    # @verifies REQ-0012
+    def test_policies_accepts_field_names_in_code(self):
+        s = PoliciesSettings(policies_dir="/srv/code", policies_cache_ttl=5)
+        assert (s.policies_dir, s.policies_cache_ttl) == (Path("/srv/code"), 5)
+
+    # @verifies REQ-0012
+    def test_composite_reads_the_short_policies_spelling(self, monkeypatch):
+        monkeypatch.setenv("CELINE_POLICIES_DIR", "/srv/policies")
+        assert SdkSettings().policies.policies_dir == Path("/srv/policies")
 
     # @verifies REQ-0001
     def test_unprefixed_variable_is_not_read(self, monkeypatch):

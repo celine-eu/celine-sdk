@@ -81,7 +81,10 @@ looping.
 
 `policies_dir` (a `Path`, defaulting to `./policies`), an optional `policies_data_dir`, and
 the decision-cache knobs `policies_cache_enabled`, `policies_cache_ttl`,
-`policies_cache_maxsize`. They configure the engine in [Policy evaluation](policy-evaluation.md);
+`policies_cache_maxsize`. Each is read from `CELINE_POLICIES_<NAME>` — `CELINE_POLICIES_DIR`,
+`_DATA_DIR`, `_CACHE_ENABLED`, `_CACHE_TTL`, `_CACHE_MAXSIZE` — and, when that is absent,
+from the doubled spelling pydantic's prefix rule produced before 2026-10-15
+(`CELINE_POLICIES_POLICIES_DIR`, …). Code may still pass the field names. They configure the engine in [Policy evaluation](policy-evaluation.md);
 nothing here reaches a policy service over the network.
 
 ### REQ-0013 — no outbound request URL reaches a log with its query string

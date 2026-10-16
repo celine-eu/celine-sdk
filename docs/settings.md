@@ -66,11 +66,15 @@ from celine.sdk.settings import PoliciesSettings
 
 | Variable | Type | Default | Description |
 |---|---|---|---|
-| `CELINE_POLICIES_POLICIES_DIR` | `Path` | `./policies` | Directory of `.rego` files |
-| `CELINE_POLICIES_POLICIES_DATA_DIR` | `Path \| None` | `None` | Optional directory of policy data JSON |
-| `CELINE_POLICIES_POLICIES_CACHE_ENABLED` | `bool` | `true` | Decision caching |
-| `CELINE_POLICIES_POLICIES_CACHE_TTL` | `int` | `300` | Cache TTL, seconds |
-| `CELINE_POLICIES_POLICIES_CACHE_MAXSIZE` | `int` | `10000` | Maximum entries |
+| `CELINE_POLICIES_DIR` | `Path` | `./policies` | Directory of `.rego` files |
+| `CELINE_POLICIES_DATA_DIR` | `Path \| None` | `None` | Optional directory of policy data JSON |
+| `CELINE_POLICIES_CACHE_ENABLED` | `bool` | `true` | Decision caching |
+| `CELINE_POLICIES_CACHE_TTL` | `int` | `300` | Cache TTL, seconds |
+| `CELINE_POLICIES_CACHE_MAXSIZE` | `int` | `10000` | Maximum entries |
+
+The doubled spelling (`CELINE_POLICIES_POLICIES_DIR`, …) is still read when the short one
+is absent. Until 2026-10-15 it was the only one read, so the `CELINE_POLICIES_DIR` the infra
+chart sets had no effect.
 
 ## SdkSettings
 
