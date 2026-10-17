@@ -2,6 +2,19 @@
 
 <!-- version list -->
 
+## v2.2.0 (2026-10-17)
+
+### Chores
+
+- Regenerate the onboarding client
+  ([`ff58f61`](https://github.com/celine-eu/celine-sdk/commit/ff58f617483da79abc4f52cfc10a87bdbff206dc))
+
+### Features
+
+- OnboardingClient reads the member's acceptances
+  ([`ea50ba9`](https://github.com/celine-eu/celine-sdk/commit/ea50ba931d40d1843f4d40c4117d8959f44809fb))
+
+
 ## v2.1.1 (2026-10-16)
 
 ### Bug Fixes
