@@ -41,12 +41,14 @@ from celine.sdk.openapi.onboarding.api.admin import (
     send_member_password_reset_api_admin_communities_community_members_member_key_password_reset_post as _send_password_reset,
 )
 from celine.sdk.openapi.onboarding.api.me import (
+    get_acceptances_api_me_acceptances_get,
     get_data_sharing_api_me_data_sharing_get,
     get_data_sharing_history_api_me_data_sharing_history_get,
     set_data_sharing_api_me_data_sharing_offer_id_post,
 )
 from celine.sdk.openapi.onboarding.models import DataSharingDecisionRequest
 from celine.sdk.openapi.onboarding.schemas import (
+    AcceptancesResponseSchema,
     DataSharingHistoryResponseSchema,
     DataSharingStatusResponseSchema,
     MemberEmailSentSchema,
@@ -131,6 +133,7 @@ class OnboardingClient:
     - GET  /api/me/data-sharing               - offers, merged with their decisions
     - POST /api/me/data-sharing/{offer_id}    - grant or withdraw one offer
     - GET  /api/me/data-sharing/history       - their own record of what happened
+    - GET  /api/me/acceptances                - what they accepted when they applied
     """
 
     def __init__(
@@ -233,6 +236,28 @@ class OnboardingClient:
         return to_schema(
             self._check(res, "get_data_sharing_history"), DataSharingHistoryResponseSchema
         )
+
+    # ------------------------------------------------------------------ #
+    # Acceptances                                                          #
+    # ------------------------------------------------------------------ #
+
+    async def get_acceptances(self, *, token: Optional[str] = None) -> AcceptancesResponseSchema:
+        """What this member accepted when they applied, per document (onboarding 0.6.0).
+
+        Each entry has onboarding's `slot`, the legal host's `legal_slot`, and the
+        `version`, `url`, `sha256` and `accepted_at` of the page accepted.
+        `terms_clauses`, the specific approval of the terms' clauses, is its own
+        entry, never implied by `terms`. Whether an acceptance still holds is the
+        caller's to decide, against what the legal host serves now.
+
+        Only the member's own approved application answers, found by onboarding
+        from the token. With none, `submission_id` is `None` and the list is
+        empty: an answer, not an error. `token` must be the member's own: a
+        service account is refused `403`, raised as :class:`OnboardingApiError`.
+        """
+        client = self._get_client(token)
+        res = await get_acceptances_api_me_acceptances_get.asyncio_detailed(client=client)
+        return to_schema(self._check(res, "get_acceptances"), AcceptancesResponseSchema)
 
 
 class OnboardingAdminClient:

@@ -576,3 +576,77 @@ class TestRegistrySync:
 
         assert raised.value.status_code == 422
         assert raised.value.code is None
+
+
+ACCEPTANCES_OK = {
+    "submission_id": "6f1c1d7e-0000-4000-8000-000000000001",
+    "rec_slug": "example-rec",
+    "acceptances": [
+        {
+            "slot": "terms",
+            "legal_slot": "terms",
+            "version": "0.2",
+            "url": "https://legal.example.org/example-rec/terms-of-use/0.2/it/",
+            "sha256": "f" * 64,
+            "accepted_at": "2026-10-17T09:00:00Z",
+        },
+        {
+            "slot": "terms_clauses",
+            "legal_slot": "terms_clauses",
+            "version": "0.2",
+            "url": "https://legal.example.org/example-rec/terms-of-use/0.2/it/",
+            "sha256": "f" * 64,
+            "accepted_at": "2026-10-17T09:00:00Z",
+        },
+    ],
+}
+
+
+class TestAcceptances:
+    async def test_they_come_back_as_a_schema_with_the_member_token(self, mock_http):
+        seen = mock_http(_answer(200, ACCEPTANCES_OK))
+
+        found = await _client().get_acceptances(token="tok-request")
+
+        assert seen[0].method == "GET"
+        assert seen[0].url.path == "/api/me/acceptances"
+        assert seen[0].headers["authorization"] == "Bearer tok-request"
+        assert found.submission_id == ACCEPTANCES_OK["submission_id"]
+        by_slot = {a.slot: a for a in found.acceptances}
+        assert set(by_slot) == {"terms", "terms_clauses"}
+        assert by_slot["terms"].legal_slot == "terms"
+        assert by_slot["terms"].sha256 == "f" * 64
+        assert by_slot["terms"].accepted_at.year == 2026
+
+    async def test_no_application_is_an_answer_not_an_error(self, mock_http):
+        mock_http(_answer(200, {"submission_id": None, "rec_slug": None, "acceptances": []}))
+
+        found = await _client().get_acceptances()
+
+        assert found.submission_id is None
+        assert found.acceptances == []
+
+    async def test_a_service_token_is_refused_with_the_status(self, mock_http):
+        mock_http(_answer(403, {"detail": "A member's own token is required"}))
+
+        with pytest.raises(OnboardingApiError) as raised:
+            await _client().get_acceptances()
+
+        assert raised.value.status_code == 403
+        assert raised.value.detail == "A member's own token is required"
+
+    async def test_two_communities_is_a_409(self, mock_http):
+        mock_http(_answer(409, {"detail": "ambiguous_community"}))
+
+        with pytest.raises(OnboardingApiError) as raised:
+            await _client().get_acceptances()
+
+        assert raised.value.status_code == 409
+
+    async def test_no_token_at_all_is_refused_before_any_request(self, mock_http):
+        seen = mock_http(_answer(200, ACCEPTANCES_OK))
+
+        with pytest.raises(ValueError):
+            await OnboardingClient("http://onboarding.test").get_acceptances()
+
+        assert seen == []
