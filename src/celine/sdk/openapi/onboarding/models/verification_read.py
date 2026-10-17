@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import datetime
 from collections.abc import Mapping
-from typing import Any, TypeVar, cast
+from typing import TYPE_CHECKING, Any, TypeVar, cast
 from uuid import UUID
 
 from attrs import define as _attrs_define
@@ -10,6 +10,11 @@ from attrs import field as _attrs_field
 from dateutil.parser import isoparse
 
 from ..models.verification_method import VerificationMethod
+from ..types import UNSET, Unset
+
+if TYPE_CHECKING:
+    from ..models.evidence_digest import EvidenceDigest
+
 
 T = TypeVar("T", bound="VerificationRead")
 
@@ -26,6 +31,8 @@ class VerificationRead:
         id (UUID):
         method (VerificationMethod):
         note (None | str):
+        evidence (list[EvidenceDigest] | None | Unset):
+        last_asserted_at (datetime.datetime | None | Unset):
     """
 
     actor_email: None | str
@@ -36,6 +43,8 @@ class VerificationRead:
     id: UUID
     method: VerificationMethod
     note: None | str
+    evidence: list[EvidenceDigest] | None | Unset = UNSET
+    last_asserted_at: datetime.datetime | None | Unset = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -62,6 +71,26 @@ class VerificationRead:
         note: None | str
         note = self.note
 
+        evidence: list[dict[str, Any]] | None | Unset
+        if isinstance(self.evidence, Unset):
+            evidence = UNSET
+        elif isinstance(self.evidence, list):
+            evidence = []
+            for evidence_type_0_item_data in self.evidence:
+                evidence_type_0_item = evidence_type_0_item_data.to_dict()
+                evidence.append(evidence_type_0_item)
+
+        else:
+            evidence = self.evidence
+
+        last_asserted_at: None | str | Unset
+        if isinstance(self.last_asserted_at, Unset):
+            last_asserted_at = UNSET
+        elif isinstance(self.last_asserted_at, datetime.datetime):
+            last_asserted_at = self.last_asserted_at.isoformat()
+        else:
+            last_asserted_at = self.last_asserted_at
+
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update(
@@ -76,11 +105,17 @@ class VerificationRead:
                 "note": note,
             }
         )
+        if evidence is not UNSET:
+            field_dict["evidence"] = evidence
+        if last_asserted_at is not UNSET:
+            field_dict["last_asserted_at"] = last_asserted_at
 
         return field_dict
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
+        from ..models.evidence_digest import EvidenceDigest
+
         d = dict(src_dict)
 
         def _parse_actor_email(data: object) -> None | str:
@@ -127,6 +162,45 @@ class VerificationRead:
 
         note = _parse_note(d.pop("note"))
 
+        def _parse_evidence(data: object) -> list[EvidenceDigest] | None | Unset:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            try:
+                if not isinstance(data, list):
+                    raise TypeError()
+                evidence_type_0 = []
+                _evidence_type_0 = data
+                for evidence_type_0_item_data in _evidence_type_0:
+                    evidence_type_0_item = EvidenceDigest.from_dict(evidence_type_0_item_data)
+
+                    evidence_type_0.append(evidence_type_0_item)
+
+                return evidence_type_0
+            except (TypeError, ValueError, AttributeError, KeyError):
+                pass
+            return cast(list[EvidenceDigest] | None | Unset, data)
+
+        evidence = _parse_evidence(d.pop("evidence", UNSET))
+
+        def _parse_last_asserted_at(data: object) -> datetime.datetime | None | Unset:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            try:
+                if not isinstance(data, str):
+                    raise TypeError()
+                last_asserted_at_type_0 = isoparse(data)
+
+                return last_asserted_at_type_0
+            except (TypeError, ValueError, AttributeError, KeyError):
+                pass
+            return cast(datetime.datetime | None | Unset, data)
+
+        last_asserted_at = _parse_last_asserted_at(d.pop("last_asserted_at", UNSET))
+
         verification_read = cls(
             actor_email=actor_email,
             actor_sub=actor_sub,
@@ -136,6 +210,8 @@ class VerificationRead:
             id=id,
             method=method,
             note=note,
+            evidence=evidence,
+            last_asserted_at=last_asserted_at,
         )
 
         verification_read.additional_properties = d

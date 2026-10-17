@@ -72,6 +72,16 @@ class SubmissionRead:
         statute_consent_sha256 (None | str | Unset):
         statute_consent_url (None | str | Unset):
         supply_address (None | SubmissionReadSupplyAddressType0 | Unset):
+        terms_clauses_consent (bool | Unset):  Default: False.
+        terms_clauses_consent_at (datetime.datetime | None | Unset):
+        terms_clauses_consent_sha256 (None | str | Unset):
+        terms_clauses_consent_url (None | str | Unset):
+        terms_clauses_consent_version (None | str | Unset):
+        terms_consent (bool | Unset):  Default: False.
+        terms_consent_at (datetime.datetime | None | Unset):
+        terms_consent_sha256 (None | str | Unset):
+        terms_consent_url (None | str | Unset):
+        terms_consent_version (None | str | Unset):
     """
 
     created_at: datetime.datetime
@@ -119,6 +129,16 @@ class SubmissionRead:
     statute_consent_sha256: None | str | Unset = UNSET
     statute_consent_url: None | str | Unset = UNSET
     supply_address: None | SubmissionReadSupplyAddressType0 | Unset = UNSET
+    terms_clauses_consent: bool | Unset = False
+    terms_clauses_consent_at: datetime.datetime | None | Unset = UNSET
+    terms_clauses_consent_sha256: None | str | Unset = UNSET
+    terms_clauses_consent_url: None | str | Unset = UNSET
+    terms_clauses_consent_version: None | str | Unset = UNSET
+    terms_consent: bool | Unset = False
+    terms_consent_at: datetime.datetime | None | Unset = UNSET
+    terms_consent_sha256: None | str | Unset = UNSET
+    terms_consent_url: None | str | Unset = UNSET
+    terms_consent_version: None | str | Unset = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -308,6 +328,62 @@ class SubmissionRead:
         else:
             supply_address = self.supply_address
 
+        terms_clauses_consent = self.terms_clauses_consent
+
+        terms_clauses_consent_at: None | str | Unset
+        if isinstance(self.terms_clauses_consent_at, Unset):
+            terms_clauses_consent_at = UNSET
+        elif isinstance(self.terms_clauses_consent_at, datetime.datetime):
+            terms_clauses_consent_at = self.terms_clauses_consent_at.isoformat()
+        else:
+            terms_clauses_consent_at = self.terms_clauses_consent_at
+
+        terms_clauses_consent_sha256: None | str | Unset
+        if isinstance(self.terms_clauses_consent_sha256, Unset):
+            terms_clauses_consent_sha256 = UNSET
+        else:
+            terms_clauses_consent_sha256 = self.terms_clauses_consent_sha256
+
+        terms_clauses_consent_url: None | str | Unset
+        if isinstance(self.terms_clauses_consent_url, Unset):
+            terms_clauses_consent_url = UNSET
+        else:
+            terms_clauses_consent_url = self.terms_clauses_consent_url
+
+        terms_clauses_consent_version: None | str | Unset
+        if isinstance(self.terms_clauses_consent_version, Unset):
+            terms_clauses_consent_version = UNSET
+        else:
+            terms_clauses_consent_version = self.terms_clauses_consent_version
+
+        terms_consent = self.terms_consent
+
+        terms_consent_at: None | str | Unset
+        if isinstance(self.terms_consent_at, Unset):
+            terms_consent_at = UNSET
+        elif isinstance(self.terms_consent_at, datetime.datetime):
+            terms_consent_at = self.terms_consent_at.isoformat()
+        else:
+            terms_consent_at = self.terms_consent_at
+
+        terms_consent_sha256: None | str | Unset
+        if isinstance(self.terms_consent_sha256, Unset):
+            terms_consent_sha256 = UNSET
+        else:
+            terms_consent_sha256 = self.terms_consent_sha256
+
+        terms_consent_url: None | str | Unset
+        if isinstance(self.terms_consent_url, Unset):
+            terms_consent_url = UNSET
+        else:
+            terms_consent_url = self.terms_consent_url
+
+        terms_consent_version: None | str | Unset
+        if isinstance(self.terms_consent_version, Unset):
+            terms_consent_version = UNSET
+        else:
+            terms_consent_version = self.terms_consent_version
+
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update(
@@ -368,6 +444,26 @@ class SubmissionRead:
             field_dict["statute_consent_url"] = statute_consent_url
         if supply_address is not UNSET:
             field_dict["supply_address"] = supply_address
+        if terms_clauses_consent is not UNSET:
+            field_dict["terms_clauses_consent"] = terms_clauses_consent
+        if terms_clauses_consent_at is not UNSET:
+            field_dict["terms_clauses_consent_at"] = terms_clauses_consent_at
+        if terms_clauses_consent_sha256 is not UNSET:
+            field_dict["terms_clauses_consent_sha256"] = terms_clauses_consent_sha256
+        if terms_clauses_consent_url is not UNSET:
+            field_dict["terms_clauses_consent_url"] = terms_clauses_consent_url
+        if terms_clauses_consent_version is not UNSET:
+            field_dict["terms_clauses_consent_version"] = terms_clauses_consent_version
+        if terms_consent is not UNSET:
+            field_dict["terms_consent"] = terms_consent
+        if terms_consent_at is not UNSET:
+            field_dict["terms_consent_at"] = terms_consent_at
+        if terms_consent_sha256 is not UNSET:
+            field_dict["terms_consent_sha256"] = terms_consent_sha256
+        if terms_consent_url is not UNSET:
+            field_dict["terms_consent_url"] = terms_consent_url
+        if terms_consent_version is not UNSET:
+            field_dict["terms_consent_version"] = terms_consent_version
 
         return field_dict
 
@@ -742,6 +838,100 @@ class SubmissionRead:
 
         supply_address = _parse_supply_address(d.pop("supply_address", UNSET))
 
+        terms_clauses_consent = d.pop("terms_clauses_consent", UNSET)
+
+        def _parse_terms_clauses_consent_at(data: object) -> datetime.datetime | None | Unset:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            try:
+                if not isinstance(data, str):
+                    raise TypeError()
+                terms_clauses_consent_at_type_0 = isoparse(data)
+
+                return terms_clauses_consent_at_type_0
+            except (TypeError, ValueError, AttributeError, KeyError):
+                pass
+            return cast(datetime.datetime | None | Unset, data)
+
+        terms_clauses_consent_at = _parse_terms_clauses_consent_at(d.pop("terms_clauses_consent_at", UNSET))
+
+        def _parse_terms_clauses_consent_sha256(data: object) -> None | str | Unset:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            return cast(None | str | Unset, data)
+
+        terms_clauses_consent_sha256 = _parse_terms_clauses_consent_sha256(d.pop("terms_clauses_consent_sha256", UNSET))
+
+        def _parse_terms_clauses_consent_url(data: object) -> None | str | Unset:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            return cast(None | str | Unset, data)
+
+        terms_clauses_consent_url = _parse_terms_clauses_consent_url(d.pop("terms_clauses_consent_url", UNSET))
+
+        def _parse_terms_clauses_consent_version(data: object) -> None | str | Unset:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            return cast(None | str | Unset, data)
+
+        terms_clauses_consent_version = _parse_terms_clauses_consent_version(
+            d.pop("terms_clauses_consent_version", UNSET)
+        )
+
+        terms_consent = d.pop("terms_consent", UNSET)
+
+        def _parse_terms_consent_at(data: object) -> datetime.datetime | None | Unset:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            try:
+                if not isinstance(data, str):
+                    raise TypeError()
+                terms_consent_at_type_0 = isoparse(data)
+
+                return terms_consent_at_type_0
+            except (TypeError, ValueError, AttributeError, KeyError):
+                pass
+            return cast(datetime.datetime | None | Unset, data)
+
+        terms_consent_at = _parse_terms_consent_at(d.pop("terms_consent_at", UNSET))
+
+        def _parse_terms_consent_sha256(data: object) -> None | str | Unset:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            return cast(None | str | Unset, data)
+
+        terms_consent_sha256 = _parse_terms_consent_sha256(d.pop("terms_consent_sha256", UNSET))
+
+        def _parse_terms_consent_url(data: object) -> None | str | Unset:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            return cast(None | str | Unset, data)
+
+        terms_consent_url = _parse_terms_consent_url(d.pop("terms_consent_url", UNSET))
+
+        def _parse_terms_consent_version(data: object) -> None | str | Unset:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            return cast(None | str | Unset, data)
+
+        terms_consent_version = _parse_terms_consent_version(d.pop("terms_consent_version", UNSET))
+
         submission_read = cls(
             created_at=created_at,
             data_sharing_consent=data_sharing_consent,
@@ -788,6 +978,16 @@ class SubmissionRead:
             statute_consent_sha256=statute_consent_sha256,
             statute_consent_url=statute_consent_url,
             supply_address=supply_address,
+            terms_clauses_consent=terms_clauses_consent,
+            terms_clauses_consent_at=terms_clauses_consent_at,
+            terms_clauses_consent_sha256=terms_clauses_consent_sha256,
+            terms_clauses_consent_url=terms_clauses_consent_url,
+            terms_clauses_consent_version=terms_clauses_consent_version,
+            terms_consent=terms_consent,
+            terms_consent_at=terms_consent_at,
+            terms_consent_sha256=terms_consent_sha256,
+            terms_consent_url=terms_consent_url,
+            terms_consent_version=terms_consent_version,
         )
 
         submission_read.additional_properties = d

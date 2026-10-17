@@ -78,14 +78,21 @@ def sync_detailed(
 
      Record how the REC verified the person; supersedes any earlier one.
 
-    409 once the submission is approved or rejected; 422 for a document that is
-    missing, not on this submission, or given with `offline`.
+    409 once the submission is rejected (or still a draft); 422 for a document that
+    is missing, not on this submission, or given with `offline`; for a plain
+    `offline` where an evidence digest is required (REQ-0042); and for anything
+    but a verification with evidence after approval.
 
     Args:
         rec_slug (str):
         submission_id (UUID):
         body (VerificationCreate): How the REC verified the participant's identity and that they
             hold the POD.
+
+            `offline-with-evidence` takes `evidence`: the digests of the files the
+            community keeps, hashed on the operator's side (`onboarding-cli`). The console
+            sends the file to `.../verifications/evidence` instead, which hashes it and
+            stores nothing of it.
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
@@ -119,14 +126,21 @@ def sync(
 
      Record how the REC verified the person; supersedes any earlier one.
 
-    409 once the submission is approved or rejected; 422 for a document that is
-    missing, not on this submission, or given with `offline`.
+    409 once the submission is rejected (or still a draft); 422 for a document that
+    is missing, not on this submission, or given with `offline`; for a plain
+    `offline` where an evidence digest is required (REQ-0042); and for anything
+    but a verification with evidence after approval.
 
     Args:
         rec_slug (str):
         submission_id (UUID):
         body (VerificationCreate): How the REC verified the participant's identity and that they
             hold the POD.
+
+            `offline-with-evidence` takes `evidence`: the digests of the files the
+            community keeps, hashed on the operator's side (`onboarding-cli`). The console
+            sends the file to `.../verifications/evidence` instead, which hashes it and
+            stores nothing of it.
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
@@ -155,14 +169,21 @@ async def asyncio_detailed(
 
      Record how the REC verified the person; supersedes any earlier one.
 
-    409 once the submission is approved or rejected; 422 for a document that is
-    missing, not on this submission, or given with `offline`.
+    409 once the submission is rejected (or still a draft); 422 for a document that
+    is missing, not on this submission, or given with `offline`; for a plain
+    `offline` where an evidence digest is required (REQ-0042); and for anything
+    but a verification with evidence after approval.
 
     Args:
         rec_slug (str):
         submission_id (UUID):
         body (VerificationCreate): How the REC verified the participant's identity and that they
             hold the POD.
+
+            `offline-with-evidence` takes `evidence`: the digests of the files the
+            community keeps, hashed on the operator's side (`onboarding-cli`). The console
+            sends the file to `.../verifications/evidence` instead, which hashes it and
+            stores nothing of it.
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
@@ -194,14 +215,21 @@ async def asyncio(
 
      Record how the REC verified the person; supersedes any earlier one.
 
-    409 once the submission is approved or rejected; 422 for a document that is
-    missing, not on this submission, or given with `offline`.
+    409 once the submission is rejected (or still a draft); 422 for a document that
+    is missing, not on this submission, or given with `offline`; for a plain
+    `offline` where an evidence digest is required (REQ-0042); and for anything
+    but a verification with evidence after approval.
 
     Args:
         rec_slug (str):
         submission_id (UUID):
         body (VerificationCreate): How the REC verified the participant's identity and that they
             hold the POD.
+
+            `offline-with-evidence` takes `evidence`: the digests of the files the
+            community keeps, hashed on the operator's side (`onboarding-cli`). The console
+            sends the file to `.../verifications/evidence` instead, which hashes it and
+            stores nothing of it.
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.

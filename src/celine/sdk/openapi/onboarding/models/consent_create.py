@@ -22,6 +22,10 @@ class ConsentCreate:
         policy_consent_version (None | str | Unset):
         statute_consent (bool | Unset):  Default: False.
         statute_consent_version (None | str | Unset):
+        terms_clauses_consent (bool | Unset):  Default: False.
+        terms_clauses_consent_version (None | str | Unset):
+        terms_consent (bool | Unset):  Default: False.
+        terms_consent_version (None | str | Unset):
     """
 
     declared_existing_member: bool | Unset = False
@@ -31,6 +35,10 @@ class ConsentCreate:
     policy_consent_version: None | str | Unset = UNSET
     statute_consent: bool | Unset = False
     statute_consent_version: None | str | Unset = UNSET
+    terms_clauses_consent: bool | Unset = False
+    terms_clauses_consent_version: None | str | Unset = UNSET
+    terms_consent: bool | Unset = False
+    terms_consent_version: None | str | Unset = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -60,6 +68,22 @@ class ConsentCreate:
         else:
             statute_consent_version = self.statute_consent_version
 
+        terms_clauses_consent = self.terms_clauses_consent
+
+        terms_clauses_consent_version: None | str | Unset
+        if isinstance(self.terms_clauses_consent_version, Unset):
+            terms_clauses_consent_version = UNSET
+        else:
+            terms_clauses_consent_version = self.terms_clauses_consent_version
+
+        terms_consent = self.terms_consent
+
+        terms_consent_version: None | str | Unset
+        if isinstance(self.terms_consent_version, Unset):
+            terms_consent_version = UNSET
+        else:
+            terms_consent_version = self.terms_consent_version
+
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update({})
@@ -77,6 +101,14 @@ class ConsentCreate:
             field_dict["statute_consent"] = statute_consent
         if statute_consent_version is not UNSET:
             field_dict["statute_consent_version"] = statute_consent_version
+        if terms_clauses_consent is not UNSET:
+            field_dict["terms_clauses_consent"] = terms_clauses_consent
+        if terms_clauses_consent_version is not UNSET:
+            field_dict["terms_clauses_consent_version"] = terms_clauses_consent_version
+        if terms_consent is not UNSET:
+            field_dict["terms_consent"] = terms_consent
+        if terms_consent_version is not UNSET:
+            field_dict["terms_consent_version"] = terms_consent_version
 
         return field_dict
 
@@ -118,6 +150,30 @@ class ConsentCreate:
 
         statute_consent_version = _parse_statute_consent_version(d.pop("statute_consent_version", UNSET))
 
+        terms_clauses_consent = d.pop("terms_clauses_consent", UNSET)
+
+        def _parse_terms_clauses_consent_version(data: object) -> None | str | Unset:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            return cast(None | str | Unset, data)
+
+        terms_clauses_consent_version = _parse_terms_clauses_consent_version(
+            d.pop("terms_clauses_consent_version", UNSET)
+        )
+
+        terms_consent = d.pop("terms_consent", UNSET)
+
+        def _parse_terms_consent_version(data: object) -> None | str | Unset:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            return cast(None | str | Unset, data)
+
+        terms_consent_version = _parse_terms_consent_version(d.pop("terms_consent_version", UNSET))
+
         consent_create = cls(
             declared_existing_member=declared_existing_member,
             gdpr_consent=gdpr_consent,
@@ -126,6 +182,10 @@ class ConsentCreate:
             policy_consent_version=policy_consent_version,
             statute_consent=statute_consent,
             statute_consent_version=statute_consent_version,
+            terms_clauses_consent=terms_clauses_consent,
+            terms_clauses_consent_version=terms_clauses_consent_version,
+            terms_consent=terms_consent,
+            terms_consent_version=terms_consent_version,
         )
 
         consent_create.additional_properties = d

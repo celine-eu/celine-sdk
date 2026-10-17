@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from collections.abc import Mapping
-from typing import Any, TypeVar, cast
+from typing import TYPE_CHECKING, Any, TypeVar, cast
 from uuid import UUID
 
 from attrs import define as _attrs_define
@@ -10,6 +10,10 @@ from attrs import field as _attrs_field
 from ..models.verification_method import VerificationMethod
 from ..types import UNSET, Unset
 
+if TYPE_CHECKING:
+    from ..models.evidence_digest import EvidenceDigest
+
+
 T = TypeVar("T", bound="VerificationCreate")
 
 
@@ -17,14 +21,21 @@ T = TypeVar("T", bound="VerificationCreate")
 class VerificationCreate:
     """How the REC verified the participant's identity and that they hold the POD.
 
-    Attributes:
-        method (VerificationMethod):
-        document_id (None | Unset | UUID):
-        note (None | str | Unset):
+    `offline-with-evidence` takes `evidence`: the digests of the files the
+    community keeps, hashed on the operator's side (`onboarding-cli`). The console
+    sends the file to `.../verifications/evidence` instead, which hashes it and
+    stores nothing of it.
+
+        Attributes:
+            method (VerificationMethod):
+            document_id (None | Unset | UUID):
+            evidence (list[EvidenceDigest] | None | Unset):
+            note (None | str | Unset):
     """
 
     method: VerificationMethod
     document_id: None | Unset | UUID = UNSET
+    evidence: list[EvidenceDigest] | None | Unset = UNSET
     note: None | str | Unset = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
@@ -38,6 +49,18 @@ class VerificationCreate:
             document_id = str(self.document_id)
         else:
             document_id = self.document_id
+
+        evidence: list[dict[str, Any]] | None | Unset
+        if isinstance(self.evidence, Unset):
+            evidence = UNSET
+        elif isinstance(self.evidence, list):
+            evidence = []
+            for evidence_type_0_item_data in self.evidence:
+                evidence_type_0_item = evidence_type_0_item_data.to_dict()
+                evidence.append(evidence_type_0_item)
+
+        else:
+            evidence = self.evidence
 
         note: None | str | Unset
         if isinstance(self.note, Unset):
@@ -54,6 +77,8 @@ class VerificationCreate:
         )
         if document_id is not UNSET:
             field_dict["document_id"] = document_id
+        if evidence is not UNSET:
+            field_dict["evidence"] = evidence
         if note is not UNSET:
             field_dict["note"] = note
 
@@ -61,6 +86,8 @@ class VerificationCreate:
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
+        from ..models.evidence_digest import EvidenceDigest
+
         d = dict(src_dict)
         method = VerificationMethod(d.pop("method"))
 
@@ -81,6 +108,28 @@ class VerificationCreate:
 
         document_id = _parse_document_id(d.pop("document_id", UNSET))
 
+        def _parse_evidence(data: object) -> list[EvidenceDigest] | None | Unset:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            try:
+                if not isinstance(data, list):
+                    raise TypeError()
+                evidence_type_0 = []
+                _evidence_type_0 = data
+                for evidence_type_0_item_data in _evidence_type_0:
+                    evidence_type_0_item = EvidenceDigest.from_dict(evidence_type_0_item_data)
+
+                    evidence_type_0.append(evidence_type_0_item)
+
+                return evidence_type_0
+            except (TypeError, ValueError, AttributeError, KeyError):
+                pass
+            return cast(list[EvidenceDigest] | None | Unset, data)
+
+        evidence = _parse_evidence(d.pop("evidence", UNSET))
+
         def _parse_note(data: object) -> None | str | Unset:
             if data is None:
                 return data
@@ -93,6 +142,7 @@ class VerificationCreate:
         verification_create = cls(
             method=method,
             document_id=document_id,
+            evidence=evidence,
             note=note,
         )
 
