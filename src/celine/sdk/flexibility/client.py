@@ -26,12 +26,14 @@ Example — service account:
 from __future__ import annotations
 
 from datetime import datetime
+from http import HTTPStatus
 from typing import Optional
 from uuid import UUID
 
 import httpx
 
 from celine.sdk.auth import TokenProvider
+from celine.sdk.flexibility.errors import FlexibilityApiError
 from celine.sdk.openapi.flexibility import AuthenticatedClient
 from celine.sdk.openapi.flexibility.api.commitments import (
     cancel_commitment_api_commitments_commitment_id_delete,
@@ -59,7 +61,40 @@ from celine.sdk.openapi.flexibility.schemas import (
 )
 from celine.sdk.openapi.flexibility.types import UNSET
 
-__all__ = ["FlexibilityClient", "FlexibilityAdminClient"]
+__all__ = ["FlexibilityClient", "FlexibilityAdminClient", "FlexibilityApiError"]
+
+
+def _commitments(response: httpx.Response, what: str) -> list[CommitmentOutSchema]:
+    """A `200` list of commitments as schemas; anything else raises.
+
+    On the export route an empty list is a meaningful answer, so a refusal or an
+    unreadable body must not degrade to one: a mirror would complete having
+    fetched nothing. The error names the call and the status only; the body
+    stays on `FlexibilityApiError.body` and out of the message.
+    """
+    if response.status_code != HTTPStatus.OK:
+        raise FlexibilityApiError(
+            f"{what} refused: flexibility-api answered {response.status_code}",
+            status_code=response.status_code,
+            body=response.content,
+        )
+    unreadable = FlexibilityApiError(
+        f"{what}: flexibility-api answered 200 with no readable commitment list",
+        status_code=response.status_code,
+        body=response.content,
+    )
+    try:
+        payload = response.json()
+    except ValueError:
+        # `from None`: the decode error would repeat the body.
+        raise unreadable from None
+    if not isinstance(payload, list):
+        raise unreadable
+    try:
+        return [CommitmentOutSchema.model_validate(item) for item in payload]
+    except ValueError:
+        # `from None`: the validation error would repeat the body's values.
+        raise unreadable from None
 
 
 class FlexibilityClient:
@@ -249,15 +284,26 @@ class FlexibilityAdminClient:
         Args:
             created_after: Only return commitments created at or after this datetime.
                            Pass now() - 90 days for the standard mirror window.
+
+        Returns:
+            The commitments, possibly none: `[]` means only that the service
+            answered `200` with an empty list.
+
+        Raises:
+            FlexibilityApiError: on any status but `200`, and on a `200` whose
+                body is not a list of commitments. The message carries the
+                status code only, never the token or the body (REQ-0210).
         """
         client = await self._get_client(token)
-        res = await export_commitments_api_commitments_export_get.asyncio_detailed(
-            client=client,
+        # The request is built by the generated module (`_get_kwargs`), so path
+        # and query stay generated; the answer is read here. The generated
+        # parser raises `UnexpectedStatus` with the whole body in its message
+        # and fails with a decode error on a proxy's HTML page.
+        kwargs = export_commitments_api_commitments_export_get._get_kwargs(
             created_after=created_after if created_after is not None else UNSET,
         )
-        if not res.parsed:
-            return []
-        return [CommitmentOutSchema.model_validate(item.to_dict()) for item in res.parsed]
+        response = await client.get_async_httpx_client().request(**kwargs)
+        return _commitments(response, "export_commitments")
 
     async def get_pending_commitments(
         self, *, token: Optional[str] = None
