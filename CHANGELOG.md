@@ -2,6 +2,14 @@
 
 <!-- version list -->
 
+## v2.2.1 (2026-11-02)
+
+### Bug Fixes
+
+- **flexibility**: Export_commitments raises on a refused or unreadable answer
+  ([`37d1ad4`](https://github.com/celine-eu/celine-sdk/commit/37d1ad4ade045170d02b2c6909927134d791d20f))
+
+
 ## v2.2.0 (2026-10-17)
 
 ### Chores
