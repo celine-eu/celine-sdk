@@ -2,6 +2,14 @@
 
 <!-- version list -->
 
+## v2.2.3 (2026-11-06)
+
+### Bug Fixes
+
+- **broker**: Connect() raises when a bounded loop gives up (REQ-0078)
+  ([`aea1de6`](https://github.com/celine-eu/celine-sdk/commit/aea1de6f8c7d66a76b4cdd41afa7060131290fb7))
+
+
 ## v2.2.2 (2026-11-06)
 
 ### Bug Fixes
