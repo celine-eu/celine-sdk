@@ -2,6 +2,14 @@
 
 <!-- version list -->
 
+## v2.2.2 (2026-11-06)
+
+### Bug Fixes
+
+- **settings**: MqttSettings retries every 5 s and never gives up by default
+  ([`41ed17d`](https://github.com/celine-eu/celine-sdk/commit/41ed17d13e35c2dd72848100bd1c83f31dd448d2))
+
+
 ## v2.2.1 (2026-11-02)
 
 ### Bug Fixes
