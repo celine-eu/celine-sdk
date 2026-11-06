@@ -231,6 +231,76 @@ class TestLifecycle:
         with pytest.raises(ConnectionError, match="timed out"):
             await broker._do_connect()
 
+    # @verifies REQ-0078
+    async def test_connect_fails_when_the_bounded_loop_gives_up(self, monkeypatch):
+        """A bounded loop that gives up must answer the caller: before this, connect()
+        awaited a readiness that no attempt would ever bring, and a sync_tables push
+        waiting on it hung.
+        """
+
+        class Refusing(FakeClient):
+            async def __aenter__(self):
+                raise RuntimeError(f"refused #{len(FakeClient.instances)}")
+
+        monkeypatch.setattr("celine.sdk.broker.mqtt.aiomqtt.Client", Refusing)
+        broker = MqttBroker(
+            MqttConfig(
+                host="broker.example", port=1884,
+                reconnect_interval=0.01, max_reconnect_attempts=2,
+            ),
+            token_provider=FakeTokenProvider(),
+        )
+        with pytest.raises(ConnectionError) as raised:
+            await asyncio.wait_for(broker.connect(), timeout=2)
+
+        assert "broker.example:1884" in str(raised.value)
+        assert "3 attempts" in str(raised.value)
+        assert str(raised.value.__cause__) == "refused #3"
+        assert not broker.is_connected
+        assert broker._conn_task is None or broker._conn_task.done()
+        assert broker._token_watcher_task is None
+
+    # @verifies REQ-0078
+    async def test_a_later_connect_after_giving_up_reapplies_the_subscriptions(
+        self, monkeypatch
+    ):
+        class Refusing(FakeClient):
+            async def __aenter__(self):
+                raise RuntimeError("refused")
+
+        monkeypatch.setattr("celine.sdk.broker.mqtt.aiomqtt.Client", Refusing)
+        broker = MqttBroker(
+            MqttConfig(reconnect_interval=0.01, max_reconnect_attempts=1)
+        )
+        await broker.subscribe(["events/#"], _collector([]))
+        with pytest.raises(ConnectionError):
+            await asyncio.wait_for(broker.connect(), timeout=2)
+        assert broker.subscription_count == 1
+
+        monkeypatch.setattr("celine.sdk.broker.mqtt.aiomqtt.Client", FakeClient)
+        await asyncio.wait_for(broker.connect(), timeout=2)
+        assert broker.is_connected
+        assert FakeClient.instances[-1].subscribed == [("events/#", 1)]
+        await broker.disconnect()
+
+    # @verifies REQ-0078
+    async def test_an_unbounded_connect_keeps_waiting_while_the_loop_retries(
+        self, monkeypatch
+    ):
+        class Refusing(FakeClient):
+            async def __aenter__(self):
+                raise RuntimeError("refused")
+
+        monkeypatch.setattr("celine.sdk.broker.mqtt.aiomqtt.Client", Refusing)
+        broker = MqttBroker(MqttConfig(reconnect_interval=0.01))
+        task = asyncio.create_task(broker.connect())
+        await asyncio.sleep(0.1)
+        assert not task.done()
+        assert len(FakeClient.instances) > 3
+        task.cancel()
+        with pytest.raises(asyncio.CancelledError):
+            await task
+
     # @verifies REQ-0076
     async def test_a_reconnect_signal_during_a_connect_attempt_is_not_lost(self):
         """The flag is cleared at the top of each attempt rather than after

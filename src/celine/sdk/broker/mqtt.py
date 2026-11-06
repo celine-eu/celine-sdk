@@ -154,6 +154,9 @@ class MqttBroker(BrokerBase):
 
         # Set by the connection loop once the client is live and subscribed.
         self._ready = asyncio.Event()
+        # Set when a bounded connection loop gives up; read by connect().
+        self._failed_attempts = 0
+        self._last_connect_error: BaseException | None = None
 
         # The live client — only written by _connection_loop.
         self._client: aiomqtt.Client | None = None
@@ -193,6 +196,12 @@ class MqttBroker(BrokerBase):
 
         Idempotent — safe to call when already connected.
         Propagates CancelledError so shutdown during connect works cleanly.
+
+        Raises:
+            ConnectionError: ``max_reconnect_attempts`` is set and every attempt
+                failed before the first connect (REQ-0078). The message names the
+                host, the port and the attempts; ``__cause__`` is the last failure.
+                The subscription registry is kept for a later ``connect()``.
         """
         if self._conn_task is not None and not self._conn_task.done():
             logger.debug("Already connecting / connected")
@@ -206,13 +215,27 @@ class MqttBroker(BrokerBase):
             self._connection_loop(), name="mqtt-connection-loop"
         )
 
-        # Block until connected. If cancelled (shutdown during startup),
-        # stop the connection loop and re-raise.
+        # Block until connected, or until a bounded loop gives up (REQ-0078).
+        # If cancelled (shutdown during startup), stop the loop and re-raise.
+        conn_task = self._conn_task
+        ready = asyncio.ensure_future(self._ready.wait())
         try:
-            await self._ready.wait()
+            await asyncio.wait(
+                [ready, conn_task], return_when=asyncio.FIRST_COMPLETED
+            )
         except asyncio.CancelledError:
+            ready.cancel()
             await self.disconnect()
             raise
+
+        if not self._ready.is_set():
+            ready.cancel()
+            self._conn_task = None
+            conn_task.result()  # an unexpected loop failure propagates as is
+            raise ConnectionError(
+                f"MQTT broker {self._config.host}:{self._config.port} unreachable "
+                f"after {self._failed_attempts} attempts"
+            ) from self._last_connect_error
 
         # Register token renewal only after first successful connect so the
         # initial token issuance doesn't trigger an immediate reconnect.
@@ -358,6 +381,8 @@ class MqttBroker(BrokerBase):
             except Exception as exc:
                 attempt += 1
                 if self._give_up(attempt):
+                    self._failed_attempts = attempt
+                    self._last_connect_error = exc
                     logger.error(
                         "Giving up after %d failed connection attempts", attempt
                     )

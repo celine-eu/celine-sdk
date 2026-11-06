@@ -57,6 +57,14 @@ means unlimited: a service should outlive its broker's restart. The same default
 `MqttSettings` (`CELINE_MQTT_RECONNECT_INTERVAL`, `CELINE_MQTT_MAX_RECONNECT_ATTEMPTS`), the
 configuration services build their broker from.
 
+When the bound is reached before the first successful connect, `connect()` raises a
+`ConnectionError` naming the host, the port and the number of attempts, chained to the last
+failure — it does not wait for a connection the loop will no longer attempt. The broker is then
+not ready, its connection loop has stopped and no token watcher was started. The subscription
+registry is kept, so a later `connect()` starts a new loop and re-applies them (REQ-0071,
+REQ-0072). With the default of `0`, `connect()` keeps waiting while the loop retries; a caller
+that needs an answer in bounded time sets a bound or its own timeout.
+
 ### REQ-0079 — every client has an identifier
 
 Configured, or auto-generated as `celine-<8 hex>`. Two instances of the same service must
