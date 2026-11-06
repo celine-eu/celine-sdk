@@ -48,12 +48,13 @@ settings = MqttSettings()
 | `CELINE_MQTT_CA_CERTS` / `CERTFILE` / `KEYFILE` | `str \| None` | `None` |
 | `CELINE_MQTT_KEEPALIVE` | `int` | `60` |
 | `CELINE_MQTT_CLEAN_SESSION` | `bool` | `true` |
-| `CELINE_MQTT_RECONNECT_INTERVAL` | `float` | `0.0` |
-| `CELINE_MQTT_MAX_RECONNECT_ATTEMPTS` | `int` | `10` |
+| `CELINE_MQTT_RECONNECT_INTERVAL` | `float` | `5.0` |
+| `CELINE_MQTT_MAX_RECONNECT_ATTEMPTS` | `int` | `0` (unlimited) |
 | `CELINE_MQTT_TOKEN_REFRESH_MARGIN` | `float` | `30.0` |
 
 `MqttSettings` configures the deployment; `MqttBroker` takes an `MqttConfig` — see
-[broker.md](broker.md), whose defaults differ (`localhost`, unlimited reconnects).
+[broker.md](broker.md). Only the host differs (`localhost` there); the reconnect defaults
+are the same, so a service built from the environment outlives a broker restart (REQ-0078).
 
 ## PoliciesSettings — `CELINE_POLICIES_*`
 

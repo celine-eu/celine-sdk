@@ -75,8 +75,10 @@ class MqttSettings(BaseSettings):
     keyfile: str | None = None
     keepalive: int = 60
     clean_session: bool = True
-    reconnect_interval: float = 0.0
-    max_reconnect_attempts: int = 10
+    # The broker's own defaults (MqttConfig, REQ-0078): a service built from the
+    # environment must outlive a broker restart, so retry every 5 s, never give up.
+    reconnect_interval: float = 5.0
+    max_reconnect_attempts: int = 0
     token_refresh_margin: float = 30.0
 
 

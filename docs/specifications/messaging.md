@@ -53,7 +53,9 @@ loop. Timing out is a `ConnectionError` naming the host and port.
 ### REQ-0078 — connection attempts are retried, bounded only when asked
 
 Failures retry after `reconnect_interval`. `max_reconnect_attempts` of `0` — the default —
-means unlimited: a service should outlive its broker's restart.
+means unlimited: a service should outlive its broker's restart. The same defaults hold for
+`MqttSettings` (`CELINE_MQTT_RECONNECT_INTERVAL`, `CELINE_MQTT_MAX_RECONNECT_ATTEMPTS`), the
+configuration services build their broker from.
 
 ### REQ-0079 — every client has an identifier
 

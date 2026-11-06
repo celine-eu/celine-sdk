@@ -136,6 +136,33 @@ class TestDefaults:
         assert s.client_id is None
         assert s.verify_ssl is True
 
+    # @verifies REQ-0078
+    def test_a_service_configured_from_the_environment_outlives_its_broker(self):
+        """Services build their broker from `MqttSettings`. With 10 attempts 0 s
+        apart, a broker restart longer than a few milliseconds made flexibility-api
+        and celine-grid give up for good (prod, 2026-10-28). The environment
+        defaults are the broker's: retry every 5 s, never give up.
+        """
+        from celine.sdk.broker.mqtt import MqttBroker, MqttConfig
+
+        s = MqttSettings()
+        assert s.reconnect_interval == MqttConfig().reconnect_interval > 0
+        assert s.max_reconnect_attempts == 0
+        broker = MqttBroker(
+            MqttConfig(
+                reconnect_interval=s.reconnect_interval,
+                max_reconnect_attempts=s.max_reconnect_attempts,
+            )
+        )
+        assert not broker._give_up(1000)
+
+    # @verifies REQ-0078
+    def test_a_bounded_retry_is_still_configurable(self, monkeypatch):
+        monkeypatch.setenv("CELINE_MQTT_RECONNECT_INTERVAL", "1")
+        monkeypatch.setenv("CELINE_MQTT_MAX_RECONNECT_ATTEMPTS", "2")
+        s = MqttSettings()
+        assert (s.reconnect_interval, s.max_reconnect_attempts) == (1.0, 2)
+
     # @verifies REQ-0004
     def test_oidc_carries_acquisition_and_verification(self):
         fields = set(OidcSettings.model_fields)
